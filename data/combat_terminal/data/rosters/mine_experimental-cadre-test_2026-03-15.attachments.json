@@ -1,0 +1,17 @@
+{
+  "version": 1,
+  "attachments": [
+    {
+      "leader_id": "cadre_fireblade_1",
+      "bodyguard_id": "breacher_team_1"
+    },
+    {
+      "leader_id": "commander_farsight_1",
+      "bodyguard_id": "crisis_starscythe_battlesuits_1"
+    },
+    {
+      "leader_id": "commander_in_coldstar_battlesuit_1",
+      "bodyguard_id": "stealth_battlesuits_1"
+    }
+  ]
+}

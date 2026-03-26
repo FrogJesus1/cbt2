@@ -1,0 +1,2386 @@
+{
+  "_meta": {
+    "schema": "keyword_dictionary",
+    "version": "1.0.0",
+    "edition": "10th",
+    "last_updated": "2026-03-15",
+    "description": "Canonical dictionary of all Warhammer 40K 10th edition keywords. Three keyword classes: ABILITY_KEYWORDS (printed in CAPS on datasheets, have rules text), FACTION_KEYWORDS (determine army membership and rule eligibility), and WEAPON_ABILITIES (printed on weapon profiles, modify attack sequence). Each entry lists the defining rule_id, which rule file contains the full text, and contextual metadata. math_relevant (true/conditional/false) and math_handler fields added to weapon_ability entries to bridge keyword_dictionary.json and the 11_math_terminal keyword engine.",
+    "keyword_classes": [
+      "ability_keyword",
+      "faction_keyword",
+      "weapon_ability",
+      "phase_keyword",
+      "unit_type"
+    ],
+    "total_keywords": 62,
+    "math_relevance_added": "2026-03-15"
+  },
+  "keywords": {
+    "ADVANCE": {
+      "class": "ability_keyword",
+      "defined_by_rule": "advance",
+      "applies_in": [
+        "movement_phase"
+      ],
+      "applies_to": "units",
+      "description": "Unit moves up to M+D6\". Cannot shoot or charge unless modified.",
+      "interactions": [
+        "ASSAULT weapon exception",
+        "locks shooting and charging"
+      ]
+    },
+    "AIRCRAFT": {
+      "class": "unit_type",
+      "defined_by_rule": null,
+      "applies_in": [
+        "all"
+      ],
+      "applies_to": "units",
+      "description": "Unit type with special movement and targeting rules. Can Fall Back and still shoot. Has minimum and maximum move distances.",
+      "interactions": [
+        "fall_back",
+        "fly"
+      ]
+    },
+    "ANTI": {
+      "class": "weapon_ability",
+      "defined_by_rule": "anti_keyword",
+      "applies_in": [
+        "shooting_phase",
+        "fight_phase"
+      ],
+      "applies_to": "weapons",
+      "description": "ANTI-[keyword] X+: Unmodified wound rolls of X+ become Critical Wounds against targets with the specified keyword.",
+      "interactions": [
+        "devastating_wounds",
+        "sustained_hits",
+        "lethal_hits"
+      ],
+      "parametric": true,
+      "parameter_description": "keyword (e.g. INFANTRY, VEHICLE, CHAOS) and threshold (e.g. 4+, 5+)",
+      "math_relevant": true,
+      "math_handler": "ANTI_X",
+      "math_effect_note": "Unmodified wound roll of X+ always wounds target with matching keyword. Modifies wound step."
+    },
+    "AP": {
+      "class": "weapon_ability",
+      "defined_by_rule": "armour_penetration",
+      "applies_in": [
+        "attack_sequence"
+      ],
+      "applies_to": "weapons",
+      "description": "Armour Penetration. Subtracted from target's saving throw roll. AP-0 has no effect. AP-1 means target saves on Sv+1.",
+      "interactions": [
+        "saving_throw",
+        "invulnerable_save"
+      ],
+      "parametric": true,
+      "parameter_description": "negative integer (e.g. -1, -2, -3)",
+      "math_relevant": false,
+      "math_effect_note": "Weapon stat (not a keyword modifier). Handled as part of the weapon profile, not via keyword handler."
+    },
+    "ASSAULT": {
+      "class": "weapon_ability",
+      "defined_by_rule": "assault",
+      "applies_in": [
+        "shooting_phase"
+      ],
+      "applies_to": "weapons",
+      "description": "Can shoot even after Advancing. Subtract 1 from hit rolls if the unit Advanced.",
+      "interactions": [
+        "advance"
+      ],
+      "math_relevant": false,
+      "math_effect_note": "Allows shooting after Advancing. The -1 to hit for Advancing is resolved at the pipeline level, not this keyword."
+    },
+    "BATTLE-SHOCKED": {
+      "class": "ability_keyword",
+      "defined_by_rule": "battle_shock_test",
+      "applies_in": [
+        "command_phase",
+        "scoring"
+      ],
+      "applies_to": "units",
+      "description": "Status condition applied after a failed Battle Shock test. Cannot use Stratagems. OC reduced by 1.",
+      "interactions": [
+        "objective_control_penalty",
+        "insane_bravery",
+        "command_points"
+      ]
+    },
+    "BLAST": {
+      "class": "weapon_ability",
+      "defined_by_rule": "blast",
+      "applies_in": [
+        "shooting_phase"
+      ],
+      "applies_to": "weapons",
+      "description": "Minimum 3 attacks vs 6+ models. Minimum 6 attacks vs 11+ models. Cannot shoot into combat.",
+      "interactions": [
+        "indirect_fire"
+      ],
+      "math_relevant": true,
+      "math_handler": "BLAST",
+      "math_effect_note": "Minimum attacks = model count when target has 6+ models. Modifies attack step."
+    },
+    "CHARACTER": {
+      "class": "unit_type",
+      "defined_by_rule": "leader_ability",
+      "applies_in": [
+        "all"
+      ],
+      "applies_to": "units",
+      "description": "Unit type. Characters can be Leaders (attach to Bodyguard units), use Epic Challenge stratagem, and perform Heroic Interventions.",
+      "interactions": [
+        "leader_ability",
+        "heroic_intervention",
+        "epic_challenge",
+        "lone_operative",
+        "precision"
+      ]
+    },
+    "COVER": {
+      "class": "ability_keyword",
+      "defined_by_rule": "cover_save",
+      "applies_in": [
+        "shooting_phase"
+      ],
+      "applies_to": "units_in_terrain",
+      "description": "Grants +1 to saving throws against ranged attacks. Does not apply against AP-0 weapons in some editions.",
+      "interactions": [
+        "go_to_ground",
+        "stealth"
+      ]
+    },
+    "CP": {
+      "class": "phase_keyword",
+      "defined_by_rule": "command_points",
+      "applies_in": [
+        "any"
+      ],
+      "applies_to": "all",
+      "description": "Command Points. Resource spent to use Stratagems. Gain 1 per Command phase.",
+      "interactions": [
+        "command_phase",
+        "stratagems"
+      ]
+    },
+    "D": {
+      "class": "weapon_ability",
+      "defined_by_rule": "damage_roll",
+      "applies_in": [
+        "attack_sequence"
+      ],
+      "applies_to": "weapons",
+      "description": "Damage characteristic. Can be a fixed value (e.g. 2) or a dice value (e.g. D3, D6, 2D6).",
+      "interactions": [
+        "saving_throw",
+        "melta",
+        "devastating_wounds"
+      ],
+      "parametric": true,
+      "math_relevant": false,
+      "math_effect_note": "Weapon damage stat \u2014 part of weapon profile, not a keyword."
+    },
+    "DAMAGED": {
+      "class": "ability_keyword",
+      "defined_by_rule": "damaged_profile",
+      "applies_in": [
+        "all"
+      ],
+      "applies_to": "vehicles_and_monsters",
+      "description": "Indicates the unit has a degraded stat profile at lower wound thresholds.",
+      "interactions": [
+        "damage_roll"
+      ]
+    },
+    "DEEP STRIKE": {
+      "class": "ability_keyword",
+      "defined_by_rule": "deep_strike",
+      "applies_in": [
+        "movement_phase"
+      ],
+      "applies_to": "units",
+      "description": "Unit can be held in Reserves and arrive anywhere on the battlefield more than 9\" from enemy models, from turn 2 onward.",
+      "interactions": [
+        "reinforcement_arrival",
+        "mission_reserve_limit",
+        "scrambler_fields",
+        "teleport_strike"
+      ]
+    },
+    "DEVASTATING WOUNDS": {
+      "class": "weapon_ability",
+      "defined_by_rule": "devastating_wounds",
+      "applies_in": [
+        "shooting_phase",
+        "fight_phase"
+      ],
+      "applies_to": "weapons",
+      "description": "Critical Wounds bypass saves and FNP. Damage is applied directly as mortal wounds.",
+      "interactions": [
+        "wound_roll",
+        "saving_throw",
+        "feel_no_pain",
+        "anti_keyword"
+      ],
+      "math_relevant": true,
+      "math_handler": "DEVASTATING_WOUNDS",
+      "math_effect_note": "Critical wound rolls deal mortal wounds, bypassing saves. Modifies save step."
+    },
+    "FALL BACK": {
+      "class": "ability_keyword",
+      "defined_by_rule": "fall_back",
+      "applies_in": [
+        "movement_phase"
+      ],
+      "applies_to": "units",
+      "description": "Units in Engagement Range can move away. Cannot shoot or charge afterward unless modified.",
+      "interactions": [
+        "desperate_breakout",
+        "advance"
+      ]
+    },
+    "FEEL NO PAIN": {
+      "class": "ability_keyword",
+      "defined_by_rule": "feel_no_pain",
+      "applies_in": [
+        "attack_sequence"
+      ],
+      "applies_to": "models",
+      "description": "FEEL NO PAIN X+: Roll D6 per wound lost. On X+, wound is not lost.",
+      "interactions": [
+        "devastating_wounds",
+        "damage_roll"
+      ],
+      "parametric": true,
+      "parameter_description": "threshold (e.g. 4+, 5+, 6+)"
+    },
+    "FIGHTS FIRST": {
+      "class": "ability_keyword",
+      "defined_by_rule": "fight_first",
+      "applies_in": [
+        "fight_phase"
+      ],
+      "applies_to": "units",
+      "description": "Unit fights before other eligible units in the Fight phase.",
+      "interactions": [
+        "fight_phase_sequence",
+        "fight_last"
+      ]
+    },
+    "FIGHTS LAST": {
+      "class": "ability_keyword",
+      "defined_by_rule": "fight_last",
+      "applies_in": [
+        "fight_phase"
+      ],
+      "applies_to": "units",
+      "description": "Unit fights after all other eligible units in the Fight phase.",
+      "interactions": [
+        "fight_phase_sequence",
+        "fight_first"
+      ]
+    },
+    "FLY": {
+      "class": "ability_keyword",
+      "defined_by_rule": "fly",
+      "applies_in": [
+        "movement_phase"
+      ],
+      "applies_to": "units",
+      "description": "Unit can move over models and terrain features.",
+      "interactions": [
+        "normal_move",
+        "advance",
+        "fall_back"
+      ]
+    },
+    "HEAVY": {
+      "class": "weapon_ability",
+      "defined_by_rule": "heavy",
+      "applies_in": [
+        "shooting_phase"
+      ],
+      "applies_to": "weapons",
+      "description": "Add 1 to hit rolls if the bearer did not move this turn (Remained Stationary).",
+      "interactions": [
+        "remain_stationary"
+      ],
+      "math_relevant": "conditional",
+      "math_handler": "HEAVY",
+      "math_effect_note": "Conditional: +1 to hit if unit Remained Stationary. Activate via --remained-stationary CLI flag."
+    },
+    "HEROIC INTERVENTION": {
+      "class": "ability_keyword",
+      "defined_by_rule": "heroic_intervention",
+      "applies_in": [
+        "charge_phase"
+      ],
+      "applies_to": "character_units",
+      "description": "CHARACTER within 6\" of a charging enemy can move 3\" to engage them after charges are declared.",
+      "interactions": [
+        "fight_phase_sequence",
+        "lance"
+      ]
+    },
+    "INDIRECT FIRE": {
+      "class": "weapon_ability",
+      "defined_by_rule": "indirect_fire",
+      "applies_in": [
+        "shooting_phase"
+      ],
+      "applies_to": "weapons",
+      "description": "Can target non-visible units. Hit roll is always 4+. Target gets +1 to saving throws.",
+      "interactions": [
+        "go_to_ground",
+        "blast"
+      ],
+      "math_relevant": true,
+      "math_handler": "INDIRECT_FIRE",
+      "math_effect_note": "-1 to hit rolls when firing indirectly. Applied unconditionally by handler."
+    },
+    "INFILTRATORS": {
+      "class": "ability_keyword",
+      "defined_by_rule": "infiltrators",
+      "applies_in": [
+        "deployment"
+      ],
+      "applies_to": "units",
+      "description": "Unit deploys anywhere more than 9\" from enemy deployment zone and all enemy units.",
+      "interactions": [
+        "scouts_move",
+        "deployment_zone"
+      ]
+    },
+    "INVULNERABLE SAVE": {
+      "class": "ability_keyword",
+      "defined_by_rule": "invulnerable_save",
+      "applies_in": [
+        "attack_sequence"
+      ],
+      "applies_to": "models",
+      "description": "Saving throw not modified by AP. Used instead of, not in addition to, the armour save.",
+      "interactions": [
+        "saving_throw",
+        "devastating_wounds"
+      ]
+    },
+    "LANCE": {
+      "class": "weapon_ability",
+      "defined_by_rule": "lance",
+      "applies_in": [
+        "shooting_phase",
+        "fight_phase"
+      ],
+      "applies_to": "weapons",
+      "description": "Add 1 to wound rolls if the bearer charged, was charged, or performed a Heroic Intervention this turn.",
+      "interactions": [
+        "charge_bonus",
+        "heroic_intervention"
+      ],
+      "math_relevant": "conditional",
+      "math_handler": "LANCE",
+      "math_effect_note": "Conditional: AP improved by 1 if attacker Charged this turn. Activate via --charged CLI flag."
+    },
+    "LD": {
+      "class": "phase_keyword",
+      "defined_by_rule": "leadership",
+      "applies_in": [
+        "command_phase"
+      ],
+      "applies_to": "units",
+      "description": "Leadership characteristic. Roll 2D6 vs Ld on Battle Shock tests.",
+      "interactions": [
+        "battle_shock_test"
+      ]
+    },
+    "LEADER": {
+      "class": "ability_keyword",
+      "defined_by_rule": "leader_ability",
+      "applies_in": [
+        "all"
+      ],
+      "applies_to": "characters",
+      "description": "CHARACTER can attach to a compatible Bodyguard unit, granting special abilities and merging profiles.",
+      "interactions": [
+        "leader_ability",
+        "lone_operative"
+      ]
+    },
+    "LETHAL HITS": {
+      "class": "weapon_ability",
+      "defined_by_rule": "lethal_hits",
+      "applies_in": [
+        "shooting_phase",
+        "fight_phase"
+      ],
+      "applies_to": "weapons",
+      "description": "Critical Hits automatically wound \u2014 no wound roll required.",
+      "interactions": [
+        "hit_roll",
+        "wound_roll",
+        "sustained_hits"
+      ],
+      "math_relevant": true,
+      "math_handler": "LETHAL_HITS",
+      "math_effect_note": "Critical hit rolls auto-wound, bypassing wound roll. Modifies wound step."
+    },
+    "LONE OPERATIVE": {
+      "class": "ability_keyword",
+      "defined_by_rule": "lone_operative",
+      "applies_in": [
+        "shooting_phase"
+      ],
+      "applies_to": "units",
+      "description": "Cannot be targeted by ranged attacks from more than 12\" away, unless the unit is attached to another unit.",
+      "interactions": [
+        "shooting_attack",
+        "leader_ability"
+      ]
+    },
+    "MELTA": {
+      "class": "weapon_ability",
+      "defined_by_rule": "melta",
+      "applies_in": [
+        "shooting_phase"
+      ],
+      "applies_to": "weapons",
+      "description": "MELTA X: Add X to Damage if the target is within half range.",
+      "interactions": [
+        "damage_roll"
+      ],
+      "parametric": true,
+      "parameter_description": "flat damage bonus (e.g. 2, 3)",
+      "math_relevant": "conditional",
+      "math_handler": "MELTA",
+      "math_effect_note": "Conditional: +N damage per unsaved wound at half range. Activate via --half-range CLI flag."
+    },
+    "MOVE": {
+      "class": "phase_keyword",
+      "defined_by_rule": "normal_move",
+      "applies_in": [
+        "movement_phase"
+      ],
+      "applies_to": "units",
+      "description": "Move characteristic (M) \u2014 the distance in inches a unit can move in its Movement phase.",
+      "interactions": [
+        "normal_move",
+        "advance",
+        "scouts_move"
+      ]
+    },
+    "OC": {
+      "class": "phase_keyword",
+      "defined_by_rule": "objective_control_value",
+      "applies_in": [
+        "scoring"
+      ],
+      "applies_to": "models",
+      "description": "Objective Control value. Summed across models within range of an objective to determine control.",
+      "interactions": [
+        "capture_objective",
+        "objective_control_penalty",
+        "sticky_objectives"
+      ]
+    },
+    "OUTFLANK": {
+      "class": "ability_keyword",
+      "defined_by_rule": "outflank",
+      "applies_in": [
+        "movement_phase"
+      ],
+      "applies_to": "units",
+      "description": "Unit arrives from a non-deployment-zone battlefield edge, more than 9\" from enemies.",
+      "interactions": [
+        "reinforcement_arrival",
+        "strategic_reserves"
+      ]
+    },
+    "OVERWATCH": {
+      "class": "ability_keyword",
+      "defined_by_rule": "overwatch",
+      "applies_in": [
+        "charge_phase"
+      ],
+      "applies_to": "units",
+      "description": "Shoot at a charging enemy unit on 6+ to hit before the charge resolves.",
+      "interactions": [
+        "fire_overwatch_stratagem",
+        "shooting_attack"
+      ]
+    },
+    "PISTOL": {
+      "class": "weapon_ability",
+      "defined_by_rule": "pistol",
+      "applies_in": [
+        "shooting_phase"
+      ],
+      "applies_to": "weapons",
+      "description": "Can be fired even while in Engagement Range, targeting the nearest enemy unit.",
+      "interactions": [
+        "shooting_attack",
+        "fall_back"
+      ],
+      "math_relevant": false,
+      "math_effect_note": "Targeting/engagement rule only. No dice math effect."
+    },
+    "PRECISION": {
+      "class": "weapon_ability",
+      "defined_by_rule": "precision",
+      "applies_in": [
+        "shooting_phase",
+        "fight_phase"
+      ],
+      "applies_to": "weapons",
+      "description": "Critical Hits can be allocated to a CHARACTER model in the target unit.",
+      "interactions": [
+        "hit_roll",
+        "epic_challenge"
+      ],
+      "math_relevant": false,
+      "math_effect_note": "Targeting rule only \u2014 allows allocating critical hits to Characters. No dice math effect."
+    },
+    "RAPID FIRE": {
+      "class": "weapon_ability",
+      "defined_by_rule": "rapid_fire",
+      "applies_in": [
+        "shooting_phase"
+      ],
+      "applies_to": "weapons",
+      "description": "RAPID FIRE X: Add X additional attacks if target is within half range.",
+      "interactions": [
+        "shooting_attack"
+      ],
+      "parametric": true,
+      "parameter_description": "extra attacks at half range (e.g. 1, 2)",
+      "math_relevant": "conditional",
+      "math_handler": "RAPID_FIRE",
+      "math_effect_note": "Conditional: +N attacks per model at half range. Activate via --half-range CLI flag."
+    },
+    "SCOUTS": {
+      "class": "ability_keyword",
+      "defined_by_rule": "scouts_move",
+      "applies_in": [
+        "pre_battle"
+      ],
+      "applies_to": "units",
+      "description": "SCOUTS X: Unit makes a Normal Move of up to X\" after deployment but before battle round 1.",
+      "interactions": [
+        "infiltrators",
+        "fly"
+      ],
+      "parametric": true,
+      "parameter_description": "movement distance in inches (e.g. 6, 9)"
+    },
+    "SMOKE": {
+      "class": "ability_keyword",
+      "defined_by_rule": "smoke",
+      "applies_in": [
+        "shooting_phase"
+      ],
+      "applies_to": "units",
+      "description": "Once per game: when targeted, force attackers to hit on 6+ until start of next turn.",
+      "interactions": [
+        "shooting_attack",
+        "smokescreen"
+      ]
+    },
+    "STEALTH": {
+      "class": "ability_keyword",
+      "defined_by_rule": "stealth",
+      "applies_in": [
+        "shooting_phase"
+      ],
+      "applies_to": "units",
+      "description": "Subtract 1 from hit rolls for ranged attacks targeting this unit.",
+      "interactions": [
+        "shooting_attack",
+        "cover_save"
+      ]
+    },
+    "STRATAGEM": {
+      "class": "phase_keyword",
+      "defined_by_rule": "command_points",
+      "applies_in": [
+        "any"
+      ],
+      "applies_to": "all",
+      "description": "A special action purchased with CP. The STRATAGEM keyword appears on any rule that is activated by spending CP.",
+      "interactions": [
+        "command_points",
+        "battle_shock_test"
+      ]
+    },
+    "SUSTAINED HITS": {
+      "class": "weapon_ability",
+      "defined_by_rule": "sustained_hits",
+      "applies_in": [
+        "shooting_phase",
+        "fight_phase"
+      ],
+      "applies_to": "weapons",
+      "description": "SUSTAINED HITS X: Each Critical Hit generates X additional hit rolls.",
+      "interactions": [
+        "hit_roll",
+        "lethal_hits",
+        "anti_keyword"
+      ],
+      "parametric": true,
+      "parameter_description": "extra hits per critical hit (e.g. 1, 2, D3)",
+      "math_relevant": true,
+      "math_handler": "SUSTAINED_HITS",
+      "math_effect_note": "Critical hit rolls generate N additional hits. Modifies hit step."
+    },
+    "TELEPORT STRIKE": {
+      "class": "ability_keyword",
+      "defined_by_rule": "teleport_strike",
+      "applies_in": [
+        "movement_phase"
+      ],
+      "applies_to": "units",
+      "description": "Functionally similar to DEEP STRIKE. May have faction-specific variations allowing turn-1 arrival.",
+      "interactions": [
+        "deep_strike",
+        "reinforcement_arrival",
+        "scrambler_fields"
+      ]
+    },
+    "TORRENT": {
+      "class": "weapon_ability",
+      "defined_by_rule": "torrent",
+      "applies_in": [
+        "shooting_phase"
+      ],
+      "applies_to": "weapons",
+      "description": "Attacks automatically hit \u2014 no hit roll required.",
+      "interactions": [
+        "hit_roll",
+        "sustained_hits"
+      ],
+      "math_relevant": true,
+      "math_handler": "TORRENT",
+      "math_effect_note": "All attacks auto-hit; hit roll is skipped entirely. Modifies hit step."
+    },
+    "TRANSPORT": {
+      "class": "unit_type",
+      "defined_by_rule": "transport_capacity",
+      "applies_in": [
+        "movement_phase",
+        "all"
+      ],
+      "applies_to": "units",
+      "description": "Unit that can carry other units. Has a Transport Capacity stat on its datasheet.",
+      "interactions": [
+        "embark",
+        "disembark",
+        "transport_destroyed",
+        "emergency_disembarkation"
+      ]
+    },
+    "TWIN-LINKED": {
+      "class": "weapon_ability",
+      "defined_by_rule": "twin_linked",
+      "applies_in": [
+        "shooting_phase",
+        "fight_phase"
+      ],
+      "applies_to": "weapons",
+      "description": "Re-roll wound rolls of 1.",
+      "interactions": [
+        "wound_roll"
+      ],
+      "math_relevant": true,
+      "math_handler": "TWIN_LINKED",
+      "math_effect_note": "Re-roll all failed hit rolls. Modifies hit step."
+    },
+    "INFANTRY": {
+      "class": "unit_type",
+      "defined_by_rule": null,
+      "applies_in": [
+        "all"
+      ],
+      "applies_to": "units",
+      "description": "Core unit type. Eligible for Go to Ground stratagem. Most numerous unit type in the game.",
+      "interactions": [
+        "go_to_ground",
+        "cover_save",
+        "battle_shock_test"
+      ]
+    },
+    "VEHICLE": {
+      "class": "unit_type",
+      "defined_by_rule": null,
+      "applies_in": [
+        "all"
+      ],
+      "applies_to": "units",
+      "description": "Unit type. Eligible for Smokescreen stratagem and Tank Shock. Often has Damaged profiles.",
+      "interactions": [
+        "smokescreen",
+        "tank_shock",
+        "damaged_profile"
+      ]
+    },
+    "MONSTER": {
+      "class": "unit_type",
+      "defined_by_rule": null,
+      "applies_in": [
+        "all"
+      ],
+      "applies_to": "units",
+      "description": "Unit type. Eligible for Smokescreen stratagem. Often has Damaged profiles.",
+      "interactions": [
+        "smokescreen",
+        "damaged_profile"
+      ]
+    },
+    "CAVALRY": {
+      "class": "unit_type",
+      "defined_by_rule": null,
+      "applies_in": [
+        "all"
+      ],
+      "applies_to": "units",
+      "description": "Unit type with generally high movement values. Interacts with specific faction rules and enhancements.",
+      "interactions": []
+    },
+    "DAEMON": {
+      "class": "faction_keyword",
+      "defined_by_rule": "faction_keyword",
+      "applies_in": [
+        "all"
+      ],
+      "applies_to": "units",
+      "description": "Faction keyword shared across Chaos Daemons, Chaos Space Marines, Thousand Sons, Death Guard, and World Eaters units with daemonic nature.",
+      "interactions": [
+        "faction_keyword",
+        "anti_keyword"
+      ]
+    },
+    "IMPERIUM": {
+      "class": "faction_keyword",
+      "defined_by_rule": "faction_keyword",
+      "applies_in": [
+        "all"
+      ],
+      "applies_to": "units",
+      "description": "Top-level faction keyword covering all Imperial armies: Space Marines, Astra Militarum, Adeptus Mechanicus, Adepta Sororitas, etc.",
+      "interactions": [
+        "faction_keyword",
+        "army_rule",
+        "anti_keyword"
+      ]
+    },
+    "CHAOS": {
+      "class": "faction_keyword",
+      "defined_by_rule": "faction_keyword",
+      "applies_in": [
+        "all"
+      ],
+      "applies_to": "units",
+      "description": "Top-level faction keyword covering Chaos Space Marines, Daemons, Death Guard, Thousand Sons, World Eaters, and Chaos Knights.",
+      "interactions": [
+        "faction_keyword",
+        "anti_keyword"
+      ]
+    },
+    "TYRANIDS": {
+      "class": "faction_keyword",
+      "defined_by_rule": "faction_keyword",
+      "applies_in": [
+        "all"
+      ],
+      "applies_to": "units",
+      "description": "Faction keyword for the Tyranid Hive Mind. Governs Synapse range and Shadow in the Warp.",
+      "interactions": [
+        "army_rule",
+        "anti_keyword"
+      ]
+    },
+    "TAU EMPIRE": {
+      "class": "faction_keyword",
+      "defined_by_rule": "faction_keyword",
+      "applies_in": [
+        "all"
+      ],
+      "applies_to": "units",
+      "description": "Faction keyword for the T'au Empire army. Governs For the Greater Good army rule.",
+      "interactions": [
+        "army_rule",
+        "anti_keyword"
+      ]
+    },
+    "ADEPTUS ASTARTES": {
+      "class": "faction_keyword",
+      "defined_by_rule": "faction_keyword",
+      "applies_in": [
+        "all"
+      ],
+      "applies_to": "units",
+      "description": "Mid-level faction keyword shared by all Space Marine chapters. Sub-keywords specify the chapter.",
+      "interactions": [
+        "faction_keyword",
+        "army_rule"
+      ]
+    },
+    "AELDARI": {
+      "class": "faction_keyword",
+      "defined_by_rule": "faction_keyword",
+      "applies_in": [
+        "all"
+      ],
+      "applies_to": "units",
+      "description": "Faction keyword for the Aeldari army. Governs Battle Focus army rule.",
+      "interactions": [
+        "army_rule",
+        "anti_keyword"
+      ]
+    },
+    "NECRONS": {
+      "class": "faction_keyword",
+      "defined_by_rule": "faction_keyword",
+      "applies_in": [
+        "all"
+      ],
+      "applies_to": "units",
+      "description": "Faction keyword for the Necron dynasties. Governs Reanimation Protocols army rule.",
+      "interactions": [
+        "army_rule",
+        "anti_keyword"
+      ]
+    },
+    "ORKS": {
+      "class": "faction_keyword",
+      "defined_by_rule": "faction_keyword",
+      "applies_in": [
+        "all"
+      ],
+      "applies_to": "units",
+      "description": "Faction keyword for the Orks waagh. Governs Waaagh! army rule.",
+      "interactions": [
+        "army_rule",
+        "anti_keyword"
+      ]
+    },
+    "COMMAND PHASE": {
+      "class": "phase_keyword",
+      "defined_by_rule": "command_phase",
+      "applies_in": [
+        "command_phase"
+      ],
+      "applies_to": "all",
+      "description": "Phase keyword \u2014 indicates an ability triggers 'at the start of your Command phase' or 'during the Command phase'.",
+      "interactions": [
+        "command_points",
+        "battle_shock_test"
+      ]
+    },
+    "STRATEGIC RESERVES": {
+      "class": "ability_keyword",
+      "defined_by_rule": "strategic_reserves",
+      "applies_in": [
+        "deployment",
+        "movement_phase"
+      ],
+      "applies_to": "units",
+      "description": "Units placed in Strategic Reserves during deployment for 1\u20132 CP. Arrive from any battlefield edge from turn 2.",
+      "interactions": [
+        "command_points",
+        "reinforcement_arrival",
+        "mission_reserve_limit"
+      ]
+    }
+  },
+  "phrase_mappings": {
+    "_meta": {
+      "generated_by": "keyword_mapper.py",
+      "generated_at": "2026-03-10",
+      "rules_version": "1.0.0",
+      "rules_edition": "10th",
+      "total_rules_scanned": 108,
+      "total_matched": 101,
+      "unmatched": 7,
+      "mechanic_taxonomy": [
+        "abilities",
+        "attacks",
+        "auras",
+        "battle_round",
+        "command_phase",
+        "damage",
+        "deployment",
+        "detachment_rules",
+        "melee",
+        "mission_scoring",
+        "movement",
+        "objectives",
+        "reserves",
+        "saving_throws",
+        "shooting",
+        "stratagem_triggers",
+        "timing_triggers"
+      ]
+    },
+    "by_rule": {
+      "battle_round": {
+        "rule_name": "Battle Round",
+        "mechanics": [
+          "battle_round"
+        ],
+        "matched_phrases": [
+          "battle round",
+          "each battle round",
+          "player turn"
+        ]
+      },
+      "command_phase": {
+        "rule_name": "Command Phase",
+        "mechanics": [
+          "command_phase",
+          "timing_triggers"
+        ],
+        "matched_phrases": [
+          "at the start of",
+          "at the start of your command phase",
+          "battle shock",
+          "command phase"
+        ]
+      },
+      "command_points": {
+        "rule_name": "Command Points",
+        "mechanics": [
+          "command_phase",
+          "stratagem_triggers"
+        ],
+        "matched_phrases": [
+          "command phase",
+          "command point",
+          "stratagem"
+        ]
+      },
+      "first_turn_advantage": {
+        "rule_name": "First Turn Advantage",
+        "mechanics": [
+          "command_phase",
+          "mission_scoring",
+          "timing_triggers"
+        ],
+        "matched_phrases": [
+          "at the start of",
+          "command phase",
+          "victory points"
+        ]
+      },
+      "normal_move": {
+        "rule_name": "Normal Move",
+        "mechanics": [
+          "mission_scoring",
+          "movement"
+        ],
+        "matched_phrases": [
+          "advance",
+          "move up to",
+          "normal move",
+          "tally"
+        ]
+      },
+      "advance": {
+        "rule_name": "Advance",
+        "mechanics": [
+          "melee",
+          "movement",
+          "shooting"
+        ],
+        "matched_phrases": [
+          "advance",
+          "assault weapon",
+          "charge",
+          "shoot"
+        ]
+      },
+      "fall_back": {
+        "rule_name": "Fall Back",
+        "mechanics": [
+          "melee",
+          "movement",
+          "shooting"
+        ],
+        "matched_phrases": [
+          "charge",
+          "engagement range",
+          "fall back",
+          "move up to",
+          "shoot"
+        ]
+      },
+      "remain_stationary": {
+        "rule_name": "Remain Stationary",
+        "mechanics": [
+          "shooting"
+        ],
+        "matched_phrases": [
+          "heavy weapon"
+        ]
+      },
+      "fly": {
+        "rule_name": "Fly",
+        "mechanics": [
+          "movement"
+        ],
+        "matched_phrases": [
+          "fly"
+        ]
+      },
+      "scouts_move": {
+        "rule_name": "Scouts",
+        "mechanics": [
+          "battle_round",
+          "deployment",
+          "melee",
+          "movement"
+        ],
+        "matched_phrases": [
+          "battle round",
+          "before the first battle round",
+          "cannot move",
+          "deploy",
+          "engagement range",
+          "first battle round",
+          "normal move"
+        ]
+      },
+      "infiltrators": {
+        "rule_name": "Infiltrators",
+        "mechanics": [
+          "deployment"
+        ],
+        "matched_phrases": [
+          "deploy",
+          "deployment zone"
+        ]
+      },
+      "deep_strike": {
+        "rule_name": "Deep Strike",
+        "mechanics": [
+          "battle_round",
+          "deployment",
+          "reserves"
+        ],
+        "matched_phrases": [
+          "battle round",
+          "deep strike",
+          "deploy",
+          "during deployment",
+          "placed in reserves",
+          "reserves"
+        ]
+      },
+      "teleport_strike": {
+        "rule_name": "Teleport Strike",
+        "mechanics": [
+          "battle_round",
+          "deployment",
+          "reserves"
+        ],
+        "matched_phrases": [
+          "deep strike",
+          "deploy",
+          "held in reserve",
+          "reserves",
+          "teleport strike",
+          "turn 1"
+        ]
+      },
+      "reinforcement_arrival": {
+        "rule_name": "Reinforcement Arrival",
+        "mechanics": [
+          "reserves",
+          "timing_triggers"
+        ],
+        "matched_phrases": [
+          "at the start of",
+          "reinforcement",
+          "reserves"
+        ]
+      },
+      "mission_reserve_limit": {
+        "rule_name": "Mission Reserve Limit",
+        "mechanics": [
+          "battle_round",
+          "deployment",
+          "reserves",
+          "timing_triggers"
+        ],
+        "matched_phrases": [
+          "at the start of",
+          "battle round",
+          "deploy",
+          "each battle round",
+          "placed in reserves",
+          "reserves"
+        ]
+      },
+      "strategic_reserves": {
+        "rule_name": "Strategic Reserves",
+        "mechanics": [
+          "reserves"
+        ],
+        "matched_phrases": [
+          "reserves",
+          "strategic reserves"
+        ]
+      },
+      "outflank": {
+        "rule_name": "Outflank",
+        "mechanics": [
+          "deployment",
+          "reserves"
+        ],
+        "matched_phrases": [
+          "deploy",
+          "deployment zone",
+          "outflank",
+          "reserves"
+        ]
+      },
+      "shooting_attack": {
+        "rule_name": "Shooting Attack",
+        "mechanics": [
+          "melee",
+          "movement",
+          "saving_throws",
+          "shooting"
+        ],
+        "matched_phrases": [
+          "advance",
+          "engagement range",
+          "pistol",
+          "saving throw",
+          "shoot"
+        ]
+      },
+      "rapid_fire": {
+        "rule_name": "Rapid Fire",
+        "mechanics": [
+          "attacks",
+          "shooting"
+        ],
+        "matched_phrases": [
+          "additional attack",
+          "attack roll",
+          "fire",
+          "rapid fire",
+          "shoot"
+        ]
+      },
+      "pistol": {
+        "rule_name": "Pistol",
+        "mechanics": [
+          "melee",
+          "shooting"
+        ],
+        "matched_phrases": [
+          "engagement range",
+          "pistol",
+          "shoot"
+        ]
+      },
+      "indirect_fire": {
+        "rule_name": "Indirect Fire",
+        "mechanics": [
+          "attacks",
+          "saving_throws",
+          "shooting"
+        ],
+        "matched_phrases": [
+          "fire",
+          "hit roll",
+          "indirect fire",
+          "saving throw",
+          "shoot"
+        ]
+      },
+      "torrent": {
+        "rule_name": "Torrent",
+        "mechanics": [
+          "attacks",
+          "shooting"
+        ],
+        "matched_phrases": [
+          "hit roll",
+          "shoot",
+          "torrent"
+        ]
+      },
+      "blast": {
+        "rule_name": "Blast",
+        "mechanics": [
+          "attacks",
+          "shooting"
+        ],
+        "matched_phrases": [
+          "attack roll",
+          "blast",
+          "shoot"
+        ]
+      },
+      "heavy": {
+        "rule_name": "Heavy",
+        "mechanics": [
+          "attacks",
+          "shooting"
+        ],
+        "matched_phrases": [
+          "hit roll",
+          "shoot"
+        ]
+      },
+      "assault": {
+        "rule_name": "Assault",
+        "mechanics": [
+          "attacks",
+          "movement",
+          "shooting"
+        ],
+        "matched_phrases": [
+          "advance",
+          "hit roll",
+          "shoot"
+        ]
+      },
+      "sustained_hits": {
+        "rule_name": "Sustained Hits",
+        "mechanics": [
+          "shooting"
+        ],
+        "matched_phrases": [
+          "shoot"
+        ]
+      },
+      "lethal_hits": {
+        "rule_name": "Lethal Hits",
+        "mechanics": [
+          "damage",
+          "shooting"
+        ],
+        "matched_phrases": [
+          "shoot",
+          "wound roll"
+        ]
+      },
+      "twin_linked": {
+        "rule_name": "Twin-linked",
+        "mechanics": [
+          "damage",
+          "shooting"
+        ],
+        "matched_phrases": [
+          "shoot",
+          "wound roll"
+        ]
+      },
+      "lance": {
+        "rule_name": "Lance",
+        "mechanics": [
+          "damage",
+          "melee",
+          "shooting"
+        ],
+        "matched_phrases": [
+          "charge",
+          "shoot",
+          "wound roll"
+        ]
+      },
+      "melta": {
+        "rule_name": "Melta",
+        "mechanics": [
+          "damage",
+          "shooting"
+        ],
+        "matched_phrases": [
+          "damage characteristic",
+          "shoot"
+        ]
+      },
+      "anti_keyword": {
+        "rule_name": "Anti-[keyword]",
+        "mechanics": [
+          "attacks",
+          "shooting"
+        ],
+        "matched_phrases": [
+          "hit roll",
+          "shoot"
+        ]
+      },
+      "precision": {
+        "rule_name": "Precision",
+        "mechanics": [
+          "shooting"
+        ],
+        "matched_phrases": [
+          "shoot"
+        ]
+      },
+      "devastating_wounds": {
+        "rule_name": "Devastating Wounds",
+        "mechanics": [
+          "damage",
+          "saving_throws",
+          "shooting"
+        ],
+        "matched_phrases": [
+          "damage characteristic",
+          "feel no pain",
+          "inflict",
+          "shoot"
+        ]
+      },
+      "overwatch": {
+        "rule_name": "Overwatch",
+        "mechanics": [
+          "melee",
+          "shooting",
+          "timing_triggers"
+        ],
+        "matched_phrases": [
+          "charge",
+          "fire",
+          "shoot",
+          "when an enemy"
+        ]
+      },
+      "fire_overwatch_stratagem": {
+        "rule_name": "Fire Overwatch (Stratagem)",
+        "mechanics": [
+          "melee",
+          "shooting",
+          "stratagem_triggers",
+          "timing_triggers"
+        ],
+        "matched_phrases": [
+          "charge",
+          "fire",
+          "shoot",
+          "stratagem",
+          "when an enemy"
+        ]
+      },
+      "fight_phase_sequence": {
+        "rule_name": "Fight Phase Sequence",
+        "mechanics": [
+          "melee"
+        ],
+        "matched_phrases": [
+          "fight",
+          "fight phase"
+        ]
+      },
+      "fight_first": {
+        "rule_name": "Fight First",
+        "mechanics": [
+          "melee"
+        ],
+        "matched_phrases": [
+          "fight",
+          "fight phase"
+        ]
+      },
+      "fight_last": {
+        "rule_name": "Fight Last",
+        "mechanics": [
+          "melee"
+        ],
+        "matched_phrases": [
+          "fight",
+          "fight phase"
+        ]
+      },
+      "heroic_intervention": {
+        "rule_name": "Heroic Intervention",
+        "mechanics": [
+          "melee"
+        ],
+        "matched_phrases": [
+          "charge",
+          "engagement range"
+        ]
+      },
+      "charge_bonus": {
+        "rule_name": "Charge Bonus",
+        "mechanics": [
+          "attacks",
+          "melee"
+        ],
+        "matched_phrases": [
+          "charge",
+          "charged this turn",
+          "fight",
+          "fight phase",
+          "hit roll"
+        ]
+      },
+      "hit_roll": {
+        "rule_name": "Hit Roll",
+        "mechanics": [
+          "attacks"
+        ],
+        "matched_phrases": [
+          "hit roll"
+        ]
+      },
+      "wound_roll": {
+        "rule_name": "Wound Roll",
+        "mechanics": [
+          "damage"
+        ],
+        "matched_phrases": [
+          "wound roll"
+        ]
+      },
+      "saving_throw": {
+        "rule_name": "Saving Throw",
+        "mechanics": [
+          "saving_throws"
+        ],
+        "matched_phrases": [
+          "saving throw"
+        ]
+      },
+      "armour_penetration": {
+        "rule_name": "Armour Penetration",
+        "mechanics": [
+          "saving_throws"
+        ],
+        "matched_phrases": [
+          "armour penetration",
+          "saving throw"
+        ]
+      },
+      "damage_roll": {
+        "rule_name": "Damage Roll",
+        "mechanics": [
+          "damage",
+          "saving_throws"
+        ],
+        "matched_phrases": [
+          "damage characteristic",
+          "damage roll",
+          "saving throw"
+        ]
+      },
+      "feel_no_pain": {
+        "rule_name": "Feel No Pain",
+        "mechanics": [
+          "saving_throws"
+        ],
+        "matched_phrases": [
+          "feel no pain",
+          "saving throw"
+        ]
+      },
+      "invulnerable_save": {
+        "rule_name": "Invulnerable Save",
+        "mechanics": [
+          "saving_throws"
+        ],
+        "matched_phrases": [
+          "invulnerable save",
+          "saving throw"
+        ]
+      },
+      "cover_save": {
+        "rule_name": "Cover",
+        "mechanics": [
+          "saving_throws",
+          "shooting"
+        ],
+        "matched_phrases": [
+          "saving throw",
+          "shoot"
+        ]
+      },
+      "stealth": {
+        "rule_name": "Stealth",
+        "mechanics": [
+          "attacks"
+        ],
+        "matched_phrases": [
+          "hit roll"
+        ]
+      },
+      "smoke": {
+        "rule_name": "Smoke",
+        "mechanics": [
+          "deployment",
+          "shooting",
+          "timing_triggers"
+        ],
+        "matched_phrases": [
+          "ballistic skill",
+          "deploy",
+          "when this unit"
+        ]
+      },
+      "battle_shock_test": {
+        "rule_name": "Battle Shock Test",
+        "mechanics": [
+          "command_phase",
+          "objectives",
+          "stratagem_triggers",
+          "timing_triggers"
+        ],
+        "matched_phrases": [
+          "at the start of",
+          "at the start of the command phase",
+          "battle shock",
+          "battle-shocked",
+          "command phase",
+          "controlling",
+          "stratagem"
+        ]
+      },
+      "objective_control_penalty": {
+        "rule_name": "OC Penalty (Battle-shocked)",
+        "mechanics": [
+          "command_phase",
+          "objectives"
+        ],
+        "matched_phrases": [
+          "battle-shocked",
+          "contesting",
+          "objective control"
+        ]
+      },
+      "leadership": {
+        "rule_name": "Leadership (Ld)",
+        "mechanics": [
+          "command_phase"
+        ],
+        "matched_phrases": [
+          "battle shock"
+        ]
+      },
+      "objective_control_value": {
+        "rule_name": "Objective Control (OC)",
+        "mechanics": [
+          "auras",
+          "objectives"
+        ],
+        "matched_phrases": [
+          "contesting",
+          "objective control",
+          "within range of"
+        ]
+      },
+      "sticky_objectives": {
+        "rule_name": "Sticky Objectives",
+        "mechanics": [
+          "auras",
+          "battle_round",
+          "objectives",
+          "timing_triggers"
+        ],
+        "matched_phrases": [
+          "at the end of",
+          "at the start of",
+          "battle round",
+          "models within",
+          "objective marker"
+        ]
+      },
+      "capture_objective": {
+        "rule_name": "Capture Objective",
+        "mechanics": [
+          "mission_scoring",
+          "objectives"
+        ],
+        "matched_phrases": [
+          "capture",
+          "objective control",
+          "tally"
+        ]
+      },
+      "command_reroll": {
+        "rule_name": "Command Re-roll",
+        "mechanics": [
+          "stratagem_triggers"
+        ],
+        "matched_phrases": [
+          "stratagem"
+        ]
+      },
+      "epic_challenge": {
+        "rule_name": "Epic Challenge",
+        "mechanics": [
+          "melee",
+          "stratagem_triggers"
+        ],
+        "matched_phrases": [
+          "fight",
+          "melee attack",
+          "stratagem"
+        ]
+      },
+      "go_to_ground": {
+        "rule_name": "Go to Ground",
+        "mechanics": [
+          "shooting",
+          "stratagem_triggers"
+        ],
+        "matched_phrases": [
+          "fire",
+          "indirect fire",
+          "shoot",
+          "stratagem"
+        ]
+      },
+      "smokescreen": {
+        "rule_name": "Smokescreen",
+        "mechanics": [
+          "attacks",
+          "shooting",
+          "stratagem_triggers"
+        ],
+        "matched_phrases": [
+          "hit roll",
+          "shoot",
+          "stratagem"
+        ]
+      },
+      "tank_shock": {
+        "rule_name": "Tank Shock",
+        "mechanics": [
+          "damage",
+          "melee",
+          "stratagem_triggers"
+        ],
+        "matched_phrases": [
+          "charge",
+          "charge move",
+          "engagement range",
+          "mortal wound",
+          "stratagem",
+          "suffers"
+        ]
+      },
+      "emergency_disembarkation": {
+        "rule_name": "Emergency Disembarkation",
+        "mechanics": [
+          "damage",
+          "melee",
+          "movement",
+          "shooting",
+          "stratagem_triggers"
+        ],
+        "matched_phrases": [
+          "cannot move",
+          "charge",
+          "mortal wound",
+          "mortal wounds",
+          "shoot",
+          "stratagem"
+        ]
+      },
+      "desperate_breakout": {
+        "rule_name": "Desperate Breakout",
+        "mechanics": [
+          "damage",
+          "melee",
+          "movement",
+          "shooting",
+          "stratagem_triggers",
+          "timing_triggers"
+        ],
+        "matched_phrases": [
+          "at the start of",
+          "engagement range",
+          "fall back",
+          "mortal wound",
+          "mortal wounds",
+          "movement phase",
+          "shoot",
+          "stratagem"
+        ]
+      },
+      "lead_the_charge_stratagem": {
+        "rule_name": "Lead the Charge",
+        "mechanics": [
+          "attacks",
+          "melee",
+          "stratagem_triggers"
+        ],
+        "matched_phrases": [
+          "charge",
+          "hit roll",
+          "melee attack",
+          "stratagem"
+        ]
+      },
+      "insane_bravery": {
+        "rule_name": "Insane Bravery",
+        "mechanics": [
+          "command_phase",
+          "stratagem_triggers"
+        ],
+        "matched_phrases": [
+          "battle shock",
+          "battle-shocked",
+          "stratagem"
+        ]
+      },
+      "detachment_rule": {
+        "rule_name": "Detachment Rule",
+        "mechanics": [
+          "detachment_rules"
+        ],
+        "matched_phrases": [
+          "detachment",
+          "detachment rule"
+        ]
+      },
+      "detachment_enhancement": {
+        "rule_name": "Detachment Enhancement",
+        "mechanics": [
+          "detachment_rules"
+        ],
+        "matched_phrases": [
+          "detachment",
+          "detachment enhancement"
+        ]
+      },
+      "detachment_stratagem": {
+        "rule_name": "Detachment Stratagem",
+        "mechanics": [
+          "detachment_rules",
+          "stratagem_triggers"
+        ],
+        "matched_phrases": [
+          "core stratagem",
+          "detachment",
+          "stratagem"
+        ]
+      },
+      "army_rule": {
+        "rule_name": "Army Rule",
+        "mechanics": [
+          "detachment_rules"
+        ],
+        "matched_phrases": [
+          "army rule",
+          "detachment"
+        ]
+      },
+      "faction_keyword": {
+        "rule_name": "Faction Keyword",
+        "mechanics": [
+          "detachment_rules"
+        ],
+        "matched_phrases": [
+          "army rule",
+          "detachment"
+        ]
+      },
+      "datasheet_ability": {
+        "rule_name": "Datasheet Ability",
+        "mechanics": [
+          "abilities"
+        ],
+        "matched_phrases": [
+          "special rule",
+          "unit ability"
+        ]
+      },
+      "embark": {
+        "rule_name": "Embark",
+        "mechanics": [
+          "movement",
+          "timing_triggers"
+        ],
+        "matched_phrases": [
+          "at the end of",
+          "movement phase"
+        ]
+      },
+      "disembark": {
+        "rule_name": "Disembark",
+        "mechanics": [
+          "melee"
+        ],
+        "matched_phrases": [
+          "engagement range"
+        ]
+      },
+      "transport_destroyed": {
+        "rule_name": "Transport Destroyed",
+        "mechanics": [
+          "stratagem_triggers"
+        ],
+        "matched_phrases": [
+          "stratagem"
+        ]
+      },
+      "primary_mission": {
+        "rule_name": "Primary Mission",
+        "mechanics": [
+          "command_phase",
+          "mission_scoring",
+          "objectives"
+        ],
+        "matched_phrases": [
+          " vp",
+          "command phase",
+          "controlling",
+          "primary mission"
+        ]
+      },
+      "secondary_mission": {
+        "rule_name": "Secondary Mission",
+        "mechanics": [
+          "mission_scoring"
+        ],
+        "matched_phrases": [
+          " vp",
+          "fixed secondary",
+          "secondary mission"
+        ]
+      },
+      "mission_rule": {
+        "rule_name": "Mission Rule",
+        "mechanics": [
+          "reserves"
+        ],
+        "matched_phrases": [
+          "reserves"
+        ]
+      },
+      "mission_modifier": {
+        "rule_name": "Mission Modifier",
+        "mechanics": [
+          "attacks"
+        ],
+        "matched_phrases": [
+          "hit roll"
+        ]
+      },
+      "deployment_zone": {
+        "rule_name": "Deployment Zone",
+        "mechanics": [
+          "abilities",
+          "deployment"
+        ],
+        "matched_phrases": [
+          "deploy",
+          "deployment zone",
+          "special rule"
+        ]
+      },
+      "no_mercy_no_respite": {
+        "rule_name": "No Mercy, No Respite",
+        "mechanics": [
+          "mission_scoring"
+        ],
+        "matched_phrases": [
+          " vp",
+          "score 1"
+        ]
+      },
+      "chilling_rain": {
+        "rule_name": "Chilling Rain",
+        "mechanics": [
+          "attacks",
+          "shooting"
+        ],
+        "matched_phrases": [
+          "hit roll",
+          "shoot"
+        ]
+      },
+      "scrambler_fields": {
+        "rule_name": "Scrambler Fields",
+        "mechanics": [
+          "battle_round",
+          "deployment",
+          "reserves"
+        ],
+        "matched_phrases": [
+          "battle round",
+          "deep strike",
+          "deploy",
+          "deployment zone",
+          "first battle round",
+          "reserves",
+          "teleport strike"
+        ]
+      },
+      "sweep_and_clear": {
+        "rule_name": "Sweep and Clear",
+        "mechanics": [
+          "auras",
+          "mission_scoring",
+          "timing_triggers"
+        ],
+        "matched_phrases": [
+          " vp",
+          "at the end of",
+          "models within",
+          "within range of"
+        ]
+      },
+      "movement_phase": {
+        "rule_name": "Movement Phase",
+        "mechanics": [
+          "deployment",
+          "movement",
+          "reserves"
+        ],
+        "matched_phrases": [
+          "advance",
+          "deep strike",
+          "deploy",
+          "fall back",
+          "movement phase",
+          "normal move"
+        ]
+      },
+      "shooting_phase": {
+        "rule_name": "Shooting Phase",
+        "mechanics": [
+          "abilities",
+          "attacks",
+          "melee",
+          "movement",
+          "shooting"
+        ],
+        "matched_phrases": [
+          "advance",
+          "attack roll",
+          "engagement range",
+          "pistol",
+          "ranged weapon",
+          "shoot",
+          "shooting phase",
+          "special rule"
+        ]
+      },
+      "charge_phase": {
+        "rule_name": "Charge Phase",
+        "mechanics": [
+          "auras",
+          "melee"
+        ],
+        "matched_phrases": [
+          "charge",
+          "declare a charge",
+          "engagement range",
+          "units within"
+        ]
+      },
+      "fight_phase": {
+        "rule_name": "Fight Phase",
+        "mechanics": [
+          "melee"
+        ],
+        "matched_phrases": [
+          "engagement range",
+          "fight",
+          "fight phase"
+        ]
+      },
+      "charge_move": {
+        "rule_name": "Charge Move",
+        "mechanics": [
+          "melee"
+        ],
+        "matched_phrases": [
+          "charge",
+          "charge move",
+          "engagement range"
+        ]
+      },
+      "pile_in": {
+        "rule_name": "Pile In",
+        "mechanics": [
+          "melee",
+          "movement"
+        ],
+        "matched_phrases": [
+          "fight",
+          "move up to",
+          "pile in"
+        ]
+      },
+      "consolidate": {
+        "rule_name": "Consolidate",
+        "mechanics": [
+          "melee",
+          "movement"
+        ],
+        "matched_phrases": [
+          "consolidate",
+          "fight",
+          "fight phase",
+          "move up to"
+        ]
+      },
+      "hold_objective": {
+        "rule_name": "Hold Objective",
+        "mechanics": [
+          "auras",
+          "command_phase",
+          "mission_scoring",
+          "timing_triggers"
+        ],
+        "matched_phrases": [
+          " vp",
+          "at the end of",
+          "command phase",
+          "within range of"
+        ]
+      },
+      "objective_secured": {
+        "rule_name": "Objective Secured (ObSec)",
+        "mechanics": [
+          "objectives"
+        ],
+        "matched_phrases": [
+          "contesting",
+          "objective marker"
+        ]
+      },
+      "obstacle": {
+        "rule_name": "Obstacle",
+        "mechanics": [
+          "movement"
+        ],
+        "matched_phrases": [
+          "cannot move",
+          "move through"
+        ]
+      },
+      "ruins": {
+        "rule_name": "Ruins",
+        "mechanics": [
+          "shooting"
+        ],
+        "matched_phrases": [
+          "line of sight",
+          "shoot"
+        ]
+      },
+      "dense_cover": {
+        "rule_name": "Dense Cover",
+        "mechanics": [
+          "shooting"
+        ],
+        "matched_phrases": [
+          "shoot"
+        ]
+      },
+      "difficult_ground": {
+        "rule_name": "Difficult Ground",
+        "mechanics": [
+          "movement"
+        ],
+        "matched_phrases": [
+          "fly"
+        ]
+      },
+      "defensible": {
+        "rule_name": "Defensible",
+        "mechanics": [
+          "command_phase",
+          "saving_throws"
+        ],
+        "matched_phrases": [
+          "battle shock",
+          "saving throw"
+        ]
+      },
+      "light_cover": {
+        "rule_name": "Light Cover",
+        "mechanics": [
+          "saving_throws"
+        ],
+        "matched_phrases": [
+          "saving throw"
+        ]
+      },
+      "heavy_cover": {
+        "rule_name": "Heavy Cover",
+        "mechanics": [
+          "movement",
+          "saving_throws"
+        ],
+        "matched_phrases": [
+          "moved this turn",
+          "saving throw"
+        ]
+      },
+      "fixed_secondary": {
+        "rule_name": "Fixed Secondary Mission",
+        "mechanics": [
+          "mission_scoring"
+        ],
+        "matched_phrases": [
+          "fixed secondary",
+          "secondary mission",
+          "secondary objective"
+        ]
+      },
+      "tactical_secondary": {
+        "rule_name": "Tactical Secondary Mission",
+        "mechanics": [
+          "mission_scoring",
+          "timing_triggers"
+        ],
+        "matched_phrases": [
+          "at the start of",
+          "secondary mission",
+          "secondary objective"
+        ]
+      }
+    },
+    "by_mechanic": {
+      "movement": [
+        "advance",
+        "assault",
+        "consolidate",
+        "desperate_breakout",
+        "difficult_ground",
+        "embark",
+        "emergency_disembarkation",
+        "fall_back",
+        "fly",
+        "heavy_cover",
+        "movement_phase",
+        "normal_move",
+        "obstacle",
+        "pile_in",
+        "scouts_move",
+        "shooting_attack",
+        "shooting_phase"
+      ],
+      "deployment": [
+        "deep_strike",
+        "deployment_zone",
+        "infiltrators",
+        "mission_reserve_limit",
+        "movement_phase",
+        "outflank",
+        "scouts_move",
+        "scrambler_fields",
+        "smoke",
+        "teleport_strike"
+      ],
+      "reserves": [
+        "deep_strike",
+        "mission_reserve_limit",
+        "mission_rule",
+        "movement_phase",
+        "outflank",
+        "reinforcement_arrival",
+        "scrambler_fields",
+        "strategic_reserves",
+        "teleport_strike"
+      ],
+      "shooting": [
+        "advance",
+        "anti_keyword",
+        "assault",
+        "blast",
+        "chilling_rain",
+        "cover_save",
+        "dense_cover",
+        "desperate_breakout",
+        "devastating_wounds",
+        "emergency_disembarkation",
+        "fall_back",
+        "fire_overwatch_stratagem",
+        "go_to_ground",
+        "heavy",
+        "indirect_fire",
+        "lance",
+        "lethal_hits",
+        "melta",
+        "overwatch",
+        "pistol",
+        "precision",
+        "rapid_fire",
+        "remain_stationary",
+        "ruins",
+        "shooting_attack",
+        "shooting_phase",
+        "smoke",
+        "smokescreen",
+        "sustained_hits",
+        "torrent",
+        "twin_linked"
+      ],
+      "melee": [
+        "advance",
+        "charge_bonus",
+        "charge_move",
+        "charge_phase",
+        "consolidate",
+        "desperate_breakout",
+        "disembark",
+        "emergency_disembarkation",
+        "epic_challenge",
+        "fall_back",
+        "fight_first",
+        "fight_last",
+        "fight_phase",
+        "fight_phase_sequence",
+        "fire_overwatch_stratagem",
+        "heroic_intervention",
+        "lance",
+        "lead_the_charge_stratagem",
+        "overwatch",
+        "pile_in",
+        "pistol",
+        "scouts_move",
+        "shooting_attack",
+        "shooting_phase",
+        "tank_shock"
+      ],
+      "attacks": [
+        "anti_keyword",
+        "assault",
+        "blast",
+        "charge_bonus",
+        "chilling_rain",
+        "heavy",
+        "hit_roll",
+        "indirect_fire",
+        "lead_the_charge_stratagem",
+        "mission_modifier",
+        "rapid_fire",
+        "shooting_phase",
+        "smokescreen",
+        "stealth",
+        "torrent"
+      ],
+      "damage": [
+        "damage_roll",
+        "desperate_breakout",
+        "devastating_wounds",
+        "emergency_disembarkation",
+        "lance",
+        "lethal_hits",
+        "melta",
+        "tank_shock",
+        "twin_linked",
+        "wound_roll"
+      ],
+      "saving_throws": [
+        "armour_penetration",
+        "cover_save",
+        "damage_roll",
+        "defensible",
+        "devastating_wounds",
+        "feel_no_pain",
+        "heavy_cover",
+        "indirect_fire",
+        "invulnerable_save",
+        "light_cover",
+        "saving_throw",
+        "shooting_attack"
+      ],
+      "abilities": [
+        "datasheet_ability",
+        "deployment_zone",
+        "shooting_phase"
+      ],
+      "auras": [
+        "charge_phase",
+        "hold_objective",
+        "objective_control_value",
+        "sticky_objectives",
+        "sweep_and_clear"
+      ],
+      "objectives": [
+        "battle_shock_test",
+        "capture_objective",
+        "objective_control_penalty",
+        "objective_control_value",
+        "objective_secured",
+        "primary_mission",
+        "sticky_objectives"
+      ],
+      "mission_scoring": [
+        "capture_objective",
+        "first_turn_advantage",
+        "fixed_secondary",
+        "hold_objective",
+        "no_mercy_no_respite",
+        "normal_move",
+        "primary_mission",
+        "secondary_mission",
+        "sweep_and_clear",
+        "tactical_secondary"
+      ],
+      "stratagem_triggers": [
+        "battle_shock_test",
+        "command_points",
+        "command_reroll",
+        "desperate_breakout",
+        "detachment_stratagem",
+        "emergency_disembarkation",
+        "epic_challenge",
+        "fire_overwatch_stratagem",
+        "go_to_ground",
+        "insane_bravery",
+        "lead_the_charge_stratagem",
+        "smokescreen",
+        "tank_shock",
+        "transport_destroyed"
+      ],
+      "detachment_rules": [
+        "army_rule",
+        "detachment_enhancement",
+        "detachment_rule",
+        "detachment_stratagem",
+        "faction_keyword"
+      ],
+      "command_phase": [
+        "battle_shock_test",
+        "command_phase",
+        "command_points",
+        "defensible",
+        "first_turn_advantage",
+        "hold_objective",
+        "insane_bravery",
+        "leadership",
+        "objective_control_penalty",
+        "primary_mission"
+      ],
+      "battle_round": [
+        "battle_round",
+        "deep_strike",
+        "mission_reserve_limit",
+        "scouts_move",
+        "scrambler_fields",
+        "sticky_objectives",
+        "teleport_strike"
+      ],
+      "timing_triggers": [
+        "battle_shock_test",
+        "command_phase",
+        "desperate_breakout",
+        "embark",
+        "fire_overwatch_stratagem",
+        "first_turn_advantage",
+        "hold_objective",
+        "mission_reserve_limit",
+        "overwatch",
+        "reinforcement_arrival",
+        "smoke",
+        "sticky_objectives",
+        "sweep_and_clear",
+        "tactical_secondary"
+      ]
+    }
+  }
+}

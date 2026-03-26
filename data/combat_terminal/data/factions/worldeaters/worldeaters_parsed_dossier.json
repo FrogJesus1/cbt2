@@ -1,0 +1,3692 @@
+{
+  "faction": "World Eaters",
+  "source_type": "codex_pdf_parse",
+  "source_name": "World Eaters — Individual Unit PDFs",
+  "edition": "10",
+  "version": "2.0",
+  "last_updated": "2026-03-19",
+  "army_rules": [],
+  "detachments": [
+    {
+      "name": "BERZERKER WARBAND",
+      "detachment_rule": "Relentless Rage",
+      "rule_summary": "The World Eaters fight in a perpetual fury, driven ever onward to slaughter all who stand in their path. All of their warriors have been subject to horrific surgery, implanted with crude devices that amplify their aggression. Some even submit to possession by the Blood God’s daemonic servants. These warriors will only stop killing when every foe lies in bloody ruin at their feet - and sometimes not even then.  Each time a WORLD EATERS unit from your army makes a Charge move, until the end of the",
+      "enhancements": [
+        {
+          "name": "Berzerker Glaive",
+          "points": 35,
+          "description": "The bearer of this daemon-infested weapon is driven to a state of apoplectic frenzy by the touch of its red-hot grip.  WORLD EATERS model only. Add 1 to the Attacks and Damage characteristics of melee weapons (excluding Extra Attacks weapons) equipped by the bearer.",
+          "applies_to": "WORLD EATERS model only."
+        },
+        {
+          "name": "Helm of Brazen Ire",
+          "points": 30,
+          "description": "Khorne’s faithful believe this relic was forged in the depths of the Blood God’s own realm. The blades of many champions have broken upon its brass surface.  WORLD EATERS model only. Each time an attack is allocated to the bearer, subtract 1 from the Damage characteristic of that attack.",
+          "applies_to": "WORLD EATERS model only."
+        },
+        {
+          "name": "Favoured of Khorne",
+          "points": 15,
+          "description": "This warrior has the favour of Khorne; the Blood God’s infernal power pulses through their veins.  WORLD EATERS model only. Each time you make a Blessings of Khorne roll, if the bearer is on the battlefield, you can re-roll up to two of the D6 rolled.",
+          "applies_to": "WORLD EATERS model only."
+        },
+        {
+          "name": "Battle-lust",
+          "points": 10,
+          "description": "This veteran killer cannot resist the urge to kill. His endless thirst for slaughter drives him forward into the thickest of fighting.  WORLD EATERS model only. You can re-roll Charge rolls made for the bearer’s unit. In addition, while the Unbridled Bloodlust Blessing of Khorne is active for your army, add 1 to Charge rolls made for the bearer’s unit.",
+          "applies_to": "WORLD EATERS model only."
+        }
+      ],
+      "stratagems": [
+        {
+          "name": "BLOOD OFFERING",
+          "cp": 1,
+          "type": "Berzerker Warband – Epic Deed Stratagem",
+          "flavour": "Khorne cares not from whence the blood flows, only that it does. The deaths of his own devoted are fitting offerings.",
+          "when": "Any phase.",
+          "target": "One WORLD EATERS unit from your army that was just destroyed while it was within range of one or more objective markers you controlled at the end of the previous phase. You can use this Stratagem on that unit even though it was just destroyed.",
+          "effect": "Select one of those objective markers. That objective marker remains under your control until your opponent’s Level of Control over that objective marker is greater than yours at the end of a phase."
+        },
+        {
+          "name": "HACK AND SLASH",
+          "cp": 1,
+          "type": "Berzerker Warband – Battle Tactic Stratagem",
+          "flavour": "Hack and slash, rend and tear, dismember and eviscerate. Kill! Kill! KILL!",
+          "when": "Fight phase.",
+          "target": "One WORLD EATERS unit from your army that has not been selected to fight this phase and that made a charge move this turn.",
+          "effect": "Until the end of the phase, improve the Armour Penetration characteristic of melee weapons equipped by models in your unit by 1."
+        },
+        {
+          "name": "FRENZIED RESILIENCE",
+          "cp": 2,
+          "type": "Berzerker Warband – Battle Tactic Stratagem",
+          "flavour": "The depths of their fury lend the devoted of Khorne resilience. Mere flesh wounds will not stay the wrath of the World Eaters.",
+          "when": "Fight phase, just after an enemy unit has selected its targets.",
+          "target": "One WORLD EATERS unit from your army that was selected as the target of one or more of the attacking unit’s attacks.",
+          "effect": "Until the end of the phase, each time an attack is allocated to a model in your unit, subtract 1 from the Damage characteristic of that attack. SKULLS FOR THE SKULL THRONE! 1CP Berzerker Warband – Strategic Ploy Stratagem The skulls of mighty champions and monstrous foes make a fitting tribute to the Blood God. WHEN: Fight phase, just after a WORLD EATERS unit from your army destroys a CHARACTER or MONSTER model."
+        }
+      ]
+    },
+    {
+      "name": "CULT OF BLOOD",
+      "detachment_rule": "Idols of Khorne",
+      "rule_summary": "Titanic Khornate war engines draw teeming masses of cultists to war.  At the start of your Command phase, you can select one of the Idols of Khorne abilities listed below. Until the start of your next Command phase, that ability is active and its effects apply to all WORLD EATERS TITANIC and WORLD EATERS MONSTER units from your army. You can only select each Idols of Khorne ability once per battle.  Idol of Infinite Rage (Aura) While a friendly JAKHALS or GOREMONGERS unit is within 6\" of this mo",
+      "enhancements": [
+        {
+          "name": "Chosen of the Blood God",
+          "points": 15,
+          "description": "This immortal being has earned the favour of the Blood God, and its monstrous form is redolent with Khorne’s unholy power.  WORLD EATERS MONSTER model only. Add 3\" to the range of the bearers Aura abilities.",
+          "applies_to": "WORLD EATERS MONSTER model only."
+        },
+        {
+          "name": "Butcher Lord",
+          "points": 10,
+          "description": "Some World Eaters lead packs of cultists into battle, inspiring the masses with their inhuman savagery.  WORLD EATERS INFANTRY model only. During the Declare Battle Formations step, the bearer can be attached to a JAKHALS or GOREMONGERS unit. If attached to a GOREMONGERS unit, the bearer has the Infiltrators ability.",
+          "applies_to": "WORLD EATERS INFANTRY model only."
+        },
+        {
+          "name": "Brazen Form",
+          "points": 25,
+          "description": "Whether possessed, colossal daemons or heliforged constructs, Khorne’s diabolic followers have monstrous resilience.  WORLD EATERS MONSTER model only. Add 1 to the bearer’s Toughness characteristic and the bearer has the Feel No Pain 5+ ability.",
+          "applies_to": "WORLD EATERS MONSTER model only."
+        },
+        {
+          "name": "Strategic Slaughter",
+          "points": 20,
+          "description": "Despite the frenzied battle-lust that consumes his soul, this warrior still retains a sliver of the tactical insight instilled in him by his training.  WORLD EATERS model only. After both players have deployed their armies, select up to three JAKHALS and/or GOREMONGERS units from your army and redeploy them. When doing so, you can set those units up in Strategic Reserves, regardless of how many units are already in Strategic Reserves.",
+          "applies_to": "WORLD EATERS model only."
+        }
+      ],
+      "stratagems": [
+        {
+          "name": "BLOODY VENGEANCE",
+          "cp": 1,
+          "type": "Cult of Blood – Epic Deed Stratagem",
+          "flavour": "The demise of this titanic being showers nearby cultists in blood and viscera, inspiring vengeful fury.",
+          "when": "Any phase.",
+          "target": "One WORLD EATERS MONSTER or WORLD EATERS TITANIC unit from your army that was just destroyed by an enemy unit. You can use this Stratagem on that unit even though it was just destroyed.",
+          "effect": "Until the end of the battle, each time a model in a JAKHALS or GOREMONGERS unit from your army makes an attack that targets the enemy unit that just destroyed your unit, you can re-roll the Hit roll."
+        },
+        {
+          "name": "DRAWN TO THE SLAUGHTER",
+          "cp": 2,
+          "type": "Cult of Blood – Strategic Ploy Stratagem",
+          "flavour": "As the bloodshed increases, Jakhals are drawn to the fight like hungry scavengers to a kill.",
+          "when": "Any phase.",
+          "target": "One JAKHALS unit from your army that was just destroyed. You can use this Stratagem on that unit even though it was just destroyed.",
+          "effect": "Add a new unit to your army identical to your destroyed unit, in Strategic Reserves, at its Starting Strength.  RESTRICTIONS: This Stratagem cannot be used to return destroyed CHARACTER units to Attached units. You can only use this Stratagem once per battle."
+        },
+        {
+          "name": "IN THE SHADOW OF BRASS IDOLS",
+          "cp": 1,
+          "type": "Cult of Blood – Strategic Ploy Stratagem",
+          "flavour": "Emboldened by blood-slick and skull-laden idols of their dark god, mortal cultists shrug off injury.",
+          "when": "Your opponent’s Shooting phase or the Fight phase, just after an enemy unit has selected its targets.",
+          "target": "One JAKHALS or GOREMONGERS unit from your army that was selected as the target as one or more of the attacking unit’s attacks.",
+          "effect": "Until the end of the phase, models in your unit have the Feel No Pain 6+ ability. If your unit is within 6\" of one or more friendly WORLD EATERS MONSTER units, or within 9\" of one or more friendly WORLD EATERS TITANIC units, your unit has the Feel No Pain 5+ ability instead."
+        },
+        {
+          "name": "BLOODTHIRSTY HORDE",
+          "cp": 1,
+          "type": "Cult of Blood – Battle Tactic Stratagem",
+          "flavour": "In their feverish desire to slaughter, Khornate cultists scramble and surge to land blows upon the foe.",
+          "when": "Fight phase.",
+          "target": "One JAKHALS or GOREMONGERS unit from your army that has not been selected to fight this phase and is within Engagement Range of one or more enemy units.",
+          "effect": "Until the end of the phase, each time your unit is selected to fight, when determining which models in it are eligible to fight, any models in your unit that are within 3\" of one or more enemy models are eligible to fight. When resolving those attacks, such models can target one of those enemy units that is within 3\" of them and within Engagement Range of their unit."
+        },
+        {
+          "name": "FAIL NOT THE BLOOD GOD",
+          "cp": 1,
+          "type": "Cult of Blood – Strategic Ploy Stratagem",
+          "flavour": "To fail Khorne is to invite a terrible fate.",
+          "when": "Fight phase.",
+          "target": "One JAKHALS or GOREMONGERS unit from your army.",
+          "effect": "Until the end of the phase, each time a model in your unit makes an attack, re-roll a Hit roll of 1. If that model’s unit is within 6\" of one or more friendly WORLD EATERS MONSTER units, or within 9\" of one or more friendly WORLD EATERS TITANIC units, you can re-roll the Hit roll instead."
+        }
+      ]
+    },
+    {
+      "name": "KHORNE DAEMONKIN",
+      "detachment_rule": "Blood Tithe",
+      "rule_summary": "To call forth the blood legions requires the spilling of oceans of crimson gore.  Each time a BLOOD LEGIONS or WORLD EATERS unit from your army destroys an enemy unit, roll one D6: on a 3+, you gain 1 Blood Tithe point (BTP). At the start of the Command phase, you can spend one or more of your BTP to activate one of the following abilities until the end of the battle: Enraged Abjuration [2BTP] BLOOD LEGIONS and WORLD EATERS models from your army have the Feel No Pain 5+ ability against Psychic A",
+      "enhancements": [
+        {
+          "name": "Icon of War",
+          "points": 25,
+          "description": "This warrior bears a brass icon redolent with empyric energies. Daemonic entities who gaze upon its macabre magnificence are lent fresh vitality.  WORLD EATERS model only. While a friendly BLOOD LEGIONS unit is within 6\" of the bearer, that unit has the Blessings of Khorne ability. If the Might of Khorne ability is active for your army, then while a friendly BLOOD LEGIONS unit is within 6\" of the bearer, you can re-roll Battle-shock tests taken for that unit.",
+          "applies_to": "WORLD EATERS model only."
+        },
+        {
+          "name": "Blood-forged Armour",
+          "points": 20,
+          "description": "Made in the depths of the Immaterium, this crimson plate possesses unholy resilience.  BLOOD LEGIONS or WORLD EATERS model only. The bearer has a Save characteristic of 2+. If the bearer is destroyed, you gain 1 Blood Tithe point.",
+          "applies_to": ""
+        },
+        {
+          "name": "Disciple of Khorne",
+          "points": 15,
+          "description": "This puissant master of carnage has earned the right to lead Khornes immortal legions to war.  LORD ON JUGGERNAUT model only. During the Declare Battle Formations step, the bearer can be attached to a BLOODCRUSHERS or FLESH HOUNDS unit. While leading one of these units, the bearer has the Deep Strike ability, and it has the BLOOD LEGIONS Faction keyword instead of the WORLD EATERS Faction keyword.",
+          "applies_to": "LORD ON JUGGERNAUT model only."
+        },
+        {
+          "name": "Blade of Endless Bloodshed",
+          "points": 30,
+          "description": "This possessed weapon is ever stained with gore and eternally thirsts to taste the blood of fresh victims, empowering the bearer with its endless hunger.  WORLD EATERS model only. Add 1 to the Attacks, Strength and Damage characteristics of the bearers melee weapons. Each time the bearer’s unit destroys an enemy unit with a melee attack, do not roll to gain a Blood Tithe point, you automatically gain 1 Blood Tithe point instead.",
+          "applies_to": "WORLD EATERS model only."
+        }
+      ],
+      "stratagems": [
+        {
+          "name": "SUMMONED BY SLAUGHTER",
+          "cp": 1,
+          "type": "Khorne Daemonkin – Strategic Ploy Stratagem",
+          "flavour": "As blood is spilt, the veil between reality and the Warp is eroded, and Khorne’s daemonic legions spill forth at will.",
+          "when": "Any phase, when the last model in a unit is destroyed, before removing it from play. (If that unit is a TRANSPORT, any units embarked within that TRANSPORT model must disembark first.)",
+          "target": "One BLOODLETTERS unit from your army that is in Reserves.",
+          "effect": "Set your unit up anywhere on the battlefield wholly within 9\" of that destroyed model and more than 6\" horizontally away from all enemy units, then remove the destroyed model from play.  RESTRICTIONS: You cannot use this Stratagem more than once per battle round."
+        },
+        {
+          "name": "DAEMONIC FURY",
+          "cp": 1,
+          "type": "Khorne Daemonkin – Battle Tactic Stratagem",
+          "flavour": "The blood legions surge forth from the Warp in a howling tide of carnage, butchering all in their path.",
+          "when": "Start of your Fight phase.",
+          "target": "One BLOOD LEGIONS unit from your army.",
+          "effect": "Select one friendly WORLD EATERS unit within 6\" of your unit. Until the end of the turn, melee weapons equipped by models in your WORLD EATERS unit have the [LANCE] ability. If the Daemonic Rage ability is active for your army, then until the end of the phase those melee weapons also have the [TWIN-LINKED] ability."
+        },
+        {
+          "name": "A WORTHY SKULL",
+          "cp": 1,
+          "type": "Khorne Daemonkin – Epic Deed Stratagem",
+          "flavour": "Khorne’s followers seek to claim the skulls of the foe's mightiest champions.",
+          "when": "Fight phase, just after a BLOOD LEGIONS or WORLD EATERS unit from your army has fought, and one or more enemy CHARACTER or MONSTER models were destroyed as a result of those attacks.",
+          "target": "That BLOOD LEGIONS or WORLD EATERS unit.",
+          "effect": "You gain D3BTP and you can then spend one or more BTP you have to activate one of the Blood Tithe abilities."
+        },
+        {
+          "name": "BLESSING OF BURNING BLOOD",
+          "cp": 1,
+          "type": "Khorne Daemonkin – Battle Tactic Stratagem",
+          "flavour": "The weapons of Khorne's craven foes are turned aside by empyric energies.",
+          "when": "Your opponent’s Shooting phase or the Fight phase, just after an enemy unit has selected its targets.",
+          "target": "One BLOOD LEGIONS unit from your army that is within 6\" of a friendly WORLD EATERS unit that was selected as the target as one or more of the attacking unit’s attacks.",
+          "effect": "Until the end of the phase, models in your WORLD EATERS unit have a 5+ invulnerable save. If the Boon of Blood ability is active for your army, then until the end of the phase, models in your WORLD EATERS unit have a 4+ invulnerable save."
+        },
+        {
+          "name": "DAEMONTIDE",
+          "cp": 1,
+          "type": "Khorne Daemonkin – Strategic Ploy Stratagem",
+          "flavour": "As the bloodshed increases, seemingly endless tides of daemons spill from the Warp to bolster the ranks of the blood legions.",
+          "when": "Your Command phase.",
+          "target": "One WORLD EATERS unit from your army.",
+          "effect": "Select one friendly BLOOD LEGIONS unit within 6\" of your unit. One destroyed MOUNTED model, up to D3 destroyed BEAST models, or up to D6 destroyed INFANTRY models are returned to that BLOOD LEGIONS unit with their full wounds remaining.  RESTRICTIONS: This Stratagem cannot be used to return destroyed CHARACTER models to Attached units."
+        },
+        {
+          "name": "MURDER-CALL",
+          "cp": 1,
+          "type": "Khorne Daemonkin – Strategic Ploy Stratagem",
+          "flavour": "With their foes rent asunder, Khornate daemons return to the chaos of the Warp, awaiting the next massacre to strike again.",
+          "when": "End of your opponent’s Fight phase.",
+          "target": "One BLOOD LEGIONS unit from your army that is on the battlefield and not within Engagement Range of one or more enemy units.",
+          "effect": "Remove your unit from the battlefield and place it into Strategic Reserves. Possessed Slaughterband Many are the World Eaters warbands who count possessed among their ranks. These warriors, including the Eightbound, are terrifying instruments of destruction and wanton slaughter. Whether advancing on foot through hails of incoming fire or traversing the Warp to emerge amid the enemy lines, the enthralled warriors are deployed as living weapons of destruction to break through the most heavily defended positions, to shatter armour formations or to slaughter the foe’s elite units before they can b"
+        }
+      ]
+    },
+    {
+      "name": "POSSESSED SLAUGHTERBAND",
+      "detachment_rule": "Brazen Fury",
+      "rule_summary": "Incoming fire serves only to fan the flames of daemonic fury, driving Khorne’s possessed into a malicious rage.  WORLD EATERS POSSESSED units from your army have the following ability:  Brazen Fury: In your opponent’s Shooting phase, each time an enemy unit has shot, if any models from this unit were destroyed as a result of those attacks, this unit can make a Brazen Fury move. To do so, roll one D6: models in this unit move a number of inches up to this result, but this unit must end that move ",
+      "enhancements": [
+        {
+          "name": "Malicious Vigour",
+          "points": 30,
+          "description": "Twin hearts pump molten rage through bulging veins and arteries, daemonic possessor lending its mutated host unnatural speed and endurance.  SLAUGHTERBOUND model only. Each time the bearer’s unit makes a Brazen Fury move, it is treated as having rolled a 6 for the distance the unit can be moved.",
+          "applies_to": "SLAUGHTERBOUND model only."
+        },
+        {
+          "name": "Killing Clarity",
+          "points": 15,
+          "description": "The ecstatic release of extreme violence provides momentary clarity to even the most frenzied of minds.  WORLD EATERS DAEMON model only. Each time the bearer’s unit destroys an enemy unit, roll one D6: on a 4+, you gain 1CP.",
+          "applies_to": "WORLD EATERS DAEMON model only."
+        },
+        {
+          "name": "Frenzied Focus",
+          "points": 20,
+          "description": "This daemon channels its blazing fury with violent precision, its blows as accurate as they are devastating.  WORLD EATERS DAEMON model only. Each time a model in the bearer’s unit makes an attack, a Critical Hit is scored on an unmodified Hit roll of 5+, instead of only a 6.",
+          "applies_to": "WORLD EATERS DAEMON model only."
+        },
+        {
+          "name": "Violent Demise",
+          "points": 10,
+          "description": "Upon this daemon’s death, pent-up rage and empyric energies are released in a howling maelstrom of killing force from which there is no escape.  WORLD EATERS DAEMON model only. The bearer’s Deadly Demise ability inflicts mortal wounds on a D6 roll of 2+ instead of on a 6. In addition, the bearer has the Deadly Demise D3+1 ability, instead of the Deadly Demise D3 ability.",
+          "applies_to": "WORLD EATERS DAEMON model only."
+        }
+      ],
+      "stratagems": [
+        {
+          "name": "DAEMONIC RESISTANCE",
+          "cp": 2,
+          "type": "Possessed Slaughterband – Battle Tactic Stratagem",
+          "flavour": "Possession lends great resilience.",
+          "when": "Your opponent’s Shooting phase or the Fight phase, just after an enemy unit has selected its targets.",
+          "target": "One WORLD EATERS POSSESSED unit from your army that was selected as the target of one or more of the attacking unit’s attacks.",
+          "effect": "Until the end of the phase, each time an attack targets your unit, subtract 1 from the Wound roll."
+        },
+        {
+          "name": "DAEMONIC STRENGTH",
+          "cp": 1,
+          "type": "Possessed Slaughterband – Battle Tactic Stratagem",
+          "flavour": "Infernal mutations grant the possessed daemonic strength.",
+          "when": "Fight phase.",
+          "target": "One WORLD EATERS POSSESSED unit from your army that has not been selected to fight this phase.",
+          "effect": "Until the end of the phase, each time an attack made by a model in your unit is allocated to an enemy model, if your unit has the EIGHTBOUND keyword and that enemy model is not a MONSTER or VEHICLE, add 1 to the Damage characteristic of that attack. If your unit has the EXALTED EIGHTBOUND keyword and that enemy model is a MONSTER or VEHICLE, add 1 to the Damage characteristic of that attack instead."
+        },
+        {
+          "name": "IMMORTAL FURY",
+          "cp": 2,
+          "type": "Possessed Slaughterband – Battle Tactic Stratagem",
+          "flavour": "Even as their host's form is destroyed, Khorne's daemons strive to strike a final, vengeful blow.",
+          "when": "Fight phase, just after an enemy unit has selected its targets.",
+          "target": "One WORLD EATERS POSSESSED unit from your army that was selected as the target of one or more of the attacking unit’s attacks.",
+          "effect": "Until the end of the phase, each time a model in your unit is destroyed, if that model has not fought this phase, do not remove it from play. The destroyed model can fight after the attacking model’s unit has finished making its attacks, and is then removed from play."
+        },
+        {
+          "name": "RAPID MANIFESTATION",
+          "cp": 1,
+          "type": "Possessed Slaughterband – Strategic Ploy Stratagem",
+          "flavour": "Tearing through the fabric of reality, the Exalted Eightbound appear as if from nowhere to loom over their terrified victims.",
+          "when": "Your Movement phase.",
+          "target": "One EXALTED EIGHTBOUND unit from your army that is arriving using the Deep Strike ability this phase.",
+          "effect": "Your unit can be set up anywhere on the battlefield that is more than 6\" horizontally away from all enemy units.  RESTRICTIONS: A unit targeted with this Stratagem is not eligible to declare a charge in the same turn."
+        },
+        {
+          "name": "WARP STALKERS",
+          "cp": 1,
+          "type": "Possessed Slaughterband – Strategic Ploy Stratagem",
+          "flavour": "Possessed warriors surge over and through their allies, swatting lessors aside in their eagerness to slaughter foes.",
+          "when": "Your Movement phase or your Charge phase.",
+          "target": "One WORLD EATERS POSSESSED unit from your army that has not been selected to move or declare a charge this phase.",
+          "effect": "Until the end of the phase, each time a model in your unit makes a Normal, Advance, Fall Back or Charge move, it can move through enemy models (excluding MONSTERS and VEHICLES). When doing so, it can move within Engagement Range of such models but, unless that move was a Charge move, it cannot end that move within Engagement Range of them, and any Desperate Escape test is automatically passed."
+        },
+        {
+          "name": "HORRIFYING VIOLENCE",
+          "cp": 1,
+          "type": "Possessed Slaughterband – Strategic Ploy Stratagem",
+          "flavour": "Enthralled warriors fall upon their victims in horrifying displays of carnage, sending panic rippling through the enemy ranks.",
+          "when": "Your opponent’s Command phase.",
+          "target": "One WORLD EATERS POSSESSED unit from your army.",
+          "effect": "Each enemy unit within Engagement Range of your unit must take a Battle-shock test, subtracting 1 from that test. Goretrack Onslaught Many World Eaters warbands use armoured vehicles to press home their brutal assaults. Land Raiders and Rhino transports grind relentlessly forward, their engines growling like hungry beasts as they crash into enemy infantry, guns blazing wildly as spiked prows gore bodies and armoured tracks mangle unfortunate prey. Having ploughed deep into the enemy formation, assault ramps and doors drop to release waves of Khorne Berzerkers, hulking Eightbound and veteran wa"
+        }
+      ]
+    },
+    {
+      "name": "GORETRACK ONSLAUGHT",
+      "detachment_rule": "Rush to the Fray",
+      "rule_summary": "The World Eaters use their vehicles to drive into the heart of the enemy before piling out of their transports and hurling themselves into the fighting.  Each time a WORLD EATERS unit from your army disembarks from a TRANSPORT, until the end of the turn, add 1 to Charge rolls made for that unit and that unit’s melee weapons have the [lance] ability.",
+      "enhancements": [
+        {
+          "name": "Murderous Onslaught",
+          "points": 5,
+          "description": "An expert in mechanised warfare, the assaults this warrior leads are so swift and violent that few foes can react before the hammer falls.  WORLD EATERS model only. If the bearer’s unit disembarked from a TRANSPORT this turn, until the end of the turn, enemy units cannot use the Fire Overwatch Stratagem to shoot at the bearer’s unit.",
+          "applies_to": "WORLD EATERS model only."
+        },
+        {
+          "name": "Aggressive Deployment",
+          "points": 20,
+          "description": "This warrior fights in the vanguard, urging his vehicles forward to unload troops as swiftly as possible.  WORLD EATERS model only. In the Declare Battle Formations step, if the bearer starts the battle embarked within a DEDICATED TRANSPORT, that DEDICATED TRANSPORT has the Scouts 9\" ability.",
+          "applies_to": "WORLD EATERS model only."
+        },
+        {
+          "name": "Unleash Hell",
+          "points": 10,
+          "description": "A veteran tank commander, this warrior orders nearby armoured vehicles to lay down a withering field of fire, providing cover for disembarking troops.  WORLD EATERS model only. At the start of your Shooting phase, you can select one VEHICLE model within 6\" of the bearer or, if the bearer is embarked within a TRANSPORT, you can select that TRANSPORT model. Until the end of the phase, after the selected model has shot, select one enemy unit hit by one or more of those attacks. Until the start of your next turn, that enemy unit is suppressed. While a unit is suppressed, each time a model in that unit makes an attack, subtract 1 from the Hit roll.",
+          "applies_to": "WORLD EATERS model only."
+        },
+        {
+          "name": "Infernal Infusion",
+          "points": 25,
+          "description": "Provided to veteran World Eaters by the Berzerker-surgeons, these combat stimulants grant the user shocking speed.  WORLD EATERS model only. Once per battle, at the start of the Fight phase, the bearer can use this Enhancement. If it does, until the end of the phase, the bearer’s unit has the Fights First ability.",
+          "applies_to": "WORLD EATERS model only."
+        }
+      ],
+      "stratagems": [
+        {
+          "name": "ENDLESS PURSUIT OF VIOLENCE",
+          "cp": 1,
+          "type": "Goretrack Onslaught – Strategic Ploy Stratagem",
+          "flavour": "Having slaughtered their foes, the World Eaters mount up once more to seek new victims.",
+          "when": "End of the Fight phase.",
+          "target": "One WORLD EATERS INFANTRY unit from your army and one friendly TRANSPORT that it is able to embark within.",
+          "effect": "If your WORLD EATERS INFANTRY unit is wholly within 6\" of that TRANSPORT, it can embark within it."
+        },
+        {
+          "name": "SMASH THROUGH",
+          "cp": 1,
+          "type": "Goretrack Onslaught – Strategic Ploy Stratagem",
+          "flavour": "Few obstacles can prevent the World Eaters' eager armoured formations from reaching their prey.",
+          "when": "Your Movement phase.",
+          "target": "One WORLD EATERS VEHICLE model from your army that has not been selected to move this phase.",
+          "effect": "Until the end of the phase, each time your unit makes a Normal or Advance move, it can move horizontally through terrain features."
+        },
+        {
+          "name": "AGGRESSIVE DISEMBARKATION",
+          "cp": 1,
+          "type": "Goretrack Onslaught – Strategic Ploy Stratagem",
+          "flavour": "Propelled by their bloodlust, the World Eaters spill from their transports and surge towards the foe.",
+          "when": "Your Movement phase.",
+          "target": "One WORLD EATERS RHINO model from your army that has not been selected to move this phase.",
+          "effect": "One WORLD EATERS unit embarked within your RHINO can disembark. When doing so, models in that unit can be set up anywhere on the battlefield wholly within 6\" of your RHINO and can be set up within Engagement Range of one or more enemy units."
+        },
+        {
+          "name": "FULL-THROTTLE ASSAULT",
+          "cp": 1,
+          "type": "Goretrack Onslaught – Strategic Ploy Stratagem",
+          "flavour": "With their transports growling with hunger, the World Eaters emerge rapidly to crash headlong into their enemies.",
+          "when": "Your Movement phase.",
+          "target": "One WORLD EATERS RHINO model from your army that has not been selected to move this phase.",
+          "effect": "Until the end of the phase, each time a WORLD EATERS unit disembarks from that model after it has made a Normal move, that unit is still eligible to declare a charge this turn."
+        },
+        {
+          "name": "UNRELENTING ADVANCE",
+          "cp": 1,
+          "type": "Goretrack Onslaught – Strategic Ploy Stratagem",
+          "flavour": "Incoming fire crashes against corrupted armour, drawing the target closer.",
+          "when": "Your opponent’s Shooting phase, just after an enemy unit has shot.",
+          "target": "One WORLD EATERS VEHICLE model from your army that was hit by one or more of the attacking unit’s attacks.",
+          "effect": "Your model can make a Normal move of up to 6\".  RESTRICTIONS: A unit cannot be targeted by this Stratagem and the Fury Unleashed Stratagem in the same phase."
+        },
+        {
+          "name": "FURY UNLEASHED",
+          "cp": 1,
+          "type": "Goretrack Onslaught – Strategic Ploy Stratagem",
+          "flavour": "Khorne Berzerkers react to incoming fire, disembarking to release their pent-up fury.",
+          "when": "Your opponent’s Shooting phase, just after an enemy unit has shot.",
+          "target": "One WORLD EATERS RHINO model from your army that has one or more wounds remaining and was hit by one or more of the attacking unit’s attacks.",
+          "effect": "One KHORNE BERZERKERS unit embarked within your model can disembark and make a Blood Surge move.  RESTRICTIONS: A unit cannot be targeted by this Stratagem and the Unrelenting Advance Stratagem in the same phase. Vessels of Wrath When the power of the Warp waxes and Khorne’s worshippers pour into battle in their multitudes, the bloody butchery reaches heights undreamed of. Upon this carmine altar of war, the Khorne champions compete mercilessly to win his favour and feel his forge-hot touch upon their souls. Every savage stride along the Path to Glory sees them hack down more luckless foes. Bl"
+        }
+      ]
+    },
+    {
+      "name": "VESSELS OF WRATH",
+      "detachment_rule": "Wrath of Khorne",
+      "rule_summary": "From storied conqueror to obscure squad leader, every Khornate champion treads a personal Path to Glory. However unsung their names, they believe that the Blood God may deign to invest any of these hopefuls with a small measure of his wrath in the expectation that they will not squander it.  At the start of the battle round, after activating Blessings of Khorne, you can select one or more models from your army from those listed below (including models that are embarked within TRANSPORTS): WORLD ",
+      "enhancements": [
+        {
+          "name": "Archslaughterer",
+          "points": 25,
+          "description": "This gifted killer channels the fullness of his rage into every weapon swing – doubly so when the Blood God’s gaze is upon him.  WORLD EATERS model only. Improve the Armour Penetration characteristic of melee weapons equipped by the bearer by 1. While the bearer is a VESSEL OF WRATH , improve the Damage characteristic of those weapons by 1 as well.",
+          "applies_to": "WORLD EATERS model only."
+        },
+        {
+          "name": "Vox-diabolus",
+          "points": 20,
+          "description": "Anointed with the vitae of the freshly slain, this champion’s triumphant roars are supernaturally amplified until they echo into the Warp.  WORLD EATERS model only. Each time the bearer’s unit destroys an enemy unit with a melee attack, roll one D6, adding 1 to the result if the bearer is a VESSEL OF WRATH : on a 4+, you gain 1CP.  Avenger’s Crown15 pts This circlet of black iron is said to grant its wearer a surge of vengeful violence when their doom becomes inescapable.  WORLD EATERS model only. If the bearer is destroyed by a melee attack, if it has not fought this phase, roll one D6: on a 2+, do not remove it from play. The destroyed model can fight after the attacking unit has finished making its attacks, and is then removed from play.",
+          "applies_to": "WORLD EATERS model only."
+        },
+        {
+          "name": "Gateways to Glory",
+          "points": 10,
+          "description": "Like an axe swept through defenceless flesh, some patron daemons of Khorne rip portals in reality for this favoured servant to surge through.  WORLD EATERS DAEMON PRINCE or WORLD EATERS MOUNTED model only. Each time the bearer makes a Normal, Advance or Charge move, it can move horizontally through models and terrain features. When doing so, it can move within Engagement Range of such models but cannot end a Normal or Advance move within Engagement Range of them.",
+          "applies_to": ""
+        }
+      ],
+      "stratagems": [
+        {
+          "name": "ASPIRE TO INFAMY",
+          "cp": 1,
+          "type": "Vessels of Wrath – Battle Tactic Stratagem",
+          "flavour": "With proven champions of Khorne looking on, those of lesser renown hurl themselves into the fray with greater ferocity, eager to prove their prowess.",
+          "when": "Fight phase.",
+          "target": "One KHORNE BERZERKERS or JAKHALS unit from your army that has not been selected to fight this phase and is within 8\" of one or more friendly WORLD EATERS CHARACTER models.",
+          "effect": "Until the end of the phase, improve the Strength and Armour Penetration characteristics of melee weapons equipped by non-CHARACTER models in your unit by 1."
+        },
+        {
+          "name": "OVERSHADOWED BY NONE",
+          "cp": 1,
+          "type": "Vessels of Wrath – Battle Tactic Stratagem",
+          "flavour": "The more towering and monstrous the adversary, the better a chance that its bloody end will win the approbation of Khorne.",
+          "when": "Fight phase.",
+          "target": "One WORLD EATERS INFANTRY, WORLD EATERS MOUNTED or WORLD EATERS DAEMON PRINCE unit from your army that has not been selected to fight this phase.",
+          "effect": "Until the end of the phase, each time a model in your unit makes an attack that targets a MONSTER or VEHICLE unit, you can re-roll the Wound roll."
+        },
+        {
+          "name": "GORY DEDICATION",
+          "cp": 1,
+          "type": "Vessels of Wrath – Strategic Ploy Stratagem",
+          "flavour": "To the World Eaters, every battlefield is an altar upon which to offer up crimson sacrifices. Where the lifeblood of their victims falls, it anoints the ground as holy to Khorne’s murderous creed.",
+          "when": "End of the Fight phase.",
+          "target": "One WORLD EATERS unit from your army that destroyed one or more enemy models with a melee attack this phase.",
+          "effect": "Select one objective marker you control that your unit is within range of. That objective marker remains under your control until your opponent’s Level of Control over that objective marker is greater than yours at the end of a phase."
+        },
+        {
+          "name": "PUNISH THE CRAVEN",
+          "cp": 1,
+          "type": "Vessels of Wrath – Strategic Ploy Stratagem",
+          "flavour": "The Blood God is said to detest cowards. Meting out punishment to such degenerates is a sure way to win his favour and gain his wrathful boons.",
+          "when": "Your opponent’s Movement phase, just after an enemy unit (excluding MONSTERS and VEHICLES) is selected to Fall Back.",
+          "target": "One WORLD EATERS INFANTRY or WORLD EATERS DAEMON PRINCE unit from your army within Engagement Range of that enemy unit.",
+          "effect": "When that enemy unit Falls Back, all models in that enemy unit must take a Desperate Escape test. When doing so, if your unit is a VESSEL OF WRATH unit, subtract 1 from each of those tests."
+        },
+        {
+          "name": "MEET FORCE WITH FORCE",
+          "cp": 1,
+          "type": "Vessels of Wrath – Strategic Ploy Stratagem",
+          "flavour": "Desperate to prove themselves to the Blood God in this hour of infernal glory, these warriors are only goaded to more ferocious efforts by the enemy’s attempts to hold them at bay.",
+          "when": "Your opponent’s Shooting phase, just after an enemy unit has shot.",
+          "target": "One WORLD EATERS INFANTRY, WORLD EATERS MOUNTED or WORLD EATERS DAEMON PRINCE unit from your army that lost one or more wounds as a result of those attacks.",
+          "effect": "Your unit can make a Blood Surge move. To do so, roll one D6: models in your unit move a number of inches up to the result, but your unit must end that move as close as possible to the closest enemy unit (excluding AIRCRAFT). When doing so, those models can be moved within Engagement Range of that enemy unit. If your unit is a KHORNE BERZERKERS or VESSEL OF WRATH unit, you can re-roll the D6 to determine how far your unit can move."
+        }
+      ]
+    },
+    {
+      "name": "DETACHMENT (FOCUSED FEROCITY)",
+      "detachment_rule": "Focused Ferocity",
+      "rule_summary": "In the close confines of shipboard warfare, with their battle cries reverberating along corpse-strewn corridors, the charge of World Eaters is an elementally terrifying and seemingly unstoppable force.  Each time a WORLD EATERS unit from your army declares a charge, each target of that charge must take a Battle-shock test.",
+      "enhancements": [],
+      "stratagems": [
+        {
+          "name": "TERRIFYING SCREAMS",
+          "cp": 1,
+          "type": "Boarding Butchers – Strategic Ploy Stratagem",
+          "flavour": "These warriors dismember their victims with such apocalyptic violence that the agonised screams of the dying ring throughout the ship.",
+          "when": "Fight phase, just after a WORLD EATERS unit from your army destroys an enemy unit.",
+          "target": "That WORLD EATERS unit.",
+          "effect": "Until the end of your opponent’s next Command phase, subtract 1 from Battle-shock and Leadership tests taken for all enemy units."
+        },
+        {
+          "name": "UNSTOPPABLE RAGE",
+          "cp": 1,
+          "type": "Boarding Butchers – Strategic Ploy Stratagem",
+          "flavour": "Charging headlong into battle, these warriors simply smash hatches from their housings as they bull their way through, often straight into unsuspecting foes waiting in corridors and chambers beyond.",
+          "when": "Your Movement phase, just after a WORLD EATERS unit from your army (excluding JAKHAL units) opens a Hatchway.",
+          "target": "That WORLD EATERS unit.",
+          "effect": "For each enemy unit within 3\" of that Hatchway and wholly on the opposite side of it from your unit, until the start of your next Movement phase, that enemy unit is stunned. While a unit is stunned, each time a model in it makes an attack, subtract 1 from the Hit roll."
+        }
+      ]
+    },
+    {
+      "name": "DETACHMENT (REAP THE TALLY)",
+      "detachment_rule": "Reap the Tally",
+      "rule_summary": "Nothing, not even death, can prevent these ferocious killers from claiming the skulls that are the Blood Gods due.  Each time a WORLD EATERS model from your army (excluding KHÂRN THE BETRAYER) is destroyed by a melee attack and it has not fought this phase, roll one D6: on a 5+, do not remove it from play. The destroyed model can fight after the attacking unit has finished making its attacks, and is then removed from play.",
+      "enhancements": [],
+      "stratagems": [
+        {
+          "name": "BLOOD RITE",
+          "cp": 1,
+          "type": "Skullsworn – Strategic Ploy Stratagem",
+          "flavour": "Ground upon which Khorne’s champions have shed the blood of their foes is indelibly stained with the mark of their wrathful god.",
+          "when": "Fight phase, just after a WORLD EATERS TERMINATOR, EIGHTBOUND or EXALTED EIGHTBOUND unit from your army destroys an enemy unit.",
+          "target": "That unit.",
+          "effect": "Select one objective marker that your unit or the destroyed unit was within range of at the start of the phase. That objective marker is Secured by your army."
+        },
+        {
+          "name": "FURIOUS MOMENTUM",
+          "cp": 1,
+          "type": "Skullsworn – Strategic Ploy Stratagem",
+          "flavour": "Gripped by supernatural levels of fury, these warriors surge through the raging heart of battle like a bloody tide.",
+          "when": "Fight phase.",
+          "target": "One WORLD EATERS unit from your army that has not been selected to fight this phase.",
+          "effect": "Until the end of the phase, each time a model in your unit makes a Pile-in or Consolidation move, it can move up to 6\" instead of up to 3\"."
+        },
+        {
+          "name": "RUINOUS RAMPAGE",
+          "cp": 1,
+          "type": "Skullsworn – Strategic Ploy Stratagem",
+          "flavour": "These berserk warriors smash through armoured hatchways as though they were no more durable than parchment.",
+          "when": "Your Movement or Charge phase.",
+          "target": "One WORLD EATERS TERMINATOR, EIGHTBOUND or EXALTED EIGHTBOUND unit from your army that has not been selected to move this phase and has not declared a charge this phase.",
+          "effect": "Until the end of the phase, when making a Normal, Advance or Charge move, your unit can move through a single closed Hatchway as if it was open. When doing so, that Hatchway is opened and cannot be closed for the rest of the battle. This can allow that unit to declare a charge against enemy units that are not visible to it, but to do so those enemy units must be within 1\" of that Hatchway and wholly on the opposite side of it from your unit.  RESTRICTIONS: You can only use this Stratagem once per turn."
+        }
+      ]
+    }
+  ],
+  "units": [
+    {
+      "name": "ANGRON",
+      "legends": false,
+      "role": "CHARACTER",
+      "faction_keywords": [
+        "Primarch",
+        "Angron World Eaters"
+      ],
+      "keywords": [
+        "Monster",
+        "Fly",
+        "Character",
+        "Epic Hero",
+        "Chaos",
+        "Khorne",
+        "Daemon"
+      ],
+      "points": null,
+      "stats": {
+        "M": "14\"",
+        "T": "11",
+        "Sv": "2+",
+        "W": "16",
+        "Ld": "5+",
+        "OC": "6"
+      },
+      "unit_composition": [
+        "None ■ 1 Angron – Epic Hero",
+        "This model is equipped with: Samni’arius and Spinegrinder.",
+        "SUPREME COMMANDER",
+        "If this model is in your army, it must be your Warlord."
+      ],
+      "base_size": null,
+      "abilities": [
+        {
+          "name": "CORE",
+          "summary": "Deadly Demise D6",
+          "phase_tags": []
+        },
+        {
+          "name": "FACTION",
+          "summary": "Blessings of Khorne",
+          "phase_tags": []
+        },
+        {
+          "name": "Reborn in Blood",
+          "summary": "Each time you make a Blessings of",
+          "phase_tags": []
+        },
+        {
+          "name": "Glorious Bloodletting (Aura)",
+          "summary": "While a friendly World Eaters unit is within 6\" of this model,",
+          "phase_tags": []
+        },
+        {
+          "name": "Infectious Rage (Aura)",
+          "summary": "While a friendly World Eaters unit that is below its Starting wounds remaining.",
+          "phase_tags": []
+        },
+        {
+          "name": "Wrathful Presence",
+          "summary": "At the start of your Charge phase, select",
+          "phase_tags": []
+        },
+        {
+          "name": "Righteous Slaughter (Aura)",
+          "summary": "While a friendly World Eaters unit is within 6\" of this model, DAMAGED: 1-6 WOUNDS REMAINING",
+          "phase_tags": []
+        },
+        {
+          "name": "INVULNERABLE SAVE",
+          "summary": "4+",
+          "phase_tags": []
+        }
+      ],
+      "wargear_options": [],
+      "weapons": [
+        {
+          "name": "Samni’arius and Spinegrinder – strike",
+          "type": "melee",
+          "range": "Melee",
+          "a": "8",
+          "bs_ws": "2+",
+          "s": "16",
+          "ap": "-4",
+          "d": "D6+2",
+          "keywords": []
+        },
+        {
+          "name": "Samni’arius and Spinegrinder – sweep",
+          "type": "melee",
+          "range": "Melee",
+          "a": "18",
+          "bs_ws": "2+",
+          "s": "8",
+          "ap": "-2",
+          "d": "2",
+          "keywords": []
+        }
+      ],
+      "strengths": [],
+      "weaknesses": [],
+      "target_priority_tags": [],
+      "threat_tags": [
+        "ELITE_MELEE",
+        "HIGH_DURABILITY",
+        "INVULNERABLE_SAVE"
+      ],
+      "mobility_tags": [
+        "VERY_FAST"
+      ],
+      "durability_tags": [
+        "HEAVY_ARMOUR",
+        "HIGH_TOUGHNESS",
+        "MULTI_WOUND_HIGH"
+      ],
+      "tau_counterplay": [
+        "Melee threat — maintain distance, use Drones as speed bumps, overwatch with Pulse.",
+        "High durability — concentrate fire, Ion Accelerator or Railguns for AP-3+.",
+        "T11 — only Ion Accelerator, Railguns, or AP-2+ volume attacks meaningful.",
+        "Invulnerable save — volume of fire preferred over single high-AP shots."
+      ],
+      "notes": ""
+    },
+    {
+      "name": "KHÂRN THE BETRAYER",
+      "legends": false,
+      "role": "CHARACTER",
+      "faction_keywords": [
+        "Khârn the Betrayer World Eaters"
+      ],
+      "keywords": [
+        "Infantry",
+        "Character",
+        "Epic Hero",
+        "Grenades",
+        "Chaos",
+        "Khorne"
+      ],
+      "points": null,
+      "stats": {
+        "M": "6\"",
+        "T": "4",
+        "Sv": "3+",
+        "W": "5",
+        "Ld": "6+",
+        "OC": "1"
+      },
+      "unit_composition": [
+        "None ■ 1 Khârn the Betrayer – Epic Hero",
+        "This model is equipped with: Khârn’s plasma pistol; Gorechild."
+      ],
+      "base_size": null,
+      "abilities": [
+        {
+          "name": "CORE",
+          "summary": "Leader",
+          "phase_tags": []
+        },
+        {
+          "name": "FACTION",
+          "summary": "Blessings of Khorne",
+          "phase_tags": []
+        },
+        {
+          "name": "Legendary Killer",
+          "summary": "While this model is leading a unit, each time",
+          "phase_tags": []
+        },
+        {
+          "name": "The Betrayer",
+          "summary": "At the end of your Charge phase, if this model is",
+          "phase_tags": []
+        },
+        {
+          "name": "Berzerker Frenzy",
+          "summary": "If this model is destroyed by a melee",
+          "phase_tags": []
+        },
+        {
+          "name": "INVULNERABLE SAVE",
+          "summary": "4+",
+          "phase_tags": []
+        }
+      ],
+      "wargear_options": [],
+      "weapons": [
+        {
+          "name": "Khârn’s plasma pistol",
+          "type": "ranged",
+          "range": "12\"",
+          "a": "1",
+          "bs_ws": "2+",
+          "s": "8",
+          "ap": "-3",
+          "d": "2",
+          "keywords": [
+            "PISTOL"
+          ]
+        },
+        {
+          "name": "Gorechild",
+          "type": "melee",
+          "range": "Melee",
+          "a": "8",
+          "bs_ws": "2+",
+          "s": "6",
+          "ap": "-2",
+          "d": "3",
+          "keywords": []
+        }
+      ],
+      "strengths": [],
+      "weaknesses": [],
+      "target_priority_tags": [],
+      "threat_tags": [
+        "MELEE_THREAT",
+        "RANGED_CAPABLE",
+        "PLASMA",
+        "MEDIUM_DURABILITY",
+        "INVULNERABLE_SAVE"
+      ],
+      "mobility_tags": [],
+      "durability_tags": [
+        "MEDIUM_ARMOUR",
+        "MULTI_WOUND"
+      ],
+      "tau_counterplay": [
+        "Melee threat — maintain distance, use Drones as speed bumps, overwatch with Pulse.",
+        "Invulnerable save — volume of fire preferred over single high-AP shots."
+      ],
+      "notes": "Leader: the following unit:, ■ Khorne Berzerkers"
+    },
+    {
+      "name": "LORD INVOCATUS",
+      "legends": false,
+      "role": "CHARACTER",
+      "faction_keywords": [
+        "Lord Invocatus World Eaters"
+      ],
+      "keywords": [
+        "Mounted",
+        "Character",
+        "Epic Hero",
+        "Grenades",
+        "Chaos",
+        "Khorne"
+      ],
+      "points": null,
+      "stats": {
+        "M": "12\"",
+        "T": "6",
+        "Sv": "2+",
+        "W": "8",
+        "Ld": "6+",
+        "OC": "2"
+      },
+      "unit_composition": [
+        "None ■ 1 Lord Invocatus – Epic Hero",
+        "This model is equipped with: bolt pistol; Coward’s Bane,",
+        "Juggernaut’s bladed horn."
+      ],
+      "base_size": null,
+      "abilities": [
+        {
+          "name": "CORE",
+          "summary": "Leader",
+          "phase_tags": []
+        },
+        {
+          "name": "FACTION",
+          "summary": "Blessings of Khorne",
+          "phase_tags": []
+        },
+        {
+          "name": "Counter-attacks",
+          "summary": "While this model is leading a unit, that unit",
+          "phase_tags": []
+        },
+        {
+          "name": "Road of Eight Bloody Steps",
+          "summary": "At the start of the battle, before",
+          "phase_tags": []
+        },
+        {
+          "name": "INVULNERABLE SAVE",
+          "summary": "4+",
+          "phase_tags": []
+        }
+      ],
+      "wargear_options": [],
+      "weapons": [
+        {
+          "name": "Bolt pistol",
+          "type": "ranged",
+          "range": "12\"",
+          "a": "1",
+          "bs_ws": "2+",
+          "s": "4",
+          "ap": "0",
+          "d": "1",
+          "keywords": [
+            "PISTOL"
+          ]
+        },
+        {
+          "name": "Coward’s Bane",
+          "type": "melee",
+          "range": "Melee",
+          "a": "7",
+          "bs_ws": "2+",
+          "s": "6",
+          "ap": "-2",
+          "d": "2",
+          "keywords": [
+            "DEVASTATING WOUNDS"
+          ]
+        },
+        {
+          "name": "Juggernaut’s bladed horn",
+          "type": "melee",
+          "range": "Melee",
+          "a": "4",
+          "bs_ws": "3+",
+          "s": "6",
+          "ap": "-1",
+          "d": "2",
+          "keywords": [
+            "EXTRA ATTACKS",
+            "LANCE"
+          ]
+        }
+      ],
+      "strengths": [],
+      "weaknesses": [],
+      "target_priority_tags": [],
+      "threat_tags": [
+        "MELEE_THREAT",
+        "RANGED_CAPABLE",
+        "HIGH_DURABILITY",
+        "INVULNERABLE_SAVE"
+      ],
+      "mobility_tags": [
+        "FAST"
+      ],
+      "durability_tags": [
+        "HEAVY_ARMOUR",
+        "MEDIUM_TOUGHNESS",
+        "MULTI_WOUND"
+      ],
+      "tau_counterplay": [
+        "Melee threat — maintain distance, use Drones as speed bumps, overwatch with Pulse.",
+        "High durability — concentrate fire, Ion Accelerator or Railguns for AP-3+.",
+        "Invulnerable save — volume of fire preferred over single high-AP shots."
+      ],
+      "notes": "Leader: the following units:, ■ Eightbound, ■ Exalted Eightbound, ■ Khorne Berzerkers"
+    },
+    {
+      "name": "WORLD EATERS DAEMON PRINCE",
+      "legends": false,
+      "role": "CHARACTER",
+      "faction_keywords": [
+        "KEYWORDS: Monster",
+        "Character",
+        "Fly",
+        "Chaos",
+        "Khorne",
+        "Daemon",
+        "Daemon Prince",
+        "World Eaters"
+      ],
+      "keywords": [
+        "KEYWORDS: Monster",
+        "Character",
+        "Fly",
+        "Chaos",
+        "Khorne",
+        "Daemon",
+        "Daemon Prince World Eaters"
+      ],
+      "points": null,
+      "stats": {
+        "M": "12\"",
+        "T": "9",
+        "Sv": "2+",
+        "W": "10",
+        "Ld": "6+",
+        "OC": "3"
+      },
+      "unit_composition": [
+        "None ■ 1 World Eaters Daemon Prince with Wings",
+        "This model is equipped with: infernal cannon;",
+        "hellforged weapons."
+      ],
+      "base_size": null,
+      "abilities": [
+        {
+          "name": "CORE",
+          "summary": "Deadly Demise D3",
+          "phase_tags": []
+        },
+        {
+          "name": "FACTION",
+          "summary": "Blessings of Khorne",
+          "phase_tags": []
+        },
+        {
+          "name": "Bloodied Terror",
+          "summary": "At the start of the Fight phase, each enemy",
+          "phase_tags": []
+        },
+        {
+          "name": "Oath to Khorne",
+          "summary": "At the start of the battle, select one unit from",
+          "phase_tags": []
+        },
+        {
+          "name": "INVULNERABLE SAVE",
+          "summary": "4+",
+          "phase_tags": []
+        }
+      ],
+      "wargear_options": [],
+      "weapons": [
+        {
+          "name": "Infernal cannon",
+          "type": "ranged",
+          "range": "24\"",
+          "a": "3",
+          "bs_ws": "2+",
+          "s": "5",
+          "ap": "-1",
+          "d": "2",
+          "keywords": []
+        },
+        {
+          "name": "Hellforged weapons – strike",
+          "type": "melee",
+          "range": "Melee",
+          "a": "6",
+          "bs_ws": "2+",
+          "s": "10",
+          "ap": "-2",
+          "d": "3",
+          "keywords": []
+        },
+        {
+          "name": "Hellforged weapons – sweep",
+          "type": "melee",
+          "range": "Melee",
+          "a": "14",
+          "bs_ws": "2+",
+          "s": "8",
+          "ap": "0",
+          "d": "1",
+          "keywords": []
+        }
+      ],
+      "strengths": [],
+      "weaknesses": [],
+      "target_priority_tags": [],
+      "threat_tags": [
+        "MELEE_THREAT",
+        "RANGED_CAPABLE",
+        "HIGH_DURABILITY",
+        "INVULNERABLE_SAVE"
+      ],
+      "mobility_tags": [
+        "FAST"
+      ],
+      "durability_tags": [
+        "HEAVY_ARMOUR",
+        "HIGH_TOUGHNESS",
+        "MULTI_WOUND_HIGH"
+      ],
+      "tau_counterplay": [
+        "Melee threat — maintain distance, use Drones as speed bumps, overwatch with Pulse.",
+        "High durability — concentrate fire, Ion Accelerator or Railguns for AP-3+.",
+        "T9 — Heavy Burst Cannon, Plasma, or Ion Blaster recommended.",
+        "Invulnerable save — volume of fire preferred over single high-AP shots."
+      ],
+      "notes": ""
+    },
+    {
+      "name": "WORLD EATERS DAEMON PRINCE",
+      "legends": false,
+      "role": "CHARACTER",
+      "faction_keywords": [
+        "KEYWORDS: Monster",
+        "Character",
+        "Chaos",
+        "Khorne",
+        "Daemon",
+        "Daemon Prince",
+        "World Eaters"
+      ],
+      "keywords": [
+        "KEYWORDS: Monster",
+        "Character",
+        "Chaos",
+        "Khorne",
+        "Daemon",
+        "Daemon Prince World Eaters"
+      ],
+      "points": null,
+      "stats": {
+        "M": "8\"",
+        "T": "10",
+        "Sv": "2+",
+        "W": "10",
+        "Ld": "6+",
+        "OC": "3"
+      },
+      "unit_composition": [
+        "None ■ 1 World Eaters Daemon Prince",
+        "This model is equipped with: infernal cannon;",
+        "hellforged weapons."
+      ],
+      "base_size": null,
+      "abilities": [
+        {
+          "name": "CORE",
+          "summary": "Deadly Demise D3",
+          "phase_tags": []
+        },
+        {
+          "name": "FACTION",
+          "summary": "Blessings of Khorne",
+          "phase_tags": []
+        },
+        {
+          "name": "Infernal Fortitude (Aura)",
+          "summary": "While a friendly World Eaters",
+          "phase_tags": []
+        },
+        {
+          "name": "Devastating Assault",
+          "summary": "Each time this model makes a Charge",
+          "phase_tags": []
+        },
+        {
+          "name": "INVULNERABLE SAVE",
+          "summary": "4+",
+          "phase_tags": []
+        }
+      ],
+      "wargear_options": [],
+      "weapons": [
+        {
+          "name": "Infernal cannon",
+          "type": "ranged",
+          "range": "24\"",
+          "a": "3",
+          "bs_ws": "2+",
+          "s": "5",
+          "ap": "-1",
+          "d": "2",
+          "keywords": []
+        },
+        {
+          "name": "Hellforged weapons – strike",
+          "type": "melee",
+          "range": "Melee",
+          "a": "6",
+          "bs_ws": "2+",
+          "s": "10",
+          "ap": "-2",
+          "d": "3",
+          "keywords": []
+        },
+        {
+          "name": "Hellforged weapons – sweep",
+          "type": "melee",
+          "range": "Melee",
+          "a": "14",
+          "bs_ws": "2+",
+          "s": "8",
+          "ap": "0",
+          "d": "1",
+          "keywords": []
+        }
+      ],
+      "strengths": [],
+      "weaknesses": [],
+      "target_priority_tags": [],
+      "threat_tags": [
+        "MELEE_THREAT",
+        "RANGED_CAPABLE",
+        "HIGH_DURABILITY",
+        "INVULNERABLE_SAVE"
+      ],
+      "mobility_tags": [
+        "MOBILE"
+      ],
+      "durability_tags": [
+        "HEAVY_ARMOUR",
+        "HIGH_TOUGHNESS",
+        "MULTI_WOUND_HIGH"
+      ],
+      "tau_counterplay": [
+        "Melee threat — maintain distance, use Drones as speed bumps, overwatch with Pulse.",
+        "High durability — concentrate fire, Ion Accelerator or Railguns for AP-3+.",
+        "T10 — only Ion Accelerator, Railguns, or AP-2+ volume attacks meaningful.",
+        "Invulnerable save — volume of fire preferred over single high-AP shots."
+      ],
+      "notes": ""
+    },
+    {
+      "name": "WORLD EATERS LORD",
+      "legends": false,
+      "role": "CHARACTER",
+      "faction_keywords": [
+        "Lord on Juggernaut World Eaters"
+      ],
+      "keywords": [
+        "Mounted",
+        "Character",
+        "Grenades",
+        "Chaos",
+        "Khorne"
+      ],
+      "points": null,
+      "stats": {
+        "M": "10\"",
+        "T": "6",
+        "Sv": "2+",
+        "W": "7",
+        "Ld": "6+",
+        "OC": "2"
+      },
+      "unit_composition": [
+        "None ■ 1 World Eaters Lord on Juggernaut",
+        "This model is equipped with: plasma pistol; exalted",
+        "chainblade; Juggernaut’s bladed horn."
+      ],
+      "base_size": null,
+      "abilities": [
+        {
+          "name": "CORE",
+          "summary": "Leader",
+          "phase_tags": []
+        },
+        {
+          "name": "FACTION",
+          "summary": "Blessings of Khorne",
+          "phase_tags": []
+        },
+        {
+          "name": "Aggressive Advance",
+          "summary": "While this model is leading a unit,",
+          "phase_tags": []
+        },
+        {
+          "name": "Bloody Stampede",
+          "summary": "Each time this model’s unit ends a Charge",
+          "phase_tags": []
+        },
+        {
+          "name": "INVULNERABLE SAVE",
+          "summary": "4+",
+          "phase_tags": []
+        }
+      ],
+      "wargear_options": [],
+      "weapons": [
+        {
+          "name": "Plasma pistol – standard",
+          "type": "ranged",
+          "range": "12\"",
+          "a": "1",
+          "bs_ws": "2+",
+          "s": "7",
+          "ap": "-2",
+          "d": "1",
+          "keywords": [
+            "PISTOL"
+          ]
+        },
+        {
+          "name": "Plasma pistol – supercharge",
+          "type": "ranged",
+          "range": "12\"",
+          "a": "1",
+          "bs_ws": "2+",
+          "s": "8",
+          "ap": "-3",
+          "d": "2",
+          "keywords": [
+            "HAZARDOUS",
+            "PISTOL"
+          ]
+        },
+        {
+          "name": "Exalted chainblade",
+          "type": "melee",
+          "range": "Melee",
+          "a": "7",
+          "bs_ws": "2+",
+          "s": "6",
+          "ap": "-1",
+          "d": "2",
+          "keywords": []
+        },
+        {
+          "name": "Juggernaut’s bladed horn",
+          "type": "melee",
+          "range": "Melee",
+          "a": "4",
+          "bs_ws": "3+",
+          "s": "6",
+          "ap": "-1",
+          "d": "2",
+          "keywords": [
+            "EXTRA ATTACKS",
+            "LANCE"
+          ]
+        }
+      ],
+      "strengths": [],
+      "weaknesses": [],
+      "target_priority_tags": [],
+      "threat_tags": [
+        "MELEE_THREAT",
+        "RANGED_CAPABLE",
+        "PLASMA",
+        "HIGH_DURABILITY",
+        "INVULNERABLE_SAVE"
+      ],
+      "mobility_tags": [
+        "FAST"
+      ],
+      "durability_tags": [
+        "HEAVY_ARMOUR",
+        "MEDIUM_TOUGHNESS",
+        "MULTI_WOUND"
+      ],
+      "tau_counterplay": [
+        "Melee threat — maintain distance, use Drones as speed bumps, overwatch with Pulse.",
+        "High durability — concentrate fire, Ion Accelerator or Railguns for AP-3+.",
+        "Invulnerable save — volume of fire preferred over single high-AP shots."
+      ],
+      "notes": "Leader: the following units:, ■ Eightbound, ■ Exalted Eightbound, ■ Khorne Berzerkers"
+    },
+    {
+      "name": "WORLD EATERS MASTER OF EXECUTIONS",
+      "legends": false,
+      "role": "CHARACTER",
+      "faction_keywords": [
+        "KEYWORDS: Infantry",
+        "Character",
+        "Chaos",
+        "Khorne",
+        "Master of Executions",
+        "World Eaters"
+      ],
+      "keywords": [
+        "KEYWORDS: Infantry",
+        "Character",
+        "Chaos",
+        "Khorne",
+        "Master of Executions World Eaters"
+      ],
+      "points": null,
+      "stats": {
+        "M": "6\"",
+        "T": "4",
+        "Sv": "3+",
+        "W": "4",
+        "Ld": "6+",
+        "OC": "1"
+      },
+      "unit_composition": [
+        "None ■ 1 World Eaters Master of Executions",
+        "This model is equipped with: bolt pistol;",
+        "axe of dismemberment."
+      ],
+      "base_size": null,
+      "abilities": [
+        {
+          "name": "CORE",
+          "summary": "Leader",
+          "phase_tags": []
+        },
+        {
+          "name": "FACTION",
+          "summary": "Blessings of Khorne",
+          "phase_tags": []
+        },
+        {
+          "name": "Trophy Taker",
+          "summary": "While this model is leading a unit, models in",
+          "phase_tags": []
+        },
+        {
+          "name": "Murderous Swing",
+          "summary": "Each time this model makes a melee",
+          "phase_tags": []
+        }
+      ],
+      "wargear_options": [],
+      "weapons": [
+        {
+          "name": "Bolt pistol",
+          "type": "ranged",
+          "range": "12\"",
+          "a": "1",
+          "bs_ws": "3+",
+          "s": "4",
+          "ap": "0",
+          "d": "1",
+          "keywords": [
+            "PISTOL"
+          ]
+        },
+        {
+          "name": "Axe of dismemberment",
+          "type": "melee",
+          "range": "Melee",
+          "a": "5",
+          "bs_ws": "2+",
+          "s": "7",
+          "ap": "-2",
+          "d": "2",
+          "keywords": []
+        }
+      ],
+      "strengths": [],
+      "weaknesses": [],
+      "target_priority_tags": [],
+      "threat_tags": [
+        "MELEE_THREAT",
+        "RANGED_CAPABLE",
+        "MEDIUM_DURABILITY"
+      ],
+      "mobility_tags": [],
+      "durability_tags": [
+        "MEDIUM_ARMOUR",
+        "MULTI_WOUND"
+      ],
+      "tau_counterplay": [
+        "Melee threat — maintain distance, use Drones as speed bumps, overwatch with Pulse."
+      ],
+      "notes": "Leader: the following unit:, ■ Khorne Berzerkers, FACTION"
+    },
+    {
+      "name": "EIGHTBOUND",
+      "legends": false,
+      "role": "INFANTRY",
+      "faction_keywords": [
+        "KEYWORDS: Infantry",
+        "Chaos",
+        "Khorne",
+        "Daemon",
+        "Eightbound",
+        "World Eaters"
+      ],
+      "keywords": [
+        "KEYWORDS: Infantry",
+        "Chaos",
+        "Khorne",
+        "Daemon",
+        "Eightbound World Eaters"
+      ],
+      "points": null,
+      "stats": {
+        "M": "9\"",
+        "T": "6",
+        "Sv": "3+",
+        "W": "3",
+        "Ld": "6+",
+        "OC": "1"
+      },
+      "unit_composition": [
+        "The Eightbound Champion’s lacerators can be replaced with 1 heavy chainglaive. ■ 1 Eightbound Champion",
+        "2-5 Eightbound",
+        "The Eightbound Champion model is equipped",
+        "with: lacerators.",
+        "Every Eightbound model is equipped with:",
+        "Eightbound eviscerators."
+      ],
+      "base_size": null,
+      "abilities": [
+        {
+          "name": "CORE",
+          "summary": "Scouts 6\"",
+          "phase_tags": []
+        },
+        {
+          "name": "FACTION",
+          "summary": "Blessings of Khorne",
+          "phase_tags": []
+        },
+        {
+          "name": "Beacons of Rage (Aura)",
+          "summary": "While a friendly World Eaters unit",
+          "phase_tags": []
+        },
+        {
+          "name": "INVULNERABLE SAVE",
+          "summary": "5+",
+          "phase_tags": []
+        }
+      ],
+      "wargear_options": [],
+      "weapons": [
+        {
+          "name": "Eightbound eviscerators",
+          "type": "melee",
+          "range": "Melee",
+          "a": "6",
+          "bs_ws": "3+",
+          "s": "5",
+          "ap": "-2",
+          "d": "2",
+          "keywords": []
+        },
+        {
+          "name": "Heavy chainglaive",
+          "type": "melee",
+          "range": "Melee",
+          "a": "8",
+          "bs_ws": "3+",
+          "s": "7",
+          "ap": "-3",
+          "d": "1",
+          "keywords": []
+        },
+        {
+          "name": "Lacerators",
+          "type": "melee",
+          "range": "Melee",
+          "a": "4",
+          "bs_ws": "3+",
+          "s": "9",
+          "ap": "-2",
+          "d": "3",
+          "keywords": []
+        }
+      ],
+      "strengths": [],
+      "weaknesses": [],
+      "target_priority_tags": [],
+      "threat_tags": [
+        "MELEE_THREAT",
+        "MEDIUM_DURABILITY",
+        "INVULNERABLE_SAVE",
+        "SCOUT_MOVE"
+      ],
+      "mobility_tags": [
+        "MOBILE"
+      ],
+      "durability_tags": [
+        "MEDIUM_ARMOUR",
+        "MEDIUM_TOUGHNESS"
+      ],
+      "tau_counterplay": [
+        "Melee threat — maintain distance, use Drones as speed bumps, overwatch with Pulse.",
+        "Infiltrator/Scout — expect pressure Turn 1. Keep screens forward.",
+        "Invulnerable save — volume of fire preferred over single high-AP shots."
+      ],
+      "notes": ""
+    },
+    {
+      "name": "EXALTED EIGHTBOUND",
+      "legends": false,
+      "role": "INFANTRY",
+      "faction_keywords": [
+        "KEYWORDS: Infantry",
+        "Chaos",
+        "Khorne",
+        "Daemon",
+        "Exalted Eightbound",
+        "World Eaters"
+      ],
+      "keywords": [
+        "KEYWORDS: Infantry",
+        "Chaos",
+        "Khorne",
+        "Daemon",
+        "Exalted Eightbound World Eaters"
+      ],
+      "points": null,
+      "stats": {
+        "M": "9\"",
+        "T": "6",
+        "Sv": "3+",
+        "W": "3",
+        "Ld": "6+",
+        "OC": "1"
+      },
+      "unit_composition": [
+        "The Exalted Eightbound Champion’s Eightbound eviscerator and Eightbound chainfist can be replaced ■ 1 Exalted Eightbound Champion",
+        "with one of the following: ■ 2-5 Exalted Eightbound",
+        "1 paired Eightbound chainfists",
+        "1 heavy chainglaive Eightbound chainfist."
+      ],
+      "base_size": null,
+      "abilities": [
+        {
+          "name": "CORE",
+          "summary": "Deep Strike",
+          "phase_tags": []
+        },
+        {
+          "name": "FACTION",
+          "summary": "Blessings of Khorne",
+          "phase_tags": []
+        },
+        {
+          "name": "Overwhelming Wrath (Aura)",
+          "summary": "Each time an enemy unit within",
+          "phase_tags": []
+        },
+        {
+          "name": "INVULNERABLE SAVE",
+          "summary": "5+",
+          "phase_tags": []
+        }
+      ],
+      "wargear_options": [],
+      "weapons": [
+        {
+          "name": "Eightbound chainfist",
+          "type": "melee",
+          "range": "Melee",
+          "a": "3",
+          "bs_ws": "3+",
+          "s": "14",
+          "ap": "-3",
+          "d": "2",
+          "keywords": []
+        },
+        {
+          "name": "Eightbound eviscerator",
+          "type": "melee",
+          "range": "Melee",
+          "a": "5",
+          "bs_ws": "2+",
+          "s": "6",
+          "ap": "-2",
+          "d": "2",
+          "keywords": []
+        },
+        {
+          "name": "Heavy chainglaive",
+          "type": "melee",
+          "range": "Melee",
+          "a": "8",
+          "bs_ws": "2+",
+          "s": "8",
+          "ap": "-3",
+          "d": "1",
+          "keywords": []
+        },
+        {
+          "name": "Paired Eightbound chainfists",
+          "type": "melee",
+          "range": "Melee",
+          "a": "5",
+          "bs_ws": "3+",
+          "s": "14",
+          "ap": "-3",
+          "d": "2",
+          "keywords": [
+            "TWIN-LINKED"
+          ]
+        }
+      ],
+      "strengths": [],
+      "weaknesses": [],
+      "target_priority_tags": [],
+      "threat_tags": [
+        "ELITE_MELEE",
+        "MEDIUM_DURABILITY",
+        "INVULNERABLE_SAVE",
+        "DEEP_STRIKE"
+      ],
+      "mobility_tags": [
+        "MOBILE",
+        "DEEP_STRIKE"
+      ],
+      "durability_tags": [
+        "MEDIUM_ARMOUR",
+        "MEDIUM_TOUGHNESS"
+      ],
+      "tau_counterplay": [
+        "Melee threat — maintain distance, use Drones as speed bumps, overwatch with Pulse.",
+        "Deep Strike threat — screen backfield with Kroot or Fire Warriors 9\" from objectives.",
+        "Invulnerable save — volume of fire preferred over single high-AP shots."
+      ],
+      "notes": ""
+    },
+    {
+      "name": "JAKHALS",
+      "legends": false,
+      "role": "INFANTRY",
+      "faction_keywords": [
+        "KEYWORDS: Infantry",
+        "Battleline",
+        "Chaos",
+        "Khorne",
+        "Jakhals",
+        "World Eaters"
+      ],
+      "keywords": [
+        "KEYWORDS: Infantry",
+        "Battleline",
+        "Chaos",
+        "Khorne",
+        "Jakhals World Eaters"
+      ],
+      "points": null,
+      "stats": {
+        "M": "6\"",
+        "T": "3",
+        "Sv": "6+",
+        "W": "1",
+        "Ld": "7+",
+        "OC": "1"
+      },
+      "unit_composition": [
+        "For every 10 models in this unit, 1 Jakhal’s Jakhal chainblades can be replaced with 1 ■ 1 Jakhal Pack"
+      ],
+      "base_size": null,
+      "abilities": [
+        {
+          "name": "CORE",
+          "summary": "Feel No Pain 6+",
+          "phase_tags": []
+        },
+        {
+          "name": "FACTION",
+          "summary": "Blessings of Khorne",
+          "phase_tags": []
+        },
+        {
+          "name": "Objective Ravaged",
+          "summary": "At the end of your Command phase, if this",
+          "phase_tags": []
+        },
+        {
+          "name": "Icon of Khorne",
+          "summary": "Each time you make a Blessings of Khorne",
+          "phase_tags": []
+        }
+      ],
+      "wargear_options": [],
+      "weapons": [
+        {
+          "name": "Autopistol",
+          "type": "ranged",
+          "range": "12\"",
+          "a": "1",
+          "bs_ws": "4+",
+          "s": "3",
+          "ap": "0",
+          "d": "1",
+          "keywords": [
+            "PISTOL"
+          ]
+        },
+        {
+          "name": "Jakhal chainblades",
+          "type": "melee",
+          "range": "Melee",
+          "a": "2",
+          "bs_ws": "4+",
+          "s": "3",
+          "ap": "0",
+          "d": "1",
+          "keywords": [
+            "SUSTAINED HITS 1"
+          ]
+        },
+        {
+          "name": "Dishonoured chainblades",
+          "type": "melee",
+          "range": "Melee",
+          "a": "3",
+          "bs_ws": "4+",
+          "s": "4",
+          "ap": "0",
+          "d": "1",
+          "keywords": [
+            "SUSTAINED HITS 1"
+          ]
+        },
+        {
+          "name": "Mauler chainblade",
+          "type": "melee",
+          "range": "Melee",
+          "a": "2",
+          "bs_ws": "5+",
+          "s": "5",
+          "ap": "-1",
+          "d": "2",
+          "keywords": [
+            "SUSTAINED HITS 1"
+          ]
+        },
+        {
+          "name": "Skullsmasher",
+          "type": "melee",
+          "range": "Melee",
+          "a": "4",
+          "bs_ws": "4+",
+          "s": "4",
+          "ap": "-1",
+          "d": "2",
+          "keywords": []
+        }
+      ],
+      "strengths": [],
+      "weaknesses": [],
+      "target_priority_tags": [],
+      "threat_tags": [
+        "RANGED_CAPABLE"
+      ],
+      "mobility_tags": [],
+      "durability_tags": [
+        "LIGHT_ARMOUR"
+      ],
+      "tau_counterplay": [],
+      "notes": ""
+    },
+    {
+      "name": "KHORNE BERZERKERS",
+      "legends": false,
+      "role": "INFANTRY",
+      "faction_keywords": [
+        "KEYWORDS: Infantry",
+        "Battleline",
+        "Grenades",
+        "Chaos",
+        "Khorne",
+        "Berzerkers",
+        "World Eaters"
+      ],
+      "keywords": [
+        "KEYWORDS: Infantry",
+        "Battleline",
+        "Grenades",
+        "Chaos",
+        "Khorne",
+        "Berzerkers World Eaters"
+      ],
+      "points": null,
+      "stats": {
+        "M": "6\"",
+        "T": "4",
+        "Sv": "3+",
+        "W": "2",
+        "Ld": "6+",
+        "OC": "2"
+      },
+      "unit_composition": [
+        "The Khorne Berzerker Champion’s bolt pistol can be replaced with 1 plasma pistol. ■ 1 Khorne Berzerker Champion",
+        "For every 5 models in this unit, 1 Khorne Berzerker’s bolt pistol can be replaced with 1 plasma pistol. ■ 4-9 Khorne Berzerkers",
+        "For every 5 models in this unit, 1 Khorne Berzerker’s Berzerker chainblade can be replaced with 1 Every model is equipped with: bolt pistol;",
+        "Khornate eviscerator. Berzerker chainblade.",
+        "1 model can be equipped with 1 icon of Khorne."
+      ],
+      "base_size": null,
+      "abilities": [
+        {
+          "name": "FACTION",
+          "summary": "Blessings of Khorne",
+          "phase_tags": []
+        },
+        {
+          "name": "Blood Surge",
+          "summary": "Each time an enemy unit is selected to shoot,",
+          "phase_tags": []
+        },
+        {
+          "name": "Icon of Khorne",
+          "summary": "Each time you make a Blessings of Khorne",
+          "phase_tags": []
+        }
+      ],
+      "wargear_options": [],
+      "weapons": [
+        {
+          "name": "Bolt pistol",
+          "type": "ranged",
+          "range": "12\"",
+          "a": "1",
+          "bs_ws": "3+",
+          "s": "4",
+          "ap": "0",
+          "d": "1",
+          "keywords": [
+            "PISTOL"
+          ]
+        },
+        {
+          "name": "Plasma pistol – standard",
+          "type": "ranged",
+          "range": "12\"",
+          "a": "1",
+          "bs_ws": "3+",
+          "s": "7",
+          "ap": "-2",
+          "d": "1",
+          "keywords": [
+            "PISTOL"
+          ]
+        },
+        {
+          "name": "Plasma pistol – supercharge",
+          "type": "ranged",
+          "range": "12\"",
+          "a": "1",
+          "bs_ws": "3+",
+          "s": "8",
+          "ap": "-3",
+          "d": "2",
+          "keywords": [
+            "HAZARDOUS",
+            "PISTOL"
+          ]
+        },
+        {
+          "name": "Berzerker chainblade",
+          "type": "melee",
+          "range": "Melee",
+          "a": "4",
+          "bs_ws": "3+",
+          "s": "5",
+          "ap": "-1",
+          "d": "1",
+          "keywords": []
+        },
+        {
+          "name": "Khornate eviscerator",
+          "type": "melee",
+          "range": "Melee",
+          "a": "3",
+          "bs_ws": "3+",
+          "s": "8",
+          "ap": "-2",
+          "d": "2",
+          "keywords": []
+        }
+      ],
+      "strengths": [],
+      "weaknesses": [],
+      "target_priority_tags": [],
+      "threat_tags": [
+        "MELEE_THREAT",
+        "RANGED_CAPABLE",
+        "PLASMA",
+        "MEDIUM_DURABILITY"
+      ],
+      "mobility_tags": [],
+      "durability_tags": [
+        "MEDIUM_ARMOUR"
+      ],
+      "tau_counterplay": [
+        "Melee threat — maintain distance, use Drones as speed bumps, overwatch with Pulse."
+      ],
+      "notes": ""
+    },
+    {
+      "name": "WORLD EATERS CHAOS SPAWN",
+      "legends": false,
+      "role": "INFANTRY",
+      "faction_keywords": [
+        "KEYWORDS: Beast",
+        "Chaos",
+        "Khorne",
+        "Spawn",
+        "World Eaters"
+      ],
+      "keywords": [
+        "KEYWORDS: Beast",
+        "Chaos",
+        "Khorne",
+        "Spawn World Eaters"
+      ],
+      "points": null,
+      "stats": {
+        "M": "8\"",
+        "T": "5",
+        "Sv": "4+",
+        "W": "4",
+        "Ld": "7+",
+        "OC": "1"
+      },
+      "unit_composition": [
+        "None ■ 2 Chaos Spawn"
+      ],
+      "base_size": null,
+      "abilities": [
+        {
+          "name": "CORE",
+          "summary": "Feel No Pain 5+",
+          "phase_tags": []
+        },
+        {
+          "name": "FACTION",
+          "summary": "Blessings of Khorne",
+          "phase_tags": []
+        },
+        {
+          "name": "Regenerating Monstrosities",
+          "summary": "At the start of each player’s",
+          "phase_tags": []
+        }
+      ],
+      "wargear_options": [],
+      "weapons": [
+        {
+          "name": "Hideous mutations",
+          "type": "melee",
+          "range": "Melee",
+          "a": "D6+2",
+          "bs_ws": "4+",
+          "s": "6",
+          "ap": "-1",
+          "d": "2",
+          "keywords": []
+        }
+      ],
+      "strengths": [],
+      "weaknesses": [],
+      "target_priority_tags": [],
+      "threat_tags": [
+        "MELEE_THREAT"
+      ],
+      "mobility_tags": [
+        "MOBILE"
+      ],
+      "durability_tags": [
+        "LIGHT_ARMOUR",
+        "MEDIUM_TOUGHNESS",
+        "MULTI_WOUND"
+      ],
+      "tau_counterplay": [
+        "Melee threat — maintain distance, use Drones as speed bumps, overwatch with Pulse."
+      ],
+      "notes": ""
+    },
+    {
+      "name": "WORLD EATERS TERMINATOR SQUAD",
+      "legends": false,
+      "role": "INFANTRY",
+      "faction_keywords": [
+        "KEYWORDS: Infantry",
+        "Chaos",
+        "Khorne",
+        "Terminator",
+        "Terminator Squad",
+        "World eaters"
+      ],
+      "keywords": [
+        "KEYWORDS: Infantry",
+        "Chaos",
+        "Khorne",
+        "Terminator",
+        "Terminator Squad World eaters"
+      ],
+      "points": null,
+      "stats": {
+        "M": "5\"",
+        "T": "5",
+        "Sv": "2+",
+        "W": "3",
+        "Ld": "6+",
+        "OC": "1"
+      },
+      "unit_composition": [
+        "For every 5 models in this unit, 1 World Eaters Terminator’s combi-bolter can be replaced with one of ■ 1 World Eaters Terminator Champion",
+        "the following: ■ 4-9 World Eaters Terminators",
+        "1 heavy flamer",
+        "1 reaper autocannon accursed weapon.",
+        "Any number of models can each have their combi-bolter replaced with 1 combi-weapon.",
+        "For every 5 models in this unit, 1 model’s combi-bolter and accursed weapon can be replaced with 1",
+        "paired accursed weapons.",
+        "For every 5 models in this unit, up to 3 models can each have their accursed weapon replaced with 1",
+        "power fist.",
+        "For every 5 models in this unit, 1 model’s accursed weapon can be replaced with 1 chainfist."
+      ],
+      "base_size": null,
+      "abilities": [
+        {
+          "name": "CORE",
+          "summary": "Deep Strike",
+          "phase_tags": []
+        },
+        {
+          "name": "FACTION",
+          "summary": "Blessings of Khorne",
+          "phase_tags": []
+        },
+        {
+          "name": "Bloody Fury",
+          "summary": "Each time a model in this unit makes an",
+          "phase_tags": []
+        },
+        {
+          "name": "INVULNERABLE SAVE",
+          "summary": "4+",
+          "phase_tags": []
+        }
+      ],
+      "wargear_options": [],
+      "weapons": [
+        {
+          "name": "Combi-bolter",
+          "type": "ranged",
+          "range": "24\"",
+          "a": "2",
+          "bs_ws": "3+",
+          "s": "4",
+          "ap": "0",
+          "d": "1",
+          "keywords": [
+            "RAPID FIRE 2"
+          ]
+        },
+        {
+          "name": "Heavy flamer",
+          "type": "ranged",
+          "range": "12\"",
+          "a": "D6",
+          "bs_ws": "N/A",
+          "s": "5",
+          "ap": "-1",
+          "d": "1",
+          "keywords": [
+            "IGNORES COVER",
+            "TORRENT"
+          ]
+        },
+        {
+          "name": "Reaper autocannon",
+          "type": "ranged",
+          "range": "36\"",
+          "a": "4",
+          "bs_ws": "3+",
+          "s": "7",
+          "ap": "-1",
+          "d": "1",
+          "keywords": []
+        },
+        {
+          "name": "Accursed weapon",
+          "type": "melee",
+          "range": "Melee",
+          "a": "4",
+          "bs_ws": "3+",
+          "s": "6",
+          "ap": "-2",
+          "d": "1",
+          "keywords": []
+        }
+      ],
+      "strengths": [],
+      "weaknesses": [],
+      "target_priority_tags": [],
+      "threat_tags": [
+        "MELEE_THREAT",
+        "RANGED_CAPABLE",
+        "HIGH_DURABILITY",
+        "INVULNERABLE_SAVE",
+        "DEEP_STRIKE"
+      ],
+      "mobility_tags": [
+        "DEEP_STRIKE"
+      ],
+      "durability_tags": [
+        "HEAVY_ARMOUR",
+        "MEDIUM_TOUGHNESS"
+      ],
+      "tau_counterplay": [
+        "Melee threat — maintain distance, use Drones as speed bumps, overwatch with Pulse.",
+        "High durability — concentrate fire, Ion Accelerator or Railguns for AP-3+.",
+        "Deep Strike threat — screen backfield with Kroot or Fire Warriors 9\" from objectives.",
+        "Invulnerable save — volume of fire preferred over single high-AP shots."
+      ],
+      "notes": ""
+    },
+    {
+      "name": "KHORNE LORD OF SKULLS",
+      "legends": false,
+      "role": "VEHICLE",
+      "faction_keywords": [
+        "Lord of Skulls World Eaters"
+      ],
+      "keywords": [
+        "Vehicle",
+        "Titanic",
+        "Towering",
+        "Chaos",
+        "Khorne",
+        "Daemon"
+      ],
+      "points": null,
+      "stats": {
+        "M": "8\"",
+        "T": "13",
+        "Sv": "3+",
+        "W": "24",
+        "Ld": "6+",
+        "OC": "8"
+      },
+      "unit_composition": [
+        "This model’s gorestorm cannon can be replaced with one of the following: ■ 1 Khorne Lord of Skulls",
+        "1 daemongore cannon This model is equipped with: gorestorm cannon;",
+        "1 ichor cannon Hades gatling cannon; great cleaver of Khorne.",
+        "This model’s Hades gatling cannon can be replaced with 1 skullhurler."
+      ],
+      "base_size": null,
+      "abilities": [
+        {
+          "name": "CORE",
+          "summary": "Deadly Demise D6+2",
+          "phase_tags": []
+        },
+        {
+          "name": "FACTION",
+          "summary": "Blessings of Khorne",
+          "phase_tags": []
+        },
+        {
+          "name": "Blessed Slaughter",
+          "summary": "Each time you make a Blessings of",
+          "phase_tags": []
+        },
+        {
+          "name": "INVULNERABLE SAVE",
+          "summary": "5+",
+          "phase_tags": []
+        }
+      ],
+      "wargear_options": [],
+      "weapons": [
+        {
+          "name": "Daemongore cannon",
+          "type": "ranged",
+          "range": "18\"",
+          "a": "D6",
+          "bs_ws": "3+",
+          "s": "14",
+          "ap": "-4",
+          "d": "D6+2",
+          "keywords": [
+            "BLAST"
+          ]
+        },
+        {
+          "name": "Gorestorm cannon",
+          "type": "ranged",
+          "range": "24\"",
+          "a": "D6+3",
+          "bs_ws": "3+",
+          "s": "10",
+          "ap": "-2",
+          "d": "3",
+          "keywords": [
+            "BLAST"
+          ]
+        },
+        {
+          "name": "Hades gatling cannon",
+          "type": "ranged",
+          "range": "48\"",
+          "a": "12",
+          "bs_ws": "3+",
+          "s": "8",
+          "ap": "-2",
+          "d": "2",
+          "keywords": [
+            "SUSTAINED HITS 1"
+          ]
+        },
+        {
+          "name": "Ichor cannon",
+          "type": "ranged",
+          "range": "48\"",
+          "a": "2D6",
+          "bs_ws": "3+",
+          "s": "7",
+          "ap": "-2",
+          "d": "2",
+          "keywords": [
+            "BLAST"
+          ]
+        },
+        {
+          "name": "Skullhurler",
+          "type": "ranged",
+          "range": "60\"",
+          "a": "2D6",
+          "bs_ws": "3+",
+          "s": "14",
+          "ap": "-3",
+          "d": "3",
+          "keywords": []
+        },
+        {
+          "name": "Great cleaver of Khorne – strike",
+          "type": "melee",
+          "range": "Melee",
+          "a": "5",
+          "bs_ws": "3+",
+          "s": "16",
+          "ap": "-4",
+          "d": "8",
+          "keywords": []
+        },
+        {
+          "name": "Great cleaver of Khorne – sweep",
+          "type": "melee",
+          "range": "Melee",
+          "a": "15",
+          "bs_ws": "3+",
+          "s": "8",
+          "ap": "-2",
+          "d": "2",
+          "keywords": []
+        }
+      ],
+      "strengths": [],
+      "weaknesses": [],
+      "target_priority_tags": [],
+      "threat_tags": [
+        "ELITE_MELEE",
+        "RANGED_CAPABLE",
+        "BLAST_WEAPONS",
+        "HIGH_DURABILITY",
+        "INVULNERABLE_SAVE"
+      ],
+      "mobility_tags": [
+        "MOBILE"
+      ],
+      "durability_tags": [
+        "MEDIUM_ARMOUR",
+        "VERY_HIGH_TOUGHNESS",
+        "SUPER_MULTI_WOUND"
+      ],
+      "tau_counterplay": [
+        "Melee threat — maintain distance, use Drones as speed bumps, overwatch with Pulse.",
+        "High durability — concentrate fire, Ion Accelerator or Railguns for AP-3+.",
+        "T13 — only Ion Accelerator, Railguns, or AP-2+ volume attacks meaningful.",
+        "Invulnerable save — volume of fire preferred over single high-AP shots."
+      ],
+      "notes": ""
+    },
+    {
+      "name": "WORLD EATERS DEFILER",
+      "legends": false,
+      "role": "VEHICLE",
+      "faction_keywords": [
+        "KEYWORDS: Vehicle",
+        "Walker",
+        "Smoke",
+        "Chaos",
+        "Khorne",
+        "Daemon",
+        "Defiler",
+        "World Eaters"
+      ],
+      "keywords": [
+        "KEYWORDS: Vehicle",
+        "Walker",
+        "Smoke",
+        "Chaos",
+        "Khorne",
+        "Daemon",
+        "Defiler World Eaters"
+      ],
+      "points": null,
+      "stats": {
+        "M": "8\"",
+        "T": "10",
+        "Sv": "3+",
+        "W": "14",
+        "Ld": "6+",
+        "OC": "5"
+      },
+      "unit_composition": [
+        "This model’s twin heavy flamer can be replaced with one of the following: ■ 1 World Eaters Defiler",
+        "1 havoc launcher This model is equipped with: Defiler cannon;",
+        "1 Defiler scourge reaper autocannon; twin heavy flamer; Defiler claws.",
+        "This model’s reaper autocannon can be replaced with one of the following:",
+        "1 twin heavy bolter",
+        "1 twin lascannon",
+        "This model can be equipped with one of the following:",
+        "1 combi-bolter",
+        "1 combi-weapon"
+      ],
+      "base_size": null,
+      "abilities": [
+        {
+          "name": "CORE",
+          "summary": "Deadly Demise D3",
+          "phase_tags": []
+        },
+        {
+          "name": "FACTION",
+          "summary": "Blessings of Khorne",
+          "phase_tags": []
+        },
+        {
+          "name": "Scuttling Walker",
+          "summary": "Each time this model makes a Normal,",
+          "phase_tags": []
+        },
+        {
+          "name": "INVULNERABLE SAVE",
+          "summary": "5+",
+          "phase_tags": []
+        }
+      ],
+      "wargear_options": [],
+      "weapons": [
+        {
+          "name": "Combi-bolter",
+          "type": "ranged",
+          "range": "24\"",
+          "a": "2",
+          "bs_ws": "3+",
+          "s": "4",
+          "ap": "0",
+          "d": "1",
+          "keywords": [
+            "RAPID FIRE 2"
+          ]
+        },
+        {
+          "name": "Defiler cannon",
+          "type": "ranged",
+          "range": "48\"",
+          "a": "D6+3",
+          "bs_ws": "3+",
+          "s": "10",
+          "ap": "-1",
+          "d": "3",
+          "keywords": [
+            "BLAST"
+          ]
+        },
+        {
+          "name": "Havoc launcher",
+          "type": "ranged",
+          "range": "48\"",
+          "a": "D6",
+          "bs_ws": "3+",
+          "s": "5",
+          "ap": "0",
+          "d": "1",
+          "keywords": [
+            "BLAST"
+          ]
+        },
+        {
+          "name": "Twin heavy bolter",
+          "type": "ranged",
+          "range": "36\"",
+          "a": "3",
+          "bs_ws": "3+",
+          "s": "5",
+          "ap": "-1",
+          "d": "2",
+          "keywords": [
+            "SUSTAINED HITS 1",
+            "TWIN-LINKED"
+          ]
+        },
+        {
+          "name": "Twin lascannon",
+          "type": "ranged",
+          "range": "48\"",
+          "a": "1",
+          "bs_ws": "3+",
+          "s": "12",
+          "ap": "-3",
+          "d": "D6+1",
+          "keywords": [
+            "TWIN-LINKED"
+          ]
+        },
+        {
+          "name": "Defiler claws",
+          "type": "melee",
+          "range": "Melee",
+          "a": "5",
+          "bs_ws": "3+",
+          "s": "16",
+          "ap": "-3",
+          "d": "D6+1",
+          "keywords": []
+        }
+      ],
+      "strengths": [],
+      "weaknesses": [],
+      "target_priority_tags": [],
+      "threat_tags": [
+        "ELITE_MELEE",
+        "RANGED_CAPABLE",
+        "BLAST_WEAPONS",
+        "HIGH_DURABILITY",
+        "INVULNERABLE_SAVE"
+      ],
+      "mobility_tags": [
+        "MOBILE"
+      ],
+      "durability_tags": [
+        "MEDIUM_ARMOUR",
+        "HIGH_TOUGHNESS",
+        "MULTI_WOUND_HIGH"
+      ],
+      "tau_counterplay": [
+        "Melee threat — maintain distance, use Drones as speed bumps, overwatch with Pulse.",
+        "High durability — concentrate fire, Ion Accelerator or Railguns for AP-3+.",
+        "T10 — only Ion Accelerator, Railguns, or AP-2+ volume attacks meaningful.",
+        "Invulnerable save — volume of fire preferred over single high-AP shots."
+      ],
+      "notes": ""
+    },
+    {
+      "name": "WORLD EATERS FORGEFIEND",
+      "legends": false,
+      "role": "VEHICLE",
+      "faction_keywords": [
+        "KEYWORDS: Vehicle",
+        "Walker",
+        "Chaos",
+        "Khorne",
+        "Daemon",
+        "Forgefiend",
+        "World Eaters"
+      ],
+      "keywords": [
+        "KEYWORDS: Vehicle",
+        "Walker",
+        "Chaos",
+        "Khorne",
+        "Daemon",
+        "Forgefiend World Eaters"
+      ],
+      "points": null,
+      "stats": {
+        "M": "8\"",
+        "T": "10",
+        "Sv": "3+",
+        "W": "12",
+        "Ld": "6+",
+        "OC": "3"
+      },
+      "unit_composition": [
+        "This model’s 2 Hades autocannons can be replaced with 2 ectoplasma cannons. ■ 1 World Eaters Forgefiend",
+        "This model’s Forgefiend jaws can be replaced with 1 ectoplasma cannon and 1 Forgefiend claws. This model is equipped with: 2 Hades autocannons;",
+        "1 Forgefiend jaws."
+      ],
+      "base_size": null,
+      "abilities": [
+        {
+          "name": "CORE",
+          "summary": "Deadly Demise D3",
+          "phase_tags": []
+        },
+        {
+          "name": "FACTION",
+          "summary": "Blessings of Khorne",
+          "phase_tags": []
+        },
+        {
+          "name": "Furious Onslaught",
+          "summary": "In your Shooting phase, after this model",
+          "phase_tags": []
+        },
+        {
+          "name": "INVULNERABLE SAVE",
+          "summary": "5+",
+          "phase_tags": []
+        }
+      ],
+      "wargear_options": [],
+      "weapons": [
+        {
+          "name": "Ectoplasma cannon",
+          "type": "ranged",
+          "range": "36\"",
+          "a": "D3",
+          "bs_ws": "3+",
+          "s": "10",
+          "ap": "-3",
+          "d": "3",
+          "keywords": [
+            "BLAST"
+          ]
+        },
+        {
+          "name": "Hades autocannon",
+          "type": "ranged",
+          "range": "36\"",
+          "a": "6",
+          "bs_ws": "3+",
+          "s": "8",
+          "ap": "-1",
+          "d": "2",
+          "keywords": []
+        },
+        {
+          "name": "Forgefiend claws",
+          "type": "melee",
+          "range": "Melee",
+          "a": "3",
+          "bs_ws": "3+",
+          "s": "6",
+          "ap": "0",
+          "d": "1",
+          "keywords": []
+        },
+        {
+          "name": "Forgefiend jaws",
+          "type": "melee",
+          "range": "Melee",
+          "a": "5",
+          "bs_ws": "3+",
+          "s": "7",
+          "ap": "0",
+          "d": "2",
+          "keywords": []
+        }
+      ],
+      "strengths": [],
+      "weaknesses": [],
+      "target_priority_tags": [],
+      "threat_tags": [
+        "MELEE_THREAT",
+        "RANGED_CAPABLE",
+        "BLAST_WEAPONS",
+        "PLASMA",
+        "HIGH_DURABILITY",
+        "INVULNERABLE_SAVE"
+      ],
+      "mobility_tags": [
+        "MOBILE"
+      ],
+      "durability_tags": [
+        "MEDIUM_ARMOUR",
+        "HIGH_TOUGHNESS",
+        "MULTI_WOUND_HIGH"
+      ],
+      "tau_counterplay": [
+        "Melee threat — maintain distance, use Drones as speed bumps, overwatch with Pulse.",
+        "High durability — concentrate fire, Ion Accelerator or Railguns for AP-3+.",
+        "T10 — only Ion Accelerator, Railguns, or AP-2+ volume attacks meaningful.",
+        "Invulnerable save — volume of fire preferred over single high-AP shots."
+      ],
+      "notes": ""
+    },
+    {
+      "name": "WORLD EATERS HELBRUTE",
+      "legends": false,
+      "role": "VEHICLE",
+      "faction_keywords": [
+        "KEYWORDS: Vehicle",
+        "Walker",
+        "Chaos",
+        "Khorne",
+        "Helbrute",
+        "World Eaters"
+      ],
+      "keywords": [
+        "KEYWORDS: Vehicle",
+        "Walker",
+        "Chaos",
+        "Khorne",
+        "Helbrute World Eaters"
+      ],
+      "points": null,
+      "stats": {
+        "M": "6\"",
+        "T": "9",
+        "Sv": "2+",
+        "W": "8",
+        "Ld": "6+",
+        "OC": "3"
+      },
+      "unit_composition": [
+        "This model’s multi-melta can be replaced with one of the following: ■ 1 World Eaters Helbrute",
+        "1 Helbrute plasma cannon This model is equipped with: missile launcher; multi-melta;",
+        "1 twin autocannon close combat weapon.",
+        "1 twin heavy bolter",
+        "1 twin lascannon",
+        "1 Helbrute fist",
+        "This model’s missile launcher can be replaced with one of the following:",
+        "1 Helbrute fist",
+        "1 Helbrute hammer",
+        "1 power scourge",
+        "For each Helbrute fist this model is equipped with, it can be equipped with one of the following:",
+        "1 combi-bolter",
+        "1 heavy flamer"
+      ],
+      "base_size": null,
+      "abilities": [
+        {
+          "name": "CORE",
+          "summary": "Deadly Demise 1",
+          "phase_tags": []
+        },
+        {
+          "name": "FACTION",
+          "summary": "Blessings of Khorne",
+          "phase_tags": []
+        },
+        {
+          "name": "Frenzy",
+          "summary": "Each time an enemy unit targets this model, after that",
+          "phase_tags": []
+        },
+        {
+          "name": "Helbrute Fists",
+          "summary": "If this model is equipped with two Helbrute",
+          "phase_tags": []
+        }
+      ],
+      "wargear_options": [],
+      "weapons": [
+        {
+          "name": "Combi-bolter",
+          "type": "ranged",
+          "range": "24\"",
+          "a": "2",
+          "bs_ws": "3+",
+          "s": "4",
+          "ap": "0",
+          "d": "1",
+          "keywords": [
+            "RAPID FIRE 2"
+          ]
+        },
+        {
+          "name": "Heavy flamer",
+          "type": "ranged",
+          "range": "12\"",
+          "a": "D6",
+          "bs_ws": "N/A",
+          "s": "5",
+          "ap": "-1",
+          "d": "1",
+          "keywords": [
+            "IGNORES COVER",
+            "TORRENT"
+          ]
+        },
+        {
+          "name": "Helbrute plasma cannon",
+          "type": "ranged",
+          "range": "36\"",
+          "a": "D3",
+          "bs_ws": "3+",
+          "s": "8",
+          "ap": "-3",
+          "d": "3",
+          "keywords": [
+            "BLAST",
+            "HAZARDOUS"
+          ]
+        },
+        {
+          "name": "Missile launcher – frag",
+          "type": "ranged",
+          "range": "48\"",
+          "a": "D6",
+          "bs_ws": "3+",
+          "s": "4",
+          "ap": "0",
+          "d": "1",
+          "keywords": [
+            "BLAST"
+          ]
+        },
+        {
+          "name": "Missile launcher – krak",
+          "type": "ranged",
+          "range": "48\"",
+          "a": "1",
+          "bs_ws": "3+",
+          "s": "9",
+          "ap": "-2",
+          "d": "D6",
+          "keywords": []
+        },
+        {
+          "name": "Multi-melta",
+          "type": "ranged",
+          "range": "18\"",
+          "a": "2",
+          "bs_ws": "3+",
+          "s": "9",
+          "ap": "-4",
+          "d": "D6",
+          "keywords": [
+            "MELTA 2"
+          ]
+        },
+        {
+          "name": "Twin autocannon",
+          "type": "ranged",
+          "range": "48\"",
+          "a": "2",
+          "bs_ws": "3+",
+          "s": "9",
+          "ap": "-1",
+          "d": "3",
+          "keywords": [
+            "TWIN-LINKED"
+          ]
+        },
+        {
+          "name": "Twin heavy bolter",
+          "type": "ranged",
+          "range": "36\"",
+          "a": "3",
+          "bs_ws": "3+",
+          "s": "5",
+          "ap": "-1",
+          "d": "2",
+          "keywords": [
+            "SUSTAINED HITS 1",
+            "TWIN-LINKED"
+          ]
+        },
+        {
+          "name": "Twin lascannon",
+          "type": "ranged",
+          "range": "48\"",
+          "a": "1",
+          "bs_ws": "3+",
+          "s": "12",
+          "ap": "-3",
+          "d": "D6+1",
+          "keywords": [
+            "TWIN-LINKED"
+          ]
+        },
+        {
+          "name": "Close combat weapon",
+          "type": "melee",
+          "range": "Melee",
+          "a": "5",
+          "bs_ws": "3+",
+          "s": "6",
+          "ap": "0",
+          "d": "1",
+          "keywords": []
+        },
+        {
+          "name": "Helbrute fist",
+          "type": "melee",
+          "range": "Melee",
+          "a": "5",
+          "bs_ws": "3+",
+          "s": "12",
+          "ap": "-2",
+          "d": "3",
+          "keywords": []
+        },
+        {
+          "name": "Helbrute hammer",
+          "type": "melee",
+          "range": "Melee",
+          "a": "5",
+          "bs_ws": "4+",
+          "s": "14",
+          "ap": "-3",
+          "d": "D6+1",
+          "keywords": []
+        },
+        {
+          "name": "Power scourge",
+          "type": "melee",
+          "range": "Melee",
+          "a": "8",
+          "bs_ws": "3+",
+          "s": "7",
+          "ap": "-1",
+          "d": "2",
+          "keywords": []
+        }
+      ],
+      "strengths": [],
+      "weaknesses": [],
+      "target_priority_tags": [],
+      "threat_tags": [
+        "ELITE_MELEE",
+        "RANGED_CAPABLE",
+        "BLAST_WEAPONS",
+        "MELTA",
+        "PLASMA",
+        "HIGH_DURABILITY"
+      ],
+      "mobility_tags": [],
+      "durability_tags": [
+        "HEAVY_ARMOUR",
+        "HIGH_TOUGHNESS",
+        "MULTI_WOUND"
+      ],
+      "tau_counterplay": [
+        "Melee threat — maintain distance, use Drones as speed bumps, overwatch with Pulse.",
+        "High durability — concentrate fire, Ion Accelerator or Railguns for AP-3+.",
+        "T9 — Heavy Burst Cannon, Plasma, or Ion Blaster recommended."
+      ],
+      "notes": ""
+    },
+    {
+      "name": "WORLD EATERS HELDRAKE",
+      "legends": false,
+      "role": "VEHICLE",
+      "faction_keywords": [
+        "KEYWORDS: Vehicle",
+        "Fly",
+        "Aircraft",
+        "Chaos",
+        "Khorne",
+        "Daemon",
+        "Heldrake",
+        "World Eaters"
+      ],
+      "keywords": [
+        "KEYWORDS: Vehicle",
+        "Fly",
+        "Aircraft",
+        "Chaos",
+        "Khorne",
+        "Daemon",
+        "Heldrake World Eaters"
+      ],
+      "points": null,
+      "stats": {
+        "M": "20+\"",
+        "T": "9",
+        "Sv": "3+",
+        "W": "12",
+        "Ld": "6+",
+        "OC": "0"
+      },
+      "unit_composition": [
+        "This model’s Hades autocannon can be replaced with 1 baleflamer. ■ 1 World Eaters Heldrake",
+        "This model is equipped with: Hades autocannon;",
+        "Heldrake claws."
+      ],
+      "base_size": null,
+      "abilities": [
+        {
+          "name": "CORE",
+          "summary": "Deadly Demise D3",
+          "phase_tags": []
+        },
+        {
+          "name": "FACTION",
+          "summary": "Blessings of Khorne",
+          "phase_tags": []
+        },
+        {
+          "name": "Swooping Predator",
+          "summary": "Each time this model ends a Normal",
+          "phase_tags": []
+        },
+        {
+          "name": "INVULNERABLE SAVE",
+          "summary": "5+",
+          "phase_tags": []
+        }
+      ],
+      "wargear_options": [],
+      "weapons": [
+        {
+          "name": "Baleflamer",
+          "type": "ranged",
+          "range": "12\"",
+          "a": "D6+3",
+          "bs_ws": "N/A",
+          "s": "6",
+          "ap": "-1",
+          "d": "2",
+          "keywords": [
+            "IGNORES COVER",
+            "TORRENT"
+          ]
+        },
+        {
+          "name": "Hades autocannon",
+          "type": "ranged",
+          "range": "36\"",
+          "a": "6",
+          "bs_ws": "3+",
+          "s": "8",
+          "ap": "-1",
+          "d": "2",
+          "keywords": []
+        },
+        {
+          "name": "Heldrake claws",
+          "type": "melee",
+          "range": "Melee",
+          "a": "5",
+          "bs_ws": "3+",
+          "s": "7",
+          "ap": "-1",
+          "d": "2",
+          "keywords": [
+            "ANTI-FLY 2+",
+            "DEVASTATING WOUNDS"
+          ]
+        }
+      ],
+      "strengths": [],
+      "weaknesses": [],
+      "target_priority_tags": [],
+      "threat_tags": [
+        "MELEE_THREAT",
+        "RANGED_CAPABLE",
+        "HIGH_DURABILITY",
+        "INVULNERABLE_SAVE"
+      ],
+      "mobility_tags": [
+        "VERY_FAST"
+      ],
+      "durability_tags": [
+        "MEDIUM_ARMOUR",
+        "HIGH_TOUGHNESS",
+        "MULTI_WOUND_HIGH"
+      ],
+      "tau_counterplay": [
+        "Melee threat — maintain distance, use Drones as speed bumps, overwatch with Pulse.",
+        "High durability — concentrate fire, Ion Accelerator or Railguns for AP-3+.",
+        "T9 — Heavy Burst Cannon, Plasma, or Ion Blaster recommended.",
+        "Invulnerable save — volume of fire preferred over single high-AP shots."
+      ],
+      "notes": ""
+    },
+    {
+      "name": "WORLD EATERS LAND RAIDER",
+      "legends": false,
+      "role": "VEHICLE",
+      "faction_keywords": [
+        "KEYWORDS: Vehicle",
+        "Transport",
+        "Smoke",
+        "Chaos",
+        "Khorne",
+        "Land Raider",
+        "World Eaters"
+      ],
+      "keywords": [
+        "KEYWORDS: Vehicle",
+        "Transport",
+        "Smoke",
+        "Chaos",
+        "Khorne",
+        "Land Raider World Eaters"
+      ],
+      "points": null,
+      "stats": {
+        "M": "10\"",
+        "T": "12",
+        "Sv": "2+",
+        "W": "16",
+        "Ld": "6+",
+        "OC": "5"
+      },
+      "unit_composition": [
+        "This model can be equipped with one of the following: ■ 1 World Eaters Land Raider",
+        "1 combi-bolter This model is equipped with: 2 soulshatter lascannons;",
+        "1 combi-weapon twin heavy bolter; armoured tracks.",
+        "This model can be equipped with 1 havoc launcher.",
+        "TRANSPORT",
+        "This model has a transport capacity of 12 World Eaters",
+        "Infantry models. Each Eightbound, Exalted Eightbound",
+        "and Terminator model takes up the space of 2 models."
+      ],
+      "base_size": null,
+      "abilities": [
+        {
+          "name": "CORE",
+          "summary": "Deadly Demise D6",
+          "phase_tags": []
+        },
+        {
+          "name": "FACTION",
+          "summary": "Blessings of Khorne",
+          "phase_tags": []
+        },
+        {
+          "name": "Assault Ramp",
+          "summary": "Each time a unit disembarks from this model",
+          "phase_tags": []
+        }
+      ],
+      "wargear_options": [],
+      "weapons": [
+        {
+          "name": "Combi-bolter",
+          "type": "ranged",
+          "range": "24\"",
+          "a": "2",
+          "bs_ws": "3+",
+          "s": "4",
+          "ap": "0",
+          "d": "1",
+          "keywords": [
+            "RAPID FIRE 2"
+          ]
+        },
+        {
+          "name": "Havoc launcher",
+          "type": "ranged",
+          "range": "48\"",
+          "a": "D6",
+          "bs_ws": "3+",
+          "s": "5",
+          "ap": "0",
+          "d": "1",
+          "keywords": [
+            "BLAST"
+          ]
+        },
+        {
+          "name": "Soulshatter lascannon",
+          "type": "ranged",
+          "range": "48\"",
+          "a": "2",
+          "bs_ws": "3+",
+          "s": "12",
+          "ap": "-3",
+          "d": "D6+1",
+          "keywords": []
+        },
+        {
+          "name": "Twin heavy bolter",
+          "type": "ranged",
+          "range": "36\"",
+          "a": "3",
+          "bs_ws": "3+",
+          "s": "5",
+          "ap": "-1",
+          "d": "2",
+          "keywords": [
+            "SUSTAINED HITS 1",
+            "TWIN-LINKED"
+          ]
+        },
+        {
+          "name": "Armoured tracks",
+          "type": "melee",
+          "range": "Melee",
+          "a": "6",
+          "bs_ws": "4+",
+          "s": "8",
+          "ap": "0",
+          "d": "1",
+          "keywords": []
+        }
+      ],
+      "strengths": [],
+      "weaknesses": [],
+      "target_priority_tags": [],
+      "threat_tags": [
+        "MELEE_THREAT",
+        "RANGED_CAPABLE",
+        "BLAST_WEAPONS",
+        "HIGH_DURABILITY"
+      ],
+      "mobility_tags": [
+        "FAST"
+      ],
+      "durability_tags": [
+        "HEAVY_ARMOUR",
+        "VERY_HIGH_TOUGHNESS",
+        "MULTI_WOUND_HIGH"
+      ],
+      "tau_counterplay": [
+        "Melee threat — maintain distance, use Drones as speed bumps, overwatch with Pulse.",
+        "High durability — concentrate fire, Ion Accelerator or Railguns for AP-3+.",
+        "T12 — only Ion Accelerator, Railguns, or AP-2+ volume attacks meaningful."
+      ],
+      "notes": ""
+    },
+    {
+      "name": "WORLD EATERS MAULERFIEND",
+      "legends": false,
+      "role": "VEHICLE",
+      "faction_keywords": [
+        "KEYWORDS: Vehicle",
+        "Walker",
+        "Chaos",
+        "Khorne",
+        "Daemon",
+        "Maulerfiend",
+        "World Eaters"
+      ],
+      "keywords": [
+        "KEYWORDS: Vehicle",
+        "Walker",
+        "Chaos",
+        "Khorne",
+        "Daemon",
+        "Maulerfiend World Eaters"
+      ],
+      "points": null,
+      "stats": {
+        "M": "10\"",
+        "T": "10",
+        "Sv": "3+",
+        "W": "12",
+        "Ld": "6+",
+        "OC": "3"
+      },
+      "unit_composition": [
+        "This model’s lasher tendrils can be replaced with 2 magma cutters. ■ 1 World Eaters Maulerfiend",
+        "This model is equipped with: lasher tendrils;",
+        "Maulerfiend fists."
+      ],
+      "base_size": null,
+      "abilities": [
+        {
+          "name": "CORE",
+          "summary": "Deadly Demise D3",
+          "phase_tags": []
+        },
+        {
+          "name": "FACTION",
+          "summary": "Blessings of Khorne",
+          "phase_tags": []
+        },
+        {
+          "name": "The Scent of Blood",
+          "summary": "Each time you make a Charge roll for this",
+          "phase_tags": []
+        },
+        {
+          "name": "INVULNERABLE SAVE",
+          "summary": "5+",
+          "phase_tags": []
+        }
+      ],
+      "wargear_options": [],
+      "weapons": [
+        {
+          "name": "Magma cutter",
+          "type": "ranged",
+          "range": "6\"",
+          "a": "2",
+          "bs_ws": "3+",
+          "s": "9",
+          "ap": "-4",
+          "d": "D6",
+          "keywords": [
+            "MELTA 2"
+          ]
+        },
+        {
+          "name": "Lasher tendrils",
+          "type": "melee",
+          "range": "Melee",
+          "a": "6",
+          "bs_ws": "3+",
+          "s": "7",
+          "ap": "-1",
+          "d": "1",
+          "keywords": [
+            "EXTRA ATTACKS"
+          ]
+        },
+        {
+          "name": "Maulerfiend fists",
+          "type": "melee",
+          "range": "Melee",
+          "a": "6",
+          "bs_ws": "3+",
+          "s": "14",
+          "ap": "-2",
+          "d": "D6+1",
+          "keywords": []
+        }
+      ],
+      "strengths": [],
+      "weaknesses": [],
+      "target_priority_tags": [],
+      "threat_tags": [
+        "ELITE_MELEE",
+        "RANGED_CAPABLE",
+        "HIGH_DURABILITY",
+        "INVULNERABLE_SAVE"
+      ],
+      "mobility_tags": [
+        "FAST"
+      ],
+      "durability_tags": [
+        "MEDIUM_ARMOUR",
+        "HIGH_TOUGHNESS",
+        "MULTI_WOUND_HIGH"
+      ],
+      "tau_counterplay": [
+        "Melee threat — maintain distance, use Drones as speed bumps, overwatch with Pulse.",
+        "High durability — concentrate fire, Ion Accelerator or Railguns for AP-3+.",
+        "T10 — only Ion Accelerator, Railguns, or AP-2+ volume attacks meaningful.",
+        "Invulnerable save — volume of fire preferred over single high-AP shots."
+      ],
+      "notes": ""
+    },
+    {
+      "name": "WORLD EATERS PREDATOR ANNIHILATOR",
+      "legends": false,
+      "role": "VEHICLE",
+      "faction_keywords": [
+        "KEYWORDS: Vehicle",
+        "Smoke",
+        "Chaos",
+        "Khorne",
+        "Predator Annihilator",
+        "World Eaters"
+      ],
+      "keywords": [
+        "KEYWORDS: Vehicle",
+        "Smoke",
+        "Chaos",
+        "Khorne",
+        "Predator Annihilator World Eaters"
+      ],
+      "points": null,
+      "stats": {
+        "M": "10\"",
+        "T": "10",
+        "Sv": "3+",
+        "W": "11",
+        "Ld": "6+",
+        "OC": "3"
+      },
+      "unit_composition": [
+        "This model can be equipped with one of the following: ■ 1 World Eaters Predator Annihilator",
+        "2 heavy bolters This model is equipped with: Predator twin lascannon;",
+        "2 lascannons armoured tracks.",
+        "This model can be equipped with one of the following:",
+        "1 combi-bolter",
+        "1 combi-weapon",
+        "This model can be equipped with 1 havoc launcher."
+      ],
+      "base_size": null,
+      "abilities": [
+        {
+          "name": "CORE",
+          "summary": "Deadly Demise D3",
+          "phase_tags": []
+        },
+        {
+          "name": "FACTION",
+          "summary": "Blessings of Khorne",
+          "phase_tags": []
+        },
+        {
+          "name": "Annihilator",
+          "summary": "Each time this model makes a ranged attack that",
+          "phase_tags": []
+        }
+      ],
+      "wargear_options": [],
+      "weapons": [
+        {
+          "name": "Combi-bolter",
+          "type": "ranged",
+          "range": "24\"",
+          "a": "2",
+          "bs_ws": "3+",
+          "s": "4",
+          "ap": "0",
+          "d": "1",
+          "keywords": [
+            "RAPID FIRE 2"
+          ]
+        },
+        {
+          "name": "Havoc launcher",
+          "type": "ranged",
+          "range": "48\"",
+          "a": "D6",
+          "bs_ws": "3+",
+          "s": "5",
+          "ap": "0",
+          "d": "1",
+          "keywords": [
+            "BLAST"
+          ]
+        },
+        {
+          "name": "Heavy bolter",
+          "type": "ranged",
+          "range": "48\"",
+          "a": "3",
+          "bs_ws": "3+",
+          "s": "5",
+          "ap": "-1",
+          "d": "2",
+          "keywords": [
+            "SUSTAINED HITS 1"
+          ]
+        },
+        {
+          "name": "Lascannon",
+          "type": "ranged",
+          "range": "48\"",
+          "a": "1",
+          "bs_ws": "3+",
+          "s": "12",
+          "ap": "-3",
+          "d": "D6+1",
+          "keywords": []
+        },
+        {
+          "name": "Predator twin lascannon",
+          "type": "ranged",
+          "range": "48\"",
+          "a": "1",
+          "bs_ws": "3+",
+          "s": "14",
+          "ap": "-3",
+          "d": "D6+1",
+          "keywords": [
+            "TWIN-LINKED"
+          ]
+        },
+        {
+          "name": "Armoured tracks",
+          "type": "melee",
+          "range": "Melee",
+          "a": "3",
+          "bs_ws": "4+",
+          "s": "6",
+          "ap": "0",
+          "d": "1",
+          "keywords": []
+        }
+      ],
+      "strengths": [],
+      "weaknesses": [],
+      "target_priority_tags": [],
+      "threat_tags": [
+        "MELEE_THREAT",
+        "RANGED_CAPABLE",
+        "BLAST_WEAPONS",
+        "HIGH_DURABILITY"
+      ],
+      "mobility_tags": [
+        "FAST"
+      ],
+      "durability_tags": [
+        "MEDIUM_ARMOUR",
+        "HIGH_TOUGHNESS",
+        "MULTI_WOUND_HIGH"
+      ],
+      "tau_counterplay": [
+        "Melee threat — maintain distance, use Drones as speed bumps, overwatch with Pulse.",
+        "High durability — concentrate fire, Ion Accelerator or Railguns for AP-3+.",
+        "T10 — only Ion Accelerator, Railguns, or AP-2+ volume attacks meaningful."
+      ],
+      "notes": ""
+    },
+    {
+      "name": "WORLD EATERS PREDATOR DESTRUCTOR",
+      "legends": false,
+      "role": "VEHICLE",
+      "faction_keywords": [
+        "KEYWORDS: Vehicle",
+        "Smoke",
+        "Chaos",
+        "Khorne",
+        "Predator Destructor",
+        "World Eaters"
+      ],
+      "keywords": [
+        "KEYWORDS: Vehicle",
+        "Smoke",
+        "Chaos",
+        "Khorne",
+        "Predator Destructor World Eaters"
+      ],
+      "points": null,
+      "stats": {
+        "M": "10\"",
+        "T": "10",
+        "Sv": "3+",
+        "W": "11",
+        "Ld": "6+",
+        "OC": "3"
+      },
+      "unit_composition": [
+        "This model can be equipped with one of the following: ■ 1 World Eaters Predator Destructor",
+        "2 heavy bolters This model is equipped with: Predator autocannon;",
+        "2 lascannons armoured tracks.",
+        "This model can be equipped with one of the following:",
+        "1 combi-bolter",
+        "1 combi-weapon",
+        "This model can be equipped with 1 havoc launcher."
+      ],
+      "base_size": null,
+      "abilities": [
+        {
+          "name": "CORE",
+          "summary": "Deadly Demise D3",
+          "phase_tags": []
+        },
+        {
+          "name": "FACTION",
+          "summary": "Blessings of Khorne",
+          "phase_tags": []
+        },
+        {
+          "name": "Destructor",
+          "summary": "Each time a ranged attack made by this model",
+          "phase_tags": []
+        }
+      ],
+      "wargear_options": [],
+      "weapons": [
+        {
+          "name": "Combi-bolter",
+          "type": "ranged",
+          "range": "24\"",
+          "a": "2",
+          "bs_ws": "3+",
+          "s": "4",
+          "ap": "0",
+          "d": "1",
+          "keywords": [
+            "RAPID FIRE 2"
+          ]
+        },
+        {
+          "name": "Havoc launcher",
+          "type": "ranged",
+          "range": "48\"",
+          "a": "D6",
+          "bs_ws": "3+",
+          "s": "5",
+          "ap": "0",
+          "d": "1",
+          "keywords": [
+            "BLAST"
+          ]
+        },
+        {
+          "name": "Heavy bolter",
+          "type": "ranged",
+          "range": "48\"",
+          "a": "3",
+          "bs_ws": "3+",
+          "s": "5",
+          "ap": "-1",
+          "d": "2",
+          "keywords": [
+            "SUSTAINED HITS 1"
+          ]
+        },
+        {
+          "name": "Lascannon",
+          "type": "ranged",
+          "range": "48\"",
+          "a": "1",
+          "bs_ws": "3+",
+          "s": "12",
+          "ap": "-3",
+          "d": "D6+1",
+          "keywords": []
+        },
+        {
+          "name": "Predator autocannon",
+          "type": "ranged",
+          "range": "48\"",
+          "a": "4",
+          "bs_ws": "3+",
+          "s": "9",
+          "ap": "-1",
+          "d": "3",
+          "keywords": []
+        },
+        {
+          "name": "Armoured tracks",
+          "type": "melee",
+          "range": "Melee",
+          "a": "3",
+          "bs_ws": "4+",
+          "s": "6",
+          "ap": "0",
+          "d": "1",
+          "keywords": []
+        }
+      ],
+      "strengths": [],
+      "weaknesses": [],
+      "target_priority_tags": [],
+      "threat_tags": [
+        "MELEE_THREAT",
+        "RANGED_CAPABLE",
+        "BLAST_WEAPONS",
+        "HIGH_DURABILITY"
+      ],
+      "mobility_tags": [
+        "FAST"
+      ],
+      "durability_tags": [
+        "MEDIUM_ARMOUR",
+        "HIGH_TOUGHNESS",
+        "MULTI_WOUND_HIGH"
+      ],
+      "tau_counterplay": [
+        "Melee threat — maintain distance, use Drones as speed bumps, overwatch with Pulse.",
+        "High durability — concentrate fire, Ion Accelerator or Railguns for AP-3+.",
+        "T10 — only Ion Accelerator, Railguns, or AP-2+ volume attacks meaningful."
+      ],
+      "notes": ""
+    },
+    {
+      "name": "WORLD EATERS RHINO",
+      "legends": false,
+      "role": "VEHICLE",
+      "faction_keywords": [
+        "Rhino World Eaters"
+      ],
+      "keywords": [
+        "Vehicle",
+        "Transport",
+        "Dedicated Transport",
+        "Smoke",
+        "Chaos",
+        "Khorne"
+      ],
+      "points": null,
+      "stats": {
+        "M": "12\"",
+        "T": "9",
+        "Sv": "3+",
+        "W": "10",
+        "Ld": "6+",
+        "OC": "2"
+      },
+      "unit_composition": [
+        "This model can be equipped with one of the following: ■ 1 World Eaters Rhino",
+        "1 additional combi-bolter This model is equipped with: combi-bolter; armoured tracks.",
+        "1 combi-weapon",
+        "This model can be equipped with 1 havoc launcher. TRANSPORT",
+        "This model has a transport capacity of 12 World Eaters",
+        "Infantry models. It cannot transport Eightbound or",
+        "Terminator models."
+      ],
+      "base_size": null,
+      "abilities": [
+        {
+          "name": "CORE",
+          "summary": "Deadly Demise D3",
+          "phase_tags": []
+        },
+        {
+          "name": "FACTION",
+          "summary": "Blessings of Khorne",
+          "phase_tags": []
+        },
+        {
+          "name": "Self Repair",
+          "summary": "At the start of your Command phase, this model",
+          "phase_tags": []
+        }
+      ],
+      "wargear_options": [],
+      "weapons": [
+        {
+          "name": "Combi-bolter",
+          "type": "ranged",
+          "range": "24\"",
+          "a": "2",
+          "bs_ws": "3+",
+          "s": "4",
+          "ap": "0",
+          "d": "1",
+          "keywords": [
+            "RAPID FIRE 2"
+          ]
+        },
+        {
+          "name": "Havoc launcher",
+          "type": "ranged",
+          "range": "48\"",
+          "a": "D6",
+          "bs_ws": "3+",
+          "s": "5",
+          "ap": "0",
+          "d": "1",
+          "keywords": [
+            "BLAST"
+          ]
+        },
+        {
+          "name": "Armoured tracks",
+          "type": "melee",
+          "range": "Melee",
+          "a": "3",
+          "bs_ws": "4+",
+          "s": "6",
+          "ap": "0",
+          "d": "1",
+          "keywords": []
+        }
+      ],
+      "strengths": [],
+      "weaknesses": [],
+      "target_priority_tags": [],
+      "threat_tags": [
+        "MELEE_THREAT",
+        "RANGED_CAPABLE",
+        "BLAST_WEAPONS",
+        "HIGH_DURABILITY"
+      ],
+      "mobility_tags": [
+        "FAST"
+      ],
+      "durability_tags": [
+        "MEDIUM_ARMOUR",
+        "HIGH_TOUGHNESS",
+        "MULTI_WOUND_HIGH"
+      ],
+      "tau_counterplay": [
+        "Melee threat — maintain distance, use Drones as speed bumps, overwatch with Pulse.",
+        "High durability — concentrate fire, Ion Accelerator or Railguns for AP-3+.",
+        "T9 — Heavy Burst Cannon, Plasma, or Ion Blaster recommended."
+      ],
+      "notes": ""
+    }
+  ],
+  "weapons_index": {},
+  "faction_strengths": [],
+  "faction_weaknesses": [],
+  "playstyle_summary": "",
+  "tau_matchup_notes": [],
+  "priority_targets_for_tau": [],
+  "recommended_tau_deployment_tags": [],
+  "recommended_tau_loadout_tags": [],
+  "metadata": {
+    "unit_count": 23,
+    "parse_errors": 0,
+    "points_note": "Fill from Munitorum Field Manual",
+    "builder": "build_all_factions.py v4.0"
+  }
+}

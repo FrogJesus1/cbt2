@@ -1,0 +1,2878 @@
+{
+  "_meta": {
+    "schema": "rules",
+    "version": "1.0.0",
+    "edition": "10th",
+    "last_updated": "2026-03-15",
+    "description": "Master rule record database. 108 rules with category, mechanic, timing, tags, and keywords fields. categories: core_play, combat, morale, scoring, command, abilities, detachment, missions, faction.",
+    "rule_count": 108,
+    "sources_present": [
+      "core_rules",
+      "pariah_nexus",
+      "leviathan",
+      "chapter_approved_2526"
+    ],
+    "schema_version": "1.1.0",
+    "priority_schema_version": "1.0.0"
+  },
+  "rules": {
+    "battle_round": {
+      "id": "battle_round",
+      "name": "Battle Round",
+      "mechanic": "turn_structure",
+      "source": "core_rules",
+      "timing": "meta",
+      "keywords": [
+        "structure",
+        "turn_structure"
+      ],
+      "effect": "Each battle round consists of two player turns. The player who wins the roll-off decides who takes the first turn. Most games last 5 battle rounds.",
+      "conditions": [],
+      "applies_to": [
+        "all"
+      ],
+      "tags": [
+        "structure"
+      ],
+      "category": "core_play",
+      "priority_layer": 1,
+      "rule_scope": "global",
+      "duration": "permanent"
+    },
+    "command_phase": {
+      "id": "command_phase",
+      "name": "Command Phase",
+      "mechanic": "turn_structure",
+      "source": "core_rules",
+      "timing": "command_phase",
+      "keywords": [
+        "COMMAND PHASE"
+      ],
+      "effect": "The active player gains 1 CP at the start of their Command phase. Battle Shock tests are taken here. Some abilities trigger 'at the start of your Command phase'.",
+      "conditions": [],
+      "applies_to": [
+        "all"
+      ],
+      "tags": [
+        "structure",
+        "cp"
+      ],
+      "category": "core_play",
+      "priority_layer": 1,
+      "rule_scope": "global",
+      "duration": "phase"
+    },
+    "command_points": {
+      "id": "command_points",
+      "name": "Command Points",
+      "mechanic": "turn_structure",
+      "source": "core_rules",
+      "timing": "command_phase",
+      "keywords": [
+        "CP"
+      ],
+      "effect": "Players start with 0 CP and gain 1 per Command phase. CP are spent to use Stratagems. Unspent CP carry over between turns.",
+      "conditions": [],
+      "applies_to": [
+        "all"
+      ],
+      "tags": [
+        "structure",
+        "cp",
+        "resource"
+      ],
+      "category": "core_play",
+      "priority_layer": 1,
+      "rule_scope": "global",
+      "duration": "phase"
+    },
+    "first_turn_advantage": {
+      "id": "first_turn_advantage",
+      "name": "First Turn Advantage",
+      "mechanic": "turn_structure",
+      "source": "core_rules",
+      "timing": "pre_game",
+      "keywords": [
+        "balance",
+        "structure",
+        "turn_structure"
+      ],
+      "effect": "The player who goes first cannot score Victory Points on their first Command phase. They gain 1 additional CP at the start of their first Command phase to compensate.",
+      "conditions": [
+        "player_goes_first"
+      ],
+      "applies_to": [
+        "all"
+      ],
+      "tags": [
+        "structure",
+        "balance"
+      ],
+      "category": "core_play",
+      "priority_layer": 1,
+      "rule_scope": "global",
+      "duration": "permanent"
+    },
+    "normal_move": {
+      "id": "normal_move",
+      "name": "Normal Move",
+      "mechanic": "normal_move",
+      "source": "core_rules",
+      "timing": "movement_phase",
+      "keywords": [
+        "MOVE"
+      ],
+      "effect": "Units can move up to their M (Move) characteristic in inches. Models must remain coherent (within 2\" horizontally and 5\" vertically of another model in the unit).",
+      "conditions": [
+        "unit_not_already_advanced",
+        "unit_not_in_engagement_range"
+      ],
+      "applies_to": [
+        "all"
+      ],
+      "tags": [
+        "movement"
+      ],
+      "category": "core_play",
+      "priority_layer": 2,
+      "rule_scope": "global",
+      "duration": "phase"
+    },
+    "advance": {
+      "id": "advance",
+      "name": "Advance",
+      "mechanic": "normal_move",
+      "source": "core_rules",
+      "timing": "movement_phase",
+      "keywords": [
+        "ADVANCE"
+      ],
+      "effect": "Unit moves up to M+D6\" this phase. Cannot shoot (except with ASSAULT weapons or if a rule grants it) or charge after advancing.",
+      "conditions": [
+        "unit_not_in_engagement_range"
+      ],
+      "applies_to": [
+        "all"
+      ],
+      "tags": [
+        "movement"
+      ],
+      "category": "core_play",
+      "priority_layer": 2,
+      "rule_scope": "global",
+      "duration": "phase"
+    },
+    "fall_back": {
+      "id": "fall_back",
+      "name": "Fall Back",
+      "mechanic": "normal_move",
+      "source": "core_rules",
+      "timing": "movement_phase",
+      "keywords": [
+        "FALL BACK"
+      ],
+      "effect": "Unit in engagement range can move up to M\". Cannot shoot or charge this turn. AIRCRAFT units can Fall Back and still shoot.",
+      "conditions": [
+        "unit_in_engagement_range"
+      ],
+      "applies_to": [
+        "all"
+      ],
+      "tags": [
+        "movement"
+      ],
+      "category": "core_play",
+      "priority_layer": 2,
+      "rule_scope": "global",
+      "duration": "phase"
+    },
+    "remain_stationary": {
+      "id": "remain_stationary",
+      "name": "Remain Stationary",
+      "mechanic": "normal_move",
+      "source": "core_rules",
+      "timing": "movement_phase",
+      "keywords": [
+        "movement",
+        "normal_move"
+      ],
+      "effect": "Unit does not move. Grants eligibility for HEAVY weapon bonuses. Some abilities require the unit to have remained stationary.",
+      "conditions": [],
+      "applies_to": [
+        "all"
+      ],
+      "tags": [
+        "movement"
+      ],
+      "category": "core_play",
+      "priority_layer": 2,
+      "rule_scope": "global",
+      "duration": "phase"
+    },
+    "fly": {
+      "id": "fly",
+      "name": "Fly",
+      "mechanic": "special_movement",
+      "source": "core_rules",
+      "timing": "movement_phase",
+      "keywords": [
+        "FLY"
+      ],
+      "effect": "Unit can move over models and terrain features when moving (including Advancing and Falling Back). Cannot end a move on top of another model.",
+      "conditions": [
+        "unit_has_fly_keyword"
+      ],
+      "applies_to": [
+        "units_with_fly"
+      ],
+      "tags": [
+        "movement",
+        "keyword"
+      ],
+      "category": "abilities",
+      "priority_layer": 5,
+      "rule_scope": "unit",
+      "duration": "phase"
+    },
+    "scouts_move": {
+      "id": "scouts_move",
+      "name": "Scouts",
+      "mechanic": "special_movement",
+      "source": "core_rules",
+      "timing": "pre_battle",
+      "keywords": [
+        "SCOUTS"
+      ],
+      "effect": "Unit can make a Normal Move of up to N\" after deployment but before the first battle round begins. Cannot move within Engagement Range of enemy units.",
+      "conditions": [
+        "unit_has_scouts_keyword",
+        "unit_deployed_normally"
+      ],
+      "applies_to": [
+        "units_with_scouts"
+      ],
+      "tags": [
+        "movement",
+        "keyword",
+        "pre_battle"
+      ],
+      "category": "abilities",
+      "priority_layer": 5,
+      "rule_scope": "unit",
+      "duration": "permanent"
+    },
+    "infiltrators": {
+      "id": "infiltrators",
+      "name": "Infiltrators",
+      "mechanic": "special_movement",
+      "source": "core_rules",
+      "timing": "deployment",
+      "keywords": [
+        "INFILTRATORS"
+      ],
+      "effect": "Unit can be set up anywhere on the battlefield that is more than 9\" away from the enemy deployment zone and more than 9\" away from all enemy units.",
+      "conditions": [
+        "unit_has_infiltrators_keyword"
+      ],
+      "applies_to": [
+        "units_with_infiltrators"
+      ],
+      "tags": [
+        "deployment",
+        "keyword"
+      ],
+      "category": "abilities",
+      "priority_layer": 5,
+      "rule_scope": "unit",
+      "duration": "permanent"
+    },
+    "deep_strike": {
+      "id": "deep_strike",
+      "name": "Deep Strike",
+      "mechanic": "reserves",
+      "source": "core_rules",
+      "timing": "movement_phase",
+      "keywords": [
+        "DEEP STRIKE"
+      ],
+      "effect": "During deployment, unit can be placed in Reserves. From the second battle round onward, it can arrive by Deep Strike: set up anywhere on the battlefield more than 9\" from enemy models.",
+      "conditions": [
+        "unit_has_deep_strike_keyword",
+        "not_turn_1",
+        "reserve_limit_not_exceeded"
+      ],
+      "applies_to": [
+        "units_with_deep_strike"
+      ],
+      "tags": [
+        "reserves",
+        "keyword",
+        "deployment"
+      ],
+      "category": "core_play",
+      "priority_layer": 5,
+      "rule_scope": "unit",
+      "duration": "phase"
+    },
+    "teleport_strike": {
+      "id": "teleport_strike",
+      "name": "Teleport Strike",
+      "mechanic": "reserves",
+      "source": "core_rules",
+      "timing": "movement_phase",
+      "keywords": [
+        "TELEPORT STRIKE"
+      ],
+      "effect": "Unit with TELEPORT STRIKE can be held in Reserves. When it arrives, it is set up more than 9\" from all enemy models. Unlike Deep Strike, Teleport Strike can sometimes be triggered by faction-specific rules on turn 1.",
+      "conditions": [
+        "unit_has_teleport_strike_keyword",
+        "reserve_limit_not_exceeded"
+      ],
+      "applies_to": [
+        "units_with_teleport_strike"
+      ],
+      "tags": [
+        "reserves",
+        "keyword",
+        "deployment"
+      ],
+      "category": "core_play",
+      "priority_layer": 5,
+      "rule_scope": "unit",
+      "duration": "phase"
+    },
+    "reinforcement_arrival": {
+      "id": "reinforcement_arrival",
+      "name": "Reinforcement Arrival",
+      "mechanic": "reserves",
+      "source": "core_rules",
+      "timing": "movement_phase",
+      "keywords": [
+        "all_reserve_units",
+        "reserves"
+      ],
+      "effect": "The generic mechanism by which units in Reserves arrive. Units must arrive by the end of turn 3 or are destroyed. Each player can have no more than half their army's points value in Reserves at the start of each of their turns.",
+      "conditions": [
+        "unit_in_reserves"
+      ],
+      "applies_to": [
+        "all_reserve_units"
+      ],
+      "tags": [
+        "reserves"
+      ],
+      "category": "core_play",
+      "priority_layer": 5,
+      "rule_scope": "unit",
+      "duration": "phase"
+    },
+    "mission_reserve_limit": {
+      "id": "mission_reserve_limit",
+      "name": "Mission Reserve Limit",
+      "mechanic": "reserves",
+      "source": "core_rules",
+      "timing": "deployment",
+      "keywords": [
+        "mission",
+        "reserves",
+        "restriction"
+      ],
+      "effect": "No more than half your army's points value (rounded up) can be placed in Reserves. Some missions impose tighter restrictions (e.g. 25% limits). This check is applied both at deployment and at the start of each battle round.",
+      "conditions": [
+        "pre_game_deployment"
+      ],
+      "applies_to": [
+        "all"
+      ],
+      "tags": [
+        "reserves",
+        "restriction",
+        "mission"
+      ],
+      "category": "core_play",
+      "priority_layer": 5,
+      "rule_scope": "unit",
+      "duration": "permanent"
+    },
+    "strategic_reserves": {
+      "id": "strategic_reserves",
+      "name": "Strategic Reserves",
+      "mechanic": "reserves",
+      "source": "core_rules",
+      "timing": "movement_phase",
+      "keywords": [
+        "STRATEGIC RESERVES"
+      ],
+      "effect": "Units without a specific reserve rule can be placed in Strategic Reserves by paying 1 CP (for 0\u2013250pt units) or 2 CP (for 251pt+ units). They arrive from any battlefield edge more than 9\" from enemy models.",
+      "conditions": [
+        "cp_available",
+        "reserve_limit_not_exceeded"
+      ],
+      "applies_to": [
+        "all"
+      ],
+      "tags": [
+        "reserves",
+        "cp"
+      ],
+      "category": "core_play",
+      "priority_layer": 5,
+      "rule_scope": "unit",
+      "duration": "phase"
+    },
+    "outflank": {
+      "id": "outflank",
+      "name": "Outflank",
+      "mechanic": "reserves",
+      "source": "core_rules",
+      "timing": "movement_phase",
+      "keywords": [
+        "OUTFLANK"
+      ],
+      "effect": "Unit arrives from a battlefield edge other than your own deployment zone's edge. Must arrive more than 9\" from enemy models.",
+      "conditions": [
+        "unit_has_outflank_keyword",
+        "not_turn_1"
+      ],
+      "applies_to": [
+        "units_with_outflank"
+      ],
+      "tags": [
+        "reserves",
+        "keyword"
+      ],
+      "category": "core_play",
+      "priority_layer": 5,
+      "rule_scope": "unit",
+      "duration": "phase"
+    },
+    "shooting_attack": {
+      "id": "shooting_attack",
+      "name": "Shooting Attack",
+      "mechanic": "shooting_attack",
+      "source": "core_rules",
+      "timing": "shooting_phase",
+      "keywords": [
+        "attack",
+        "shooting",
+        "shooting_attack"
+      ],
+      "effect": "Unit selects eligible targets (visible, not in engagement range of own unit unless PISTOL). Rolls to hit (BS), then to wound (S vs T), opponent takes saving throws, then damage is applied.",
+      "conditions": [
+        "unit_has_ranged_weapons",
+        "unit_not_fallen_back_this_turn",
+        "unit_not_advanced_this_turn_unless_assault"
+      ],
+      "applies_to": [
+        "all"
+      ],
+      "tags": [
+        "shooting",
+        "attack"
+      ],
+      "category": "combat",
+      "priority_layer": 2,
+      "rule_scope": "global",
+      "duration": "phase"
+    },
+    "rapid_fire": {
+      "id": "rapid_fire",
+      "name": "Rapid Fire",
+      "mechanic": "shooting_attack",
+      "source": "core_rules",
+      "timing": "shooting_phase",
+      "keywords": [
+        "RAPID FIRE"
+      ],
+      "effect": "RAPID FIRE X: If the target is within half range, make X additional attack rolls with this weapon.",
+      "conditions": [
+        "target_within_half_range"
+      ],
+      "applies_to": [
+        "weapons_with_rapid_fire"
+      ],
+      "tags": [
+        "shooting",
+        "keyword",
+        "weapon_ability"
+      ],
+      "category": "combat",
+      "priority_layer": 2,
+      "rule_scope": "global",
+      "duration": "phase"
+    },
+    "pistol": {
+      "id": "pistol",
+      "name": "Pistol",
+      "mechanic": "shooting_attack",
+      "source": "core_rules",
+      "timing": "shooting_phase",
+      "keywords": [
+        "PISTOL"
+      ],
+      "effect": "Can be shot even if unit is in Engagement Range of enemy units. Only models with PISTOL weapons can shoot, and only at the nearest enemy unit.",
+      "conditions": [
+        "unit_in_engagement_range"
+      ],
+      "applies_to": [
+        "weapons_with_pistol"
+      ],
+      "tags": [
+        "shooting",
+        "keyword",
+        "weapon_ability"
+      ],
+      "category": "combat",
+      "priority_layer": 2,
+      "rule_scope": "global",
+      "duration": "phase"
+    },
+    "indirect_fire": {
+      "id": "indirect_fire",
+      "name": "Indirect Fire",
+      "mechanic": "shooting_attack",
+      "source": "core_rules",
+      "timing": "shooting_phase",
+      "keywords": [
+        "INDIRECT FIRE"
+      ],
+      "effect": "Can target units not visible to the firing model. Attacks made this way always have a hit roll of 4+ regardless of BS. Target gets +1 to their saving throws.",
+      "conditions": [
+        "weapon_has_indirect_fire"
+      ],
+      "applies_to": [
+        "weapons_with_indirect_fire"
+      ],
+      "tags": [
+        "shooting",
+        "keyword",
+        "weapon_ability"
+      ],
+      "category": "combat",
+      "priority_layer": 2,
+      "rule_scope": "global",
+      "duration": "phase"
+    },
+    "torrent": {
+      "id": "torrent",
+      "name": "Torrent",
+      "mechanic": "shooting_attack",
+      "source": "core_rules",
+      "timing": "shooting_phase",
+      "keywords": [
+        "TORRENT"
+      ],
+      "effect": "Attacks with this weapon automatically hit (no hit roll required). The weapon's A characteristic is number of auto-hits.",
+      "conditions": [],
+      "applies_to": [
+        "weapons_with_torrent"
+      ],
+      "tags": [
+        "shooting",
+        "keyword",
+        "weapon_ability"
+      ],
+      "category": "combat",
+      "priority_layer": 2,
+      "rule_scope": "global",
+      "duration": "phase"
+    },
+    "blast": {
+      "id": "blast",
+      "name": "Blast",
+      "mechanic": "shooting_attack",
+      "source": "core_rules",
+      "timing": "shooting_phase",
+      "keywords": [
+        "BLAST"
+      ],
+      "effect": "When targeting a unit of 6+ models, make a minimum of 3 attack rolls. When targeting a unit of 11+ models, make a minimum of 6 attack rolls. Cannot be used to shoot into Combat.",
+      "conditions": [
+        "target_is_unit_not_in_combat_with_friendly"
+      ],
+      "applies_to": [
+        "weapons_with_blast"
+      ],
+      "tags": [
+        "shooting",
+        "keyword",
+        "weapon_ability"
+      ],
+      "category": "combat",
+      "priority_layer": 2,
+      "rule_scope": "global",
+      "duration": "phase"
+    },
+    "heavy": {
+      "id": "heavy",
+      "name": "Heavy",
+      "mechanic": "shooting_modifiers",
+      "source": "core_rules",
+      "timing": "shooting_phase",
+      "keywords": [
+        "HEAVY"
+      ],
+      "effect": "If the bearer did not move this turn, add 1 to hit rolls with this weapon.",
+      "conditions": [
+        "bearer_remained_stationary"
+      ],
+      "applies_to": [
+        "weapons_with_heavy"
+      ],
+      "tags": [
+        "shooting",
+        "keyword",
+        "weapon_ability"
+      ],
+      "category": "combat",
+      "priority_layer": 5,
+      "rule_scope": "unit",
+      "duration": "phase"
+    },
+    "assault": {
+      "id": "assault",
+      "name": "Assault",
+      "mechanic": "shooting_modifiers",
+      "source": "core_rules",
+      "timing": "shooting_phase",
+      "keywords": [
+        "ASSAULT"
+      ],
+      "effect": "Can be shot even if the bearer Advanced this turn, but subtract 1 from hit rolls when doing so.",
+      "conditions": [],
+      "applies_to": [
+        "weapons_with_assault"
+      ],
+      "tags": [
+        "shooting",
+        "keyword",
+        "weapon_ability"
+      ],
+      "category": "combat",
+      "priority_layer": 5,
+      "rule_scope": "unit",
+      "duration": "phase"
+    },
+    "sustained_hits": {
+      "id": "sustained_hits",
+      "name": "Sustained Hits",
+      "mechanic": "shooting_modifiers",
+      "source": "core_rules",
+      "timing": "shooting_phase_and_fight_phase",
+      "keywords": [
+        "SUSTAINED HITS"
+      ],
+      "effect": "SUSTAINED HITS X: Each Critical Hit (unmodified 6) scores X additional hits.",
+      "conditions": [
+        "attack_scores_critical_hit"
+      ],
+      "applies_to": [
+        "weapons_with_sustained_hits"
+      ],
+      "tags": [
+        "shooting",
+        "melee",
+        "keyword",
+        "weapon_ability",
+        "critical"
+      ],
+      "category": "combat",
+      "priority_layer": 5,
+      "rule_scope": "unit",
+      "duration": "phase"
+    },
+    "lethal_hits": {
+      "id": "lethal_hits",
+      "name": "Lethal Hits",
+      "mechanic": "shooting_modifiers",
+      "source": "core_rules",
+      "timing": "shooting_phase_and_fight_phase",
+      "keywords": [
+        "LETHAL HITS"
+      ],
+      "effect": "Critical Hits automatically wound the target (no wound roll required).",
+      "conditions": [
+        "attack_scores_critical_hit"
+      ],
+      "applies_to": [
+        "weapons_with_lethal_hits"
+      ],
+      "tags": [
+        "shooting",
+        "melee",
+        "keyword",
+        "weapon_ability",
+        "critical"
+      ],
+      "category": "combat",
+      "priority_layer": 5,
+      "rule_scope": "unit",
+      "duration": "phase"
+    },
+    "twin_linked": {
+      "id": "twin_linked",
+      "name": "Twin-linked",
+      "mechanic": "shooting_modifiers",
+      "source": "core_rules",
+      "timing": "shooting_phase_and_fight_phase",
+      "keywords": [
+        "TWIN-LINKED"
+      ],
+      "effect": "Re-roll wound rolls of 1 for attacks made with this weapon.",
+      "conditions": [],
+      "applies_to": [
+        "weapons_with_twin_linked"
+      ],
+      "tags": [
+        "shooting",
+        "melee",
+        "keyword",
+        "weapon_ability"
+      ],
+      "category": "combat",
+      "priority_layer": 5,
+      "rule_scope": "unit",
+      "duration": "phase"
+    },
+    "lance": {
+      "id": "lance",
+      "name": "Lance",
+      "mechanic": "shooting_modifiers",
+      "source": "core_rules",
+      "timing": "shooting_phase_and_fight_phase",
+      "keywords": [
+        "LANCE"
+      ],
+      "effect": "Add 1 to wound rolls if the attacking model Charged, was Charged, or performed a Heroic Intervention this turn.",
+      "conditions": [
+        "bearer_charged_or_was_charged_this_turn"
+      ],
+      "applies_to": [
+        "weapons_with_lance"
+      ],
+      "tags": [
+        "shooting",
+        "melee",
+        "keyword",
+        "weapon_ability"
+      ],
+      "category": "combat",
+      "priority_layer": 5,
+      "rule_scope": "unit",
+      "duration": "phase"
+    },
+    "melta": {
+      "id": "melta",
+      "name": "Melta",
+      "mechanic": "shooting_modifiers",
+      "source": "core_rules",
+      "timing": "shooting_phase",
+      "keywords": [
+        "MELTA"
+      ],
+      "effect": "MELTA X: If the target is within half range, add X to the Damage characteristic of this weapon.",
+      "conditions": [
+        "target_within_half_range"
+      ],
+      "applies_to": [
+        "weapons_with_melta"
+      ],
+      "tags": [
+        "shooting",
+        "keyword",
+        "weapon_ability"
+      ],
+      "category": "combat",
+      "priority_layer": 5,
+      "rule_scope": "unit",
+      "duration": "phase"
+    },
+    "anti_keyword": {
+      "id": "anti_keyword",
+      "name": "Anti-[keyword]",
+      "mechanic": "shooting_modifiers",
+      "source": "core_rules",
+      "timing": "shooting_phase_and_fight_phase",
+      "keywords": [
+        "ANTI"
+      ],
+      "effect": "ANTI-[keyword] X+: Unmodified hit rolls of X+ score Critical Wounds against units that have the specified keyword.",
+      "conditions": [
+        "target_has_specified_keyword"
+      ],
+      "applies_to": [
+        "weapons_with_anti"
+      ],
+      "tags": [
+        "shooting",
+        "melee",
+        "keyword",
+        "weapon_ability",
+        "critical"
+      ],
+      "category": "combat",
+      "priority_layer": 5,
+      "rule_scope": "unit",
+      "duration": "phase"
+    },
+    "precision": {
+      "id": "precision",
+      "name": "Precision",
+      "mechanic": "shooting_modifiers",
+      "source": "core_rules",
+      "timing": "shooting_phase_and_fight_phase",
+      "keywords": [
+        "PRECISION"
+      ],
+      "effect": "Critical Hits can be allocated to a CHARACTER model in the target unit, even if it is not the closest model.",
+      "conditions": [
+        "attack_scores_critical_hit",
+        "target_unit_contains_character"
+      ],
+      "applies_to": [
+        "weapons_with_precision"
+      ],
+      "tags": [
+        "shooting",
+        "melee",
+        "keyword",
+        "weapon_ability",
+        "critical"
+      ],
+      "category": "combat",
+      "priority_layer": 5,
+      "rule_scope": "unit",
+      "duration": "phase"
+    },
+    "devastating_wounds": {
+      "id": "devastating_wounds",
+      "name": "Devastating Wounds",
+      "mechanic": "melee_modifiers",
+      "source": "core_rules",
+      "timing": "fight_phase",
+      "keywords": [
+        "DEVASTATING WOUNDS"
+      ],
+      "effect": "Critical Wounds bypass saves and feel no pain rolls. Each Critical Wound inflicts damage equal to the weapon's Damage characteristic directly to the target's wounds.",
+      "conditions": [
+        "attack_scores_critical_wound"
+      ],
+      "applies_to": [
+        "weapons_with_devastating_wounds"
+      ],
+      "tags": [
+        "melee",
+        "shooting",
+        "keyword",
+        "weapon_ability",
+        "critical"
+      ],
+      "category": "combat",
+      "priority_layer": 5,
+      "rule_scope": "unit",
+      "duration": "phase"
+    },
+    "overwatch": {
+      "id": "overwatch",
+      "name": "Overwatch",
+      "mechanic": "overwatch",
+      "source": "core_rules",
+      "timing": "opponents_charge_phase",
+      "keywords": [
+        "OVERWATCH"
+      ],
+      "effect": "When an enemy unit declares a charge that includes your unit as a target, you may fire Overwatch with one or more of your units that were declared as a charge target. Hits on 6+.",
+      "conditions": [
+        "unit_is_declared_charge_target"
+      ],
+      "applies_to": [
+        "all"
+      ],
+      "tags": [
+        "shooting",
+        "reaction",
+        "defensive"
+      ],
+      "category": "combat",
+      "priority_layer": 2,
+      "rule_scope": "global",
+      "duration": "phase"
+    },
+    "fire_overwatch_stratagem": {
+      "id": "fire_overwatch_stratagem",
+      "name": "Fire Overwatch (Stratagem)",
+      "mechanic": "overwatch",
+      "source": "core_rules",
+      "timing": "opponents_charge_phase",
+      "keywords": [
+        "STRATAGEM"
+      ],
+      "effect": "1 CP. Use when an enemy unit is declared as charging. Select a friendly unit that is a target or within 24\" of the charging unit. That unit fires Overwatch.",
+      "conditions": [
+        "cp_available",
+        "enemy_declares_charge"
+      ],
+      "cp_cost": 1,
+      "applies_to": [
+        "all"
+      ],
+      "tags": [
+        "stratagem",
+        "shooting",
+        "reaction"
+      ],
+      "category": "combat",
+      "priority_layer": 2,
+      "rule_scope": "global",
+      "duration": "phase"
+    },
+    "fight_phase_sequence": {
+      "id": "fight_phase_sequence",
+      "name": "Fight Phase Sequence",
+      "mechanic": "fight_phase",
+      "source": "core_rules",
+      "timing": "fight_phase",
+      "keywords": [
+        "fight_phase",
+        "melee",
+        "structure"
+      ],
+      "effect": "Fight phase order: 1) Units with FIGHT FIRST fight. 2) Active player's other eligible units fight. 3) Opposing player's other eligible units fight. 4) Units with FIGHT LAST fight.",
+      "conditions": [],
+      "applies_to": [
+        "all"
+      ],
+      "tags": [
+        "melee",
+        "structure"
+      ],
+      "category": "core_play",
+      "priority_layer": 2,
+      "rule_scope": "global",
+      "duration": "phase"
+    },
+    "fight_first": {
+      "id": "fight_first",
+      "name": "Fight First",
+      "mechanic": "fight_phase",
+      "source": "core_rules",
+      "timing": "fight_phase",
+      "keywords": [
+        "FIGHTS FIRST"
+      ],
+      "effect": "Unit fights before other units in the Fight phase, regardless of whose turn it is.",
+      "conditions": [
+        "unit_has_fights_first_ability"
+      ],
+      "applies_to": [
+        "units_with_fights_first"
+      ],
+      "tags": [
+        "melee",
+        "keyword",
+        "priority"
+      ],
+      "category": "core_play",
+      "priority_layer": 2,
+      "rule_scope": "global",
+      "duration": "phase"
+    },
+    "fight_last": {
+      "id": "fight_last",
+      "name": "Fight Last",
+      "mechanic": "fight_phase",
+      "source": "core_rules",
+      "timing": "fight_phase",
+      "keywords": [
+        "FIGHTS LAST"
+      ],
+      "effect": "Unit fights after all other eligible units in the Fight phase.",
+      "conditions": [
+        "unit_has_fights_last_ability"
+      ],
+      "applies_to": [
+        "units_with_fights_last"
+      ],
+      "tags": [
+        "melee",
+        "keyword",
+        "priority"
+      ],
+      "category": "core_play",
+      "priority_layer": 2,
+      "rule_scope": "global",
+      "duration": "phase"
+    },
+    "heroic_intervention": {
+      "id": "heroic_intervention",
+      "name": "Heroic Intervention",
+      "mechanic": "fight_phase",
+      "source": "core_rules",
+      "timing": "opponents_charge_phase",
+      "keywords": [
+        "HEROIC INTERVENTION"
+      ],
+      "effect": "After enemy charges, a CHARACTER within 6\" of a charging enemy unit can Heroic Intervene, moving up to 3\" and ending in Engagement Range of the enemy.",
+      "conditions": [
+        "character_within_6_of_charging_enemy"
+      ],
+      "applies_to": [
+        "character_units"
+      ],
+      "tags": [
+        "melee",
+        "reaction",
+        "character"
+      ],
+      "category": "core_play",
+      "priority_layer": 2,
+      "rule_scope": "global",
+      "duration": "phase"
+    },
+    "charge_bonus": {
+      "id": "charge_bonus",
+      "name": "Charge Bonus",
+      "mechanic": "fight_phase",
+      "source": "core_rules",
+      "timing": "fight_phase",
+      "keywords": [
+        "charge",
+        "fight_phase",
+        "melee"
+      ],
+      "effect": "Units that successfully charged this turn add 1 to their attack's hit rolls in the Fight phase.",
+      "conditions": [
+        "unit_charged_this_turn"
+      ],
+      "applies_to": [
+        "all"
+      ],
+      "tags": [
+        "melee",
+        "charge"
+      ],
+      "category": "core_play",
+      "priority_layer": 2,
+      "rule_scope": "global",
+      "duration": "phase"
+    },
+    "hit_roll": {
+      "id": "hit_roll",
+      "name": "Hit Roll",
+      "mechanic": "damage_resolution",
+      "source": "core_rules",
+      "timing": "attack_sequence",
+      "keywords": [
+        "attack_sequence",
+        "core",
+        "damage_resolution"
+      ],
+      "effect": "Roll D6 against the weapon's BS (ranged) or WS (melee). Meet or exceed to hit. Unmodified 1 always fails. Unmodified 6 is a Critical Hit.",
+      "conditions": [],
+      "applies_to": [
+        "all"
+      ],
+      "tags": [
+        "attack_sequence",
+        "core"
+      ],
+      "category": "core_play",
+      "priority_layer": 1,
+      "rule_scope": "global",
+      "duration": "phase"
+    },
+    "wound_roll": {
+      "id": "wound_roll",
+      "name": "Wound Roll",
+      "mechanic": "damage_resolution",
+      "source": "core_rules",
+      "timing": "attack_sequence",
+      "keywords": [
+        "attack_sequence",
+        "core",
+        "damage_resolution"
+      ],
+      "effect": "Roll D6 comparing weapon Strength (S) vs target Toughness (T). S>=2xT: 2+. S>T: 3+. S=T: 4+. S<T: 5+. S<=T/2: 6+. Unmodified 6 is a Critical Wound.",
+      "conditions": [
+        "attack_hit"
+      ],
+      "applies_to": [
+        "all"
+      ],
+      "tags": [
+        "attack_sequence",
+        "core"
+      ],
+      "category": "core_play",
+      "priority_layer": 1,
+      "rule_scope": "global",
+      "duration": "phase"
+    },
+    "saving_throw": {
+      "id": "saving_throw",
+      "name": "Saving Throw",
+      "mechanic": "damage_resolution",
+      "source": "core_rules",
+      "timing": "attack_sequence",
+      "keywords": [
+        "attack_sequence",
+        "core",
+        "damage_resolution",
+        "defence"
+      ],
+      "effect": "Roll D6 against the model's Sv. Subtract weapon AP from the roll target. Fail: model loses wounds equal to weapon Damage. Unmodified 1 always fails.",
+      "conditions": [
+        "attack_wounded"
+      ],
+      "applies_to": [
+        "all"
+      ],
+      "tags": [
+        "attack_sequence",
+        "core",
+        "defence"
+      ],
+      "category": "core_play",
+      "priority_layer": 1,
+      "rule_scope": "global",
+      "duration": "phase"
+    },
+    "armour_penetration": {
+      "id": "armour_penetration",
+      "name": "Armour Penetration",
+      "mechanic": "damage_resolution",
+      "source": "core_rules",
+      "timing": "attack_sequence",
+      "keywords": [
+        "AP"
+      ],
+      "effect": "AP value is subtracted from the target's saving throw roll (e.g. AP-2 means the target saves on their Sv+2). AP-0 has no effect.",
+      "conditions": [
+        "attack_wounded"
+      ],
+      "applies_to": [
+        "all"
+      ],
+      "tags": [
+        "attack_sequence",
+        "core"
+      ],
+      "category": "core_play",
+      "priority_layer": 1,
+      "rule_scope": "global",
+      "duration": "phase"
+    },
+    "damage_roll": {
+      "id": "damage_roll",
+      "name": "Damage Roll",
+      "mechanic": "damage_resolution",
+      "source": "core_rules",
+      "timing": "attack_sequence",
+      "keywords": [
+        "D"
+      ],
+      "effect": "When a saving throw is failed, the target loses a number of wounds equal to the weapon's Damage characteristic. If Damage is a dice value (e.g. D3, D6), roll that dice.",
+      "conditions": [
+        "saving_throw_failed"
+      ],
+      "applies_to": [
+        "all"
+      ],
+      "tags": [
+        "attack_sequence",
+        "core"
+      ],
+      "category": "core_play",
+      "priority_layer": 1,
+      "rule_scope": "global",
+      "duration": "phase"
+    },
+    "feel_no_pain": {
+      "id": "feel_no_pain",
+      "name": "Feel No Pain",
+      "mechanic": "damage_resolution",
+      "source": "core_rules",
+      "timing": "attack_sequence",
+      "keywords": [
+        "FEEL NO PAIN"
+      ],
+      "effect": "FEEL NO PAIN X+: Roll D6 for each wound lost. On X+, that wound is not lost. This roll is made after a failed saving throw but before the wound is removed.",
+      "conditions": [
+        "model_has_feel_no_pain",
+        "wound_to_be_lost"
+      ],
+      "applies_to": [
+        "models_with_feel_no_pain"
+      ],
+      "tags": [
+        "defence",
+        "keyword"
+      ],
+      "category": "core_play",
+      "priority_layer": 1,
+      "rule_scope": "global",
+      "duration": "phase"
+    },
+    "invulnerable_save": {
+      "id": "invulnerable_save",
+      "name": "Invulnerable Save",
+      "mechanic": "defensive_abilities",
+      "source": "core_rules",
+      "timing": "attack_sequence",
+      "keywords": [
+        "INVULNERABLE SAVE"
+      ],
+      "effect": "A saving throw that is never modified by AP. The player may choose to use their invulnerable save instead of their normal save.",
+      "conditions": [
+        "model_has_invulnerable_save"
+      ],
+      "applies_to": [
+        "models_with_inv_save"
+      ],
+      "tags": [
+        "defence",
+        "keyword"
+      ],
+      "category": "abilities",
+      "priority_layer": 5,
+      "rule_scope": "unit",
+      "duration": "phase"
+    },
+    "cover_save": {
+      "id": "cover_save",
+      "name": "Cover",
+      "mechanic": "defensive_abilities",
+      "source": "core_rules",
+      "timing": "shooting_phase",
+      "keywords": [
+        "COVER"
+      ],
+      "effect": "Light Cover: add 1 to saving throws against ranged attacks. Heavy Cover: add 1 to saving throws, and additionally the target has the Benefit of Cover even when moving. Does not apply against attacks with AP-0.",
+      "conditions": [
+        "unit_is_in_cover",
+        "attacker_shooting"
+      ],
+      "applies_to": [
+        "all"
+      ],
+      "tags": [
+        "defence",
+        "terrain"
+      ],
+      "category": "abilities",
+      "priority_layer": 5,
+      "rule_scope": "unit",
+      "duration": "phase"
+    },
+    "lone_operative": {
+      "id": "lone_operative",
+      "name": "Lone Operative",
+      "mechanic": "defensive_abilities",
+      "source": "core_rules",
+      "timing": "shooting_phase",
+      "keywords": [
+        "LONE OPERATIVE"
+      ],
+      "effect": "Cannot be targeted by ranged attacks unless the attacker is within 12\".",
+      "conditions": [
+        "unit_has_lone_operative",
+        "unit_not_attached_to_another_unit"
+      ],
+      "applies_to": [
+        "units_with_lone_operative"
+      ],
+      "tags": [
+        "defence",
+        "keyword",
+        "character"
+      ],
+      "category": "abilities",
+      "priority_layer": 5,
+      "rule_scope": "unit",
+      "duration": "phase"
+    },
+    "stealth": {
+      "id": "stealth",
+      "name": "Stealth",
+      "mechanic": "defensive_abilities",
+      "source": "core_rules",
+      "timing": "shooting_phase",
+      "keywords": [
+        "STEALTH"
+      ],
+      "effect": "Subtract 1 from hit rolls for ranged attacks targeting this unit.",
+      "conditions": [],
+      "applies_to": [
+        "units_with_stealth"
+      ],
+      "tags": [
+        "defence",
+        "keyword"
+      ],
+      "category": "abilities",
+      "priority_layer": 5,
+      "rule_scope": "unit",
+      "duration": "phase"
+    },
+    "smoke": {
+      "id": "smoke",
+      "name": "Smoke",
+      "mechanic": "defensive_abilities",
+      "source": "core_rules",
+      "timing": "shooting_phase",
+      "keywords": [
+        "SMOKE"
+      ],
+      "effect": "Once per game, when this unit is selected as the target of a ranged attack, it can deploy its Smoke. Until the start of your next turn, ranged attacks against this unit are made with Ballistic Skill 6+ regardless of the attacker's BS.",
+      "conditions": [
+        "unit_has_smoke",
+        "smoke_not_used_this_game"
+      ],
+      "applies_to": [
+        "units_with_smoke"
+      ],
+      "tags": [
+        "defence",
+        "keyword",
+        "once_per_game"
+      ],
+      "category": "abilities",
+      "priority_layer": 5,
+      "rule_scope": "unit",
+      "duration": "phase"
+    },
+    "battle_shock_test": {
+      "id": "battle_shock_test",
+      "name": "Battle Shock Test",
+      "mechanic": "battle_shock",
+      "source": "core_rules",
+      "timing": "command_phase",
+      "keywords": [
+        "BATTLE-SHOCKED"
+      ],
+      "effect": "At the start of the Command phase, units below half strength must take a Battle Shock test: roll 2D6 vs Ld. Fail: unit is Battle-shocked until start of next Command phase. Battle-shocked units cannot use Stratagems, subtract 1 from OC, and their controlling player cannot use Stratagems to affect them.",
+      "conditions": [
+        "unit_below_half_strength"
+      ],
+      "applies_to": [
+        "all"
+      ],
+      "tags": [
+        "psychology",
+        "morale"
+      ],
+      "category": "morale",
+      "priority_layer": 1,
+      "rule_scope": "global",
+      "duration": "phase"
+    },
+    "objective_control_penalty": {
+      "id": "objective_control_penalty",
+      "name": "OC Penalty (Battle-shocked)",
+      "mechanic": "battle_shock",
+      "source": "core_rules",
+      "timing": "scoring",
+      "keywords": [
+        "BATTLE-SHOCKED"
+      ],
+      "effect": "Battle-shocked units have their Objective Control (OC) characteristic reduced by 1 (to a minimum of 0) when contesting objectives.",
+      "conditions": [
+        "unit_is_battle_shocked"
+      ],
+      "applies_to": [
+        "all"
+      ],
+      "tags": [
+        "psychology",
+        "objectives"
+      ],
+      "category": "morale",
+      "priority_layer": 1,
+      "rule_scope": "global",
+      "duration": "permanent"
+    },
+    "leadership": {
+      "id": "leadership",
+      "name": "Leadership (Ld)",
+      "mechanic": "battle_shock",
+      "source": "core_rules",
+      "timing": "command_phase",
+      "keywords": [
+        "LD"
+      ],
+      "effect": "The characteristic used for Battle Shock tests. Roll 2D6 \u2014 if the result is equal to or lower than Ld, the test is passed.",
+      "conditions": [],
+      "applies_to": [
+        "all"
+      ],
+      "tags": [
+        "psychology",
+        "stat"
+      ],
+      "category": "morale",
+      "priority_layer": 1,
+      "rule_scope": "global",
+      "duration": "phase"
+    },
+    "objective_control_value": {
+      "id": "objective_control_value",
+      "name": "Objective Control (OC)",
+      "mechanic": "objective_control",
+      "source": "core_rules",
+      "timing": "scoring",
+      "keywords": [
+        "OC"
+      ],
+      "effect": "Each model's OC value contributes to contesting objectives. The player with the highest total OC within range of an objective controls it.",
+      "conditions": [],
+      "applies_to": [
+        "all"
+      ],
+      "tags": [
+        "objectives",
+        "stat"
+      ],
+      "category": "scoring",
+      "priority_layer": 1,
+      "rule_scope": "global",
+      "duration": "permanent"
+    },
+    "sticky_objectives": {
+      "id": "sticky_objectives",
+      "name": "Sticky Objectives",
+      "mechanic": "objective_control",
+      "source": "core_rules",
+      "timing": "scoring",
+      "keywords": [
+        "objective_control",
+        "objectives",
+        "scoring"
+      ],
+      "effect": "An objective marker a player controls at the end of a battle round remains under their control even if they have no models within range at the start of the next battle round \u2014 unless the opponent takes control of it.",
+      "conditions": [
+        "player_controlled_objective_end_of_round"
+      ],
+      "applies_to": [
+        "all"
+      ],
+      "tags": [
+        "objectives",
+        "scoring"
+      ],
+      "category": "scoring",
+      "priority_layer": 1,
+      "rule_scope": "global",
+      "duration": "permanent"
+    },
+    "capture_objective": {
+      "id": "capture_objective",
+      "name": "Capture Objective",
+      "mechanic": "objective_control",
+      "source": "core_rules",
+      "timing": "scoring",
+      "keywords": [
+        "objective_control",
+        "objectives"
+      ],
+      "effect": "Control an objective by having a higher total OC within range than the opponent. Range is 3\" horizontally and any vertical distance.",
+      "conditions": [],
+      "applies_to": [
+        "all"
+      ],
+      "tags": [
+        "objectives"
+      ],
+      "category": "scoring",
+      "priority_layer": 1,
+      "rule_scope": "global",
+      "duration": "permanent"
+    },
+    "command_reroll": {
+      "id": "command_reroll",
+      "name": "Command Re-roll",
+      "mechanic": "stratagems",
+      "source": "core_rules",
+      "timing": "any",
+      "keywords": [
+        "STRATAGEM"
+      ],
+      "effect": "1 CP. Use when a dice roll is made for a unit. Re-roll one of the dice used in that roll.",
+      "conditions": [
+        "cp_available"
+      ],
+      "cp_cost": 1,
+      "applies_to": [
+        "all"
+      ],
+      "tags": [
+        "stratagem",
+        "universal",
+        "reaction"
+      ],
+      "category": "command",
+      "priority_layer": 6,
+      "rule_scope": "temporary",
+      "duration": "turn"
+    },
+    "epic_challenge": {
+      "id": "epic_challenge",
+      "name": "Epic Challenge",
+      "mechanic": "stratagems",
+      "source": "core_rules",
+      "timing": "fight_phase",
+      "keywords": [
+        "STRATAGEM"
+      ],
+      "effect": "1 CP. Use when a CHARACTER fights. Until end of phase, all melee attacks made by that CHARACTER target the enemy CHARACTER (if one is present in the unit).",
+      "conditions": [
+        "cp_available",
+        "character_fighting"
+      ],
+      "cp_cost": 1,
+      "applies_to": [
+        "characters"
+      ],
+      "tags": [
+        "stratagem",
+        "melee",
+        "character"
+      ],
+      "category": "command",
+      "priority_layer": 6,
+      "rule_scope": "temporary",
+      "duration": "turn"
+    },
+    "go_to_ground": {
+      "id": "go_to_ground",
+      "name": "Go to Ground",
+      "mechanic": "stratagems",
+      "source": "core_rules",
+      "timing": "opponents_shooting_phase",
+      "keywords": [
+        "STRATAGEM"
+      ],
+      "effect": "1 CP. Use when an INFANTRY unit is targeted by a ranged attack. Until end of phase, that unit has the Benefit of Cover and cannot be targeted by INDIRECT FIRE weapons.",
+      "conditions": [
+        "cp_available",
+        "infantry_unit_targeted"
+      ],
+      "cp_cost": 1,
+      "applies_to": [
+        "infantry"
+      ],
+      "tags": [
+        "stratagem",
+        "defence",
+        "shooting"
+      ],
+      "category": "command",
+      "priority_layer": 6,
+      "rule_scope": "temporary",
+      "duration": "turn"
+    },
+    "smokescreen": {
+      "id": "smokescreen",
+      "name": "Smokescreen",
+      "mechanic": "stratagems",
+      "source": "core_rules",
+      "timing": "opponents_shooting_phase",
+      "keywords": [
+        "STRATAGEM"
+      ],
+      "effect": "1 CP. Use when an VEHICLE or MONSTER unit is targeted. Until end of phase, subtract 1 from hit rolls for attacks against that unit.",
+      "conditions": [
+        "cp_available",
+        "vehicle_or_monster_targeted"
+      ],
+      "cp_cost": 1,
+      "applies_to": [
+        "vehicles",
+        "monsters"
+      ],
+      "tags": [
+        "stratagem",
+        "defence",
+        "shooting"
+      ],
+      "category": "command",
+      "priority_layer": 6,
+      "rule_scope": "temporary",
+      "duration": "turn"
+    },
+    "tank_shock": {
+      "id": "tank_shock",
+      "name": "Tank Shock",
+      "mechanic": "stratagems",
+      "source": "core_rules",
+      "timing": "charge_phase",
+      "keywords": [
+        "STRATAGEM"
+      ],
+      "effect": "1 CP. Use when a VEHICLE unit ends a charge move. Select one enemy unit in Engagement Range. Roll D6 for each model in the vehicle unit: on a 4+, that enemy unit suffers 1 mortal wound.",
+      "conditions": [
+        "cp_available",
+        "vehicle_just_charged"
+      ],
+      "cp_cost": 1,
+      "applies_to": [
+        "vehicles"
+      ],
+      "tags": [
+        "stratagem",
+        "charge",
+        "mortal_wounds"
+      ],
+      "category": "command",
+      "priority_layer": 6,
+      "rule_scope": "temporary",
+      "duration": "turn"
+    },
+    "emergency_disembarkation": {
+      "id": "emergency_disembarkation",
+      "name": "Emergency Disembarkation",
+      "mechanic": "stratagems",
+      "source": "core_rules",
+      "timing": "opponents_shooting_phase",
+      "keywords": [
+        "STRATAGEM"
+      ],
+      "effect": "1 CP. Use when a TRANSPORT is destroyed. Any embarked units can disembark before the transport is removed, taking D3 mortal wounds each. They cannot move, shoot, or charge this turn.",
+      "conditions": [
+        "cp_available",
+        "transport_destroyed",
+        "units_embarked"
+      ],
+      "cp_cost": 1,
+      "applies_to": [
+        "transport_passengers"
+      ],
+      "tags": [
+        "stratagem",
+        "transport",
+        "reaction"
+      ],
+      "category": "command",
+      "priority_layer": 6,
+      "rule_scope": "temporary",
+      "duration": "turn"
+    },
+    "desperate_breakout": {
+      "id": "desperate_breakout",
+      "name": "Desperate Breakout",
+      "mechanic": "stratagems",
+      "source": "core_rules",
+      "timing": "movement_phase",
+      "keywords": [
+        "STRATAGEM"
+      ],
+      "effect": "1 CP. Use at the start of the Movement phase on a unit in Engagement Range. That unit can Fall Back and still shoot this turn, but takes D3 mortal wounds.",
+      "conditions": [
+        "cp_available",
+        "unit_in_engagement_range"
+      ],
+      "cp_cost": 1,
+      "applies_to": [
+        "all"
+      ],
+      "tags": [
+        "stratagem",
+        "movement",
+        "escape"
+      ],
+      "category": "command",
+      "priority_layer": 6,
+      "rule_scope": "temporary",
+      "duration": "turn"
+    },
+    "lead_the_charge_stratagem": {
+      "id": "lead_the_charge_stratagem",
+      "name": "Lead the Charge",
+      "mechanic": "stratagems",
+      "source": "core_rules",
+      "timing": "charge_phase",
+      "keywords": [
+        "STRATAGEM"
+      ],
+      "effect": "1 CP. Use when a unit successfully charges. Until end of turn, add 1 to hit rolls for that unit's melee attacks.",
+      "conditions": [
+        "cp_available",
+        "unit_just_charged"
+      ],
+      "cp_cost": 1,
+      "applies_to": [
+        "all"
+      ],
+      "tags": [
+        "stratagem",
+        "charge",
+        "melee"
+      ],
+      "category": "command",
+      "priority_layer": 6,
+      "rule_scope": "temporary",
+      "duration": "turn"
+    },
+    "insane_bravery": {
+      "id": "insane_bravery",
+      "name": "Insane Bravery",
+      "mechanic": "stratagems",
+      "source": "core_rules",
+      "timing": "command_phase",
+      "keywords": [
+        "STRATAGEM"
+      ],
+      "effect": "1 CP. Use when a Battle Shock test is failed. That unit is not Battle-shocked.",
+      "conditions": [
+        "cp_available",
+        "battle_shock_test_failed"
+      ],
+      "cp_cost": 1,
+      "applies_to": [
+        "all"
+      ],
+      "tags": [
+        "stratagem",
+        "psychology",
+        "morale"
+      ],
+      "category": "command",
+      "priority_layer": 6,
+      "rule_scope": "temporary",
+      "duration": "turn"
+    },
+    "detachment_rule": {
+      "id": "detachment_rule",
+      "name": "Detachment Rule",
+      "mechanic": "detachment_rules",
+      "source": "faction_specific",
+      "timing": "passive",
+      "keywords": [
+        "all_eligible_units",
+        "detachment",
+        "detachment_rules",
+        "passive",
+        "structure"
+      ],
+      "effect": "A passive army-wide rule granted by the chosen Detachment. Applies to all eligible units in the army for the duration of the game. Only one Detachment rule is active at a time.",
+      "conditions": [
+        "detachment_chosen"
+      ],
+      "applies_to": [
+        "all_eligible_units"
+      ],
+      "tags": [
+        "detachment",
+        "structure",
+        "passive"
+      ],
+      "category": "detachment",
+      "priority_layer": 4,
+      "rule_scope": "detachment",
+      "duration": "permanent"
+    },
+    "detachment_enhancement": {
+      "id": "detachment_enhancement",
+      "name": "Detachment Enhancement",
+      "mechanic": "detachment_rules",
+      "source": "faction_specific",
+      "timing": "passive",
+      "keywords": [
+        "character",
+        "character_models",
+        "detachment",
+        "detachment_rules",
+        "upgrade"
+      ],
+      "effect": "A buff applied to a specific CHARACTER model in the army. Chosen during list building. Up to one enhancement per CHARACTER, and a given enhancement cannot be duplicated in the same army.",
+      "conditions": [
+        "character_in_army",
+        "detachment_chosen"
+      ],
+      "applies_to": [
+        "character_models"
+      ],
+      "tags": [
+        "detachment",
+        "character",
+        "upgrade"
+      ],
+      "category": "detachment",
+      "priority_layer": 4,
+      "rule_scope": "detachment",
+      "duration": "permanent"
+    },
+    "detachment_stratagem": {
+      "id": "detachment_stratagem",
+      "name": "Detachment Stratagem",
+      "mechanic": "detachment_rules",
+      "source": "faction_specific",
+      "timing": "varies",
+      "keywords": [
+        "STRATAGEM"
+      ],
+      "effect": "Stratagems available only when a specific Detachment is in use. These are in addition to the 6 universal core stratagems.",
+      "conditions": [
+        "detachment_chosen",
+        "cp_available"
+      ],
+      "applies_to": [
+        "all"
+      ],
+      "tags": [
+        "detachment",
+        "stratagem"
+      ],
+      "category": "detachment",
+      "priority_layer": 4,
+      "rule_scope": "detachment",
+      "duration": "turn"
+    },
+    "army_rule": {
+      "id": "army_rule",
+      "name": "Army Rule",
+      "mechanic": "faction_rules",
+      "source": "faction_specific",
+      "timing": "passive",
+      "keywords": [
+        "faction",
+        "faction_rules",
+        "faction_units",
+        "passive",
+        "structure"
+      ],
+      "effect": "A faction-wide rule that applies to all armies using that faction keyword, regardless of detachment chosen. E.g. For the Greater Good (Tau), Synapse (Tyranids), etc.",
+      "conditions": [
+        "faction_keyword_present"
+      ],
+      "applies_to": [
+        "faction_units"
+      ],
+      "tags": [
+        "faction",
+        "passive",
+        "structure"
+      ],
+      "category": "faction",
+      "priority_layer": 4,
+      "rule_scope": "detachment",
+      "duration": "permanent"
+    },
+    "faction_keyword": {
+      "id": "faction_keyword",
+      "name": "Faction Keyword",
+      "mechanic": "faction_rules",
+      "source": "core_rules",
+      "timing": "passive",
+      "keywords": [
+        "faction",
+        "faction_rules",
+        "keyword",
+        "structure"
+      ],
+      "effect": "Faction keywords (e.g. TAU EMPIRE, TYRANIDS, SPACE MARINES) determine which army rules, detachments, and abilities apply to a unit. A unit may have multiple faction keywords (e.g. IMPERIUM, ADEPTUS ASTARTES, ULTRAMARINES).",
+      "conditions": [],
+      "applies_to": [
+        "all"
+      ],
+      "tags": [
+        "faction",
+        "keyword",
+        "structure"
+      ],
+      "category": "faction",
+      "priority_layer": 4,
+      "rule_scope": "detachment",
+      "duration": "permanent"
+    },
+    "datasheet_ability": {
+      "id": "datasheet_ability",
+      "name": "Datasheet Ability",
+      "mechanic": "unit_abilities",
+      "source": "faction_specific",
+      "timing": "varies",
+      "keywords": [
+        "ability",
+        "specific_units",
+        "unit",
+        "unit_abilities"
+      ],
+      "effect": "A special rule printed on a unit's datasheet. Can be active (requires timing), passive, or once-per-game. Specific to that unit or unit type.",
+      "conditions": [
+        "unit_present"
+      ],
+      "applies_to": [
+        "specific_units"
+      ],
+      "tags": [
+        "unit",
+        "ability"
+      ],
+      "category": "abilities",
+      "priority_layer": 5,
+      "rule_scope": "unit",
+      "duration": "turn"
+    },
+    "leader_ability": {
+      "id": "leader_ability",
+      "name": "Leader Ability",
+      "mechanic": "unit_abilities",
+      "source": "faction_specific",
+      "timing": "passive_while_attached",
+      "keywords": [
+        "LEADER"
+      ],
+      "effect": "A CHARACTER with the LEADER keyword grants special abilities to the unit it is attached to (its Bodyguard unit). The CHARACTER merges with the Bodyguard unit and cannot be targeted separately.",
+      "conditions": [
+        "character_attached_to_bodyguard"
+      ],
+      "applies_to": [
+        "character_leaders"
+      ],
+      "tags": [
+        "unit",
+        "character",
+        "ability"
+      ],
+      "category": "abilities",
+      "priority_layer": 5,
+      "rule_scope": "unit",
+      "duration": "permanent"
+    },
+    "transport_capacity": {
+      "id": "transport_capacity",
+      "name": "Transport Capacity",
+      "mechanic": "unit_abilities",
+      "source": "core_rules",
+      "timing": "passive",
+      "keywords": [
+        "TRANSPORT"
+      ],
+      "effect": "Specifies how many models and/or wounds of models can be carried by a TRANSPORT unit. Listed on the datasheet.",
+      "conditions": [
+        "unit_is_transport"
+      ],
+      "applies_to": [
+        "transport_units"
+      ],
+      "tags": [
+        "transport",
+        "structure"
+      ],
+      "category": "abilities",
+      "priority_layer": 5,
+      "rule_scope": "unit",
+      "duration": "permanent"
+    },
+    "damaged_profile": {
+      "id": "damaged_profile",
+      "name": "Damaged Profile",
+      "mechanic": "unit_abilities",
+      "source": "core_rules",
+      "timing": "passive",
+      "keywords": [
+        "DAMAGED"
+      ],
+      "effect": "Some VEHICLE and MONSTER units have degraded stat profiles when they drop below certain wound thresholds. Track the model's current wounds to determine which profile applies.",
+      "conditions": [
+        "unit_has_damaged_profile",
+        "unit_below_threshold"
+      ],
+      "applies_to": [
+        "vehicles_and_monsters_with_damaged_profiles"
+      ],
+      "tags": [
+        "vehicle",
+        "monster",
+        "degrading"
+      ],
+      "category": "abilities",
+      "priority_layer": 5,
+      "rule_scope": "unit",
+      "duration": "permanent"
+    },
+    "embark": {
+      "id": "embark",
+      "name": "Embark",
+      "mechanic": "transport",
+      "source": "core_rules",
+      "timing": "movement_phase",
+      "keywords": [
+        "TRANSPORT"
+      ],
+      "effect": "At the end of the Movement phase, units wholly within 3\" of a TRANSPORT they can embark in may do so. Cannot embark if the transport has moved more than it can transport, or if it has already disembarked this turn.",
+      "conditions": [
+        "unit_within_3_of_transport",
+        "transport_has_capacity"
+      ],
+      "applies_to": [
+        "all"
+      ],
+      "tags": [
+        "transport",
+        "movement"
+      ],
+      "category": "core_play",
+      "priority_layer": 2,
+      "rule_scope": "unit",
+      "duration": "phase"
+    },
+    "disembark": {
+      "id": "disembark",
+      "name": "Disembark",
+      "mechanic": "transport",
+      "source": "core_rules",
+      "timing": "movement_phase",
+      "keywords": [
+        "TRANSPORT"
+      ],
+      "effect": "Before the TRANSPORT moves, embarked units can disembark. They are set up wholly within 3\" of the transport and not in Engagement Range of enemies. They can act normally this turn.",
+      "conditions": [
+        "unit_embarked",
+        "transport_has_not_moved_yet"
+      ],
+      "applies_to": [
+        "embarked_units"
+      ],
+      "tags": [
+        "transport",
+        "movement"
+      ],
+      "category": "core_play",
+      "priority_layer": 2,
+      "rule_scope": "unit",
+      "duration": "phase"
+    },
+    "transport_destroyed": {
+      "id": "transport_destroyed",
+      "name": "Transport Destroyed",
+      "mechanic": "transport",
+      "source": "core_rules",
+      "timing": "any",
+      "keywords": [
+        "destroyed",
+        "embarked_units",
+        "transport"
+      ],
+      "effect": "When a TRANSPORT is destroyed, embarked units must disembark immediately (or use Emergency Disembarkation stratagem). If they cannot be placed legally, they are destroyed. Each model takes a Desperate Escape test (D6: on 1-2, that model is destroyed).",
+      "conditions": [
+        "transport_destroyed_with_units_inside"
+      ],
+      "applies_to": [
+        "embarked_units"
+      ],
+      "tags": [
+        "transport",
+        "destroyed"
+      ],
+      "category": "core_play",
+      "priority_layer": 2,
+      "rule_scope": "unit",
+      "duration": "turn"
+    },
+    "primary_mission": {
+      "id": "primary_mission",
+      "name": "Primary Mission",
+      "mechanic": "missions",
+      "source": "pariah_nexus",
+      "timing": "scoring",
+      "keywords": [
+        "mission",
+        "missions",
+        "scoring",
+        "vp"
+      ],
+      "effect": "The main VP-scoring mechanism of a mission. Typically involves controlling objectives at specific scoring points (e.g. end of each Command phase). Up to 45 VP available from primary scoring.",
+      "conditions": [],
+      "applies_to": [
+        "all"
+      ],
+      "tags": [
+        "mission",
+        "scoring",
+        "vp"
+      ],
+      "category": "missions",
+      "priority_layer": 3,
+      "rule_scope": "mission",
+      "duration": "permanent"
+    },
+    "secondary_mission": {
+      "id": "secondary_mission",
+      "name": "Secondary Mission",
+      "mechanic": "missions",
+      "source": "pariah_nexus",
+      "timing": "scoring",
+      "keywords": [
+        "mission",
+        "missions",
+        "scoring",
+        "vp"
+      ],
+      "effect": "Supplemental VP scoring goals. In Pariah Nexus, each player has one fixed Secondary and one Tactical Secondary (scored in real time). Up to 40 VP available from secondaries.",
+      "conditions": [],
+      "applies_to": [
+        "all"
+      ],
+      "tags": [
+        "mission",
+        "scoring",
+        "vp"
+      ],
+      "category": "missions",
+      "priority_layer": 3,
+      "rule_scope": "mission",
+      "duration": "permanent"
+    },
+    "mission_rule": {
+      "id": "mission_rule",
+      "name": "Mission Rule",
+      "mechanic": "missions",
+      "source": "pariah_nexus",
+      "timing": "passive",
+      "keywords": [
+        "mission",
+        "missions",
+        "modifier"
+      ],
+      "effect": "A special condition specific to a named mission that modifies how the game is played. E.g. 'Secured Flanks' prevents reserves from arriving on side edges. Each mission has exactly one mission rule.",
+      "conditions": [
+        "specific_mission_selected"
+      ],
+      "applies_to": [
+        "all"
+      ],
+      "tags": [
+        "mission",
+        "modifier"
+      ],
+      "category": "missions",
+      "priority_layer": 3,
+      "rule_scope": "mission",
+      "duration": "permanent"
+    },
+    "mission_modifier": {
+      "id": "mission_modifier",
+      "name": "Mission Modifier",
+      "mechanic": "mission_modifiers",
+      "source": "chapter_approved_2526",
+      "timing": "passive",
+      "keywords": [
+        "matched_play",
+        "mission",
+        "mission_modifiers",
+        "modifier"
+      ],
+      "effect": "An optional overlay drawn from a mission modifier deck (in matched play) that changes conditions for both players. E.g. Chilling Rain (subtract 1 from hit rolls for ranged attacks), Hidden Supplies (objectives cannot go sticky).",
+      "conditions": [
+        "modifier_deck_in_use"
+      ],
+      "applies_to": [
+        "all"
+      ],
+      "tags": [
+        "mission",
+        "modifier",
+        "matched_play"
+      ],
+      "category": "missions",
+      "priority_layer": 3,
+      "rule_scope": "mission",
+      "duration": "permanent"
+    },
+    "deployment_zone": {
+      "id": "deployment_zone",
+      "name": "Deployment Zone",
+      "mechanic": "missions",
+      "source": "core_rules",
+      "timing": "pre_game",
+      "keywords": [
+        "deployment",
+        "missions",
+        "structure"
+      ],
+      "effect": "The area of the battlefield in which a player deploys their army. Defined by the mission map. No unit may be deployed outside this zone unless a special rule permits it.",
+      "conditions": [
+        "pre_game_deployment"
+      ],
+      "applies_to": [
+        "all"
+      ],
+      "tags": [
+        "deployment",
+        "structure"
+      ],
+      "category": "missions",
+      "priority_layer": 3,
+      "rule_scope": "mission",
+      "duration": "permanent"
+    },
+    "battle_size": {
+      "id": "battle_size",
+      "name": "Battle Size",
+      "mechanic": "missions",
+      "source": "core_rules",
+      "timing": "pre_game",
+      "keywords": [
+        "mission",
+        "missions",
+        "structure"
+      ],
+      "effect": "Combat Patrol (0\u2013500pts), Incursion (501\u20131000pts), Strike Force (1001\u20132000pts), Onslaught (2001\u20133000pts). Battle size affects number of CP, board size, and number of secondaries available.",
+      "conditions": [],
+      "applies_to": [
+        "all"
+      ],
+      "tags": [
+        "structure",
+        "mission"
+      ],
+      "category": "missions",
+      "priority_layer": 3,
+      "rule_scope": "mission",
+      "duration": "permanent"
+    },
+    "no_mercy_no_respite": {
+      "id": "no_mercy_no_respite",
+      "name": "No Mercy, No Respite",
+      "mechanic": "mission_modifiers",
+      "source": "chapter_approved_2526",
+      "timing": "scoring",
+      "keywords": [
+        "mission",
+        "mission_modifiers",
+        "modifier",
+        "scoring"
+      ],
+      "effect": "Both players score 1 additional VP each time an enemy unit is destroyed (max 5 VP per turn). Encourages aggressive play.",
+      "conditions": [
+        "modifier_active"
+      ],
+      "applies_to": [
+        "all"
+      ],
+      "tags": [
+        "mission",
+        "modifier",
+        "scoring"
+      ],
+      "category": "missions",
+      "priority_layer": 3,
+      "rule_scope": "mission",
+      "duration": "permanent"
+    },
+    "chilling_rain": {
+      "id": "chilling_rain",
+      "name": "Chilling Rain",
+      "mechanic": "mission_modifiers",
+      "source": "chapter_approved_2526",
+      "timing": "passive",
+      "keywords": [
+        "mission",
+        "mission_modifiers",
+        "modifier",
+        "shooting"
+      ],
+      "effect": "All ranged attacks have -1 to hit rolls for the duration of the game.",
+      "conditions": [
+        "modifier_active"
+      ],
+      "applies_to": [
+        "all"
+      ],
+      "tags": [
+        "mission",
+        "modifier",
+        "shooting"
+      ],
+      "category": "missions",
+      "priority_layer": 3,
+      "rule_scope": "mission",
+      "duration": "permanent"
+    },
+    "hidden_supplies": {
+      "id": "hidden_supplies",
+      "name": "Hidden Supplies",
+      "mechanic": "mission_modifiers",
+      "source": "chapter_approved_2526",
+      "timing": "passive",
+      "keywords": [
+        "mission",
+        "mission_modifiers",
+        "modifier",
+        "objectives"
+      ],
+      "effect": "Objectives cannot become Sticky for the duration of the game. All objectives must be actively contested to score.",
+      "conditions": [
+        "modifier_active"
+      ],
+      "applies_to": [
+        "all"
+      ],
+      "tags": [
+        "mission",
+        "modifier",
+        "objectives"
+      ],
+      "category": "missions",
+      "priority_layer": 3,
+      "rule_scope": "mission",
+      "duration": "permanent"
+    },
+    "scrambler_fields": {
+      "id": "scrambler_fields",
+      "name": "Scrambler Fields",
+      "mechanic": "mission_modifiers",
+      "source": "chapter_approved_2526",
+      "timing": "passive",
+      "keywords": [
+        "mission",
+        "mission_modifiers",
+        "modifier",
+        "reserves"
+      ],
+      "effect": "Units cannot be set up using DEEP STRIKE, TELEPORT STRIKE, or any ability that would set them up outside their deployment zone during the first battle round.",
+      "conditions": [
+        "modifier_active"
+      ],
+      "applies_to": [
+        "all"
+      ],
+      "tags": [
+        "mission",
+        "modifier",
+        "reserves"
+      ],
+      "category": "missions",
+      "priority_layer": 3,
+      "rule_scope": "mission",
+      "duration": "permanent"
+    },
+    "sweep_and_clear": {
+      "id": "sweep_and_clear",
+      "name": "Sweep and Clear",
+      "mechanic": "mission_modifiers",
+      "source": "chapter_approved_2526",
+      "timing": "scoring",
+      "keywords": [
+        "mission",
+        "mission_modifiers",
+        "modifier",
+        "scoring"
+      ],
+      "effect": "At the end of each player's turn, that player scores 1 VP for each objective they control that has no enemy models within range of it.",
+      "conditions": [
+        "modifier_active"
+      ],
+      "applies_to": [
+        "all"
+      ],
+      "tags": [
+        "mission",
+        "modifier",
+        "scoring",
+        "objectives"
+      ],
+      "category": "missions",
+      "priority_layer": 3,
+      "rule_scope": "mission",
+      "duration": "permanent"
+    },
+    "movement_phase": {
+      "id": "movement_phase",
+      "name": "Movement Phase",
+      "mechanic": "turn_structure",
+      "source": "core_rules",
+      "timing": "movement_phase",
+      "keywords": [
+        "phase",
+        "structure",
+        "turn_structure"
+      ],
+      "effect": "Each player's turn includes a Movement phase. All units can Normal Move, Advance, Fall Back, or Remain Stationary. Units with special deployment abilities (Deep Strike, Infiltrators, etc.) may arrive here.",
+      "conditions": [],
+      "applies_to": [
+        "all"
+      ],
+      "tags": [
+        "structure",
+        "phase"
+      ],
+      "category": "core_play",
+      "priority_layer": 1,
+      "rule_scope": "global",
+      "duration": "phase"
+    },
+    "shooting_phase": {
+      "id": "shooting_phase",
+      "name": "Shooting Phase",
+      "mechanic": "turn_structure",
+      "source": "core_rules",
+      "timing": "shooting_phase",
+      "keywords": [
+        "phase",
+        "structure",
+        "turn_structure"
+      ],
+      "effect": "Units with ranged weapons that are eligible may shoot. Select a unit, pick targets (visible, not in engagement range unless PISTOL), make attack rolls. Units that Advanced or Fell Back cannot shoot unless a special rule permits.",
+      "conditions": [],
+      "applies_to": [
+        "all"
+      ],
+      "tags": [
+        "structure",
+        "phase"
+      ],
+      "category": "core_play",
+      "priority_layer": 1,
+      "rule_scope": "global",
+      "duration": "phase"
+    },
+    "charge_phase": {
+      "id": "charge_phase",
+      "name": "Charge Phase",
+      "mechanic": "turn_structure",
+      "source": "core_rules",
+      "timing": "charge_phase",
+      "keywords": [
+        "phase",
+        "structure",
+        "turn_structure"
+      ],
+      "effect": "Units within 12\" of an enemy unit can declare a charge. Roll 2D6 \u2014 if the result equals or exceeds the distance to the nearest model in the charged unit, the charge succeeds and the charging unit moves into Engagement Range.",
+      "conditions": [
+        "unit_within_12_of_enemy"
+      ],
+      "applies_to": [
+        "all"
+      ],
+      "tags": [
+        "structure",
+        "phase"
+      ],
+      "category": "core_play",
+      "priority_layer": 1,
+      "rule_scope": "global",
+      "duration": "phase"
+    },
+    "fight_phase": {
+      "id": "fight_phase",
+      "name": "Fight Phase",
+      "mechanic": "turn_structure",
+      "source": "core_rules",
+      "timing": "fight_phase",
+      "keywords": [
+        "phase",
+        "structure",
+        "turn_structure"
+      ],
+      "effect": "All units in Engagement Range fight. The sequence is: FIGHTS FIRST units, then active player's remaining eligible units, then opposing player's eligible units, then FIGHTS LAST units.",
+      "conditions": [],
+      "applies_to": [
+        "all"
+      ],
+      "tags": [
+        "structure",
+        "phase"
+      ],
+      "category": "core_play",
+      "priority_layer": 1,
+      "rule_scope": "global",
+      "duration": "phase"
+    },
+    "charge_move": {
+      "id": "charge_move",
+      "name": "Charge Move",
+      "mechanic": "special_movement",
+      "source": "core_rules",
+      "timing": "charge_phase",
+      "keywords": [
+        "charge",
+        "movement",
+        "special_movement"
+      ],
+      "effect": "After a successful charge roll, the charging unit moves the distance rolled, ending in Engagement Range (within 1\") of at least one model in the declared target unit. Cannot end on top of another model.",
+      "conditions": [
+        "charge_roll_succeeded"
+      ],
+      "applies_to": [
+        "all"
+      ],
+      "tags": [
+        "movement",
+        "charge"
+      ],
+      "category": "abilities",
+      "priority_layer": 5,
+      "rule_scope": "unit",
+      "duration": "phase"
+    },
+    "pile_in": {
+      "id": "pile_in",
+      "name": "Pile In",
+      "mechanic": "special_movement",
+      "source": "core_rules",
+      "timing": "fight_phase",
+      "keywords": [
+        "melee",
+        "movement",
+        "special_movement"
+      ],
+      "effect": "Before a unit fights, each model can move up to 3\" (the Pile In move) to end closer to the nearest enemy model. Models cannot end this move farther from the nearest enemy model than where they started.",
+      "conditions": [
+        "unit_about_to_fight"
+      ],
+      "applies_to": [
+        "all"
+      ],
+      "tags": [
+        "movement",
+        "melee"
+      ],
+      "category": "abilities",
+      "priority_layer": 5,
+      "rule_scope": "unit",
+      "duration": "phase"
+    },
+    "consolidate": {
+      "id": "consolidate",
+      "name": "Consolidate",
+      "mechanic": "special_movement",
+      "source": "core_rules",
+      "timing": "fight_phase",
+      "keywords": [
+        "melee",
+        "movement",
+        "special_movement"
+      ],
+      "effect": "After a unit has finished making its attacks in the Fight phase, each model can move up to 3\" (the Consolidation move), ending closer to the nearest enemy model than where it started.",
+      "conditions": [
+        "unit_has_fought"
+      ],
+      "applies_to": [
+        "all"
+      ],
+      "tags": [
+        "movement",
+        "melee"
+      ],
+      "category": "abilities",
+      "priority_layer": 5,
+      "rule_scope": "unit",
+      "duration": "phase"
+    },
+    "hold_objective": {
+      "id": "hold_objective",
+      "name": "Hold Objective",
+      "mechanic": "objective_control",
+      "source": "core_rules",
+      "timing": "scoring",
+      "keywords": [
+        "objective_control",
+        "objectives",
+        "scoring"
+      ],
+      "effect": "A player holds an objective if they have more total OC within range of it than the opponent. At the end of each Command phase (or as specified by the mission), the holding player scores VP.",
+      "conditions": [
+        "player_controls_objective"
+      ],
+      "applies_to": [
+        "all"
+      ],
+      "tags": [
+        "objectives",
+        "scoring"
+      ],
+      "category": "scoring",
+      "priority_layer": 1,
+      "rule_scope": "global",
+      "duration": "permanent"
+    },
+    "objective_secured": {
+      "id": "objective_secured",
+      "name": "Objective Secured (ObSec)",
+      "mechanic": "objective_control",
+      "source": "core_rules",
+      "timing": "scoring",
+      "keywords": [
+        "OBJECTIVE SECURED"
+      ],
+      "effect": "A unit with Objective Secured that is contesting an objective marker controls it even if an equal or smaller number of enemy models (without ObSec) are contesting it. If both players have ObSec units present, compare total OC normally.",
+      "conditions": [
+        "unit_has_objective_secured"
+      ],
+      "applies_to": [
+        "units_with_objective_secured"
+      ],
+      "tags": [
+        "objectives",
+        "keyword"
+      ],
+      "category": "scoring",
+      "priority_layer": 1,
+      "rule_scope": "global",
+      "duration": "permanent"
+    },
+    "area_terrain": {
+      "id": "area_terrain",
+      "name": "Area Terrain",
+      "mechanic": "terrain",
+      "source": "core_rules",
+      "timing": "passive",
+      "keywords": [
+        "structure",
+        "terrain"
+      ],
+      "effect": "A terrain feature that occupies a definable area. Units inside area terrain gain the Light Cover or Heavy Cover benefit depending on the terrain's traits.",
+      "conditions": [
+        "unit_within_area_terrain"
+      ],
+      "applies_to": [
+        "all"
+      ],
+      "tags": [
+        "terrain",
+        "structure"
+      ],
+      "category": "core_play",
+      "priority_layer": 5,
+      "rule_scope": "global",
+      "duration": "permanent"
+    },
+    "obstacle": {
+      "id": "obstacle",
+      "name": "Obstacle",
+      "mechanic": "terrain",
+      "source": "core_rules",
+      "timing": "passive",
+      "keywords": [
+        "structure",
+        "terrain"
+      ],
+      "effect": "A terrain feature that physically blocks movement. Models cannot move through obstacles; they must move around them or over them if small enough to be climbed.",
+      "conditions": [],
+      "applies_to": [
+        "all"
+      ],
+      "tags": [
+        "terrain",
+        "structure"
+      ],
+      "category": "core_play",
+      "priority_layer": 5,
+      "rule_scope": "global",
+      "duration": "permanent"
+    },
+    "ruins": {
+      "id": "ruins",
+      "name": "Ruins",
+      "mechanic": "terrain",
+      "source": "core_rules",
+      "timing": "passive",
+      "keywords": [
+        "RUINS"
+      ],
+      "effect": "INFANTRY units gain Light Cover while inside ruins. Walls of ruins block line of sight if they are taller than the attacking model. Units on upper floors of ruins gain Height Advantage for shooting.",
+      "conditions": [
+        "unit_inside_ruins"
+      ],
+      "applies_to": [
+        "infantry"
+      ],
+      "tags": [
+        "terrain",
+        "cover"
+      ],
+      "category": "core_play",
+      "priority_layer": 5,
+      "rule_scope": "global",
+      "duration": "permanent"
+    },
+    "dense_cover": {
+      "id": "dense_cover",
+      "name": "Dense Cover",
+      "mechanic": "terrain",
+      "source": "core_rules",
+      "timing": "passive",
+      "keywords": [
+        "DENSE"
+      ],
+      "effect": "A terrain trait. Models behind dense terrain (not inside it) can still claim the benefit of Cover for shooting attacks if a straight line from the attacker to the target passes through this terrain.",
+      "conditions": [
+        "target_behind_dense_terrain"
+      ],
+      "applies_to": [
+        "all"
+      ],
+      "tags": [
+        "terrain",
+        "cover"
+      ],
+      "category": "core_play",
+      "priority_layer": 5,
+      "rule_scope": "global",
+      "duration": "permanent"
+    },
+    "difficult_ground": {
+      "id": "difficult_ground",
+      "name": "Difficult Ground",
+      "mechanic": "terrain",
+      "source": "core_rules",
+      "timing": "movement_phase",
+      "keywords": [
+        "DIFFICULT GROUND"
+      ],
+      "effect": "Units moving through difficult ground halve their movement distance. INFANTRY units and units with FLY are not affected.",
+      "conditions": [
+        "unit_moving_through_difficult_ground"
+      ],
+      "applies_to": [
+        "non_infantry_without_fly"
+      ],
+      "tags": [
+        "terrain",
+        "movement"
+      ],
+      "category": "core_play",
+      "priority_layer": 5,
+      "rule_scope": "global",
+      "duration": "phase"
+    },
+    "defensible": {
+      "id": "defensible",
+      "name": "Defensible",
+      "mechanic": "terrain",
+      "source": "core_rules",
+      "timing": "passive",
+      "keywords": [
+        "DEFENSIBLE"
+      ],
+      "effect": "Units garrisoning a defensible terrain feature gain the Heavy Cover benefit (+1 to saving throws against ranged attacks and +1 on Battle Shock tests). Units cannot be targeted from more than 12\" away.",
+      "conditions": [
+        "unit_garrisoning_defensible"
+      ],
+      "applies_to": [
+        "infantry"
+      ],
+      "tags": [
+        "terrain",
+        "cover",
+        "defence"
+      ],
+      "category": "core_play",
+      "priority_layer": 5,
+      "rule_scope": "global",
+      "duration": "permanent"
+    },
+    "light_cover": {
+      "id": "light_cover",
+      "name": "Light Cover",
+      "mechanic": "terrain",
+      "source": "core_rules",
+      "timing": "passive",
+      "keywords": [
+        "LIGHT COVER"
+      ],
+      "effect": "Add 1 to saving throws against ranged attacks for units with the Benefit of Cover from Light Cover terrain.",
+      "conditions": [
+        "unit_has_light_cover"
+      ],
+      "applies_to": [
+        "all"
+      ],
+      "tags": [
+        "terrain",
+        "cover",
+        "defence"
+      ],
+      "category": "core_play",
+      "priority_layer": 5,
+      "rule_scope": "global",
+      "duration": "permanent"
+    },
+    "heavy_cover": {
+      "id": "heavy_cover",
+      "name": "Heavy Cover",
+      "mechanic": "terrain",
+      "source": "core_rules",
+      "timing": "passive",
+      "keywords": [
+        "HEAVY COVER"
+      ],
+      "effect": "Add 1 to saving throws against ranged attacks. The unit retains the Benefit of Cover even if it has moved this turn.",
+      "conditions": [
+        "unit_has_heavy_cover"
+      ],
+      "applies_to": [
+        "all"
+      ],
+      "tags": [
+        "terrain",
+        "cover",
+        "defence"
+      ],
+      "category": "core_play",
+      "priority_layer": 5,
+      "rule_scope": "global",
+      "duration": "permanent"
+    },
+    "fixed_secondary": {
+      "id": "fixed_secondary",
+      "name": "Fixed Secondary Mission",
+      "mechanic": "missions",
+      "source": "pariah_nexus",
+      "timing": "scoring",
+      "keywords": [
+        "mission",
+        "missions",
+        "scoring",
+        "secondary"
+      ],
+      "effect": "A Secondary objective that does not change during the game. Chosen during list building or at game start from a defined list. Scored by completing specific long-term objectives (e.g. Bring It Down, Assassination).",
+      "conditions": [
+        "secondary_mission_format"
+      ],
+      "applies_to": [
+        "all"
+      ],
+      "tags": [
+        "mission",
+        "scoring",
+        "secondary"
+      ],
+      "category": "missions",
+      "priority_layer": 3,
+      "rule_scope": "mission",
+      "duration": "permanent"
+    },
+    "tactical_secondary": {
+      "id": "tactical_secondary",
+      "name": "Tactical Secondary Mission",
+      "mechanic": "missions",
+      "source": "pariah_nexus",
+      "timing": "scoring",
+      "keywords": [
+        "mission",
+        "missions",
+        "scoring",
+        "secondary"
+      ],
+      "effect": "A Secondary objective drawn from a deck (or pool) at the start of each turn. Scored by completing the objective on the turn it is drawn. Rewards tactical flexibility and adaptive play.",
+      "conditions": [
+        "secondary_mission_format"
+      ],
+      "applies_to": [
+        "all"
+      ],
+      "tags": [
+        "mission",
+        "scoring",
+        "secondary",
+        "tactical"
+      ],
+      "category": "missions",
+      "priority_layer": 3,
+      "rule_scope": "mission",
+      "duration": "permanent"
+    }
+  }
+}

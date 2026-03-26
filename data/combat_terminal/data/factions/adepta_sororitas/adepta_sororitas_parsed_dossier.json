@@ -1,0 +1,5051 @@
+{
+  "faction": "Adepta Sororitas",
+  "source_type": "codex_pdf_parse",
+  "source_name": "Adepta Sororitas — Individual Unit PDFs",
+  "edition": "10",
+  "version": "2.0",
+  "last_updated": "2026-03-19",
+  "army_rules": [],
+  "detachments": [
+    {
+      "name": "HALLOWED MARTYRS",
+      "detachment_rule": "The Blood of Martyrs",
+      "rule_summary": "The blood of martyrs is the life force of the Imperium. So do the tenets of this Order joyously proclaim, and in its warriors’ darkest hour does the sacrifice of their fallen Sisters shine brightest.  Each time an ADEPTA SORORITAS model from your army makes an attack, add 1 to the Hit roll if that model’s unit is below its Starting Strength, and add 1 to the Wound roll as well if that model’s unit is Below Half-strength.",
+      "enhancements": [
+        {
+          "name": "Saintly Example",
+          "points": 10,
+          "description": "With her final breath is another heroine elevated to the ranks of sainthood, her death stirring her greatest companions to finish what she started.  ADEPTA SORORITAS model only. When the bearer is destroyed, you gain an additional D3 Miracle dice.  Through Suffering, Strength25 pts With every wound inflicted on their mortal form does this holy warrior’s strength grow, their suffering a prayer to the God-Emperor.  ADEPTA SORORITAS model only. Add 1 to the Attacks, Strength and Damage characteristics of the bearer’s melee weapons. If the bearer has lost one or more wounds, add 2 to the Attacks, Strength and Damage characteristics of the bearer’s melee weapons instead.",
+          "applies_to": "ADEPTA SORORITAS model only."
+        },
+        {
+          "name": "Chaplet of Sacrifice",
+          "points": 25,
+          "description": "The most hallowed martyrs of the Sisterhood have added beads to this chaplet. Such a relic can be a burden, for it carries the righteousness of those who uphold everything the Sisterhood stands for.  ADEPTA SORORITAS model only. At the end of your Command phase, if the bearer is on the battlefield, you can re-roll 1 Miracle dice from your Miracle dice pool and return it to your Miracle dice pool showing the new result you rolled. When doing so, if the bearer's unit is below its Starting Strength, you can re-roll up to 3 Miracle dice in this way instead.",
+          "applies_to": "ADEPTA SORORITAS model only."
+        },
+        {
+          "name": "Mantle of Ophelia",
+          "points": 20,
+          "description": "The Mantle of Ophelia was once the badge of office for the Prioress of the Convent Sanctorum, and was worn by Helena the Virtuous, a Living Saint and one of the most revered leaders in the history of the Adepta Sororitas. The mantle is thought to have sacred powers of protection, for Helena was said to have anointed it with the Tears of the Emperor, a phial of blood-like liquid meticulously collected over a century from weeping statues of the Emperor found across the cardinal worlds of the Imperium.  CANONESS or PALATINE model only. Each time an attack is allocated to the bearer, change the Damage characteristic of that attack to 1.",
+          "applies_to": ""
+        }
+      ],
+      "stratagems": [
+        {
+          "name": "DIVINE INTERVENTION",
+          "cp": 1,
+          "type": "Hallowed Martyrs – Epic Deed Stratagem",
+          "flavour": "The pious believe that, in their moment of greatest need, the Emperor protects.",
+          "when": "Any phase.",
+          "target": "One ADEPTA SORORITAS CHARACTER unit from your army that was just destroyed. You can use this Stratagem on that unit even though it was just destroyed.",
+          "effect": "You can discard 1-3 Miracle dice. At the end of the phase, set the last destroyed model from your unit back up on the battlefield, as close as possible to where it was destroyed and not within Engagement Range of any enemy models. Roll one D3, adding 1 to the result for each Miracle dice you discarded. That model is set back up with that number of wounds remaining (up to its starting number of wounds).  RESTRICTIONS: You cannot select SAINT CELESTINE as the target of this Stratagem. You cannot select the same CHARACTER as the target of this Stratagem more than once per battle."
+        },
+        {
+          "name": "SUFFERING AND SACRIFICE",
+          "cp": 1,
+          "type": "Hallowed Martyrs – Strategic Ploy Stratagem",
+          "flavour": "Suffering is a staple prayer for the Adepta Sororitas, and a martyr’s fate only brings greater glory to the God-Emperor.",
+          "when": "Start of the Fight phase.",
+          "target": "One ADEPTA SORORITAS INFANTRY or ADEPTA SORORITAS WALKER unit from your army.",
+          "effect": "Until the end of the phase, each time an enemy model within Engagement Range of your unit selects its targets, it must select your unit as the target of its attacks."
+        },
+        {
+          "name": "RIGHTEOUS VENGEANCE",
+          "cp": 1,
+          "type": "Hallowed Martyrs – Battle Tactic Stratagem",
+          "flavour": "With the Emperor's light upon them, the righteous vengeance of the Sisters af Battle burns brighter.",
+          "when": "Fight phase.",
+          "target": "One ADEPTA SORORITAS unit from your army that has not been selected to fight this phase.",
+          "effect": "Until the end of the phase, each time a model in your unit makes a melee attack, you can re-roll the Hit roll and, if your unit is Below Half-strength, you can re-roll the Wound roll as well."
+        },
+        {
+          "name": "SANCTIFIED IMMOLATION",
+          "cp": 1,
+          "type": "Hallowed Martyrs – Strategic Ploy Stratagem",
+          "flavour": "The enemy must perish, even if we perish with them. The enemy must burn, even if we burn with them.",
+          "when": "Any phase.",
+          "target": "One ADEPTA SORORITAS VEHICLE model from your army with the Deadly Demise ability that was just destroyed. You can use this Stratagem on that model even though It was just destroyed.",
+          "effect": "Do not roll one D6 to determine whether mortal wounds are inflicted by your model's Deadly Demise ability. Instead, mortal wounds are automatically inflicted."
+        },
+        {
+          "name": "SPIRIT OF THE MARTYR",
+          "cp": 2,
+          "type": "Hallowed Martyrs – Strategic Ploy Stratagem",
+          "flavour": "Even with their dying act, the Sororitas mete out the Emperor’s judgement.",
+          "when": "Fight phase, just after an enemy unit has selected its targets.",
+          "target": "One ADEPTA SORORITAS unit from your army that was selected as the target of one or more of the attacking unit’s attacks.",
+          "effect": "Until the end of the phase, each time a model in your unit is destroyed, if that model has not fought this phase, do not remove it from play. The destroyed model can fight after the attacking unit has finished making its attacks, and is then removed from play."
+        },
+        {
+          "name": "PRAISE THE FALLEN",
+          "cp": 1,
+          "type": "Hallowed Martyrs – Strategic Ploy Stratagem",
+          "flavour": "The death of a Battle Sister only stirs the survivors to fight harder to exact swift vengeance.",
+          "when": "Your opponent’s Shooting phase, just after an enemy unit has shot.",
+          "target": "One ADEPTA SORORITAS unit from your army that had one or more of its models destroyed as a result of the attacking unit’s attacks.",
+          "effect": "Your unit can shoot as if it were your Shooting phase, but it must target only that enemy unit when doing so, and can only do so if that enemy unit is an eligible target. Penitent Host"
+        }
+      ]
+    },
+    {
+      "name": "PENITENT HOST",
+      "detachment_rule": "Desperate for Redemption",
+      "rule_summary": "The penitent masses vow to wash clean their dishonour with their foe’s blood.  At the start of the battle round, you can select one of the following Vows of Atonement to be active for your army until the start of the next battle round. You can only select each Vow of Atonement once per battle. The Path of the Penitent  With psalms on their lips, the faithful hurl themselves forward.  Add 3\" to the Move characteristic of PENITENT models from your army.  Absolution in Battle  The penitents smite t",
+      "enhancements": [
+        {
+          "name": "Psalm of Righteous Judgement",
+          "points": 30,
+          "description": "Invoking the strength of the God-Emperor, this warrior bellows psalms, which roar above the din of battle. Incited by these fire and brimstone recitations, the penitent warriors carve apart their enemies, every kill bringing them closer to redemption.  ADEPTA SORORITAS model only. While the bearer is on the battlefield, each time an enemy unit is destroyed by a PENITENT unit from you army, you can discard 1 Miracle dice then gain 1 Miracle dice showing a value of 6.",
+          "applies_to": "ADEPTA SORORITAS model only."
+        },
+        {
+          "name": "Verse of Holy Piety",
+          "points": 15,
+          "description": "As the sanctified verses of the Ecclesiarchy’s holy psalms roar across the battlefield, divine might infuses the devout.  PENITENT model only. Once per battle, at the start of the battle round, select one Vow of Atonement. Until the start of the next battle round, that Vow of Atonement is active for the bearer’s unit in addition to any that is active for your army, even if you have already selected that Vow of Atonement this battle.",
+          "applies_to": "PENITENT model only."
+        },
+        {
+          "name": "Refrain of Enduring Faith",
+          "points": 25,
+          "description": "Faith is the shield of the righteous. The passionate benedictions of the pious may bestow the blessings of the God-Emperor.  PENITENT model only. While the bearer is leading a unit, models in that unit have a 5+ invulnerable save.",
+          "applies_to": "PENITENT model only."
+        },
+        {
+          "name": "Catechism of Divine Penitence",
+          "points": 20,
+          "description": "To share in the agonies of the penitent and guide them to redemption is a most holy undertaking. Thus do many of the Adepta Sororitas’ commanders willingly fight by the side of those cast out by the Sisterhood.  CANONESS, PALATINE or MINISTORUM PRIEST model only. The bearer gains the PENITENT keyword and, during the Declare Battle Formations step, can be attached to a REPENTIA SOUAD unit.",
+          "applies_to": ""
+        }
+      ],
+      "stratagems": [
+        {
+          "name": "FINAL REDEMPTION",
+          "cp": 1,
+          "type": "Penitent Host – Epic Deed Stratagem",
+          "flavour": "Those seeking absolution in the eyes of the Emperor will gladly give their last drop of blood to defy his enemies.",
+          "when": "Any phase.",
+          "target": "One PENITENT unit from your army that was just destroyed while it was within range of an objective marker you controlled. You can use this Stratagem on that unit even though it was just destroyed.",
+          "effect": "That objective marker remains under your control, even if you have no models within range of it, until your opponent controls it at the start or end of any turn."
+        },
+        {
+          "name": "PURITY OF SUFFERING",
+          "cp": 1,
+          "type": "Penitent Host – Battle Tactic Stratagem",
+          "flavour": "Suffering is the penance by which the faithful affirm their devotions. To shore in the agonies suffered by the God-Emperor and his saints without embracing death is the mark of fidelity to the Imperia",
+          "when": "Your opponent's Shooting phase or the Fight phase, just after an enemy unit has selected its targets.",
+          "target": "One PENITENT unit from your army that was selected as the target of one or more of the attacking unit's attacks.",
+          "effect": "Until the end of the phase, PENITENT models in your unit have the Feel No Pain 4+ ability."
+        },
+        {
+          "name": "PASSION OF THE PENITENT",
+          "cp": 1,
+          "type": "Penitent Host – Battle Tactic Stratagem",
+          "flavour": "The penitent are full of a burning passion to inflict suffering upon the faithless.",
+          "when": "Fight phase.",
+          "target": "One PENITENT unit from your army that has not been selected to fight this phase.",
+          "effect": "Until the end of the phase, each time a PENITENT model in your unit makes a melee attack, a successful unmodified Hit roll of 5+ scores a Critical Hit."
+        },
+        {
+          "name": "LASH OF GUILT",
+          "cp": 1,
+          "type": "Penitent Host – Battle Tactic Stratagem",
+          "flavour": "Agony and guilt drive these sinners forward. Only by meeting the enemy in combat may they find repentance or, Jailing that, the comfort of death.",
+          "when": "Your Movement phase, just before a PENITENT unit from your army Advances.",
+          "target": "That PENITENT unit.",
+          "effect": "Until the end of the turn, your unit is eligible to declare a charge in a turn in which it Advanced. If your unit has the PENITENT ENGINES keyword, do not make an Advance roll for it; instead, until the end of the phase, add 6\" to the Move characteristic of models in your unit."
+        },
+        {
+          "name": "BOUNDLESS ZEAL",
+          "cp": 1,
+          "type": "Penitent Host – Strategic Ploy Stratagem",
+          "flavour": "The urge to absolve their sins and destroy the enemy drives the penitents to push their tortured bodies beyond their mortal limits.",
+          "when": "Your Movement phase, just after an ADEPTA SORORITAS unit from your army Falls Back.",
+          "target": "That ADEPTA SORORITAS unit.",
+          "effect": "Until the end of the turn, your unit is eligible to shoot or declare a charge in a turn in which it Fell Back. If your unit has the PENITENT keyword, it is eligible to shoot and declare a charge in a turn in which it Fell Back instead."
+        },
+        {
+          "name": "DEVOUT FANATICISM",
+          "cp": 1,
+          "type": "Penitent Host – Strategic Ploy Stratagem",
+          "flavour": "The God-Emperor's faithful followers, heedless of incoming fire, leap forth to deliver his furious judgement in the press of melee",
+          "when": "Your opponent’s Shooting phase, just after an enemy unit has shot.",
+          "target": "One PENITENT unit from your army that was selected as the target as one or more of the attacking unit’s attacks.",
+          "effect": "Roll one D6: your unit can be moved a distance in inches up to the result, but it must end that move as close as possible to the closest enemy unit (excluding AIRCRAFT). When doing so, models in your unit can be moved within Engagement Range of enemy units. Bringers of Flame"
+        }
+      ]
+    },
+    {
+      "name": "BRINGERS OF FLAME",
+      "detachment_rule": "Fervent Purgation",
+      "rule_summary": "These warriors carry the fiery wrath of the Emperor into the darkest corners of his realm. Through the weapons of the faithful is the Master of Mankind’s immortal anger made manifest. With the holy trinity of boltgun, flamer and melta weapons are his enemies purged from the lmperium’s worlds.  Ranged weapons equipped by ADEPTA SORORITAS models from your army have the [ASSAULT] ability, and each time an attack made with such a weapon targets a unit within 6\", add 1 to the Strength characteristic ",
+      "enhancements": [
+        {
+          "name": "Righteous Rage",
+          "points": 15,
+          "description": "This servant of the divine draws deeply from their faith, enhancing their physical might.  ADEPTA SORORITAS model only. Each time the bearer is selected to fight, you can first discard up to 3 Miracle dice. For each Miracle dice just discarded, until the end of the phase, add 1 to the Attacks and Strength characteristics of the bearer’s melee weapons.",
+          "applies_to": "ADEPTA SORORITAS model only."
+        },
+        {
+          "name": "Manual of Saint Griselda",
+          "points": 20,
+          "description": "Within this tome are the collected writings of Saint Griselda the Pious. The lessons inscribed on its vellum pages teach focus and decisiveness during times of war.  ADEPTA SORORITAS model only. At the start of your Command phase, you can discard up to 2 Miracle dice. Then, add 1 Miracle dice to your Miracle Dice pool showing a value equal to the sum of the two Miracle dice you just discarded (to a maximum of 6).",
+          "applies_to": "ADEPTA SORORITAS model only."
+        },
+        {
+          "name": "Fire and Fury",
+          "points": 30,
+          "description": "This warrior is a firebrand zealot without comparison. At their command, the faithful unleash relentless fire upon their chosen foe.  ADEPTA SORORITAS model only. While the bearer is leading a unit, add 1 to the Attacks characteristic of Torrent weapons equipped by models in that unit, and all other ranged weapons equipped by models in that unit have the [SUSTAINED HITS 1] ability.",
+          "applies_to": "ADEPTA SORORITAS model only."
+        },
+        {
+          "name": "Iron Surplice of Saint Istalela",
+          "points": 10,
+          "description": "Worked upon by generations of artificers, consecrated with holy oils and steeped in the smoke of sacred incense, this suit of power armour is amongst the most battle-proven relics held by the Orders Militant.  CANONESS or PALATINE model only. The bearer has a Save characteristic of 2+ and the Feel No Pain 5+ ability.",
+          "applies_to": ""
+        }
+      ],
+      "stratagems": [
+        {
+          "name": "SHIELD OF AVERSION",
+          "cp": 1,
+          "type": "Bringers of Flame – Battle Tactic Stratagem",
+          "flavour": "The Sisters of Battle gird themselves with the strength of their faith. It is a shield of repulsion that rejects the heretical cunning of their enemies.",
+          "when": "Your opponent’s Shooting phase or the Fight phase, just after an enemy unit has selected its targets.",
+          "target": "One ADEPTA SORORITAS unit from your army that was selected as the target of one or more of the attacking unit’s attacks.",
+          "effect": "Until the attacking unit has finished making its attacks, each time an attack targets your unit, worsen the Armour Penetration characteristic of that attack by 1."
+        },
+        {
+          "name": "RIGHTEOUS BLOWS",
+          "cp": 1,
+          "type": "Bringers of Flame – Battle Tactic Stratagem",
+          "flavour": "As the faithful strike their foes in righteous anger, they feel the Emperor's hand adding strength to their blows.",
+          "when": "Fight phase.",
+          "target": "One ADEPTA SORORITAS unit from your army that has not been selected to fight this phase.",
+          "effect": "Until the end of the phase, melee weapons equipped by models in your unit have the [LETHAL HITS] ability. If one or more enemy models are destroyed as the result of attacks made by those weapons this phase, select one of those destroyed models; that destroyed model’s unit must take a Battle-shock test."
+        },
+        {
+          "name": "CARRY FORTH THE FAITHFUL",
+          "cp": 1,
+          "type": "Bringers of Flame – Strategic Ploy Stratagem",
+          "flavour": "Congregated within a transport, the Battle Sisters recite bellowing prayers so that the whole vehicle echoes to furious piety.",
+          "when": "Your Movement phase, just before an ADEPTA SORORITAS TRANSPORT model from your army Advances.",
+          "target": "That ADEPTA SORORITAS TRANSPORT model.",
+          "effect": "Until the end of the turn, you can re-roll Advance rolls made for your TRANSPORT, and units can disembark from your TRANSPORT even though it Advanced. Units that do so count as having made a Normal move, and cannot declare a charge this turn"
+        },
+        {
+          "name": "CLEANSING FLAMES",
+          "cp": 2,
+          "type": "Bringers of Flame – Battle Tactic Stratagem",
+          "flavour": "Burn the mutant. Burn the heretic. Burn the witch.",
+          "when": "Your Shooting phase.",
+          "target": "One ADEPTA SORORITAS unit from your army that has not been selected to shoot this phase.",
+          "effect": "Until the end of the phase, Torrent weapons equipped by models in your unit have the [DEVASTATING WOUNDS] ability"
+        },
+        {
+          "name": "RITES OF FIRE",
+          "cp": 1,
+          "type": "Bringers of Flame – Battle Tactic Stratagem",
+          "flavour": "At close range, the Adepta Sororitas unleash the full devastating potential of their blessed weapons.",
+          "when": "Your Shooting phase.",
+          "target": "One ADEPTA SORORITAS unit from your army that disembarked from a TRANSPORT this turn and has not been selected to shoot this phase.",
+          "effect": "Until the end of the phase, each time a model in your unit makes a ranged attack that targets an enemy unit within 6\" that is also within range of an objective marker, add 1 to the Wound roll. If one or more enemy models are destroyed as the result of those attacks, select one of those destroyed models; that destroyed model’s unit must take a Battle-shock test."
+        },
+        {
+          "name": "BLAZING IRE",
+          "cp": 2,
+          "type": "Bringers of Flame – Battle Tactic Stratagem",
+          "flavour": "The transpans of the Adepta Sororitas are mobile shrines. The Sisters within this vehicle recite psalms of righteous hatred and destruction before emerging to obliterate their foes",
+          "when": "Your opponent’s Shooting phase, just after an enemy unit has shot.",
+          "target": "One ADEPTA SORORITAS TRANSPORT unit from your army that was selected as the target of one or more of the attacking unit's attacks.",
+          "effect": "One unit embarked within your TRANSPORT can disembark as if it were your Movement phase, and can then shoot as if it were your Shooting phase, but must target only that enemy unit when doing so, and can only do so if that enemy unit is an eligible target. Army of Faith"
+        }
+      ]
+    },
+    {
+      "name": "ARMY OF FAITH",
+      "detachment_rule": "Sacred Rites",
+      "rule_summary": "At times of war, the Adepta Sororitas make offerings to the Emperor in prayer, incense and blood. In such pious devotion, they may attract his blessings and enact miraculous deeds in his holy name.  Each ADEPTA SORORITAS unit from your army can perform up to two Acts of Faith per phase, instead of just one.",
+      "enhancements": [
+        {
+          "name": "Litanies of Faith",
+          "points": 10,
+          "description": "This unassuming parchment is one of the holiest relics in the Ministorum's charge, its mere presence enough to fill the hearts of the faithful with righteous fervour.  CANONESS or PALATINE model only. At the start of your Command phase, if the bearer is on the battlefield, take a Leadership test for the bearer. If that test is passed, you gain 1 Miracle dice.",
+          "applies_to": ""
+        },
+        {
+          "name": "Blade of Saint Ellynor",
+          "points": 15,
+          "description": "Forged from thrice-blessed silver, this blade has the names and deeds of a thousand saints inscribed on one side on the molecular level, while the other has the entire Fede lmperialis etched into its form. The blade glows with righteous power and has slain heretics, mutants and xenos beyond counting.  ADEPTA SORORITAS model only. Improve the Strength and Armour Penetration characteristics of the bearer’s melee weapons by 1, and those weapons have the [PRECISION] ability. In addition, each time the bearer fights, if one or more enemy models are destroyed by those attacks, you gain 1 Miracle dice.",
+          "applies_to": "ADEPTA SORORITAS model only."
+        },
+        {
+          "name": "Divine Aspect",
+          "points": 5,
+          "description": "Enemy warriors tremble before the radiant majesty of one blessed by the Emperor.  ADEPTA SORORITAS model only. In your Movement phase, you can select one enemy unit within 12\" of the bearer; that unit must take a Battle-shock test. If that test is failed, you gain 1 Miracle dice.",
+          "applies_to": "ADEPTA SORORITAS model only."
+        },
+        {
+          "name": "Triptych of the Macharian Crusade",
+          "points": 20,
+          "description": "Carried onto the most fire-swept of battlefields, the images of the Macharian Trinity glorifies three missionaries who saved thousands of lives. This adamantine-sheathed relic reminds the bearer that faith alone can weather the most grievous adversities.  ADEPTA SORORITAS model only. Each time the bearer uses an Act of Faith to substitute a saving throw, that saving throw is successful, irrespective of the value of the Miracle dice used.",
+          "applies_to": "ADEPTA SORORITAS model only."
+        }
+      ],
+      "stratagems": [
+        {
+          "name": "SHIELD OF FAITH",
+          "cp": 1,
+          "type": "Army of Faith – Battle Tactic Stratagem",
+          "flavour": "There is no armour as resilient as conviction itself.",
+          "when": "Any phase, just after an ADEPTA SORORITAS unit from your army suffers a mortal wound.",
+          "target": "That ADEPTA SORORITAS unit, or one friendly ADEPTA SORORITAS JUMP PACK unit within 3\" of it.",
+          "effect": "Until the end of the phase, models in your unit have the Feel No Pain 5+ ability against mortal wounds. If you targeted an ADEPTA SORORITAS JUMP PACK unit from your army with this Stratagem, then until the end of the phase, while a friendly ADEPTA SORORITAS unit is unit is within 3\" of your unit, models in that unit have the Feel No Pain 5+ ability against mortal wounds."
+        },
+        {
+          "name": "LIGHT OF THE EMPEROR",
+          "cp": 1,
+          "type": "Army of Faith – Battle Tactic Stratagem",
+          "flavour": "The Emperor’s radiance shines upon his warriors, magnifying their purity in their darkest hour.",
+          "when": "Command phase.",
+          "target": "One ADEPTA SORORITAS unit from your army.",
+          "effect": "Until the end of the turn, your unit is blessed. While a unit is blessed, it can ignore any or all modifiers to the following: the profile characteristics of its models; the Weapon Skill or Ballistic Skill characteristics of weapons equipped by its models; any roll or test made for it (excluding modifiers to saving throws). If your unit has the JUMP PACK keyword, until the end of the turn, while a friendly ADEPTA SORORITAS unit is within 3\" of your unit, that friendly unit is also blessed."
+        },
+        {
+          "name": "FAITH AND FURY",
+          "cp": 1,
+          "type": "Army of Faith – Battle Tactic Stratagem",
+          "flavour": "The righteous zeal of the Sisters of Battle burns bright as they charge towards their foes.",
+          "when": "Fight phase.",
+          "target": "One ADEPTA SORORITAS unit from your army that has not been selected to fight this phase.",
+          "effect": "Until the end of the phase, melee weapons equipped by models in your unit have the [LANCE] ability. If one or more enemy models are destroyed as the result of your unit's attacks this phase, you gain 1 Miracle dice."
+        },
+        {
+          "name": "BLINDING RADIANCE",
+          "cp": 1,
+          "type": "Army of Faith – Strategic Ploy Stratagem",
+          "flavour": "The Emperor's divinity manifests in golden halos, blinding the enemy with radiant light.",
+          "when": "Your opponent's Shooting phase or the Fight phase, just after an enemy unit has selected its targets.",
+          "target": "One ADEPTA SORORITAS unit from your army that was selected as the target of one or more of the attacking unit's attacks, or one friendly ADEPTA SORORITAS JUMP PACK unit within 3\" of such a unit.",
+          "effect": "Until the end of the phase, each time an attack targets your unit, subtract 1 from the Hit roll. If you targeted an ADEPTA SORORITAS JUMP PACK unit from your army with this Stratagem, then until the end of the phase, while a friendly ADEPTA SORORITAS unit is unit is within 3\" of your unit, each time an attack targets that unit, subtract 1 from the Hit roll."
+        },
+        {
+          "name": "DIVINE GUIDANCE",
+          "cp": 1,
+          "type": "Army of Faith – Battle Tactic Stratagem",
+          "flavour": "With miraculous precision, the blows of the Sisters of Battle strike the weak points of enemy armour.",
+          "when": "Your Shooting phase or the Fight phase.",
+          "target": "That ADEPTA SORORITAS unit from your army that has not been selected to shoot or fight this phase.",
+          "effect": "Until the end of the phase, each time a model in your unit makes an attack, improve the Armour Penetration characteristic of that attack by 1. If one or more enemy models are destroyed as the result of any of those attacks, you gain 1 Miracle dice."
+        },
+        {
+          "name": "ANGELIC DESCENT",
+          "cp": 1,
+          "type": "Army of Faith – Strategic Ploy Stratagem",
+          "flavour": "On wings of fire do the angelic warriors of the Orders Militant descent to battle.",
+          "when": "End of your opponent’s Fight phase.",
+          "target": "One ADEPTA SORORITAS JUMP PACK unit from your army.",
+          "effect": "Remove your unit from the battlefield and place it into Strategic Reserves.  RESTRICTIONS: You cannot select a unit that is within Engagement Range of one or more enemy units. Champions of Faith The Adepta Sororitas assemble their most skilled and pious warriors when a truly vital mission must be completed. Whether they muster in the marshalling cloisters of a holy shrine, aboard a dropship thundering through hostile skies, or even upon the open field of war amidst fountaining explosions and heaped corpses, these hand-picked champions of the Imperial Creed halt long enough to kneel as one and "
+        }
+      ]
+    },
+    {
+      "name": "CHAMPIONS OF FAITH",
+      "detachment_rule": "Righteous Purpose",
+      "rule_summary": "Whether high-ranking clergy must be rescued, a priceless relic recovered, or some archheretic slain, these warriors know that to fail after promising victory to the God-Emperor would be infinitely worse than death; this knowledge fills them with righteous purpose and the unflinching will to succeed no matter the odds.  In your Command phase, you can select up to 3 ADEPTA SORORITAS units from your army (including units that are embarked within TRANSPORTS), until the start of your next Command pha",
+      "enhancements": [
+        {
+          "name": "Triptych of Judgement",
+          "points": 15,
+          "description": "The three windows of this sacred artefact display three aspects of the God-Emperor in judgement over mortal souls. No warrior of faith will countenance failure beneath its threefold gaze.  ADEPTA SORORITAS model only. Each time a model in the bearer’s unit makes an attack, you can ignore any or all modifiers to that attack’s Ballistic Skill or Weapon Skill characteristics and/or any or all modifiers to the Hit roll.",
+          "applies_to": "ADEPTA SORORITAS model only."
+        },
+        {
+          "name": "Mark of Devotion",
+          "points": 30,
+          "description": "A fresh oath brand burns in this champion’s flesh, its heat remaining miraculously undimmed and its searing pain focusing their devout wrath.  ADEPTA SORORITAS model only. Add 1 to the Attacks characteristic of the bearer’s melee weapons. While the bearer’s unit is Righteous, add 2 to the Attacks characteristic and add 1 to the Damage characteristic of the bearer’s melee weapons instead.",
+          "applies_to": "ADEPTA SORORITAS model only."
+        },
+        {
+          "name": "Eyes of the Oracle",
+          "points": 10,
+          "description": "Having torn them from the sockets of a heretical witch, this warrior of faith keeps these shrivelled orbs sealed in a miniature reliquary about their neck. They believe that – tormented by holy imprisonment – the traitorous eyes guide their aim towards other infernal champions.  ADEPTA SORORITAS model only. The bearer’s weapons have the [PRECISION] ability. Each time the bearer’s unit destroys an enemy CHARACTER model, you gain 1CP.",
+          "applies_to": "ADEPTA SORORITAS model only."
+        },
+        {
+          "name": "Sanctified Amulet",
+          "points": 25,
+          "description": "Belief radiates out from this blessed icon, forming a holy circle of abjuration that holds at bay the unclean and leaves this champion free to do their duty to the God-Emperor.  ADEPTA SORORITAS model only. Enemy units that are set up on the battlefield from Reserves cannot be set up within 12\" of the bearer.",
+          "applies_to": "ADEPTA SORORITAS model only."
+        }
+      ],
+      "stratagems": [
+        {
+          "name": "SHIELD OF DENIAL",
+          "cp": 1,
+          "type": "Champions of Faith – Battle Tactic Stratagem",
+          "flavour": "With so singular and fanatical a purpose, the Adepta Sororitas can will their injuries away, at least until the fight is done.",
+          "when": "Any phase, just after a mortal wound is allocated to an ADEPTA SORORITAS unit from your army.",
+          "target": "That ADEPTA SORORITAS unit.",
+          "effect": "Until the end of the phase, models in your unit have the Feel No Pain 6+ ability against mortal wounds. If your unit is Righteous, until the end of the phase, models in your unit have the Feel No Pain 5+ ability against mortal wounds instead."
+        },
+        {
+          "name": "SUFFER NOT THE UNFAITHFUL",
+          "cp": 1,
+          "type": "Champions of Faith – Strategic Ploy Stratagem",
+          "flavour": "No unclean foe can be permitted to stand between the God-Emperor’s sworn champions and their oathed duty. They must be struck down with unmerciful fury.",
+          "when": "Your Shooting phase or the Fight phase.",
+          "target": "One ADEPTA SORORITAS unit from your army that is Righteous and that has not been selected to shoot or fight this phase.",
+          "effect": "Select either the [LETHAL HITS] or [SUSTAINED HITS 1] ability. Until the end of the phase, weapons equipped by models in your unit have the selected ability."
+        },
+        {
+          "name": "TO THE HEART OF HERESY",
+          "cp": 1,
+          "type": "Champions of Faith – Battle Tactic Stratagem",
+          "flavour": "Seizing their moment to drive like a burning blade through the enemy lines and complete their holy mission, these faithful strike with unstoppable might.",
+          "when": "Fight phase.",
+          "target": "One ADEPTA SORORITAS unit from your army that has not been selected to fight this phase.",
+          "effect": "Until the end of the turn, improve the Strength characteristic of melee weapons equipped by models in your unit by 1. If your unit is Righteous, until the end of the phase, improve the Armour Penetration characteristic of melee weapons equipped by models in your unit by 1 as well."
+        },
+        {
+          "name": "PATH OF THE RIGHTEOUS",
+          "cp": 1,
+          "type": "Champions of Faith – Battle Tactic Stratagem",
+          "flavour": "When exemplars of the Imperial Creed stride to do the God-Emperor’s will, little can slow their sacred procession.",
+          "when": "Fight phase.",
+          "target": "One ADEPTA SORORITAS unit from your army that has not been selected to fight this phase.",
+          "effect": "Until the end of the turn, each time a model in your unit makes a Pile-in or Consolidation move, it can move up to 6\" instead of up to 3\". When doing so, if your unit is Righteous, it does not need to end that move closer to the closest enemy model, provided it ends that move as close as possible to the closest enemy unit."
+        },
+        {
+          "name": "BASTION OF FAITH",
+          "cp": 1,
+          "type": "Champions of Faith – Battle Tactic Stratagem",
+          "flavour": "Unified in their inviolate dedication to fulfil their oaths to Him on the Throne, the Order’s elite form a rampart of ceramite and unyielding faith to throw back the desperate blows of the foe.",
+          "when": "Fight phase, just after an enemy unit has selected its targets.",
+          "target": "One CELESTIAN SACRESANTS unit that was selected as the target of one or more of the attacking unit’s attacks.",
+          "effect": "Until the end of the phase, each time an attack targets your unit, subtract 1 from the Hit roll. In addition, if your unit is Righteous, you can select one other CELESTIAN SACRESANTS unit from your army that is not Battle-shocked and is within 6\" of your unit. Until the end of the phase, each time an attack targets that CELESTIAN SACRESANTS unit, subtract 1 from the Hit roll as well."
+        }
+      ]
+    },
+    {
+      "name": "DETACHMENT (THE EMPEROR PROTECTS)",
+      "detachment_rule": "The Emperor Protects",
+      "rule_summary": "The Adepta Sororitas fight to defend the Imperial faith from those who would seek to bring about its ruin. The Battle Sisters believe that the light of the Emperor falls upon those who defend his sacred realm, lending them divine protection from the blades and bullets of the enemy.  Each time an attack targets an ADEPTA SORORITAS unit from your army (excluding ARCO-FLAGELLANTS and REPENTIA SQUAD units), if that unit is within range of an objective marker, models in that unit have a 4+ invulnerab",
+      "enhancements": [],
+      "stratagems": [
+        {
+          "name": "FINAL TESTAMENT",
+          "cp": 1,
+          "type": "Pious Protectors – Battle Tactic Stratagem",
+          "flavour": "The Sisters of Battle expect to die in battle. They strive to take as many blasphemers as possible with them to the grave.",
+          "when": "Fight phase, just after an enemy unit has selected its targets.",
+          "target": "One ADEPTA SORORITAS unit from your army that was selected as the target of one or more of the attacking unit’s attacks.",
+          "effect": "You can discard 1 Miracle dice. Until the end of the phase, each time a model in your unit is destroyed, if that model has not fought this phase, roll one D6, adding 1 to the result if you discarded a Miracle dice: on a 4+, do not remove the destroyed model from play; it can fight after the attacking unit has finished making its attacks, and is then removed from play."
+        },
+        {
+          "name": "PRAYER OF PRECISION",
+          "cp": 1,
+          "type": "Pious Protectors – Battle Tactic Stratagem",
+          "flavour": "A whispered prayer prior to aiming steadies the hand and ensures each round strikes its mark.",
+          "when": "Your Shooting phase.",
+          "target": "One ADEPTA SORORITAS unit from your army that has not been selected to shoot this phase.",
+          "effect": "You can discard 1 Miracle dice. Until the end of the phase, each time a model in your unit makes an attack, re-roll a Hit roll of 1. If you discarded a Miracle dice, you can re-roll the Hit roll instead."
+        },
+        {
+          "name": "REPEL BOARDERS",
+          "cp": 1,
+          "type": "Pious Protectors – Strategic Ploy Stratagem",
+          "flavour": "Adepta Sororitas purgation teams excel at repelling boarding parties, repelling wave after wave of boarders with stoic defiance.",
+          "when": "Your opponent’s Movement or Charge phase.",
+          "target": "One ADEPTA SORORITAS unit from your army that has not fired Overwatch this phase.",
+          "effect": "Until the end of the phase, each time a model in your unit makes an attack while firing Overwatch, an unmodified Hit roll of 5+ is required to score a hit, instead of an unmodified 6. In addition, until the end of the phase, each time you roll to determine the number of attacks made with a weapon equipped by a model in your unit, you can re-roll the result."
+        }
+      ]
+    },
+    {
+      "name": "NONE",
+      "detachment_rule": "Bloody Redemption",
+      "rule_summary": "Absolution can only be earned by spilling the blood of the enemy. Most will only find redemption in death, their last acts of violence absolving them of their sins against the Imperial faith.  The first time each turn that you gain 1 Miracle dice as the result of an ARCO-FLAGELLANTS or REPENTIA SQUAD unit from your army being destroyed, do not roll a D6; that Miracle dice has a value of 6 instead.",
+      "enhancements": [],
+      "stratagems": [
+        {
+          "name": "SLICK WITH GORE",
+          "cp": 1,
+          "type": "Penitents and Pilgrims – Battle Tactic Stratagem",
+          "flavour": "With chainsword and fist these warriors cut through the enemy until their bodies are coated in viscera and the foe quail before their bloody advance.",
+          "when": "Fight phase, just after an ADEPTA SORORITAS unit from your army destroys an enemy unit.",
+          "target": "That ADEPTA SORORITAS unit.",
+          "effect": "Until the end of the battle, your unit is slick with gore. In the Battle-shock step of your opponent's Command phase, if an enemy unit that is below its Starting Strength is within 6\" of and visible to a unit from your army that is slick with gore, that enemy unit must take a Battle-shock test. If that enemy unit is also Below Half-strength, subtract 1 from that test. This cannot cause a unit to take two Battle-shock tests in the same phase.  RESTRICTIONS: You cannot use this Stratagem while a unit from your army that is slick with gore is on the battlefield."
+        },
+        {
+          "name": "CONTEMPT FOR DEATH",
+          "cp": 1,
+          "type": "Penitents and Pilgrims – Battle Tactic Stratagem",
+          "flavour": "The desire for absolution lends the penitent hosts unnatural resilience in the face of superior foes.",
+          "when": "Your opponent’s Shooting phase or the Fight phase, just after an enemy unit has selected its targets.",
+          "target": "One ADEPTA SORORITAS unit from your army that was selected as the target of one or more of the attacking unit’s attacks.",
+          "effect": "Until the end of the phase, each time an attack targets your unit, if the Strength characteristic of that attack is greater than the Toughness characteristic of your unit, subtract 1 from the Wound roll."
+        },
+        {
+          "name": "FEVERED ZEALOTS",
+          "cp": 1,
+          "type": "Penitents and Pilgrims – Strategic Ploy Stratagem",
+          "flavour": "Driven on by the depths of their own zeal, these warriors pile through hatchways and bulkheads, desperate to slaughter the blasphemers.",
+          "when": "Your Movement phase, just after an ADEPTA SORORITAS unit from your army opens a Hatchway.",
+          "target": "That ADEPTA SORORITAS unit.",
+          "effect": "Until the end of the turn, your unit has the Fights First ability."
+        }
+      ]
+    }
+  ],
+  "units": [
+    {
+      "name": "AESTRED THURGA AND AGATHAE DOLAN",
+      "legends": false,
+      "role": "CHARACTER",
+      "faction_keywords": [
+        "Aestred Thurga and Agathae Dolan Adepta Sororitas"
+      ],
+      "keywords": [
+        "Infantry",
+        "Grenades",
+        "Character",
+        "Epic Hero",
+        "Imperium"
+      ],
+      "points": null,
+      "stats": {
+        "M": "6\"",
+        "T": "3",
+        "Sv": "2+",
+        "W": "4",
+        "Ld": "6+",
+        "OC": "1"
+      },
+      "unit_composition": [
+        "None ■ 1 Aestred Thurga – Epic Hero",
+        "1 Agathae Dolan – Epic Hero",
+        "Aestred Thurga is equipped with: bolt pistol; Blade of Vigil.",
+        "Agathae Dolan is equipped with: bolt pistol; scribe’s staff."
+      ],
+      "base_size": null,
+      "abilities": [
+        {
+          "name": "CORE",
+          "summary": "Leader",
+          "phase_tags": []
+        },
+        {
+          "name": "FACTION",
+          "summary": "Acts of Faith",
+          "phase_tags": []
+        },
+        {
+          "name": "Recount the Deeds of the Saints",
+          "summary": "While Agathae Dolan is part",
+          "phase_tags": []
+        },
+        {
+          "name": "INVULNERABLE SAVE",
+          "summary": "4+",
+          "phase_tags": []
+        }
+      ],
+      "wargear_options": [],
+      "weapons": [
+        {
+          "name": "Bolt pistol",
+          "type": "ranged",
+          "range": "12\"",
+          "a": "1",
+          "bs_ws": "3+",
+          "s": "4",
+          "ap": "0",
+          "d": "1",
+          "keywords": [
+            "PISTOL"
+          ]
+        },
+        {
+          "name": "Blade of Vigil",
+          "type": "melee",
+          "range": "Melee",
+          "a": "4",
+          "bs_ws": "3+",
+          "s": "5",
+          "ap": "-2",
+          "d": "2",
+          "keywords": []
+        },
+        {
+          "name": "Scribe’s staff",
+          "type": "melee",
+          "range": "Melee",
+          "a": "3",
+          "bs_ws": "4+",
+          "s": "4",
+          "ap": "0",
+          "d": "1",
+          "keywords": []
+        }
+      ],
+      "strengths": [],
+      "weaknesses": [],
+      "target_priority_tags": [],
+      "threat_tags": [
+        "RANGED_CAPABLE",
+        "HIGH_DURABILITY",
+        "INVULNERABLE_SAVE"
+      ],
+      "mobility_tags": [],
+      "durability_tags": [
+        "HEAVY_ARMOUR",
+        "MULTI_WOUND"
+      ],
+      "tau_counterplay": [
+        "High durability — concentrate fire, Ion Accelerator or Railguns for AP-3+.",
+        "Invulnerable save — volume of fire preferred over single high-AP shots."
+      ],
+      "notes": "Leader: the following units:, ■ Battle Sisters Squad, ■ Celestian Sacresants, ■ Dominion Squad, ■ Retributor Squad"
+    },
+    {
+      "name": "CANONESS",
+      "legends": false,
+      "role": "CHARACTER",
+      "faction_keywords": [
+        "KEYWORDS: Infantry",
+        "Character",
+        "Grenades",
+        "Imperium",
+        "Canoness",
+        "Adepta Sororitas"
+      ],
+      "keywords": [
+        "KEYWORDS: Infantry",
+        "Character",
+        "Grenades",
+        "Imperium",
+        "Canoness Adepta Sororitas"
+      ],
+      "points": null,
+      "stats": {
+        "M": "6\"",
+        "T": "3",
+        "Sv": "3+",
+        "W": "4",
+        "Ld": "7+",
+        "OC": "1"
+      },
+      "unit_composition": [
+        "This model’s bolt pistol can be replaced with one of the following: ■ 1 Canoness",
+        "1 condemnor boltgun This model is equipped with: bolt pistol; chainsword.",
+        "1 inferno pistol",
+        "1 plasma pistol"
+      ],
+      "base_size": null,
+      "abilities": [
+        {
+          "name": "CORE",
+          "summary": "Leader",
+          "phase_tags": []
+        },
+        {
+          "name": "FACTION",
+          "summary": "Acts of Faith",
+          "phase_tags": []
+        },
+        {
+          "name": "One Shot",
+          "summary": "The bearer can only shoot with this weapon once per battle.",
+          "phase_tags": []
+        },
+        {
+          "name": "Lead the Righteous",
+          "summary": "While this model is leading a unit, each",
+          "phase_tags": []
+        },
+        {
+          "name": "Grace",
+          "summary": "Once per battle, at the start of any",
+          "phase_tags": []
+        },
+        {
+          "name": "Null Rod",
+          "summary": "Models in the bearer’s unit have the Feel No Pain 4+",
+          "phase_tags": []
+        },
+        {
+          "name": "Rod of Office",
+          "summary": "Each time you select the bearer’s unit as the",
+          "phase_tags": []
+        },
+        {
+          "name": "INVULNERABLE SAVE",
+          "summary": "4+",
+          "phase_tags": []
+        }
+      ],
+      "wargear_options": [],
+      "weapons": [
+        {
+          "name": "Bolt pistol",
+          "type": "ranged",
+          "range": "12\"",
+          "a": "1",
+          "bs_ws": "2+",
+          "s": "4",
+          "ap": "0",
+          "d": "1",
+          "keywords": [
+            "PISTOL"
+          ]
+        },
+        {
+          "name": "Brazier of holy fire",
+          "type": "ranged",
+          "range": "12\"",
+          "a": "D6",
+          "bs_ws": "N/A",
+          "s": "6",
+          "ap": "-1",
+          "d": "2",
+          "keywords": [
+            "IGNORES COVER",
+            "ONE SHOT",
+            "TORRENT"
+          ]
+        },
+        {
+          "name": "Condemnor boltgun [ANTI-PSYKER 2+,",
+          "type": "ranged",
+          "range": "24\"",
+          "a": "1",
+          "bs_ws": "2+",
+          "s": "4",
+          "ap": "0",
+          "d": "1",
+          "keywords": []
+        },
+        {
+          "name": "Inferno pistol",
+          "type": "ranged",
+          "range": "6\"",
+          "a": "1",
+          "bs_ws": "2+",
+          "s": "8",
+          "ap": "-4",
+          "d": "D3",
+          "keywords": [
+            "MELTA 2",
+            "PISTOL"
+          ]
+        },
+        {
+          "name": "Plasma pistol – standard",
+          "type": "ranged",
+          "range": "12\"",
+          "a": "1",
+          "bs_ws": "2+",
+          "s": "7",
+          "ap": "-2",
+          "d": "1",
+          "keywords": [
+            "PISTOL"
+          ]
+        },
+        {
+          "name": "Plasma pistol – supercharge",
+          "type": "ranged",
+          "range": "12\"",
+          "a": "1",
+          "bs_ws": "2+",
+          "s": "8",
+          "ap": "-3",
+          "d": "2",
+          "keywords": [
+            "HAZARDOUS",
+            "PISTOL"
+          ]
+        },
+        {
+          "name": "Blessed blade",
+          "type": "melee",
+          "range": "Melee",
+          "a": "3",
+          "bs_ws": "2+",
+          "s": "6",
+          "ap": "-2",
+          "d": "2",
+          "keywords": []
+        },
+        {
+          "name": "Chainsword",
+          "type": "melee",
+          "range": "Melee",
+          "a": "5",
+          "bs_ws": "2+",
+          "s": "3",
+          "ap": "0",
+          "d": "1",
+          "keywords": []
+        },
+        {
+          "name": "Power weapon",
+          "type": "melee",
+          "range": "Melee",
+          "a": "4",
+          "bs_ws": "2+",
+          "s": "4",
+          "ap": "-2",
+          "d": "1",
+          "keywords": []
+        }
+      ],
+      "strengths": [],
+      "weaknesses": [],
+      "target_priority_tags": [],
+      "threat_tags": [
+        "MELEE_THREAT",
+        "RANGED_CAPABLE",
+        "PLASMA",
+        "MEDIUM_DURABILITY",
+        "INVULNERABLE_SAVE"
+      ],
+      "mobility_tags": [],
+      "durability_tags": [
+        "MEDIUM_ARMOUR",
+        "MULTI_WOUND"
+      ],
+      "tau_counterplay": [
+        "Melee threat — maintain distance, use Drones as speed bumps, overwatch with Pulse.",
+        "Invulnerable save — volume of fire preferred over single high-AP shots."
+      ],
+      "notes": "Leader: the following units:, ◦ 1 power weapon ■ Battle Sisters Squad, ■ If this model is equipped with a chainsword, it can be equipped with one of the follo"
+    },
+    {
+      "name": "DAEMONIFUGE",
+      "legends": false,
+      "role": "CHARACTER",
+      "faction_keywords": [
+        "KEYWORDS: Infantry",
+        "Grenades",
+        "Character",
+        "Epic Hero",
+        "Imperium",
+        "Daemonifuge",
+        "Adepta Sororitas"
+      ],
+      "keywords": [
+        "KEYWORDS: Infantry",
+        "Grenades",
+        "Character",
+        "Epic Hero",
+        "Imperium",
+        "Daemonifuge Adepta Sororitas"
+      ],
+      "points": null,
+      "stats": {
+        "M": "8\"",
+        "T": "3",
+        "Sv": "3+",
+        "W": "5",
+        "Ld": "7+",
+        "OC": "1"
+      },
+      "unit_composition": [
+        "None ■ 1 Ephrael Stern – Epic Hero",
+        "1 Kyganil of the Bloody Tears – Epic Hero",
+        "Ephrael Stern is equipped with: bolt pistol; Sanctity.",
+        "Kyganil of the Bloody Tears is equipped with: the",
+        "Outcast’s Weapons."
+      ],
+      "base_size": null,
+      "abilities": [
+        {
+          "name": "CORE",
+          "summary": "Deep Strike",
+          "phase_tags": []
+        },
+        {
+          "name": "FACTION",
+          "summary": "Acts of Faith",
+          "phase_tags": []
+        },
+        {
+          "name": "Holy Judgement",
+          "summary": "At the start of your Shooting phase, select",
+          "phase_tags": []
+        },
+        {
+          "name": "Mysterious Saviours",
+          "summary": "You can target this unit with the Heroic",
+          "phase_tags": []
+        },
+        {
+          "name": "INVULNERABLE SAVE",
+          "summary": "4+",
+          "phase_tags": []
+        }
+      ],
+      "wargear_options": [],
+      "weapons": [
+        {
+          "name": "Bolt pistol",
+          "type": "ranged",
+          "range": "12\"",
+          "a": "1",
+          "bs_ws": "3+",
+          "s": "4",
+          "ap": "0",
+          "d": "1",
+          "keywords": [
+            "PISTOL"
+          ]
+        },
+        {
+          "name": "Sanctity",
+          "type": "melee",
+          "range": "Melee",
+          "a": "4",
+          "bs_ws": "2+",
+          "s": "6",
+          "ap": "-2",
+          "d": "2",
+          "keywords": [
+            "ANTI-CHAOS 2+",
+            "PRECISION"
+          ]
+        },
+        {
+          "name": "The Outcast’s Weapons",
+          "type": "melee",
+          "range": "Melee",
+          "a": "6",
+          "bs_ws": "2+",
+          "s": "4",
+          "ap": "-1",
+          "d": "1",
+          "keywords": [
+            "PRECISION"
+          ]
+        }
+      ],
+      "strengths": [],
+      "weaknesses": [],
+      "target_priority_tags": [],
+      "threat_tags": [
+        "MELEE_THREAT",
+        "RANGED_CAPABLE",
+        "MEDIUM_DURABILITY",
+        "INVULNERABLE_SAVE",
+        "DEEP_STRIKE"
+      ],
+      "mobility_tags": [
+        "MOBILE",
+        "DEEP_STRIKE"
+      ],
+      "durability_tags": [
+        "MEDIUM_ARMOUR",
+        "MULTI_WOUND"
+      ],
+      "tau_counterplay": [
+        "Melee threat — maintain distance, use Drones as speed bumps, overwatch with Pulse.",
+        "Deep Strike threat — screen backfield with Kroot or Fire Warriors 9\" from objectives.",
+        "Invulnerable save — volume of fire preferred over single high-AP shots."
+      ],
+      "notes": ""
+    },
+    {
+      "name": "DIALOGUS",
+      "legends": false,
+      "role": "CHARACTER",
+      "faction_keywords": [
+        "KEYWORDS: Infantry",
+        "Character",
+        "Imperium",
+        "Dialogus",
+        "Adepta Sororitas"
+      ],
+      "keywords": [
+        "KEYWORDS: Infantry",
+        "Character",
+        "Imperium",
+        "Dialogus Adepta Sororitas"
+      ],
+      "points": null,
+      "stats": {
+        "M": "6\"",
+        "T": "3",
+        "Sv": "3+",
+        "W": "3",
+        "Ld": "6+",
+        "OC": "1"
+      },
+      "unit_composition": [
+        "None ■ 1 Dialogus",
+        "This model is equipped with: bolt pistol; Dialogus staff."
+      ],
+      "base_size": null,
+      "abilities": [
+        {
+          "name": "CORE",
+          "summary": "Leader",
+          "phase_tags": []
+        },
+        {
+          "name": "FACTION",
+          "summary": "Acts of Faith",
+          "phase_tags": []
+        },
+        {
+          "name": "Laud Hailer",
+          "summary": "While this model is leading a unit, that unit",
+          "phase_tags": []
+        },
+        {
+          "name": "Stirring Rhetoric",
+          "summary": "While this model is leading a unit, each time",
+          "phase_tags": []
+        },
+        {
+          "name": "INVULNERABLE SAVE",
+          "summary": "6+",
+          "phase_tags": []
+        }
+      ],
+      "wargear_options": [],
+      "weapons": [
+        {
+          "name": "Bolt pistol",
+          "type": "ranged",
+          "range": "12\"",
+          "a": "1",
+          "bs_ws": "3+",
+          "s": "4",
+          "ap": "0",
+          "d": "1",
+          "keywords": [
+            "PISTOL"
+          ]
+        },
+        {
+          "name": "Dialogus staff",
+          "type": "melee",
+          "range": "Melee",
+          "a": "3",
+          "bs_ws": "4+",
+          "s": "4",
+          "ap": "0",
+          "d": "1",
+          "keywords": []
+        }
+      ],
+      "strengths": [],
+      "weaknesses": [],
+      "target_priority_tags": [],
+      "threat_tags": [
+        "RANGED_CAPABLE",
+        "MEDIUM_DURABILITY",
+        "INVULNERABLE_SAVE"
+      ],
+      "mobility_tags": [],
+      "durability_tags": [
+        "MEDIUM_ARMOUR"
+      ],
+      "tau_counterplay": [
+        "Invulnerable save — volume of fire preferred over single high-AP shots."
+      ],
+      "notes": "Leader: the following units:, ■ Battle Sisters Squad, ■ Celestian Sacresants, ■ Dominion Squad, ■ Retributor Squad, ■ Sisters Novitiate Squad, This model can "
+    },
+    {
+      "name": "DOGMATA",
+      "legends": false,
+      "role": "CHARACTER",
+      "faction_keywords": [
+        "KEYWORDS: Infantry",
+        "Grenades",
+        "Character",
+        "Imperium",
+        "Dogmata",
+        "Adepta Sororitas"
+      ],
+      "keywords": [
+        "KEYWORDS: Infantry",
+        "Grenades",
+        "Character",
+        "Imperium",
+        "Dogmata Adepta Sororitas"
+      ],
+      "points": null,
+      "stats": {
+        "M": "6\"",
+        "T": "3",
+        "Sv": "3+",
+        "W": "3",
+        "Ld": "6+",
+        "OC": "1"
+      },
+      "unit_composition": [
+        "None ■ 1 Dogmata",
+        "This model is equipped with: bolt pistol; mace of",
+        "the righteous."
+      ],
+      "base_size": null,
+      "abilities": [
+        {
+          "name": "CORE",
+          "summary": "Leader",
+          "phase_tags": []
+        },
+        {
+          "name": "FACTION",
+          "summary": "Acts of Faith",
+          "phase_tags": []
+        },
+        {
+          "name": "Executioner of Heretics (Aura)",
+          "summary": "While an enemy unit is within",
+          "phase_tags": []
+        },
+        {
+          "name": "Unflinching Determination",
+          "summary": "While this model is leading a",
+          "phase_tags": []
+        },
+        {
+          "name": "INVULNERABLE SAVE",
+          "summary": "6+",
+          "phase_tags": []
+        }
+      ],
+      "wargear_options": [],
+      "weapons": [
+        {
+          "name": "Bolt pistol",
+          "type": "ranged",
+          "range": "12\"",
+          "a": "1",
+          "bs_ws": "3+",
+          "s": "4",
+          "ap": "0",
+          "d": "1",
+          "keywords": [
+            "PISTOL"
+          ]
+        },
+        {
+          "name": "Mace of the righteous",
+          "type": "melee",
+          "range": "Melee",
+          "a": "4",
+          "bs_ws": "3+",
+          "s": "5",
+          "ap": "-1",
+          "d": "2",
+          "keywords": []
+        }
+      ],
+      "strengths": [],
+      "weaknesses": [],
+      "target_priority_tags": [],
+      "threat_tags": [
+        "RANGED_CAPABLE",
+        "MEDIUM_DURABILITY",
+        "INVULNERABLE_SAVE"
+      ],
+      "mobility_tags": [],
+      "durability_tags": [
+        "MEDIUM_ARMOUR"
+      ],
+      "tau_counterplay": [
+        "Invulnerable save — volume of fire preferred over single high-AP shots."
+      ],
+      "notes": "Leader: the following units:, ■ Battle Sisters Squad, ■ Celestian Sacresants, ■ Dominion Squad, ■ Retributor Squad, This model can be attached to a Battle Sis"
+    },
+    {
+      "name": "HOSPITALLER",
+      "legends": false,
+      "role": "CHARACTER",
+      "faction_keywords": [
+        "KEYWORDS: Infantry",
+        "Character",
+        "Imperium",
+        "Hospitaller",
+        "Adepta Sororitas"
+      ],
+      "keywords": [
+        "KEYWORDS: Infantry",
+        "Character",
+        "Imperium",
+        "Hospitaller Adepta Sororitas"
+      ],
+      "points": null,
+      "stats": {
+        "M": "6\"",
+        "T": "3",
+        "Sv": "3+",
+        "W": "3",
+        "Ld": "7+",
+        "OC": "1"
+      },
+      "unit_composition": [
+        "None ■ 1 Hospitaller",
+        "This model is equipped with: bolt pistol; chirurgeon’s tools."
+      ],
+      "base_size": null,
+      "abilities": [
+        {
+          "name": "CORE",
+          "summary": "Leader",
+          "phase_tags": []
+        },
+        {
+          "name": "FACTION",
+          "summary": "Acts of Faith",
+          "phase_tags": []
+        },
+        {
+          "name": "Medicus Ministorum",
+          "summary": "While this model is leading a unit,",
+          "phase_tags": []
+        },
+        {
+          "name": "Sacred Healing",
+          "summary": "At the end of your Movement phase, select",
+          "phase_tags": []
+        },
+        {
+          "name": "INVULNERABLE SAVE",
+          "summary": "6+",
+          "phase_tags": []
+        }
+      ],
+      "wargear_options": [],
+      "weapons": [
+        {
+          "name": "Bolt pistol",
+          "type": "ranged",
+          "range": "12\"",
+          "a": "1",
+          "bs_ws": "3+",
+          "s": "4",
+          "ap": "0",
+          "d": "1",
+          "keywords": [
+            "PISTOL"
+          ]
+        },
+        {
+          "name": "Chirurgeon’s tools",
+          "type": "melee",
+          "range": "Melee",
+          "a": "3",
+          "bs_ws": "4+",
+          "s": "3",
+          "ap": "0",
+          "d": "1",
+          "keywords": []
+        }
+      ],
+      "strengths": [],
+      "weaknesses": [],
+      "target_priority_tags": [],
+      "threat_tags": [
+        "RANGED_CAPABLE",
+        "MEDIUM_DURABILITY",
+        "INVULNERABLE_SAVE"
+      ],
+      "mobility_tags": [],
+      "durability_tags": [
+        "MEDIUM_ARMOUR"
+      ],
+      "tau_counterplay": [
+        "Invulnerable save — volume of fire preferred over single high-AP shots."
+      ],
+      "notes": "Leader: the following units:, ■ Battle Sisters Squad, ■ Celestian Sacresants, ■ Dominion Squad, ■ Retributor Squad, ■ Sisters Novitiate Squad, This model can "
+    },
+    {
+      "name": "IMAGIFIER",
+      "legends": false,
+      "role": "CHARACTER",
+      "faction_keywords": [
+        "KEYWORDS: Infantry",
+        "Grenades",
+        "Character",
+        "Imperium",
+        "Imagifier",
+        "Adepta Sororitas"
+      ],
+      "keywords": [
+        "KEYWORDS: Infantry",
+        "Grenades",
+        "Character",
+        "Imperium",
+        "Imagifier Adepta Sororitas"
+      ],
+      "points": null,
+      "stats": {
+        "M": "6\"",
+        "T": "3",
+        "Sv": "3+",
+        "W": "3",
+        "Ld": "6+",
+        "OC": "1"
+      },
+      "unit_composition": [
+        "None ■ 1 Imagifier",
+        "This model is equipped with: bolt pistol; boltgun;",
+        "close combat weapon."
+      ],
+      "base_size": null,
+      "abilities": [
+        {
+          "name": "CORE",
+          "summary": "Leader",
+          "phase_tags": []
+        },
+        {
+          "name": "FACTION",
+          "summary": "Acts of Faith",
+          "phase_tags": []
+        },
+        {
+          "name": "Litany of Deeds",
+          "summary": "Each time you gain a Miracle dice as the",
+          "phase_tags": []
+        },
+        {
+          "name": "Stanchion of Holy Martyrs",
+          "summary": "While this model is leading a unit,",
+          "phase_tags": []
+        },
+        {
+          "name": "INVULNERABLE SAVE",
+          "summary": "4+",
+          "phase_tags": []
+        }
+      ],
+      "wargear_options": [],
+      "weapons": [
+        {
+          "name": "Bolt pistol",
+          "type": "ranged",
+          "range": "12\"",
+          "a": "1",
+          "bs_ws": "3+",
+          "s": "4",
+          "ap": "0",
+          "d": "1",
+          "keywords": [
+            "PISTOL"
+          ]
+        },
+        {
+          "name": "Boltgun",
+          "type": "ranged",
+          "range": "24\"",
+          "a": "1",
+          "bs_ws": "3+",
+          "s": "4",
+          "ap": "0",
+          "d": "1",
+          "keywords": [
+            "RAPID FIRE 1"
+          ]
+        },
+        {
+          "name": "Close combat weapon",
+          "type": "melee",
+          "range": "Melee",
+          "a": "3",
+          "bs_ws": "4+",
+          "s": "3",
+          "ap": "0",
+          "d": "1",
+          "keywords": []
+        }
+      ],
+      "strengths": [],
+      "weaknesses": [],
+      "target_priority_tags": [],
+      "threat_tags": [
+        "RANGED_CAPABLE",
+        "MEDIUM_DURABILITY",
+        "INVULNERABLE_SAVE"
+      ],
+      "mobility_tags": [],
+      "durability_tags": [
+        "MEDIUM_ARMOUR"
+      ],
+      "tau_counterplay": [
+        "Invulnerable save — volume of fire preferred over single high-AP shots."
+      ],
+      "notes": "Leader: the following units:, ■ Battle Sisters Squad, ■ Celestian Sacresants, ■ Dominion Squad, ■ Retributor Squad, This model can be attached to a Battle Sis"
+    },
+    {
+      "name": "JUNITH ERUITA",
+      "legends": false,
+      "role": "CHARACTER",
+      "faction_keywords": [
+        "KEYWORDS: Infantry",
+        "Character",
+        "Fly",
+        "Epic Hero",
+        "Imperium",
+        "Junith Eruita",
+        "Adepta Sororitas"
+      ],
+      "keywords": [
+        "KEYWORDS: Infantry",
+        "Character",
+        "Fly",
+        "Epic Hero",
+        "Imperium",
+        "Junith Eruita Adepta Sororitas"
+      ],
+      "points": null,
+      "stats": {
+        "M": "6\"",
+        "T": "4",
+        "Sv": "2+",
+        "W": "6",
+        "Ld": "6+",
+        "OC": "2"
+      },
+      "unit_composition": [
+        "None ■ 1 Junith Eruita – Epic Hero",
+        "This model is equipped with: twin Ministorum heavy flamer;",
+        "Mace of Castigation."
+      ],
+      "base_size": null,
+      "abilities": [
+        {
+          "name": "CORE",
+          "summary": "Deadly Demise 1",
+          "phase_tags": []
+        },
+        {
+          "name": "FACTION",
+          "summary": "Acts of Faith",
+          "phase_tags": []
+        },
+        {
+          "name": "Fiery Conviction",
+          "summary": "If this model is on the battlefield at the start",
+          "phase_tags": []
+        },
+        {
+          "name": "INVULNERABLE SAVE",
+          "summary": "4+",
+          "phase_tags": []
+        }
+      ],
+      "wargear_options": [],
+      "weapons": [
+        {
+          "name": "Twin Ministorum heavy flamer",
+          "type": "ranged",
+          "range": "12\"",
+          "a": "D6",
+          "bs_ws": "N/A",
+          "s": "6",
+          "ap": "-1",
+          "d": "1",
+          "keywords": []
+        },
+        {
+          "name": "Mace of Castigation",
+          "type": "melee",
+          "range": "Melee",
+          "a": "4",
+          "bs_ws": "2+",
+          "s": "6",
+          "ap": "-2",
+          "d": "2",
+          "keywords": []
+        }
+      ],
+      "strengths": [],
+      "weaknesses": [],
+      "target_priority_tags": [],
+      "threat_tags": [
+        "MELEE_THREAT",
+        "RANGED_CAPABLE",
+        "HIGH_DURABILITY",
+        "INVULNERABLE_SAVE"
+      ],
+      "mobility_tags": [],
+      "durability_tags": [
+        "HEAVY_ARMOUR",
+        "MULTI_WOUND"
+      ],
+      "tau_counterplay": [
+        "Melee threat — maintain distance, use Drones as speed bumps, overwatch with Pulse.",
+        "High durability — concentrate fire, Ion Accelerator or Railguns for AP-3+.",
+        "Invulnerable save — volume of fire preferred over single high-AP shots."
+      ],
+      "notes": "Leader: the following units:, ■ Battle Sisters Squad, ■ Celestian Sacresants, FACTION"
+    },
+    {
+      "name": "MISSIONARY",
+      "legends": false,
+      "role": "CHARACTER",
+      "faction_keywords": [
+        "KEYWORDS: Infantry",
+        "Character",
+        "Grenades",
+        "Imperium",
+        "Missionary",
+        "Adepta Sororitas"
+      ],
+      "keywords": [
+        "KEYWORDS: Infantry",
+        "Character",
+        "Grenades",
+        "Imperium",
+        "Missionary Adepta Sororitas"
+      ],
+      "points": null,
+      "stats": {
+        "M": "6\"",
+        "T": "3",
+        "Sv": "6+",
+        "W": "3",
+        "Ld": "7+",
+        "OC": "1"
+      },
+      "unit_composition": [
+        "This model’s power weapon can be replaced with one of the following: ■ 1 Missionary",
+        "1 autogun and 1 chainsword This model is equipped with: holy pistol; power weapon.",
+        "1 Ministorum shotgun and 1 chainsword"
+      ],
+      "base_size": null,
+      "abilities": [
+        {
+          "name": "CORE",
+          "summary": "Leader",
+          "phase_tags": []
+        },
+        {
+          "name": "FACTION",
+          "summary": "Acts of Faith",
+          "phase_tags": []
+        },
+        {
+          "name": "War Hymn",
+          "summary": "While this model is leading a unit, melee",
+          "phase_tags": []
+        },
+        {
+          "name": "Holy Piety",
+          "summary": "Each time this model makes a melee attack,",
+          "phase_tags": []
+        },
+        {
+          "name": "INVULNERABLE SAVE",
+          "summary": "4+",
+          "phase_tags": []
+        }
+      ],
+      "wargear_options": [],
+      "weapons": [
+        {
+          "name": "Autogun",
+          "type": "ranged",
+          "range": "24\"",
+          "a": "1",
+          "bs_ws": "4+",
+          "s": "3",
+          "ap": "0",
+          "d": "1",
+          "keywords": [
+            "RAPID FIRE 1"
+          ]
+        },
+        {
+          "name": "Holy pistol",
+          "type": "ranged",
+          "range": "12\"",
+          "a": "3",
+          "bs_ws": "4+",
+          "s": "4",
+          "ap": "0",
+          "d": "1",
+          "keywords": [
+            "PISTOL"
+          ]
+        },
+        {
+          "name": "Ministorum shotgun",
+          "type": "ranged",
+          "range": "12\"",
+          "a": "2",
+          "bs_ws": "4+",
+          "s": "4",
+          "ap": "0",
+          "d": "1",
+          "keywords": [
+            "ASSAULT"
+          ]
+        },
+        {
+          "name": "Chainsword",
+          "type": "melee",
+          "range": "Melee",
+          "a": "4",
+          "bs_ws": "4+",
+          "s": "3",
+          "ap": "0",
+          "d": "1",
+          "keywords": []
+        },
+        {
+          "name": "Power weapon",
+          "type": "melee",
+          "range": "Melee",
+          "a": "3",
+          "bs_ws": "4+",
+          "s": "4",
+          "ap": "-2",
+          "d": "1",
+          "keywords": []
+        }
+      ],
+      "strengths": [],
+      "weaknesses": [],
+      "target_priority_tags": [],
+      "threat_tags": [
+        "RANGED_CAPABLE",
+        "INVULNERABLE_SAVE"
+      ],
+      "mobility_tags": [],
+      "durability_tags": [
+        "LIGHT_ARMOUR"
+      ],
+      "tau_counterplay": [
+        "Invulnerable save — volume of fire preferred over single high-AP shots."
+      ],
+      "notes": "Leader: the following units:, ■ Arco-flagellants, ■ Battle Sisters Squad, ■ Crusaders, ■ Sisters Novitiate Squad, FACTION"
+    },
+    {
+      "name": "MORVENN VAHL",
+      "legends": false,
+      "role": "CHARACTER",
+      "faction_keywords": [
+        "KEYWORDS: Vehicle",
+        "Walker",
+        "Character",
+        "Epic Hero",
+        "Imperium",
+        "Morvenn Vahl",
+        "Adepta Sororitas"
+      ],
+      "keywords": [
+        "KEYWORDS: Vehicle",
+        "Walker",
+        "Character",
+        "Epic Hero",
+        "Imperium",
+        "Morvenn Vahl Adepta Sororitas"
+      ],
+      "points": null,
+      "stats": {
+        "M": "8\"",
+        "T": "6",
+        "Sv": "2+",
+        "W": "8",
+        "Ld": "6+",
+        "OC": "2"
+      },
+      "unit_composition": [
+        "None ■ 1 Morvenn Vahl – Epic Hero",
+        "This model is equipped with: Fidelis; Paragon missile",
+        "launcher; Lance of Illumination."
+      ],
+      "base_size": null,
+      "abilities": [
+        {
+          "name": "CORE",
+          "summary": "Deadly Demise 1",
+          "phase_tags": []
+        },
+        {
+          "name": "FACTION",
+          "summary": "Acts of Faith",
+          "phase_tags": []
+        },
+        {
+          "name": "Abbess Sanctorum",
+          "summary": "While this model is leading a unit, each",
+          "phase_tags": []
+        },
+        {
+          "name": "Righteous Repugnance",
+          "summary": "Once per battle, in your Command",
+          "phase_tags": []
+        },
+        {
+          "name": "INVULNERABLE SAVE",
+          "summary": "4+",
+          "phase_tags": []
+        }
+      ],
+      "wargear_options": [],
+      "weapons": [
+        {
+          "name": "Fidelis",
+          "type": "ranged",
+          "range": "36\"",
+          "a": "3",
+          "bs_ws": "2+",
+          "s": "6",
+          "ap": "-1",
+          "d": "2",
+          "keywords": [
+            "SUSTAINED HITS 1"
+          ]
+        },
+        {
+          "name": "Paragon missile launcher – prioris",
+          "type": "ranged",
+          "range": "36\"",
+          "a": "2",
+          "bs_ws": "2+",
+          "s": "9",
+          "ap": "-2",
+          "d": "D6",
+          "keywords": []
+        },
+        {
+          "name": "Paragon missile launcher – sanctorum",
+          "type": "ranged",
+          "range": "36\"",
+          "a": "2D6",
+          "bs_ws": "2+",
+          "s": "4",
+          "ap": "0",
+          "d": "1",
+          "keywords": [
+            "BLAST"
+          ]
+        },
+        {
+          "name": "Lance of Illumination – strike",
+          "type": "melee",
+          "range": "Melee",
+          "a": "5",
+          "bs_ws": "2+",
+          "s": "8",
+          "ap": "-2",
+          "d": "3",
+          "keywords": [
+            "DEVASTATING WOUNDS"
+          ]
+        },
+        {
+          "name": "Lance of Illumination – sweep",
+          "type": "melee",
+          "range": "Melee",
+          "a": "10",
+          "bs_ws": "2+",
+          "s": "5",
+          "ap": "-1",
+          "d": "1",
+          "keywords": []
+        }
+      ],
+      "strengths": [],
+      "weaknesses": [],
+      "target_priority_tags": [],
+      "threat_tags": [
+        "MELEE_THREAT",
+        "RANGED_CAPABLE",
+        "BLAST_WEAPONS",
+        "HIGH_DURABILITY",
+        "INVULNERABLE_SAVE"
+      ],
+      "mobility_tags": [
+        "MOBILE"
+      ],
+      "durability_tags": [
+        "HEAVY_ARMOUR",
+        "MEDIUM_TOUGHNESS",
+        "MULTI_WOUND"
+      ],
+      "tau_counterplay": [
+        "Melee threat — maintain distance, use Drones as speed bumps, overwatch with Pulse.",
+        "High durability — concentrate fire, Ion Accelerator or Railguns for AP-3+.",
+        "Invulnerable save — volume of fire preferred over single high-AP shots."
+      ],
+      "notes": "Leader: the following unit:, ■ Paragon Warsuits, SUPREME COMMANDER, If this model is in your army, it must be your Warlord., FACTION"
+    },
+    {
+      "name": "PALATINE",
+      "legends": false,
+      "role": "CHARACTER",
+      "faction_keywords": [
+        "KEYWORDS: Infantry",
+        "Character",
+        "Grenades",
+        "Imperium",
+        "Palatine",
+        "Adepta Sororitas"
+      ],
+      "keywords": [
+        "KEYWORDS: Infantry",
+        "Character",
+        "Grenades",
+        "Imperium",
+        "Palatine Adepta Sororitas"
+      ],
+      "points": null,
+      "stats": {
+        "M": "6\"",
+        "T": "3",
+        "Sv": "3+",
+        "W": "3",
+        "Ld": "7+",
+        "OC": "1"
+      },
+      "unit_composition": [
+        "This model’s bolt pistol can be replaced with 1 plasma pistol. ■ 1 Palatine",
+        "This model is equipped with: bolt pistol; Palatine blade."
+      ],
+      "base_size": null,
+      "abilities": [
+        {
+          "name": "CORE",
+          "summary": "Leader",
+          "phase_tags": []
+        },
+        {
+          "name": "FACTION",
+          "summary": "Acts of Faith",
+          "phase_tags": []
+        },
+        {
+          "name": "Fury of the Righteous",
+          "summary": "While this model is leading a",
+          "phase_tags": []
+        },
+        {
+          "name": "Rapturous Blows",
+          "summary": "Each time this model’s unit is selected to",
+          "phase_tags": []
+        },
+        {
+          "name": "INVULNERABLE SAVE",
+          "summary": "4+",
+          "phase_tags": []
+        }
+      ],
+      "wargear_options": [],
+      "weapons": [
+        {
+          "name": "Bolt pistol",
+          "type": "ranged",
+          "range": "12\"",
+          "a": "1",
+          "bs_ws": "2+",
+          "s": "4",
+          "ap": "0",
+          "d": "1",
+          "keywords": [
+            "PISTOL"
+          ]
+        },
+        {
+          "name": "Plasma pistol – standard",
+          "type": "ranged",
+          "range": "12\"",
+          "a": "1",
+          "bs_ws": "2+",
+          "s": "7",
+          "ap": "-2",
+          "d": "1",
+          "keywords": [
+            "PISTOL"
+          ]
+        },
+        {
+          "name": "Plasma pistol – supercharge",
+          "type": "ranged",
+          "range": "12\"",
+          "a": "1",
+          "bs_ws": "2+",
+          "s": "8",
+          "ap": "-3",
+          "d": "2",
+          "keywords": [
+            "HAZARDOUS",
+            "PISTOL"
+          ]
+        },
+        {
+          "name": "Palatine blade",
+          "type": "melee",
+          "range": "Melee",
+          "a": "4",
+          "bs_ws": "2+",
+          "s": "4",
+          "ap": "-2",
+          "d": "2",
+          "keywords": []
+        }
+      ],
+      "strengths": [],
+      "weaknesses": [],
+      "target_priority_tags": [],
+      "threat_tags": [
+        "RANGED_CAPABLE",
+        "PLASMA",
+        "MEDIUM_DURABILITY",
+        "INVULNERABLE_SAVE"
+      ],
+      "mobility_tags": [],
+      "durability_tags": [
+        "MEDIUM_ARMOUR"
+      ],
+      "tau_counterplay": [
+        "Invulnerable save — volume of fire preferred over single high-AP shots."
+      ],
+      "notes": "Leader: the following units:, ■ Battle Sisters Squad, ■ Celestian Sacresants, ■ Dominion Squad, ■ Sisters Novitiate Squad, FACTION"
+    },
+    {
+      "name": "PREACHER",
+      "legends": false,
+      "role": "CHARACTER",
+      "faction_keywords": [
+        "KEYWORDS: Infantry",
+        "Character",
+        "Imperium",
+        "Preacher",
+        "Adepta Sororitas"
+      ],
+      "keywords": [
+        "KEYWORDS: Infantry",
+        "Character",
+        "Imperium",
+        "Preacher Adepta Sororitas"
+      ],
+      "points": null,
+      "stats": {
+        "M": "6\"",
+        "T": "3",
+        "Sv": "6+",
+        "W": "3",
+        "Ld": "7+",
+        "OC": "1"
+      },
+      "unit_composition": [
+        "This model’s zealot’s vindictor can be replaced with 1 autopistol and 1 chainsword. ■ 1 Preacher",
+        "This model is equipped with: zealot’s vindictor."
+      ],
+      "base_size": null,
+      "abilities": [
+        {
+          "name": "CORE",
+          "summary": "Leader",
+          "phase_tags": []
+        },
+        {
+          "name": "FACTION",
+          "summary": "Acts of Faith",
+          "phase_tags": []
+        },
+        {
+          "name": "Righteous Smiting",
+          "summary": "While this model is leading a unit, each",
+          "phase_tags": []
+        },
+        {
+          "name": "Zealot",
+          "summary": "Once per battle, in the Fight phase, this model can",
+          "phase_tags": []
+        },
+        {
+          "name": "INVULNERABLE SAVE",
+          "summary": "4+",
+          "phase_tags": []
+        }
+      ],
+      "wargear_options": [],
+      "weapons": [
+        {
+          "name": "Autopistol",
+          "type": "ranged",
+          "range": "12\"",
+          "a": "1",
+          "bs_ws": "4+",
+          "s": "3",
+          "ap": "0",
+          "d": "1",
+          "keywords": [
+            "PISTOL"
+          ]
+        },
+        {
+          "name": "Zealot’s vindictor",
+          "type": "ranged",
+          "range": "12\"",
+          "a": "D6",
+          "bs_ws": "N/A",
+          "s": "5",
+          "ap": "0",
+          "d": "1",
+          "keywords": [
+            "IGNORES COVER",
+            "TORRENT"
+          ]
+        },
+        {
+          "name": "Chainsword",
+          "type": "melee",
+          "range": "Melee",
+          "a": "4",
+          "bs_ws": "4+",
+          "s": "3",
+          "ap": "0",
+          "d": "1",
+          "keywords": []
+        },
+        {
+          "name": "Zealot’s vindictor",
+          "type": "melee",
+          "range": "Melee",
+          "a": "3",
+          "bs_ws": "4+",
+          "s": "5",
+          "ap": "-1",
+          "d": "2",
+          "keywords": []
+        }
+      ],
+      "strengths": [],
+      "weaknesses": [],
+      "target_priority_tags": [],
+      "threat_tags": [
+        "RANGED_CAPABLE",
+        "INVULNERABLE_SAVE"
+      ],
+      "mobility_tags": [],
+      "durability_tags": [
+        "LIGHT_ARMOUR"
+      ],
+      "tau_counterplay": [
+        "Invulnerable save — volume of fire preferred over single high-AP shots."
+      ],
+      "notes": "Leader: the following units:, ■ Arco-flagellants, ■ Crusaders, ■ Sisters Novitiate Squad, FACTION"
+    },
+    {
+      "name": "SAINT CELESTINE",
+      "legends": false,
+      "role": "CHARACTER",
+      "faction_keywords": [
+        "– SAINT CELESTINE: Character",
+        "Epic Hero",
+        "Saint Celestine Adepta Sororitas"
+      ],
+      "keywords": [
+        "– SAINT CELESTINE: Character",
+        "Epic Hero",
+        "Saint Celestine Adepta Sororitas"
+      ],
+      "points": null,
+      "stats": {
+        "M": "12\"",
+        "T": "3",
+        "Sv": "2+",
+        "W": "5",
+        "Ld": "6+",
+        "OC": "1"
+      },
+      "unit_composition": [
+        "None ■ 1 Celestine – Epic Hero",
+        "2 Geminae Superia",
+        "Saint Celestine is equipped with: the Ardent Blade.",
+        "Each Geminae Superia is equipped with: bolt pistol;",
+        "power weapon."
+      ],
+      "base_size": null,
+      "abilities": [
+        {
+          "name": "CORE",
+          "summary": "Deep Strike",
+          "phase_tags": []
+        },
+        {
+          "name": "FACTION",
+          "summary": "Acts of Faith",
+          "phase_tags": []
+        },
+        {
+          "name": "Healing Tears",
+          "summary": "While this unit contains a Celestine model,",
+          "phase_tags": []
+        },
+        {
+          "name": "Lifewards",
+          "summary": "While this unit contains one or more Geminae",
+          "phase_tags": []
+        },
+        {
+          "name": "Miraculous Intervention",
+          "summary": "The first time this unit’s Celestine",
+          "phase_tags": []
+        },
+        {
+          "name": "INVULNERABLE SAVE",
+          "summary": "4+",
+          "phase_tags": []
+        }
+      ],
+      "wargear_options": [],
+      "weapons": [
+        {
+          "name": "Bolt pistol",
+          "type": "ranged",
+          "range": "12\"",
+          "a": "1",
+          "bs_ws": "3+",
+          "s": "4",
+          "ap": "0",
+          "d": "1",
+          "keywords": [
+            "PISTOL"
+          ]
+        },
+        {
+          "name": "The Ardent Blade",
+          "type": "ranged",
+          "range": "12\"",
+          "a": "D6",
+          "bs_ws": "N/A",
+          "s": "6",
+          "ap": "-2",
+          "d": "1",
+          "keywords": [
+            "IGNORES COVER",
+            "TORRENT"
+          ]
+        },
+        {
+          "name": "Power weapon",
+          "type": "melee",
+          "range": "Melee",
+          "a": "3",
+          "bs_ws": "3+",
+          "s": "4",
+          "ap": "-2",
+          "d": "1",
+          "keywords": []
+        },
+        {
+          "name": "The Ardent Blade",
+          "type": "melee",
+          "range": "Melee",
+          "a": "5",
+          "bs_ws": "2+",
+          "s": "6",
+          "ap": "-3",
+          "d": "2",
+          "keywords": [
+            "DEVASTATING WOUNDS"
+          ]
+        }
+      ],
+      "strengths": [],
+      "weaknesses": [],
+      "target_priority_tags": [],
+      "threat_tags": [
+        "MELEE_THREAT",
+        "RANGED_CAPABLE",
+        "HIGH_DURABILITY",
+        "INVULNERABLE_SAVE",
+        "DEEP_STRIKE"
+      ],
+      "mobility_tags": [
+        "FAST",
+        "DEEP_STRIKE"
+      ],
+      "durability_tags": [
+        "HEAVY_ARMOUR",
+        "MULTI_WOUND"
+      ],
+      "tau_counterplay": [
+        "Melee threat — maintain distance, use Drones as speed bumps, overwatch with Pulse.",
+        "High durability — concentrate fire, Ion Accelerator or Railguns for AP-3+.",
+        "Deep Strike threat — screen backfield with Kroot or Fire Warriors 9\" from objectives.",
+        "Invulnerable save — volume of fire preferred over single high-AP shots."
+      ],
+      "notes": "Leader: the following units:, ■ Seraphim Squad, ■ Zephyrim Squad, KEYWORDS – ALL MODELS: Infantry, Jump Pack, Fly, Grenades, Imperium FACTION"
+    },
+    {
+      "name": "TRIUMPH OF SAINT KATHERINE",
+      "legends": false,
+      "role": "CHARACTER",
+      "faction_keywords": [
+        "Triumph of Saint Katherine Adepta Sororitas"
+      ],
+      "keywords": [
+        "Infantry",
+        "Grenades",
+        "Character",
+        "Epic Hero",
+        "Imperium"
+      ],
+      "points": null,
+      "stats": {
+        "M": "6\"",
+        "T": "3",
+        "Sv": "3+",
+        "W": "18",
+        "Ld": "6+",
+        "OC": "6"
+      },
+      "unit_composition": [
+        "None ■ 1 Triumph of Saint Katherine – Epic Hero",
+        "This model is equipped with: bolt pistols; relic weapons."
+      ],
+      "base_size": null,
+      "abilities": [
+        {
+          "name": "CORE",
+          "summary": "Leader",
+          "phase_tags": []
+        },
+        {
+          "name": "FACTION",
+          "summary": "Acts of Faith",
+          "phase_tags": []
+        },
+        {
+          "name": "Relics of the Matriarchs",
+          "summary": "At the start of the battle round,",
+          "phase_tags": []
+        },
+        {
+          "name": "The Fiery Heart (Aura)",
+          "summary": "While a friendly Adepta Simulacrum of the Argent Shroud (Aura): While a",
+          "phase_tags": []
+        },
+        {
+          "name": "Censer of the Sacred Rose (Aura)",
+          "summary": "While a friendly Icon of the Valorous Heart (Aura): While a friendly",
+          "phase_tags": []
+        },
+        {
+          "name": "Simulacrum of the Ebon Chalice (Aura)",
+          "summary": "While a Petals of the Bloody Rose (Aura): While a friendly INVULNERABLE SAVE 4+",
+          "phase_tags": []
+        },
+        {
+          "name": "INVULNERABLE SAVE",
+          "summary": "4+",
+          "phase_tags": []
+        }
+      ],
+      "wargear_options": [],
+      "weapons": [
+        {
+          "name": "Bolt pistols",
+          "type": "ranged",
+          "range": "12\"",
+          "a": "6",
+          "bs_ws": "2+",
+          "s": "4",
+          "ap": "0",
+          "d": "1",
+          "keywords": [
+            "PISTOL"
+          ]
+        },
+        {
+          "name": "Relic weapons",
+          "type": "melee",
+          "range": "Melee",
+          "a": "18",
+          "bs_ws": "2+",
+          "s": "5",
+          "ap": "-2",
+          "d": "1",
+          "keywords": []
+        }
+      ],
+      "strengths": [],
+      "weaknesses": [],
+      "target_priority_tags": [],
+      "threat_tags": [
+        "RANGED_CAPABLE",
+        "HIGH_DURABILITY",
+        "INVULNERABLE_SAVE"
+      ],
+      "mobility_tags": [],
+      "durability_tags": [
+        "MEDIUM_ARMOUR",
+        "MULTI_WOUND_HIGH"
+      ],
+      "tau_counterplay": [
+        "High durability — concentrate fire, Ion Accelerator or Railguns for AP-3+.",
+        "Invulnerable save — volume of fire preferred over single high-AP shots."
+      ],
+      "notes": "Leader: the following unit:, ■ Battle Sisters Squad"
+    },
+    {
+      "name": "ARCO-FLAGELLANTS",
+      "legends": false,
+      "role": "INFANTRY",
+      "faction_keywords": [
+        "KEYWORDS: Infantry",
+        "Imperium",
+        "Arco-flagellants",
+        "Adepta Sororitas"
+      ],
+      "keywords": [
+        "KEYWORDS: Infantry",
+        "Imperium",
+        "Arco-flagellants Adepta Sororitas"
+      ],
+      "points": null,
+      "stats": {
+        "M": "7\"",
+        "T": "3",
+        "Sv": "7+",
+        "W": "2",
+        "Ld": "8+",
+        "OC": "1"
+      },
+      "unit_composition": [
+        "None ■ 3-10 Arco-flagellants"
+      ],
+      "base_size": null,
+      "abilities": [
+        {
+          "name": "CORE",
+          "summary": "Feel No Pain 4+",
+          "phase_tags": []
+        },
+        {
+          "name": "FACTION",
+          "summary": "Acts of Faith",
+          "phase_tags": []
+        },
+        {
+          "name": "Extremis Trigger Word",
+          "summary": "Each time this unit is selected to fight,",
+          "phase_tags": []
+        }
+      ],
+      "wargear_options": [],
+      "weapons": [
+        {
+          "name": "Arco-flails",
+          "type": "melee",
+          "range": "Melee",
+          "a": "4",
+          "bs_ws": "4+",
+          "s": "5",
+          "ap": "0",
+          "d": "1",
+          "keywords": [
+            "SUSTAINED HITS 1",
+            "TWIN-LINKED"
+          ]
+        }
+      ],
+      "strengths": [],
+      "weaknesses": [],
+      "target_priority_tags": [],
+      "threat_tags": [],
+      "mobility_tags": [],
+      "durability_tags": [
+        "LIGHT_ARMOUR"
+      ],
+      "tau_counterplay": [],
+      "notes": ""
+    },
+    {
+      "name": "BATTLE SISTERS SQUAD",
+      "legends": false,
+      "role": "INFANTRY",
+      "faction_keywords": [
+        "KEYWORDS: Infantry",
+        "Grenades",
+        "Battleline",
+        "Imperium",
+        "Battle Sisters Squad",
+        "Adepta Sororitas"
+      ],
+      "keywords": [
+        "KEYWORDS: Infantry",
+        "Grenades",
+        "Battleline",
+        "Imperium",
+        "Battle Sisters Squad Adepta Sororitas"
+      ],
+      "points": null,
+      "stats": {
+        "M": "6\"",
+        "T": "3",
+        "Sv": "3+",
+        "W": "1",
+        "Ld": "7+",
+        "OC": "2"
+      },
+      "unit_composition": [
+        "The Sister Superior’s boltgun can be replaced ■ 1 Battle Sister’s boltgun can be replaced with ■ 1 Sister Superior",
+        "with one of the following: one of the following: ■ 9 Battle Sisters",
+        "1 bolt pistol ◦ 1 artificer-crafted storm bolter",
+        "1 combi-weapon* ◦ 1 heavy bolter combat weapon.",
+        "1 condemnor boltgun* ◦ 1 meltagun",
+        "1 inferno pistol* ◦ 1 Ministorum flamer",
+        "1 Ministorum hand flamer* ◦ 1 Ministorum heavy flamer",
+        "1 plasma pistol* ◦ 1 multi-melta",
+        "The Sister Superior can be equipped with one of ■ 1 Battle Sister equipped with 1 boltgun can be",
+        "the following: equipped with 1 simulacrum imperialis (that",
+        "1 chainsword model’s boltgun cannot be replaced).",
+        "1 power weapon * This weapon’s profile can be found on the Adepta Sororitas",
+        "Armoury card.",
+        "1 Battle Sister’s boltgun can be replaced with",
+        "one of the following:",
+        "1 artificer-crafted storm bolter",
+        "1 meltagun",
+        "1 Ministorum flamer"
+      ],
+      "base_size": null,
+      "abilities": [
+        {
+          "name": "FACTION",
+          "summary": "Acts of Faith",
+          "phase_tags": []
+        },
+        {
+          "name": "Cherub",
+          "summary": "Once per battle, after this unit has performed an Act",
+          "phase_tags": []
+        },
+        {
+          "name": "Note",
+          "summary": "Place a Cherub token next to the unit,",
+          "phase_tags": []
+        },
+        {
+          "name": "Defenders of the Faith",
+          "summary": "At the end of your Command phase,",
+          "phase_tags": []
+        },
+        {
+          "name": "Simulacrum Imperialis",
+          "summary": "Each time a unit is destroyed by the",
+          "phase_tags": []
+        },
+        {
+          "name": "INVULNERABLE SAVE",
+          "summary": "6+",
+          "phase_tags": []
+        }
+      ],
+      "wargear_options": [],
+      "weapons": [
+        {
+          "name": "Artificer-crafted storm bolter",
+          "type": "ranged",
+          "range": "24\"",
+          "a": "2",
+          "bs_ws": "3+",
+          "s": "4",
+          "ap": "0",
+          "d": "2",
+          "keywords": [
+            "RAPID FIRE 2"
+          ]
+        },
+        {
+          "name": "Bolt pistol",
+          "type": "ranged",
+          "range": "12\"",
+          "a": "1",
+          "bs_ws": "3+",
+          "s": "4",
+          "ap": "0",
+          "d": "1",
+          "keywords": [
+            "PISTOL"
+          ]
+        },
+        {
+          "name": "Boltgun",
+          "type": "ranged",
+          "range": "24\"",
+          "a": "1",
+          "bs_ws": "3+",
+          "s": "4",
+          "ap": "0",
+          "d": "1",
+          "keywords": [
+            "RAPID FIRE 1"
+          ]
+        },
+        {
+          "name": "Heavy bolter",
+          "type": "ranged",
+          "range": "36\"",
+          "a": "3",
+          "bs_ws": "4+",
+          "s": "5",
+          "ap": "-1",
+          "d": "2",
+          "keywords": [
+            "HEAVY",
+            "SUSTAINED HITS 1"
+          ]
+        },
+        {
+          "name": "Meltagun",
+          "type": "ranged",
+          "range": "12\"",
+          "a": "1",
+          "bs_ws": "3+",
+          "s": "9",
+          "ap": "-4",
+          "d": "D6",
+          "keywords": [
+            "MELTA 2"
+          ]
+        },
+        {
+          "name": "Ministorum flamer",
+          "type": "ranged",
+          "range": "12\"",
+          "a": "D6",
+          "bs_ws": "N/A",
+          "s": "5",
+          "ap": "0",
+          "d": "1",
+          "keywords": [
+            "IGNORES COVER",
+            "TORRENT"
+          ]
+        },
+        {
+          "name": "Ministorum heavy flamer",
+          "type": "ranged",
+          "range": "12\"",
+          "a": "D6",
+          "bs_ws": "N/A",
+          "s": "6",
+          "ap": "-1",
+          "d": "1",
+          "keywords": [
+            "IGNORES COVER",
+            "TORRENT"
+          ]
+        },
+        {
+          "name": "Multi-melta",
+          "type": "ranged",
+          "range": "18\"",
+          "a": "2",
+          "bs_ws": "4+",
+          "s": "9",
+          "ap": "-4",
+          "d": "D6",
+          "keywords": [
+            "HEAVY",
+            "MELTA 2"
+          ]
+        },
+        {
+          "name": "Chainsword",
+          "type": "melee",
+          "range": "Melee",
+          "a": "3",
+          "bs_ws": "4+",
+          "s": "3",
+          "ap": "0",
+          "d": "1",
+          "keywords": []
+        },
+        {
+          "name": "Close combat weapon",
+          "type": "melee",
+          "range": "Melee",
+          "a": "1",
+          "bs_ws": "4+",
+          "s": "3",
+          "ap": "0",
+          "d": "1",
+          "keywords": []
+        },
+        {
+          "name": "Power weapon",
+          "type": "melee",
+          "range": "Melee",
+          "a": "2",
+          "bs_ws": "4+",
+          "s": "4",
+          "ap": "-2",
+          "d": "1",
+          "keywords": []
+        }
+      ],
+      "strengths": [],
+      "weaknesses": [],
+      "target_priority_tags": [],
+      "threat_tags": [
+        "RANGED_CAPABLE",
+        "MELTA",
+        "MEDIUM_DURABILITY",
+        "INVULNERABLE_SAVE"
+      ],
+      "mobility_tags": [],
+      "durability_tags": [
+        "MEDIUM_ARMOUR"
+      ],
+      "tau_counterplay": [
+        "Invulnerable save — volume of fire preferred over single high-AP shots."
+      ],
+      "notes": ""
+    },
+    {
+      "name": "CELESTIAN SACRESANTS",
+      "legends": false,
+      "role": "INFANTRY",
+      "faction_keywords": [
+        "KEYWORDS: Infantry",
+        "Grenades",
+        "Imperium",
+        "Celestian Sacresants",
+        "Adepta Sororitas"
+      ],
+      "keywords": [
+        "KEYWORDS: Infantry",
+        "Grenades",
+        "Imperium",
+        "Celestian Sacresants Adepta Sororitas"
+      ],
+      "points": null,
+      "stats": {
+        "M": "6\"",
+        "T": "3",
+        "Sv": "3+",
+        "W": "1",
+        "Ld": "7+",
+        "OC": "1"
+      },
+      "unit_composition": [
+        "The Sacresant Superior’s hallowed mace can be replaced with 1 spear of the faithful. ■ 1 Sacresant Superior",
+        "The Sacresant Superior’s bolt pistol can be replaced with one of the following: ■ 4-9 Celestian Sacresants",
+        "1 inferno pistol Every model is equipped with: bolt pistol; hallowed mace.",
+        "1 Ministorum hand flamer",
+        "1 plasma pistol",
+        "Any number of models can each have their hallowed mace replaced with 1 anointed halberd."
+      ],
+      "base_size": null,
+      "abilities": [
+        {
+          "name": "FACTION",
+          "summary": "Acts of Faith",
+          "phase_tags": []
+        },
+        {
+          "name": "Sworn Protectors",
+          "summary": "While a Canoness, Palatine or",
+          "phase_tags": []
+        },
+        {
+          "name": "INVULNERABLE SAVE",
+          "summary": "4+",
+          "phase_tags": []
+        }
+      ],
+      "wargear_options": [],
+      "weapons": [
+        {
+          "name": "Bolt pistol",
+          "type": "ranged",
+          "range": "12\"",
+          "a": "1",
+          "bs_ws": "3+",
+          "s": "4",
+          "ap": "0",
+          "d": "1",
+          "keywords": [
+            "PISTOL"
+          ]
+        },
+        {
+          "name": "Inferno pistol",
+          "type": "ranged",
+          "range": "6\"",
+          "a": "1",
+          "bs_ws": "3+",
+          "s": "8",
+          "ap": "-4",
+          "d": "D3",
+          "keywords": [
+            "MELTA 2",
+            "PISTOL"
+          ]
+        },
+        {
+          "name": "Ministorum hand flamer [IGNORES COVER, PISTOL,",
+          "type": "ranged",
+          "range": "12\"",
+          "a": "D6",
+          "bs_ws": "N/A",
+          "s": "4",
+          "ap": "0",
+          "d": "1",
+          "keywords": []
+        },
+        {
+          "name": "Plasma pistol – standard",
+          "type": "ranged",
+          "range": "12\"",
+          "a": "1",
+          "bs_ws": "3+",
+          "s": "7",
+          "ap": "-2",
+          "d": "1",
+          "keywords": [
+            "PISTOL"
+          ]
+        },
+        {
+          "name": "Plasma pistol – supercharge",
+          "type": "ranged",
+          "range": "12\"",
+          "a": "1",
+          "bs_ws": "3+",
+          "s": "8",
+          "ap": "-3",
+          "d": "2",
+          "keywords": [
+            "HAZARDOUS",
+            "PISTOL"
+          ]
+        },
+        {
+          "name": "Anointed halberd",
+          "type": "melee",
+          "range": "Melee",
+          "a": "2",
+          "bs_ws": "3+",
+          "s": "5",
+          "ap": "-2",
+          "d": "1",
+          "keywords": []
+        },
+        {
+          "name": "Hallowed mace",
+          "type": "melee",
+          "range": "Melee",
+          "a": "2",
+          "bs_ws": "3+",
+          "s": "4",
+          "ap": "-1",
+          "d": "2",
+          "keywords": []
+        },
+        {
+          "name": "Spear of the faithful",
+          "type": "melee",
+          "range": "Melee",
+          "a": "3",
+          "bs_ws": "3+",
+          "s": "5",
+          "ap": "-2",
+          "d": "2",
+          "keywords": []
+        }
+      ],
+      "strengths": [],
+      "weaknesses": [],
+      "target_priority_tags": [],
+      "threat_tags": [
+        "RANGED_CAPABLE",
+        "PLASMA",
+        "MEDIUM_DURABILITY",
+        "INVULNERABLE_SAVE"
+      ],
+      "mobility_tags": [],
+      "durability_tags": [
+        "MEDIUM_ARMOUR"
+      ],
+      "tau_counterplay": [
+        "Invulnerable save — volume of fire preferred over single high-AP shots."
+      ],
+      "notes": ""
+    },
+    {
+      "name": "CRUSADERS",
+      "legends": false,
+      "role": "INFANTRY",
+      "faction_keywords": [
+        "KEYWORDS: Infantry",
+        "Imperium",
+        "Crusaders",
+        "Adepta Sororitas"
+      ],
+      "keywords": [
+        "KEYWORDS: Infantry",
+        "Imperium",
+        "Crusaders Adepta Sororitas"
+      ],
+      "points": null,
+      "stats": {
+        "M": "6\"",
+        "T": "3",
+        "Sv": "3+",
+        "W": "1",
+        "Ld": "7+",
+        "OC": "1"
+      },
+      "unit_composition": [
+        "None ■ 2-6 Crusaders"
+      ],
+      "base_size": null,
+      "abilities": [
+        {
+          "name": "FACTION",
+          "summary": "Acts of Faith",
+          "phase_tags": []
+        },
+        {
+          "name": "Spiritual Fortitude",
+          "summary": "While a Missionary or Preacher model is",
+          "phase_tags": []
+        },
+        {
+          "name": "INVULNERABLE SAVE",
+          "summary": "4+",
+          "phase_tags": []
+        }
+      ],
+      "wargear_options": [],
+      "weapons": [
+        {
+          "name": "Power weapon",
+          "type": "melee",
+          "range": "Melee",
+          "a": "2",
+          "bs_ws": "3+",
+          "s": "4",
+          "ap": "-2",
+          "d": "1",
+          "keywords": []
+        }
+      ],
+      "strengths": [],
+      "weaknesses": [],
+      "target_priority_tags": [],
+      "threat_tags": [
+        "MEDIUM_DURABILITY",
+        "INVULNERABLE_SAVE"
+      ],
+      "mobility_tags": [],
+      "durability_tags": [
+        "MEDIUM_ARMOUR"
+      ],
+      "tau_counterplay": [
+        "Invulnerable save — volume of fire preferred over single high-AP shots."
+      ],
+      "notes": ""
+    },
+    {
+      "name": "DEATH CULT ASSASSINS",
+      "legends": false,
+      "role": "INFANTRY",
+      "faction_keywords": [
+        "KEYWORDS: Infantry",
+        "Imperium",
+        "Death Cult Assassins",
+        "Adepta Sororitas"
+      ],
+      "keywords": [
+        "KEYWORDS: Infantry",
+        "Imperium",
+        "Death Cult Assassins Adepta Sororitas"
+      ],
+      "points": null,
+      "stats": {
+        "M": "7\"",
+        "T": "3",
+        "Sv": "5+",
+        "W": "1",
+        "Ld": "7+",
+        "OC": "1"
+      },
+      "unit_composition": [
+        "None ■ 2-6 Death Cult Assassins"
+      ],
+      "base_size": null,
+      "abilities": [
+        {
+          "name": "CORE",
+          "summary": "Fights First",
+          "phase_tags": []
+        },
+        {
+          "name": "FACTION",
+          "summary": "Acts of Faith",
+          "phase_tags": []
+        },
+        {
+          "name": "Death Cult",
+          "summary": "Each time a model in this unit makes an attack",
+          "phase_tags": []
+        },
+        {
+          "name": "INVULNERABLE SAVE",
+          "summary": "5+",
+          "phase_tags": []
+        }
+      ],
+      "wargear_options": [],
+      "weapons": [
+        {
+          "name": "Death Cult power blades",
+          "type": "melee",
+          "range": "Melee",
+          "a": "4",
+          "bs_ws": "2+",
+          "s": "4",
+          "ap": "-2",
+          "d": "1",
+          "keywords": [
+            "PRECISION"
+          ]
+        }
+      ],
+      "strengths": [],
+      "weaknesses": [],
+      "target_priority_tags": [],
+      "threat_tags": [
+        "INVULNERABLE_SAVE"
+      ],
+      "mobility_tags": [],
+      "durability_tags": [
+        "LIGHT_ARMOUR"
+      ],
+      "tau_counterplay": [
+        "Invulnerable save — volume of fire preferred over single high-AP shots."
+      ],
+      "notes": ""
+    },
+    {
+      "name": "DOMINION SQUAD",
+      "legends": false,
+      "role": "INFANTRY",
+      "faction_keywords": [
+        "KEYWORDS: Infantry",
+        "Grenades",
+        "Imperium",
+        "Dominion Squad",
+        "Adepta Sororitas"
+      ],
+      "keywords": [
+        "KEYWORDS: Infantry",
+        "Grenades",
+        "Imperium",
+        "Dominion Squad Adepta Sororitas"
+      ],
+      "points": null,
+      "stats": {
+        "M": "6\"",
+        "T": "3",
+        "Sv": "3+",
+        "W": "1",
+        "Ld": "7+",
+        "OC": "1"
+      },
+      "unit_composition": [
+        "The Dominion Superior’s boltgun can be ■ Up to 4 Dominions can each have their boltgun ■ 1 Dominion Superior",
+        "replaced with one of the following: replaced with one of the following: ■ 9 Dominions",
+        "1 bolt pistol ◦ 1 artificer-crafted storm bolter",
+        "1 combi-weapon* ◦ 1 meltagun close combat weapon.",
+        "1 condemnor boltgun* ◦ 1 Ministorum flamer",
+        "1 inferno pistol* ■ 1 Dominion equipped with 1 boltgun can be",
+        "1 Ministorum hand flamer* equipped with 1 simulacrum imperialis (that",
+        "1 plasma pistol* model’s boltgun cannot be replaced).",
+        "The Dominion Superior can be equipped with * This weapon’s profile can be found on the Adepta Sororitas",
+        "one of the following: Armoury card.",
+        "1 chainsword",
+        "1 power weapon"
+      ],
+      "base_size": null,
+      "abilities": [
+        {
+          "name": "CORE",
+          "summary": "Scouts 6\"",
+          "phase_tags": []
+        },
+        {
+          "name": "FACTION",
+          "summary": "Acts of Faith",
+          "phase_tags": []
+        },
+        {
+          "name": "Cherub",
+          "summary": "Once per battle, after this unit has performed an Act",
+          "phase_tags": []
+        },
+        {
+          "name": "Note",
+          "summary": "Place a Cherub token next to the unit,",
+          "phase_tags": []
+        },
+        {
+          "name": "Holy Vanguard",
+          "summary": "You can re-roll Advance rolls made for",
+          "phase_tags": []
+        },
+        {
+          "name": "Simulacrum Imperialis",
+          "summary": "Each time a unit is destroyed by the",
+          "phase_tags": []
+        },
+        {
+          "name": "INVULNERABLE SAVE",
+          "summary": "6+",
+          "phase_tags": []
+        }
+      ],
+      "wargear_options": [],
+      "weapons": [
+        {
+          "name": "Artificer-crafted storm bolter",
+          "type": "ranged",
+          "range": "24\"",
+          "a": "2",
+          "bs_ws": "3+",
+          "s": "4",
+          "ap": "0",
+          "d": "2",
+          "keywords": [
+            "RAPID FIRE 2",
+            "ASSAULT"
+          ]
+        },
+        {
+          "name": "Bolt pistol",
+          "type": "ranged",
+          "range": "12\"",
+          "a": "1",
+          "bs_ws": "3+",
+          "s": "4",
+          "ap": "0",
+          "d": "1",
+          "keywords": [
+            "PISTOL"
+          ]
+        },
+        {
+          "name": "Boltgun",
+          "type": "ranged",
+          "range": "24\"",
+          "a": "1",
+          "bs_ws": "3+",
+          "s": "4",
+          "ap": "0",
+          "d": "1",
+          "keywords": [
+            "RAPID FIRE 2",
+            "ASSAULT"
+          ]
+        },
+        {
+          "name": "Meltagun",
+          "type": "ranged",
+          "range": "12\"",
+          "a": "1",
+          "bs_ws": "3+",
+          "s": "9",
+          "ap": "-4",
+          "d": "D6",
+          "keywords": [
+            "ASSAULT",
+            "MELTA 2"
+          ]
+        },
+        {
+          "name": "Ministorum flamer",
+          "type": "ranged",
+          "range": "12\"",
+          "a": "D6",
+          "bs_ws": "N/A",
+          "s": "5",
+          "ap": "0",
+          "d": "1",
+          "keywords": [
+            "ASSAULT",
+            "IGNORES COVER",
+            "TORRENT"
+          ]
+        },
+        {
+          "name": "Chainsword",
+          "type": "melee",
+          "range": "Melee",
+          "a": "3",
+          "bs_ws": "4+",
+          "s": "3",
+          "ap": "0",
+          "d": "1",
+          "keywords": []
+        },
+        {
+          "name": "Close combat weapon",
+          "type": "melee",
+          "range": "Melee",
+          "a": "1",
+          "bs_ws": "4+",
+          "s": "3",
+          "ap": "0",
+          "d": "1",
+          "keywords": []
+        },
+        {
+          "name": "Power weapon",
+          "type": "melee",
+          "range": "Melee",
+          "a": "2",
+          "bs_ws": "4+",
+          "s": "4",
+          "ap": "-2",
+          "d": "1",
+          "keywords": []
+        }
+      ],
+      "strengths": [],
+      "weaknesses": [],
+      "target_priority_tags": [],
+      "threat_tags": [
+        "RANGED_CAPABLE",
+        "MELTA",
+        "MEDIUM_DURABILITY",
+        "INVULNERABLE_SAVE",
+        "SCOUT_MOVE"
+      ],
+      "mobility_tags": [],
+      "durability_tags": [
+        "MEDIUM_ARMOUR"
+      ],
+      "tau_counterplay": [
+        "Infiltrator/Scout — expect pressure Turn 1. Keep screens forward.",
+        "Invulnerable save — volume of fire preferred over single high-AP shots."
+      ],
+      "notes": ""
+    },
+    {
+      "name": "REPENTIA SQUAD",
+      "legends": false,
+      "role": "INFANTRY",
+      "faction_keywords": [
+        "KEYWORDS: Infantry",
+        "Grenades",
+        "Imperium",
+        "Repentia Squad",
+        "Adepta Sororitas"
+      ],
+      "keywords": [
+        "KEYWORDS: Infantry",
+        "Grenades",
+        "Imperium",
+        "Repentia Squad Adepta Sororitas"
+      ],
+      "points": null,
+      "stats": {
+        "M": "7\"",
+        "T": "3",
+        "Sv": "3+",
+        "W": "1",
+        "Ld": "7+",
+        "OC": "1"
+      },
+      "unit_composition": [
+        "None ■ 1 Repentia Superior",
+        "4-9 Sisters Repentia",
+        "The Repentia Superior is equipped with: bolt pistol;",
+        "neural whips.",
+        "Each Sister Repentia is equipped with: penitent eviscerator."
+      ],
+      "base_size": null,
+      "abilities": [
+        {
+          "name": "CORE",
+          "summary": "Feel No Pain 5+",
+          "phase_tags": []
+        },
+        {
+          "name": "FACTION",
+          "summary": "Acts of Faith",
+          "phase_tags": []
+        },
+        {
+          "name": "Overseer of Redemption",
+          "summary": "While this unit contains a Repentia",
+          "phase_tags": []
+        },
+        {
+          "name": "INVULNERABLE SAVE",
+          "summary": "6+",
+          "phase_tags": []
+        }
+      ],
+      "wargear_options": [],
+      "weapons": [
+        {
+          "name": "Bolt pistol",
+          "type": "ranged",
+          "range": "12\"",
+          "a": "1",
+          "bs_ws": "3+",
+          "s": "4",
+          "ap": "0",
+          "d": "1",
+          "keywords": [
+            "PISTOL"
+          ]
+        },
+        {
+          "name": "Neural whips",
+          "type": "melee",
+          "range": "Melee",
+          "a": "4",
+          "bs_ws": "3+",
+          "s": "3",
+          "ap": "-1",
+          "d": "1",
+          "keywords": [
+            "ANTI-INFANTRY 4+"
+          ]
+        },
+        {
+          "name": "Penitent eviscerator",
+          "type": "melee",
+          "range": "Melee",
+          "a": "2",
+          "bs_ws": "4+",
+          "s": "6",
+          "ap": "-2",
+          "d": "2",
+          "keywords": []
+        }
+      ],
+      "strengths": [],
+      "weaknesses": [],
+      "target_priority_tags": [],
+      "threat_tags": [
+        "MELEE_THREAT",
+        "RANGED_CAPABLE",
+        "MEDIUM_DURABILITY",
+        "INVULNERABLE_SAVE"
+      ],
+      "mobility_tags": [],
+      "durability_tags": [
+        "MEDIUM_ARMOUR"
+      ],
+      "tau_counterplay": [
+        "Melee threat — maintain distance, use Drones as speed bumps, overwatch with Pulse.",
+        "Invulnerable save — volume of fire preferred over single high-AP shots."
+      ],
+      "notes": ""
+    },
+    {
+      "name": "RETRIBUTOR SQUAD",
+      "legends": false,
+      "role": "INFANTRY",
+      "faction_keywords": [
+        "KEYWORDS: Infantry",
+        "Grenades",
+        "Imperium",
+        "Retributor Squad",
+        "Adepta Sororitas"
+      ],
+      "keywords": [
+        "KEYWORDS: Infantry",
+        "Grenades",
+        "Imperium",
+        "Retributor Squad Adepta Sororitas"
+      ],
+      "points": null,
+      "stats": {
+        "M": "6\"",
+        "T": "3",
+        "Sv": "3+",
+        "W": "1",
+        "Ld": "7+",
+        "OC": "1"
+      },
+      "unit_composition": [
+        "The Retributor Superior’s boltgun can be ■ Each Retributor’s heavy bolter can be replaced ■ 1 Retributor Superior",
+        "replaced with one of the following: with one of the following: ■ 4 Retributors",
+        "1 bolt pistol ◦ 1 Ministorum heavy flamer",
+        "The Retributor Superior is equipped with: bolt pistol; boltgun;",
+        "1 combi-weapon* ◦ 1 multi-melta close combat weapon.",
+        "1 condemnor boltgun* * This weapon’s profile can be found on the Adepta Sororitas",
+        "Each Retributor is equipped with: bolt pistol; heavy bolter;",
+        "1 inferno pistol* Armoury card.",
+        "close combat weapon.",
+        "1 Ministorum hand flamer*",
+        "1 plasma pistol*",
+        "The Retributor Superior can be equipped with",
+        "one of the following:",
+        "1 chainsword",
+        "1 power weapon"
+      ],
+      "base_size": null,
+      "abilities": [
+        {
+          "name": "FACTION",
+          "summary": "Acts of Faith",
+          "phase_tags": []
+        },
+        {
+          "name": "Cherubs",
+          "summary": "Twice per battle, after this unit has performed an Act",
+          "phase_tags": []
+        },
+        {
+          "name": "Note",
+          "summary": "Place two Cherub tokens next to the unit,",
+          "phase_tags": []
+        },
+        {
+          "name": "Storm of Retribution",
+          "summary": "Each time a model in this unit makes a",
+          "phase_tags": []
+        },
+        {
+          "name": "INVULNERABLE SAVE",
+          "summary": "6+",
+          "phase_tags": []
+        }
+      ],
+      "wargear_options": [],
+      "weapons": [
+        {
+          "name": "Bolt pistol",
+          "type": "ranged",
+          "range": "12\"",
+          "a": "1",
+          "bs_ws": "3+",
+          "s": "4",
+          "ap": "0",
+          "d": "1",
+          "keywords": [
+            "PISTOL"
+          ]
+        },
+        {
+          "name": "Boltgun",
+          "type": "ranged",
+          "range": "24\"",
+          "a": "1",
+          "bs_ws": "3+",
+          "s": "4",
+          "ap": "0",
+          "d": "1",
+          "keywords": [
+            "RAPID FIRE 1"
+          ]
+        },
+        {
+          "name": "Heavy bolter",
+          "type": "ranged",
+          "range": "36\"",
+          "a": "3",
+          "bs_ws": "4+",
+          "s": "5",
+          "ap": "-1",
+          "d": "2",
+          "keywords": [
+            "HEAVY",
+            "SUSTAINED HITS 1"
+          ]
+        },
+        {
+          "name": "Ministorum heavy flamer",
+          "type": "ranged",
+          "range": "12\"",
+          "a": "D6",
+          "bs_ws": "N/A",
+          "s": "6",
+          "ap": "-1",
+          "d": "1",
+          "keywords": [
+            "IGNORES COVER",
+            "TORRENT"
+          ]
+        },
+        {
+          "name": "Multi-melta",
+          "type": "ranged",
+          "range": "18\"",
+          "a": "2",
+          "bs_ws": "4+",
+          "s": "9",
+          "ap": "-4",
+          "d": "D6",
+          "keywords": [
+            "HEAVY",
+            "MELTA 2"
+          ]
+        },
+        {
+          "name": "Chainsword",
+          "type": "melee",
+          "range": "Melee",
+          "a": "3",
+          "bs_ws": "4+",
+          "s": "3",
+          "ap": "0",
+          "d": "1",
+          "keywords": []
+        },
+        {
+          "name": "Close combat weapon",
+          "type": "melee",
+          "range": "Melee",
+          "a": "1",
+          "bs_ws": "4+",
+          "s": "3",
+          "ap": "0",
+          "d": "1",
+          "keywords": []
+        }
+      ],
+      "strengths": [],
+      "weaknesses": [],
+      "target_priority_tags": [],
+      "threat_tags": [
+        "RANGED_CAPABLE",
+        "MELTA",
+        "MEDIUM_DURABILITY",
+        "INVULNERABLE_SAVE"
+      ],
+      "mobility_tags": [],
+      "durability_tags": [
+        "MEDIUM_ARMOUR"
+      ],
+      "tau_counterplay": [
+        "Invulnerable save — volume of fire preferred over single high-AP shots."
+      ],
+      "notes": ""
+    },
+    {
+      "name": "SERAPHIM SQUAD",
+      "legends": false,
+      "role": "INFANTRY",
+      "faction_keywords": [
+        "KEYWORDS: Infantry",
+        "Jump Pack",
+        "Fly",
+        "Grenades",
+        "Imperium",
+        "Seraphim Squad",
+        "Adepta Sororitas"
+      ],
+      "keywords": [
+        "KEYWORDS: Infantry",
+        "Jump Pack",
+        "Fly",
+        "Grenades",
+        "Imperium",
+        "Seraphim Squad Adepta Sororitas"
+      ],
+      "points": null,
+      "stats": {
+        "M": "12\"",
+        "T": "3",
+        "Sv": "3+",
+        "W": "1",
+        "Ld": "7+",
+        "OC": "1"
+      },
+      "unit_composition": [
+        "The Seraphim Superior’s 2 bolt pistols can be replaced with one of the following: ■ 1 Seraphim Superior",
+        "1 bolt pistol and 1 chainsword ■ 4-9 Seraphim",
+        "1 bolt pistol and 1 plasma pistol Every model is equipped with: 2 bolt pistols;",
+        "1 bolt pistol and 1 power weapon close combat weapon.",
+        "1 plasma pistol and 1 chainsword",
+        "1 plasma pistol and 1 power weapon",
+        "For every 5 models in the unit, up to 2 Seraphim can each have their 2 bolt pistols replaced with one",
+        "of the following:",
+        "2 inferno pistols",
+        "2 Ministorum hand flamers"
+      ],
+      "base_size": null,
+      "abilities": [
+        {
+          "name": "CORE",
+          "summary": "Deep Strike",
+          "phase_tags": []
+        },
+        {
+          "name": "FACTION",
+          "summary": "Acts of Faith",
+          "phase_tags": []
+        },
+        {
+          "name": "Angelic Ascent",
+          "summary": "In your Shooting phase, after this unit has",
+          "phase_tags": []
+        },
+        {
+          "name": "INVULNERABLE SAVE",
+          "summary": "5+",
+          "phase_tags": []
+        }
+      ],
+      "wargear_options": [],
+      "weapons": [
+        {
+          "name": "Bolt pistol",
+          "type": "ranged",
+          "range": "12\"",
+          "a": "1",
+          "bs_ws": "3+",
+          "s": "4",
+          "ap": "0",
+          "d": "1",
+          "keywords": [
+            "PISTOL"
+          ]
+        },
+        {
+          "name": "Inferno pistol",
+          "type": "ranged",
+          "range": "6\"",
+          "a": "1",
+          "bs_ws": "3+",
+          "s": "8",
+          "ap": "-4",
+          "d": "D3",
+          "keywords": [
+            "MELTA 2",
+            "PISTOL"
+          ]
+        },
+        {
+          "name": "Ministorum hand flamer [PISTOL, TORRENT,",
+          "type": "ranged",
+          "range": "12\"",
+          "a": "D6",
+          "bs_ws": "N/A",
+          "s": "4",
+          "ap": "0",
+          "d": "1",
+          "keywords": []
+        },
+        {
+          "name": "Plasma pistol – standard",
+          "type": "ranged",
+          "range": "12\"",
+          "a": "1",
+          "bs_ws": "3+",
+          "s": "7",
+          "ap": "-2",
+          "d": "1",
+          "keywords": [
+            "PISTOL"
+          ]
+        },
+        {
+          "name": "Plasma pistol – supercharge",
+          "type": "ranged",
+          "range": "12\"",
+          "a": "1",
+          "bs_ws": "3+",
+          "s": "8",
+          "ap": "-3",
+          "d": "2",
+          "keywords": [
+            "HAZARDOUS",
+            "PISTOL"
+          ]
+        }
+      ],
+      "strengths": [],
+      "weaknesses": [],
+      "target_priority_tags": [],
+      "threat_tags": [
+        "RANGED_CAPABLE",
+        "PLASMA",
+        "MEDIUM_DURABILITY",
+        "INVULNERABLE_SAVE",
+        "DEEP_STRIKE"
+      ],
+      "mobility_tags": [
+        "FAST",
+        "DEEP_STRIKE"
+      ],
+      "durability_tags": [
+        "MEDIUM_ARMOUR"
+      ],
+      "tau_counterplay": [
+        "Deep Strike threat — screen backfield with Kroot or Fire Warriors 9\" from objectives.",
+        "Invulnerable save — volume of fire preferred over single high-AP shots."
+      ],
+      "notes": ""
+    },
+    {
+      "name": "SISTERS NOVITIATE SQUAD",
+      "legends": false,
+      "role": "INFANTRY",
+      "faction_keywords": [
+        "KEYWORDS: Infantry",
+        "Grenades",
+        "Imperium",
+        "Sisters Novitiate Squad",
+        "Adepta Sororitas"
+      ],
+      "keywords": [
+        "KEYWORDS: Infantry",
+        "Grenades",
+        "Imperium",
+        "Sisters Novitiate Squad Adepta Sororitas"
+      ],
+      "points": null,
+      "stats": {
+        "M": "6\"",
+        "T": "3",
+        "Sv": "3+",
+        "W": "1",
+        "Ld": "7+",
+        "OC": "2"
+      },
+      "unit_composition": [
+        "The Novitiate Superior’s bolt pistol and boltgun can be replaced with one of the following: ■ 1 Novitiate Superior",
+        "1 bolt pistol and 1 power weapon ■ 9 Sisters Novitiate",
+        "1 plasma pistol and 1 power weapon The Novitiate Superior is equipped with: bolt pistol; boltgun;",
+        "1 Sister Novitiate’s autogun can be replaced with 1 sacred banner. close combat weapon.",
+        "1 Sister Novitiate’s autogun can be replaced with 1 simulacrum imperialis. Each Sister Novitiate is equipped with: autopistol; autogun;",
+        "close combat weapon.",
+        "Up to 2 Sisters Novitiate can each have their autogun replaced with 1 Ministorum flamer.",
+        "Any number of Sisters Novitiate can each have their autogun and close combat weapon replaced with",
+        "1 Novitiate melee weapons."
+      ],
+      "base_size": null,
+      "abilities": [
+        {
+          "name": "FACTION",
+          "summary": "Acts of Faith",
+          "phase_tags": []
+        },
+        {
+          "name": "Impetuous Fervour",
+          "summary": "Each time a model in this unit makes",
+          "phase_tags": []
+        },
+        {
+          "name": "Sacred Banner",
+          "summary": "You can re-roll Advance and Charge rolls made",
+          "phase_tags": []
+        },
+        {
+          "name": "Simulacrum Imperialis",
+          "summary": "Each time a unit is destroyed by the",
+          "phase_tags": []
+        },
+        {
+          "name": "INVULNERABLE SAVE",
+          "summary": "6+",
+          "phase_tags": []
+        }
+      ],
+      "wargear_options": [],
+      "weapons": [
+        {
+          "name": "Autopistol",
+          "type": "ranged",
+          "range": "12\"",
+          "a": "1",
+          "bs_ws": "3+",
+          "s": "3",
+          "ap": "0",
+          "d": "1",
+          "keywords": [
+            "PISTOL"
+          ]
+        },
+        {
+          "name": "Autogun",
+          "type": "ranged",
+          "range": "24\"",
+          "a": "1",
+          "bs_ws": "3+",
+          "s": "3",
+          "ap": "0",
+          "d": "1",
+          "keywords": [
+            "RAPID FIRE 1"
+          ]
+        },
+        {
+          "name": "Bolt pistol",
+          "type": "ranged",
+          "range": "12\"",
+          "a": "1",
+          "bs_ws": "3+",
+          "s": "4",
+          "ap": "0",
+          "d": "1",
+          "keywords": [
+            "PISTOL"
+          ]
+        },
+        {
+          "name": "Boltgun",
+          "type": "ranged",
+          "range": "24\"",
+          "a": "1",
+          "bs_ws": "3+",
+          "s": "4",
+          "ap": "0",
+          "d": "1",
+          "keywords": [
+            "RAPID FIRE 1"
+          ]
+        },
+        {
+          "name": "Ministorum flamer",
+          "type": "ranged",
+          "range": "12\"",
+          "a": "D6",
+          "bs_ws": "N/A",
+          "s": "5",
+          "ap": "0",
+          "d": "1",
+          "keywords": [
+            "IGNORES COVER",
+            "TORRENT"
+          ]
+        },
+        {
+          "name": "Plasma pistol – standard",
+          "type": "ranged",
+          "range": "12\"",
+          "a": "1",
+          "bs_ws": "3+",
+          "s": "7",
+          "ap": "-2",
+          "d": "1",
+          "keywords": [
+            "PISTOL"
+          ]
+        },
+        {
+          "name": "Plasma pistol – supercharge",
+          "type": "ranged",
+          "range": "12\"",
+          "a": "1",
+          "bs_ws": "3+",
+          "s": "8",
+          "ap": "-3",
+          "d": "2",
+          "keywords": [
+            "HAZARDOUS",
+            "PISTOL"
+          ]
+        },
+        {
+          "name": "Close combat weapon",
+          "type": "melee",
+          "range": "Melee",
+          "a": "1",
+          "bs_ws": "4+",
+          "s": "3",
+          "ap": "0",
+          "d": "1",
+          "keywords": []
+        },
+        {
+          "name": "Novitiate melee weapons",
+          "type": "melee",
+          "range": "Melee",
+          "a": "2",
+          "bs_ws": "4+",
+          "s": "4",
+          "ap": "0",
+          "d": "1",
+          "keywords": []
+        },
+        {
+          "name": "Power weapon",
+          "type": "melee",
+          "range": "Melee",
+          "a": "2",
+          "bs_ws": "4+",
+          "s": "4",
+          "ap": "-2",
+          "d": "1",
+          "keywords": []
+        }
+      ],
+      "strengths": [],
+      "weaknesses": [],
+      "target_priority_tags": [],
+      "threat_tags": [
+        "RANGED_CAPABLE",
+        "PLASMA",
+        "MEDIUM_DURABILITY",
+        "INVULNERABLE_SAVE"
+      ],
+      "mobility_tags": [
+        "ADVANCE_CAPABLE"
+      ],
+      "durability_tags": [
+        "MEDIUM_ARMOUR"
+      ],
+      "tau_counterplay": [
+        "Invulnerable save — volume of fire preferred over single high-AP shots."
+      ],
+      "notes": ""
+    },
+    {
+      "name": "ZEPHYRIM SQUAD",
+      "legends": false,
+      "role": "INFANTRY",
+      "faction_keywords": [
+        "KEYWORDS: Infantry",
+        "Jump Pack",
+        "Fly",
+        "Grenades",
+        "Imperium",
+        "Zephyrim Squad",
+        "Adepta Sororitas"
+      ],
+      "keywords": [
+        "KEYWORDS: Infantry",
+        "Jump Pack",
+        "Fly",
+        "Grenades",
+        "Imperium",
+        "Zephyrim Squad Adepta Sororitas"
+      ],
+      "points": null,
+      "stats": {
+        "M": "12\"",
+        "T": "3",
+        "Sv": "3+",
+        "W": "1",
+        "Ld": "7+",
+        "OC": "1"
+      },
+      "unit_composition": [
+        "The Zephyrim Superior can be equipped with 1 sacred banner. ■ 1 Zephyrim Superior",
+        "The Zephyrim Superior’s bolt pistol can be replaced with 1 plasma pistol. ■ 4-9 Zephyrim"
+      ],
+      "base_size": null,
+      "abilities": [
+        {
+          "name": "CORE",
+          "summary": "Deep Strike",
+          "phase_tags": []
+        },
+        {
+          "name": "FACTION",
+          "summary": "Acts of Faith",
+          "phase_tags": []
+        },
+        {
+          "name": "Embodied Prophecy",
+          "summary": "Each time a model in this unit makes a",
+          "phase_tags": []
+        },
+        {
+          "name": "Sacred Banner",
+          "summary": "You can re-roll Advance and Charge rolls made",
+          "phase_tags": []
+        },
+        {
+          "name": "INVULNERABLE SAVE",
+          "summary": "5+",
+          "phase_tags": []
+        }
+      ],
+      "wargear_options": [],
+      "weapons": [
+        {
+          "name": "Bolt pistol",
+          "type": "ranged",
+          "range": "12\"",
+          "a": "1",
+          "bs_ws": "3+",
+          "s": "4",
+          "ap": "0",
+          "d": "1",
+          "keywords": [
+            "PISTOL"
+          ]
+        },
+        {
+          "name": "Plasma pistol – standard",
+          "type": "ranged",
+          "range": "12\"",
+          "a": "1",
+          "bs_ws": "3+",
+          "s": "7",
+          "ap": "-2",
+          "d": "1",
+          "keywords": [
+            "PISTOL"
+          ]
+        },
+        {
+          "name": "Plasma pistol – supercharge",
+          "type": "ranged",
+          "range": "12\"",
+          "a": "1",
+          "bs_ws": "3+",
+          "s": "8",
+          "ap": "-3",
+          "d": "2",
+          "keywords": [
+            "HAZARDOUS",
+            "PISTOL"
+          ]
+        },
+        {
+          "name": "Power weapon",
+          "type": "melee",
+          "range": "Melee",
+          "a": "3",
+          "bs_ws": "3+",
+          "s": "4",
+          "ap": "-2",
+          "d": "1",
+          "keywords": []
+        }
+      ],
+      "strengths": [],
+      "weaknesses": [],
+      "target_priority_tags": [],
+      "threat_tags": [
+        "RANGED_CAPABLE",
+        "PLASMA",
+        "MEDIUM_DURABILITY",
+        "INVULNERABLE_SAVE",
+        "DEEP_STRIKE"
+      ],
+      "mobility_tags": [
+        "FAST",
+        "DEEP_STRIKE",
+        "ADVANCE_CAPABLE"
+      ],
+      "durability_tags": [
+        "MEDIUM_ARMOUR"
+      ],
+      "tau_counterplay": [
+        "Deep Strike threat — screen backfield with Kroot or Fire Warriors 9\" from objectives.",
+        "Invulnerable save — volume of fire preferred over single high-AP shots."
+      ],
+      "notes": ""
+    },
+    {
+      "name": "CASTIGATOR",
+      "legends": false,
+      "role": "VEHICLE",
+      "faction_keywords": [
+        "KEYWORDS: Vehicle",
+        "Smoke",
+        "Imperium",
+        "Castigator",
+        "Adepta Sororitas"
+      ],
+      "keywords": [
+        "KEYWORDS: Vehicle",
+        "Smoke",
+        "Imperium",
+        "Castigator Adepta Sororitas"
+      ],
+      "points": null,
+      "stats": {
+        "M": "10\"",
+        "T": "10",
+        "Sv": "3+",
+        "W": "11",
+        "Ld": "7+",
+        "OC": "3"
+      },
+      "unit_composition": [
+        "This model’s Castigator autocannons can be replaced with 1 Castigator battle cannon. ■ 1 Castigator",
+        "This model can be equipped with 1 hunter-killer missile. This model is equipped with: Castigator autocannons;",
+        "3 heavy bolters; armoured tracks.",
+        "This model can be equipped with 1 storm bolter."
+      ],
+      "base_size": null,
+      "abilities": [
+        {
+          "name": "CORE",
+          "summary": "Deadly Demise D3",
+          "phase_tags": []
+        },
+        {
+          "name": "FACTION",
+          "summary": "Acts of Faith",
+          "phase_tags": []
+        },
+        {
+          "name": "Rites of Castigation",
+          "summary": "Each time this model makes an attack",
+          "phase_tags": []
+        },
+        {
+          "name": "One Shot",
+          "summary": "The bearer can only shoot with this weapon once per battle. with its Castigator autocannons that targets an enemy",
+          "phase_tags": []
+        },
+        {
+          "name": "INVULNERABLE SAVE",
+          "summary": "6+",
+          "phase_tags": []
+        }
+      ],
+      "wargear_options": [],
+      "weapons": [
+        {
+          "name": "Castigator autocannons",
+          "type": "ranged",
+          "range": "48\"",
+          "a": "4",
+          "bs_ws": "3+",
+          "s": "9",
+          "ap": "-1",
+          "d": "3",
+          "keywords": [
+            "TWIN-LINKED",
+            "RAPID FIRE 4"
+          ]
+        },
+        {
+          "name": "Castigator battle cannon",
+          "type": "ranged",
+          "range": "48\"",
+          "a": "D6+3",
+          "bs_ws": "3+",
+          "s": "10",
+          "ap": "-1",
+          "d": "3",
+          "keywords": [
+            "BLAST",
+            "IGNORES COVER"
+          ]
+        },
+        {
+          "name": "Heavy bolter",
+          "type": "ranged",
+          "range": "36\"",
+          "a": "3",
+          "bs_ws": "3+",
+          "s": "5",
+          "ap": "-1",
+          "d": "2",
+          "keywords": [
+            "SUSTAINED HITS 1"
+          ]
+        },
+        {
+          "name": "Hunter-killer missile",
+          "type": "ranged",
+          "range": "48\"",
+          "a": "1",
+          "bs_ws": "2+",
+          "s": "14",
+          "ap": "-3",
+          "d": "D6",
+          "keywords": [
+            "ONE SHOT"
+          ]
+        },
+        {
+          "name": "Storm bolter",
+          "type": "ranged",
+          "range": "24\"",
+          "a": "2",
+          "bs_ws": "3+",
+          "s": "4",
+          "ap": "0",
+          "d": "1",
+          "keywords": [
+            "RAPID FIRE 2"
+          ]
+        },
+        {
+          "name": "Armoured tracks",
+          "type": "melee",
+          "range": "Melee",
+          "a": "3",
+          "bs_ws": "4+",
+          "s": "6",
+          "ap": "0",
+          "d": "1",
+          "keywords": []
+        }
+      ],
+      "strengths": [],
+      "weaknesses": [],
+      "target_priority_tags": [],
+      "threat_tags": [
+        "MELEE_THREAT",
+        "RANGED_CAPABLE",
+        "BLAST_WEAPONS",
+        "HIGH_DURABILITY",
+        "INVULNERABLE_SAVE"
+      ],
+      "mobility_tags": [
+        "FAST"
+      ],
+      "durability_tags": [
+        "MEDIUM_ARMOUR",
+        "HIGH_TOUGHNESS",
+        "MULTI_WOUND_HIGH"
+      ],
+      "tau_counterplay": [
+        "Melee threat — maintain distance, use Drones as speed bumps, overwatch with Pulse.",
+        "High durability — concentrate fire, Ion Accelerator or Railguns for AP-3+.",
+        "T10 — only Ion Accelerator, Railguns, or AP-2+ volume attacks meaningful.",
+        "Invulnerable save — volume of fire preferred over single high-AP shots."
+      ],
+      "notes": ""
+    },
+    {
+      "name": "EXORCIST",
+      "legends": false,
+      "role": "VEHICLE",
+      "faction_keywords": [
+        "KEYWORDS: Vehicle",
+        "Smoke",
+        "Imperium",
+        "Exorcist",
+        "Adepta Sororitas"
+      ],
+      "keywords": [
+        "KEYWORDS: Vehicle",
+        "Smoke",
+        "Imperium",
+        "Exorcist Adepta Sororitas"
+      ],
+      "points": null,
+      "stats": {
+        "M": "10\"",
+        "T": "10",
+        "Sv": "3+",
+        "W": "11",
+        "Ld": "7+",
+        "OC": "3"
+      },
+      "unit_composition": [
+        "This model’s Exorcist missile launcher can be replaced with 1 Exorcist conflagration rockets. ■ 1 Exorcist",
+        "This model can be equipped with 1 hunter-killer missile. This model is equipped with: Exorcist missile launcher;",
+        "heavy bolter; armoured tracks."
+      ],
+      "base_size": null,
+      "abilities": [
+        {
+          "name": "CORE",
+          "summary": "Deadly Demise D3",
+          "phase_tags": []
+        },
+        {
+          "name": "FACTION",
+          "summary": "Acts of Faith",
+          "phase_tags": []
+        },
+        {
+          "name": "Mobile Shrine (Aura)",
+          "summary": "While a friendly Adepta Sororitas",
+          "phase_tags": []
+        },
+        {
+          "name": "One Shot",
+          "summary": "The bearer can only shoot with this weapon once per battle. Leadership characteristic of models in that unit by 1.",
+          "phase_tags": []
+        },
+        {
+          "name": "INVULNERABLE SAVE",
+          "summary": "6+",
+          "phase_tags": []
+        }
+      ],
+      "wargear_options": [],
+      "weapons": [
+        {
+          "name": "Exorcist conflagration rockets",
+          "type": "ranged",
+          "range": "36\"",
+          "a": "3D6",
+          "bs_ws": "3+",
+          "s": "5",
+          "ap": "0",
+          "d": "1",
+          "keywords": []
+        },
+        {
+          "name": "Exorcist missile launcher",
+          "type": "ranged",
+          "range": "36\"",
+          "a": "D6+2",
+          "bs_ws": "3+",
+          "s": "10",
+          "ap": "-2",
+          "d": "D6",
+          "keywords": [
+            "HEAVY",
+            "INDIRECT FIRE"
+          ]
+        },
+        {
+          "name": "Heavy bolter",
+          "type": "ranged",
+          "range": "36\"",
+          "a": "3",
+          "bs_ws": "3+",
+          "s": "5",
+          "ap": "-1",
+          "d": "2",
+          "keywords": [
+            "SUSTAINED HITS 1"
+          ]
+        },
+        {
+          "name": "Hunter-killer missile",
+          "type": "ranged",
+          "range": "48\"",
+          "a": "1",
+          "bs_ws": "2+",
+          "s": "14",
+          "ap": "-3",
+          "d": "D6",
+          "keywords": [
+            "ONE SHOT"
+          ]
+        },
+        {
+          "name": "Armoured tracks",
+          "type": "melee",
+          "range": "Melee",
+          "a": "3",
+          "bs_ws": "4+",
+          "s": "6",
+          "ap": "0",
+          "d": "1",
+          "keywords": []
+        }
+      ],
+      "strengths": [],
+      "weaknesses": [],
+      "target_priority_tags": [],
+      "threat_tags": [
+        "MELEE_THREAT",
+        "RANGED_CAPABLE",
+        "HIGH_DURABILITY",
+        "INVULNERABLE_SAVE"
+      ],
+      "mobility_tags": [
+        "FAST"
+      ],
+      "durability_tags": [
+        "MEDIUM_ARMOUR",
+        "HIGH_TOUGHNESS",
+        "MULTI_WOUND_HIGH"
+      ],
+      "tau_counterplay": [
+        "Melee threat — maintain distance, use Drones as speed bumps, overwatch with Pulse.",
+        "High durability — concentrate fire, Ion Accelerator or Railguns for AP-3+.",
+        "T10 — only Ion Accelerator, Railguns, or AP-2+ volume attacks meaningful.",
+        "Invulnerable save — volume of fire preferred over single high-AP shots."
+      ],
+      "notes": ""
+    },
+    {
+      "name": "IMMOLATOR",
+      "legends": false,
+      "role": "VEHICLE",
+      "faction_keywords": [
+        "Immolator Adepta Sororitas"
+      ],
+      "keywords": [
+        "Vehicle",
+        "Smoke",
+        "Transport",
+        "Dedicated Transport",
+        "Imperium"
+      ],
+      "points": null,
+      "stats": {
+        "M": "12\"",
+        "T": "10",
+        "Sv": "3+",
+        "W": "11",
+        "Ld": "7+",
+        "OC": "2"
+      },
+      "unit_composition": [
+        "This model’s immolation flamers can be replaced with one of the following: ■ 1 Immolator",
+        "1 twin heavy bolter This model is equipped with: heavy bolter; immolation",
+        "1 twin multi-melta flamers; armoured tracks.",
+        "This model can be equipped with 1 hunter-killer missile.",
+        "TRANSPORT",
+        "This model has a transport capacity of 6 Adepta Sororitas",
+        "Infantry models. It cannot transport Jump Pack models or",
+        "the Triumph of Saint Katherine.",
+        "At the start of the Declare Battle Formations step, you can",
+        "select one Battle Sisters Squad, Dominion Squad or",
+        "Sisters Novitiate Squad from your army. If you do, that unit",
+        "is split into two units, each containing as equal a number of",
+        "models as possible (when splitting a unit in this way, make",
+        "a note of which models form each of the two new units). One",
+        "of these units must start the battle embarked within this",
+        "Transport; the other can start the battle embarked within",
+        "another Transport, or it can be deployed as a separate unit."
+      ],
+      "base_size": null,
+      "abilities": [
+        {
+          "name": "CORE",
+          "summary": "Deadly Demise D3",
+          "phase_tags": []
+        },
+        {
+          "name": "FACTION",
+          "summary": "Acts of Faith",
+          "phase_tags": []
+        },
+        {
+          "name": "One Shot",
+          "summary": "The bearer can only shoot with this weapon once per battle.",
+          "phase_tags": []
+        },
+        {
+          "name": "Fire Support",
+          "summary": "In your Shooting phase, after this model has",
+          "phase_tags": []
+        },
+        {
+          "name": "INVULNERABLE SAVE",
+          "summary": "6+",
+          "phase_tags": []
+        }
+      ],
+      "wargear_options": [],
+      "weapons": [
+        {
+          "name": "Heavy bolter",
+          "type": "ranged",
+          "range": "36\"",
+          "a": "3",
+          "bs_ws": "3+",
+          "s": "5",
+          "ap": "-1",
+          "d": "2",
+          "keywords": [
+            "SUSTAINED HITS 1"
+          ]
+        },
+        {
+          "name": "Hunter-killer missile",
+          "type": "ranged",
+          "range": "48\"",
+          "a": "1",
+          "bs_ws": "2+",
+          "s": "14",
+          "ap": "-3",
+          "d": "D6",
+          "keywords": [
+            "ONE SHOT"
+          ]
+        },
+        {
+          "name": "Immolation flamers",
+          "type": "ranged",
+          "range": "18\"",
+          "a": "2D6",
+          "bs_ws": "N/A",
+          "s": "6",
+          "ap": "-1",
+          "d": "1",
+          "keywords": [
+            "IGNORES COVER",
+            "TORRENT"
+          ]
+        },
+        {
+          "name": "Twin heavy bolter",
+          "type": "ranged",
+          "range": "36\"",
+          "a": "3",
+          "bs_ws": "3+",
+          "s": "5",
+          "ap": "-1",
+          "d": "2",
+          "keywords": [
+            "SUSTAINED HITS 1",
+            "TWIN-LINKED"
+          ]
+        },
+        {
+          "name": "Twin multi-melta",
+          "type": "ranged",
+          "range": "18\"",
+          "a": "2",
+          "bs_ws": "3+",
+          "s": "9",
+          "ap": "-4",
+          "d": "D6",
+          "keywords": [
+            "MELTA 2",
+            "TWIN-LINKED"
+          ]
+        },
+        {
+          "name": "Armoured tracks",
+          "type": "melee",
+          "range": "Melee",
+          "a": "3",
+          "bs_ws": "4+",
+          "s": "6",
+          "ap": "0",
+          "d": "1",
+          "keywords": []
+        }
+      ],
+      "strengths": [],
+      "weaknesses": [],
+      "target_priority_tags": [],
+      "threat_tags": [
+        "MELEE_THREAT",
+        "RANGED_CAPABLE",
+        "MELTA",
+        "HIGH_DURABILITY",
+        "INVULNERABLE_SAVE"
+      ],
+      "mobility_tags": [
+        "FAST"
+      ],
+      "durability_tags": [
+        "MEDIUM_ARMOUR",
+        "HIGH_TOUGHNESS",
+        "MULTI_WOUND_HIGH"
+      ],
+      "tau_counterplay": [
+        "Melee threat — maintain distance, use Drones as speed bumps, overwatch with Pulse.",
+        "High durability — concentrate fire, Ion Accelerator or Railguns for AP-3+.",
+        "T10 — only Ion Accelerator, Railguns, or AP-2+ volume attacks meaningful.",
+        "Invulnerable save — volume of fire preferred over single high-AP shots."
+      ],
+      "notes": ""
+    },
+    {
+      "name": "MORTIFIERS",
+      "legends": false,
+      "role": "VEHICLE",
+      "faction_keywords": [
+        "KEYWORDS: Vehicle",
+        "Walker",
+        "Imperium",
+        "Mortifiers",
+        "Adepta Sororitas"
+      ],
+      "keywords": [
+        "KEYWORDS: Vehicle",
+        "Walker",
+        "Imperium",
+        "Mortifiers Adepta Sororitas"
+      ],
+      "points": null,
+      "stats": {
+        "M": "8\"",
+        "T": "6",
+        "Sv": "4+",
+        "W": "5",
+        "Ld": "7+",
+        "OC": "2"
+      },
+      "unit_composition": [
+        "1 model can be equipped with 1 anchorite sarcophagus. ■ 1-2 Mortifiers",
+        "Any number of models can each have their 2 heavy bolters replaced with one of the following: Every model is equipped with: 2 heavy bolters;",
+        "1 heavy bolter and 1 Mortifier flamer twin penitent buzz-blades.",
+        "2 Mortifier flamers",
+        "Any number of models can each have their twin penitent buzz-blades replaced with one of",
+        "the following:",
+        "1 twin penitent flails",
+        "1 penitent buzz-blade and 1 penitent flail"
+      ],
+      "base_size": null,
+      "abilities": [
+        {
+          "name": "CORE",
+          "summary": "Deadly Demise 1",
+          "phase_tags": []
+        },
+        {
+          "name": "FACTION",
+          "summary": "Acts of Faith",
+          "phase_tags": []
+        },
+        {
+          "name": "Anguish of the Unredeemed",
+          "summary": "Each time this unit makes",
+          "phase_tags": []
+        },
+        {
+          "name": "Anchorite Sarcophagus",
+          "summary": "The bearer has a Save characteristic",
+          "phase_tags": []
+        },
+        {
+          "name": "INVULNERABLE SAVE",
+          "summary": "6+",
+          "phase_tags": []
+        }
+      ],
+      "wargear_options": [],
+      "weapons": [
+        {
+          "name": "Heavy bolter",
+          "type": "ranged",
+          "range": "36\"",
+          "a": "3",
+          "bs_ws": "3+",
+          "s": "5",
+          "ap": "-1",
+          "d": "2",
+          "keywords": [
+            "SUSTAINED HITS 1"
+          ]
+        },
+        {
+          "name": "Mortifier flamer",
+          "type": "ranged",
+          "range": "12\"",
+          "a": "D6",
+          "bs_ws": "N/A",
+          "s": "5",
+          "ap": "0",
+          "d": "1",
+          "keywords": [
+            "IGNORES COVER",
+            "TORRENT",
+            "TWIN-LINKED"
+          ]
+        },
+        {
+          "name": "Penitent buzz-blade",
+          "type": "melee",
+          "range": "Melee",
+          "a": "4",
+          "bs_ws": "3+",
+          "s": "10",
+          "ap": "-3",
+          "d": "2",
+          "keywords": []
+        },
+        {
+          "name": "Penitent flail",
+          "type": "melee",
+          "range": "Melee",
+          "a": "8",
+          "bs_ws": "3+",
+          "s": "5",
+          "ap": "-1",
+          "d": "1",
+          "keywords": []
+        },
+        {
+          "name": "Twin penitent buzz-blades",
+          "type": "melee",
+          "range": "Melee",
+          "a": "4",
+          "bs_ws": "3+",
+          "s": "10",
+          "ap": "-3",
+          "d": "2",
+          "keywords": [
+            "TWIN-LINKED"
+          ]
+        },
+        {
+          "name": "Twin penitent flails",
+          "type": "melee",
+          "range": "Melee",
+          "a": "8",
+          "bs_ws": "3+",
+          "s": "5",
+          "ap": "-1",
+          "d": "1",
+          "keywords": [
+            "TWIN-LINKED"
+          ]
+        }
+      ],
+      "strengths": [],
+      "weaknesses": [],
+      "target_priority_tags": [],
+      "threat_tags": [
+        "MELEE_THREAT",
+        "RANGED_CAPABLE",
+        "INVULNERABLE_SAVE"
+      ],
+      "mobility_tags": [
+        "MOBILE"
+      ],
+      "durability_tags": [
+        "LIGHT_ARMOUR",
+        "MEDIUM_TOUGHNESS",
+        "MULTI_WOUND"
+      ],
+      "tau_counterplay": [
+        "Melee threat — maintain distance, use Drones as speed bumps, overwatch with Pulse.",
+        "Invulnerable save — volume of fire preferred over single high-AP shots."
+      ],
+      "notes": ""
+    },
+    {
+      "name": "PARAGON WARSUITS",
+      "legends": false,
+      "role": "VEHICLE",
+      "faction_keywords": [
+        "KEYWORDS: Vehicle",
+        "Walker",
+        "Grenades",
+        "Imperium",
+        "Paragon Warsuits",
+        "Adepta Sororitas"
+      ],
+      "keywords": [
+        "KEYWORDS: Vehicle",
+        "Walker",
+        "Grenades",
+        "Imperium",
+        "Paragon Warsuits Adepta Sororitas"
+      ],
+      "points": null,
+      "stats": {
+        "M": "8\"",
+        "T": "6",
+        "Sv": "2+",
+        "W": "4",
+        "Ld": "7+",
+        "OC": "2"
+      },
+      "unit_composition": [
+        "Any number of models can each have their Paragon storm bolters replaced with 1 Paragon ■ 1 Paragon Superior",
+        "grenade launchers. ■ 2 Paragons",
+        "Any number of models can each have their heavy bolter replaced with one of the following: Every model is equipped with: bolt pistol; heavy bolter;",
+        "1 Ministorum heavy flamer Paragon storm bolters; Paragon war blade.",
+        "1 multi-melta",
+        "Any number of models can each have their Paragon war blade replaced with 1 Paragon war mace."
+      ],
+      "base_size": null,
+      "abilities": [
+        {
+          "name": "FACTION",
+          "summary": "Acts of Faith",
+          "phase_tags": []
+        },
+        {
+          "name": "Righteous Paragons",
+          "summary": "This unit is eligible to shoot and declare",
+          "phase_tags": []
+        },
+        {
+          "name": "INVULNERABLE SAVE",
+          "summary": "4+",
+          "phase_tags": []
+        }
+      ],
+      "wargear_options": [],
+      "weapons": [
+        {
+          "name": "Bolt pistol",
+          "type": "ranged",
+          "range": "12\"",
+          "a": "1",
+          "bs_ws": "3+",
+          "s": "4",
+          "ap": "0",
+          "d": "1",
+          "keywords": [
+            "PISTOL"
+          ]
+        },
+        {
+          "name": "Heavy bolter",
+          "type": "ranged",
+          "range": "36\"",
+          "a": "3",
+          "bs_ws": "3+",
+          "s": "5",
+          "ap": "-1",
+          "d": "2",
+          "keywords": [
+            "SUSTAINED HITS 1"
+          ]
+        },
+        {
+          "name": "Ministorum heavy flamer",
+          "type": "ranged",
+          "range": "12\"",
+          "a": "D6",
+          "bs_ws": "N/A",
+          "s": "6",
+          "ap": "-1",
+          "d": "1",
+          "keywords": [
+            "IGNORES COVER",
+            "TORRENT"
+          ]
+        },
+        {
+          "name": "Multi-melta",
+          "type": "ranged",
+          "range": "18\"",
+          "a": "2",
+          "bs_ws": "3+",
+          "s": "9",
+          "ap": "-4",
+          "d": "D6",
+          "keywords": [
+            "MELTA 2"
+          ]
+        },
+        {
+          "name": "Paragon grenade launchers",
+          "type": "ranged",
+          "range": "24\"",
+          "a": "1",
+          "bs_ws": "3+",
+          "s": "9",
+          "ap": "-2",
+          "d": "D3",
+          "keywords": [
+            "TWIN-LINKED"
+          ]
+        },
+        {
+          "name": "Paragon war blade",
+          "type": "melee",
+          "range": "Melee",
+          "a": "4",
+          "bs_ws": "3+",
+          "s": "6",
+          "ap": "-2",
+          "d": "2",
+          "keywords": []
+        },
+        {
+          "name": "Paragon war mace",
+          "type": "melee",
+          "range": "Melee",
+          "a": "3",
+          "bs_ws": "4+",
+          "s": "12",
+          "ap": "-1",
+          "d": "3",
+          "keywords": []
+        }
+      ],
+      "strengths": [],
+      "weaknesses": [],
+      "target_priority_tags": [],
+      "threat_tags": [
+        "ELITE_MELEE",
+        "RANGED_CAPABLE",
+        "MELTA",
+        "HIGH_DURABILITY",
+        "INVULNERABLE_SAVE"
+      ],
+      "mobility_tags": [
+        "MOBILE"
+      ],
+      "durability_tags": [
+        "HEAVY_ARMOUR",
+        "MEDIUM_TOUGHNESS",
+        "MULTI_WOUND"
+      ],
+      "tau_counterplay": [
+        "Melee threat — maintain distance, use Drones as speed bumps, overwatch with Pulse.",
+        "High durability — concentrate fire, Ion Accelerator or Railguns for AP-3+.",
+        "Invulnerable save — volume of fire preferred over single high-AP shots."
+      ],
+      "notes": ""
+    },
+    {
+      "name": "PENITENT ENGINES",
+      "legends": false,
+      "role": "VEHICLE",
+      "faction_keywords": [
+        "KEYWORDS: Vehicle",
+        "Walker",
+        "Imperium",
+        "Penitent Engines",
+        "Adepta Sororitas"
+      ],
+      "keywords": [
+        "KEYWORDS: Vehicle",
+        "Walker",
+        "Imperium",
+        "Penitent Engines Adepta Sororitas"
+      ],
+      "points": null,
+      "stats": {
+        "M": "8\"",
+        "T": "6",
+        "Sv": "4+",
+        "W": "5",
+        "Ld": "7+",
+        "OC": "2"
+      },
+      "unit_composition": [
+        "Any number of models can each have their twin penitent buzz-blades replaced with one of ■ 1-2 Penitent Engines",
+        "the following:",
+        "1 penitent buzz-blade and 1 penitent flail penitent buzz-blades.",
+        "1 twin penitent flails"
+      ],
+      "base_size": null,
+      "abilities": [
+        {
+          "name": "CORE",
+          "summary": "Deadly Demise 1",
+          "phase_tags": []
+        },
+        {
+          "name": "FACTION",
+          "summary": "Acts of Faith",
+          "phase_tags": []
+        },
+        {
+          "name": "Endless Suffering",
+          "summary": "This unit is eligible to declare a charge in a",
+          "phase_tags": []
+        }
+      ],
+      "wargear_options": [],
+      "weapons": [
+        {
+          "name": "Penitent flamers [ASSAULT, IGNORES COVER, TORRENT,",
+          "type": "ranged",
+          "range": "12\"",
+          "a": "2D6",
+          "bs_ws": "N/A",
+          "s": "5",
+          "ap": "0",
+          "d": "1",
+          "keywords": []
+        },
+        {
+          "name": "Penitent buzz-blade",
+          "type": "melee",
+          "range": "Melee",
+          "a": "4",
+          "bs_ws": "4+",
+          "s": "10",
+          "ap": "-3",
+          "d": "2",
+          "keywords": [
+            "SUSTAINED HITS 1"
+          ]
+        },
+        {
+          "name": "Penitent flail",
+          "type": "melee",
+          "range": "Melee",
+          "a": "8",
+          "bs_ws": "4+",
+          "s": "5",
+          "ap": "-1",
+          "d": "1",
+          "keywords": [
+            "SUSTAINED HITS 1"
+          ]
+        },
+        {
+          "name": "Twin penitent buzz-blades [SUSTAINED HITS 1,",
+          "type": "melee",
+          "range": "Melee",
+          "a": "4",
+          "bs_ws": "4+",
+          "s": "10",
+          "ap": "-3",
+          "d": "2",
+          "keywords": []
+        },
+        {
+          "name": "Twin penitent flails",
+          "type": "melee",
+          "range": "Melee",
+          "a": "8",
+          "bs_ws": "4+",
+          "s": "5",
+          "ap": "-1",
+          "d": "1",
+          "keywords": [
+            "SUSTAINED HITS 1",
+            "TWIN-LINKED"
+          ]
+        }
+      ],
+      "strengths": [],
+      "weaknesses": [],
+      "target_priority_tags": [],
+      "threat_tags": [
+        "MELEE_THREAT",
+        "RANGED_CAPABLE"
+      ],
+      "mobility_tags": [
+        "MOBILE"
+      ],
+      "durability_tags": [
+        "LIGHT_ARMOUR",
+        "MEDIUM_TOUGHNESS",
+        "MULTI_WOUND"
+      ],
+      "tau_counterplay": [
+        "Melee threat — maintain distance, use Drones as speed bumps, overwatch with Pulse."
+      ],
+      "notes": ""
+    },
+    {
+      "name": "SORORITAS RHINO",
+      "legends": false,
+      "role": "VEHICLE",
+      "faction_keywords": [
+        "Sororitas Rhino Adepta Sororitas"
+      ],
+      "keywords": [
+        "Vehicle",
+        "Transport",
+        "Dedicated Transport",
+        "Smoke",
+        "Imperium"
+      ],
+      "points": null,
+      "stats": {
+        "M": "12\"",
+        "T": "9",
+        "Sv": "3+",
+        "W": "10",
+        "Ld": "7+",
+        "OC": "2"
+      },
+      "unit_composition": [
+        "This model can be equipped with 1 hunter-killer missile. ■ 1 Sororitas Rhino",
+        "This model is equipped with: storm bolter; armoured tracks.",
+        "TRANSPORT",
+        "This model has a transport capacity of 12 Adepta Sororitas",
+        "Infantry models. It cannot transport Jump Pack models or",
+        "the Triumph of Saint Katherine."
+      ],
+      "base_size": null,
+      "abilities": [
+        {
+          "name": "CORE",
+          "summary": "Deadly Demise D3",
+          "phase_tags": []
+        },
+        {
+          "name": "FACTION",
+          "summary": "Acts of Faith",
+          "phase_tags": []
+        },
+        {
+          "name": "One Shot",
+          "summary": "The bearer can only shoot with this weapon once per battle.",
+          "phase_tags": []
+        },
+        {
+          "name": "Self Repair",
+          "summary": "At the start of your Command phase, this model",
+          "phase_tags": []
+        },
+        {
+          "name": "INVULNERABLE SAVE",
+          "summary": "6+",
+          "phase_tags": []
+        }
+      ],
+      "wargear_options": [],
+      "weapons": [
+        {
+          "name": "Hunter-killer missile",
+          "type": "ranged",
+          "range": "48\"",
+          "a": "1",
+          "bs_ws": "2+",
+          "s": "14",
+          "ap": "-3",
+          "d": "D6",
+          "keywords": [
+            "ONE SHOT"
+          ]
+        },
+        {
+          "name": "Storm bolter",
+          "type": "ranged",
+          "range": "24\"",
+          "a": "2",
+          "bs_ws": "3+",
+          "s": "4",
+          "ap": "0",
+          "d": "1",
+          "keywords": [
+            "RAPID FIRE 2"
+          ]
+        },
+        {
+          "name": "Armoured tracks",
+          "type": "melee",
+          "range": "Melee",
+          "a": "3",
+          "bs_ws": "4+",
+          "s": "6",
+          "ap": "0",
+          "d": "1",
+          "keywords": []
+        }
+      ],
+      "strengths": [],
+      "weaknesses": [],
+      "target_priority_tags": [],
+      "threat_tags": [
+        "MELEE_THREAT",
+        "RANGED_CAPABLE",
+        "HIGH_DURABILITY",
+        "INVULNERABLE_SAVE"
+      ],
+      "mobility_tags": [
+        "FAST"
+      ],
+      "durability_tags": [
+        "MEDIUM_ARMOUR",
+        "HIGH_TOUGHNESS",
+        "MULTI_WOUND_HIGH"
+      ],
+      "tau_counterplay": [
+        "Melee threat — maintain distance, use Drones as speed bumps, overwatch with Pulse.",
+        "High durability — concentrate fire, Ion Accelerator or Railguns for AP-3+.",
+        "T9 — Heavy Burst Cannon, Plasma, or Ion Blaster recommended.",
+        "Invulnerable save — volume of fire preferred over single high-AP shots."
+      ],
+      "notes": ""
+    }
+  ],
+  "weapons_index": {},
+  "faction_strengths": [],
+  "faction_weaknesses": [],
+  "playstyle_summary": "",
+  "tau_matchup_notes": [],
+  "priority_targets_for_tau": [],
+  "recommended_tau_deployment_tags": [],
+  "recommended_tau_loadout_tags": [],
+  "metadata": {
+    "unit_count": 32,
+    "parse_errors": 0,
+    "points_note": "Fill from Munitorum Field Manual",
+    "builder": "build_all_factions.py v4.0"
+  }
+}

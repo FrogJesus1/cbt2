@@ -1,0 +1,56 @@
+# Experimental Cadre Test
+# Saved: 2026-03-15
+
++++++++++++++++++++++++++++++++++++++++++++++++
++ FACTION KEYWORD: Xenos - T'au Empire
++ DETACHMENT: Experimental Prototype Cadre (Superior Craftmanship)
++ TOTAL ARMY POINTS: 1835pts
++
++ WARLORD: Char1: Commander Farsight
++ ENHANCEMENT: Fusion Blades (on Char4: Commander in Coldstar Battlesuit)
++ NUMBER OF UNITS: 17
++ SECONDARY: - Bring It Down: (9x2) + (2x4) - Assassination: 5 Characters
++++++++++++++++++++++++++++++++++++++++++++++++
+
+Char3: 1x Cadre Fireblade (50 pts): 2x Gun Drone, Close combat weapon, Fireblade pulse rifle
+Char1: 1x Commander Farsight (85 pts): Warlord, Dawn Blade, High-intensity plasma rifle
+Char4: 1x Commander in Coldstar Battlesuit (120 pts): Weapon support system, Cyclic ion blaster, Fusion blaster
+Enhancement: Fusion Blades upgrade High-output burst cannon, Battlesuit fists
+Enhancement: Fusion Blades (+25 pts)
+Char5: 1x Firesight Team (60 pts): Close combat weapons, Longshot pulse rifles, Pulse pistol
+Char2: 2x The Twin Lance (160 pts)
+• 1x Ri'Lantar: MV15 Gun Drone, Twin pulse blaster, Fusion eliminator, Twin pulse blaster, Shardstorm burst system, XV pulse pistol
+• 1x Ri'Locai: MV15 Gun Drone, Twin pulse blaster, Ion scattercannon, Twin pulse blaster, Shardstorm burst system, XV pulse pistol
+
+10x Breacher Team (90 pts)
+• 1x Breacher Fire Warrior Shas'ui: Close combat weapon, Pulse blaster, Pulse pistol, Support turret
+• 9x Breacher Fire Warriors: 9 with Close combat weapon, Pulse blaster, Pulse pistol
+10x Strike Team (70 pts)
+• 1x Fire Warrior Shas'ui: Guardian Drone, Gun Drone, Close combat weapon, Pulse pistol, Pulse rifle, Support turret
+• 9x Fire Warrior: 9 with Close combat weapon, Pulse pistol, Pulse rifle
+
+2x Broadside Battlesuits (170 pts)
+• 1x Broadside Shas’vre: 2x Missile Drone, Weapon support system, Crushing bulk, Heavy rail rifle, Twin smart missile system
+• 1x Broadside Shas’ui: Gun Drone, Shield Drone, Crushing bulk, Heavy rail rifle
+3x Crisis Starscythe Battlesuits (110 pts)
+• 2x Crisis Starscythe Shas’ui
+    1 with Burst cannon, T'au flamer, Battlesuit fists
+    1 with Burst cannon, T'au flamer, Battlesuit fists
+• 1x Crisis Starscythe Shas’vre: Burst cannon, T'au flamer, Battlesuit fists
+1x Devilfish (85 pts): Accelerator burst cannon, Armoured hull, 2x Seeker missile, 2x Smart missile system
+1x Hammerhead Gunship (145 pts): Armoured hull, Railgun, 2x Seeker missile, 2x Smart missile system
+1x Hammerhead Gunship (145 pts): Armoured hull, Ion cannon, 2x Seeker missile, 2x Smart missile system
+1x Hammerhead Gunship (145 pts): Armoured hull, Railgun, 2x Seeker missile, 2x Smart missile system
+10x Pathfinder Team (90 pts)
+• 9x Pathfinders
+    6 with Close combat weapon, Pulse carbine, Pulse pistol
+    1 with Close combat weapon, Ion rifle, Pulse pistol
+    2 with Close combat weapon, Pulse pistol, Rail rifle
+• 1x Pathfinder Shas'ui: 2x Gun Drone, Grav-inhibitor drone, Close combat weapon, Pulse carbine, Pulse pistol, Semi-automatic grenade launcher
+1x Piranhas (60 pts): Armoured hull, 2x Twin pulse carbine, Piranha fusion blaster, 2x Seeker missile
+1x Sky Ray Gunship (150 pts): Armoured hull, Seeker missile rack, 2x Smart missile system
+5x Stealth Battlesuits (100 pts)
+• 4x Stealth Shas'ui
+    3 with Battlesuit fists, Burst cannon
+    1 with Battlesuit fists, Fusion blaster
+• 1x Stealth Shas'vre: Homing beacon, Gun Drone, Marker Drone, Battlesuit fists, Fusion blaster

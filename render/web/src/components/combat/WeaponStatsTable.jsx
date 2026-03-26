@@ -1,0 +1,275 @@
+/**
+ * WeaponStatsTable
+ *
+ * Weapon spec table for the [unit] vs [unit] combat view.
+ * Columns: Weapon name (+ keyword badges) | A | BS | S | WR | AP | D
+ *
+ * "A" shows "2 (4)" when shots_total is set — attacks-per-model (total across squad).
+ * "BS" and "WR" are colour-coded when a modifier shifts them from their baseline:
+ *   green  = improved  (lower roll needed)
+ *   red    = degraded  (higher roll needed)
+ *
+ * Props:
+ *   weapons — full weapons array from combat engine response
+ */
+
+import { Card, CardContent } from "@/components/ui/card";
+import { C, CARD_STYLE, CARD_PAD, SectionTitle } from "./shared";
+
+// ─── Keyword badge abbreviations ───────────────────────────────────────────
+
+const KW_ABBREV = {
+  "DEVASTATING WOUNDS":  "DW",
+  "TWIN-LINKED":         "TL",
+  "LETHAL HITS":         "LH",
+  "TORRENT":             "TO",
+  "RAPID FIRE":          "RF",
+  "SUSTAINED HITS":      "SH",
+  "BLAST":               "BL",
+  "HEAVY":               "HV",
+  "LANCE":               "LC",
+  "ONE SHOT":            "OS",
+  "INDIRECT FIRE":       "IF",
+  "ANTI-":               "AN",
+  "MELTA":               "ML",
+};
+
+function kwAbbrev(kw) {
+  const upper = kw.toUpperCase();
+  // Exact match
+  if (KW_ABBREV[upper]) return KW_ABBREV[upper];
+  // Prefix match for parameterised keywords (e.g. RAPID FIRE 1, ANTI-INFANTRY 4+)
+  for (const [key, abbr] of Object.entries(KW_ABBREV)) {
+    if (upper.startsWith(key)) return abbr;
+  }
+  // Fallback: first two non-space chars
+  return upper.replace(/\s+/g, "").slice(0, 2);
+}
+
+// ─── AP delta helper ───────────────────────────────────────────────────────
+// In 40K, more-negative AP is better.  Red is only correct when a modifier has
+// degraded AP from its base (ap_delta: "worse").  For raw values, derive a
+// positive-or-neutral signal: AP-3 or better = "better" (green), else neutral.
+// Falls back to engine-provided ap_delta when present.
+
+function resolveApDelta(w) {
+  if (w.ap_delta) return w.ap_delta;                 // engine-computed delta wins
+  const n = parseInt(String(w.ap ?? ""), 10);
+  if (isNaN(n) || n === 0) return null;              // AP 0 = neutral
+  if (n <= -3) return "better";                      // AP-3+ = strong, highlight green
+  return null;                                        // AP-1/-2 = moderate, leave neutral
+}
+
+// ─── Stat cell — optionally coloured by delta ──────────────────────────────
+
+function StatCell({ value, delta, dim = false }) {
+  let color = dim ? C.label : C.mid;
+  if (delta === "better") color = C.green;
+  if (delta === "worse")  color = C.red;
+
+  return (
+    <td style={{
+      textAlign:  "center",
+      padding:    "4px 8px",
+      color,
+      fontWeight: delta ? 700 : 400,
+      textShadow: delta === "better" ? `0 0 6px ${C.green}80`
+                : delta === "worse"  ? `0 0 6px ${C.red}80`
+                : "none",
+      whiteSpace: "nowrap",
+    }}>
+      {value ?? "—"}
+    </td>
+  );
+}
+
+// ─── Single weapon row ─────────────────────────────────────────────────────
+
+function WeaponRow({ w }) {
+  // Build the attacks display:  "2 (4)"  or just  "2"  or the raw string
+  let attacksDisplay = w.shots ?? "—";
+  if (w.shots_total != null) {
+    attacksDisplay = `${w.shots} (${w.shots_total})`;
+  }
+
+  // WR: prefer computed wound_target, otherwise show "—"
+  const wrDisplay = w.wound_target != null ? `${w.wound_target}+` : "—";
+
+  // Format AP: show "-4" as "-4", "0" as "0"
+  const apDisplay = w.ap != null && w.ap !== "—"
+    ? (String(w.ap).startsWith("-") ? w.ap : (w.ap === "0" || w.ap === 0 ? "0" : w.ap))
+    : "—";
+
+  // Range display
+  const rangeDisplay = w.range ?? "—";
+
+  // Drone / supplement: cyan name if _drone flag set
+  const nameColor = w._drone ? C.cyan : C.mid;
+
+  return (
+    <tr style={{ borderTop: `1px solid ${C.border}` }}>
+      {/* Weapon name + keyword badges */}
+      <td style={{ padding: "4px 8px 4px 2px", verticalAlign: "middle" }}>
+        <div style={{ display: "flex", alignItems: "center", gap: "5px", flexWrap: "wrap" }}>
+          <span style={{ color: nameColor, fontSize: "12px", whiteSpace: "nowrap" }}>
+            {w.name}
+          </span>
+          {(w.keywords || []).map((kw, i) => (
+            <span
+              key={i}
+              title={kw}
+              style={{
+                fontSize:      "9px",
+                color:         C.amber,
+                border:        `1px solid ${C.bordermid}`,
+                padding:       "0 3px",
+                letterSpacing: "0.04em",
+                flexShrink:    0,
+                lineHeight:    "14px",
+              }}
+            >
+              {kwAbbrev(kw)}
+            </span>
+          ))}
+        </div>
+      </td>
+
+      {/* Rng — range */}
+      <td style={{
+        textAlign:  "center",
+        padding:    "4px 8px",
+        color:      C.label,
+        whiteSpace: "nowrap",
+        fontSize:   "12px",
+      }}>
+        {rangeDisplay}
+      </td>
+
+      {/* A — attacks per model (total) */}
+      <td style={{
+        textAlign:  "center",
+        padding:    "4px 8px",
+        color:      C.mid,
+        whiteSpace: "nowrap",
+        fontSize:   "12px",
+      }}>
+        {attacksDisplay}
+      </td>
+
+      {/* BS — coloured by bs_delta */}
+      <StatCell
+        value={w.bs_ws ?? "—"}
+        delta={w.bs_delta}
+      />
+
+      {/* S */}
+      <StatCell value={w.strength ?? "—"} />
+
+      {/* WR — computed wound roll, coloured by wr_delta */}
+      <StatCell
+        value={wrDisplay}
+        delta={w.wr_delta}
+      />
+
+      {/* AP — positive/neutral; red only when a modifier degrades it */}
+      <StatCell value={apDisplay} delta={resolveApDelta(w)} />
+
+      {/* D */}
+      <StatCell value={w.damage ?? "—"} />
+    </tr>
+  );
+}
+
+// ─── Section (Ranged or Melee) ─────────────────────────────────────────────
+
+const HEADER_STYLE = {
+  fontSize:      "10px",
+  color:         C.dim,
+  letterSpacing: "0.12em",
+  textTransform: "uppercase",
+  textAlign:     "center",
+  padding:       "4px 8px",
+  borderBottom:  `1px solid ${C.border}`,
+  fontWeight:    600,
+};
+
+function WeaponSection({ title, weapons }) {
+  if (!weapons || weapons.length === 0) return null;
+
+  return (
+    <>
+      {/* Section divider */}
+      <tr>
+        <td
+          colSpan={8}
+          style={{
+            padding:       "8px 2px 4px",
+            color:         C.amber,
+            fontSize:      "10px",
+            letterSpacing: "0.14em",
+            textTransform: "uppercase",
+            fontWeight:    700,
+            borderTop:     `1px solid ${C.bordermid}`,
+          }}
+        >
+          — {title} —
+        </td>
+      </tr>
+      {weapons.map((w, i) => <WeaponRow key={i} w={w} />)}
+    </>
+  );
+}
+
+// ─── WeaponStatsTable ──────────────────────────────────────────────────────
+
+export function WeaponStatsTable({ weapons = [] }) {
+  const ranged = weapons.filter(w => w.type !== "melee");
+  const melee  = weapons.filter(w => w.type === "melee");
+
+  if (!weapons.length) return null;
+
+  // Only show model-count note when > 1 model
+  const models = weapons[0]?.models ?? 1;
+  const modelNote = models > 1
+    ? `${models} models · A shows per-model (squad total)`
+    : null;
+
+  return (
+    <Card style={CARD_STYLE}>
+      <CardContent style={CARD_PAD}>
+        <div style={{ display: "flex", alignItems: "baseline", gap: "12px", marginBottom: "10px" }}>
+          <SectionTitle style={{ marginBottom: 0, paddingBottom: 0, borderBottom: "none" }}>
+            Weapon Specs
+          </SectionTitle>
+          {modelNote && (
+            <span style={{ color: C.dim, fontSize: "10px", letterSpacing: "0.05em" }}>
+              {modelNote}
+            </span>
+          )}
+        </div>
+
+        <table style={{
+          width:           "100%",
+          borderCollapse:  "collapse",
+          fontSize:        "12px",
+          fontFamily:      "inherit",
+        }}>
+          <thead>
+            <tr>
+              <th style={{ ...HEADER_STYLE, textAlign: "left", padding: "4px 8px 4px 2px" }}>
+                Weapon
+              </th>
+              {["Rng", "A", "BS", "S", "WR", "AP", "D"].map(col => (
+                <th key={col} style={HEADER_STYLE}>{col}</th>
+              ))}
+            </tr>
+          </thead>
+          <tbody>
+            <WeaponSection title="Ranged Weapons" weapons={ranged} />
+            <WeaponSection title="Melee Weapons"  weapons={melee}  />
+          </tbody>
+        </table>
+      </CardContent>
+    </Card>
+  );
+}

@@ -1,0 +1,366 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* ── Combat Terminal — Retro phosphor theme ─────────────────────────── */
+
+@layer base {
+  :root {
+    --background: 0 0% 2%;
+    --foreground: 120 100% 54%;
+    --border: 120 60% 12%;
+    --input: 120 60% 12%;
+    --ring: 120 100% 54%;
+    --radius: 0rem;
+    --primary: 120 100% 54%;
+    --primary-foreground: 120 100% 3%;
+    --secondary: 120 40% 8%;
+    --secondary-foreground: 120 80% 50%;
+    --muted: 120 30% 6%;
+    --muted-foreground: 120 40% 30%;
+    --accent: 120 40% 10%;
+    --accent-foreground: 120 100% 54%;
+    --card: 120 30% 4%;
+    --card-foreground: 120 100% 54%;
+  }
+}
+
+/* ── Theme CSS variables ─────────────────────────────────────────────── */
+/* Applied via data-theme on the root div in App.jsx.                    */
+/* Only primary/accent colours change. Amber, cyan, red stay semantic.  */
+
+[data-theme="default"] {
+  --ct-primary:       #39ff14;
+  --ct-primary-mid:   #22bb0e;
+  --ct-primary-label: #20a010;
+  --ct-primary-dim:   #145c08;
+  --ct-border:        #0d2a0a;
+  --ct-border-bright: #1a4a14;
+  --ct-bg:            #050805;
+  --ct-bg-dark:       #040704;
+  --ct-bg-panel:      #080e08;
+  --ct-echo:          #d4f5c4;
+  --ct-glow-rgb:      57, 255, 20;
+  --ct-ghost:         #0a2405;
+  --ct-bar-alt:       #00e5ff;
+}
+
+[data-theme="red"] {
+  --ct-primary:       #ff3b3b;
+  --ct-primary-mid:   #cc2020;
+  --ct-primary-label: #a01515;
+  --ct-primary-dim:   #5c0808;
+  --ct-border:        #2a0d0d;
+  --ct-border-bright: #4a1414;
+  --ct-bg:            #080505;
+  --ct-bg-dark:       #070404;
+  --ct-bg-panel:      #0e0808;
+  --ct-echo:          #f5c4c4;
+  --ct-glow-rgb:      255, 59, 59;
+  --ct-ghost:         #240505;
+  --ct-bar-alt:       #ff7a3b;
+}
+
+@layer base {
+  * {
+    @apply border-border;
+  }
+
+  html, body, #root {
+    height: 100%;
+    overflow: hidden;
+  }
+
+  body {
+    background-color: var(--ct-bg, #050805);
+    color: var(--ct-primary, #39ff14);
+    font-family: "IBM Plex Mono", "Courier New", Courier, "Lucida Console", monospace;
+    font-size: 15px;
+    line-height: 1.65;
+    -webkit-font-smoothing: antialiased;
+  }
+
+  /* Scanline overlay — subtle CRT effect */
+  body::before {
+    content: '';
+    position: fixed;
+    inset: 0;
+    pointer-events: none;
+    z-index: 9999;
+    background: repeating-linear-gradient(
+      0deg,
+      transparent,
+      transparent 3px,
+      rgba(0, 0, 0, 0.08) 3px,
+      rgba(0, 0, 0, 0.08) 4px
+    );
+  }
+
+  /* Vignette */
+  body::after {
+    content: '';
+    position: fixed;
+    inset: 0;
+    pointer-events: none;
+    z-index: 9998;
+    background: radial-gradient(ellipse at center, transparent 60%, rgba(0,0,0,0.4) 100%);
+  }
+
+  /* Scrollbars */
+  ::-webkit-scrollbar { width: 4px; height: 4px; }
+  ::-webkit-scrollbar-track { background: transparent; }
+  ::-webkit-scrollbar-thumb { background: #0d2a0a; border-radius: 0; }
+  ::-webkit-scrollbar-thumb:hover { background: #1a4a14; }
+}
+
+/* ── Mainframe (Total Retro) theme ──────────────────────────────────────
+ * Applied via data-theme="mainframe" on the root div in App.jsx.
+ * CSS variables replicate the CT var contract with #000/#33ff33 palette.
+ * Global overrides below strip all chrome and force monospace everywhere.
+ * ─────────────────────────────────────────────────────────────────────── */
+
+[data-theme="mainframe"] {
+  --ct-primary:       #33ff33;
+  --ct-primary-mid:   #22cc22;
+  --ct-primary-label: #19991a;
+  --ct-primary-dim:   #0d660d;
+  --ct-border:        #1a3d1a;
+  --ct-border-bright: #33ff33;
+  --ct-bg:            #000000;
+  --ct-bg-dark:       #000000;
+  --ct-bg-panel:      #000000;
+  --ct-echo:          #ccffcc;
+  --ct-glow-rgb:      51, 255, 51;
+  --ct-ghost:         #001100;
+  --ct-bar-alt:       #33ff33;
+}
+
+/* Force monospace font and 14px globally — no bold */
+[data-theme="mainframe"],
+[data-theme="mainframe"] * {
+  font-family: "Courier New", Courier, monospace !important;
+  font-weight: normal !important;
+  box-shadow:  none !important;
+  text-shadow: none !important;
+  border-radius: 0 !important;
+}
+
+/* 14px on all text-bearing elements (skip SVG internals) */
+[data-theme="mainframe"] *:not(svg):not(path):not(circle):not(g):not(line):not(polygon) {
+  font-size: 14px !important;
+}
+
+/* Strip background gradients from all layout containers */
+[data-theme="mainframe"] div,
+[data-theme="mainframe"] nav,
+[data-theme="mainframe"] button,
+[data-theme="mainframe"] span,
+[data-theme="mainframe"] section,
+[data-theme="mainframe"] aside {
+  background-image: none !important;
+}
+
+/* ASCII-style borders: replace decorative glows with plain hairlines.
+ * Elements that already reference --ct-border via inline style pick this
+ * up automatically through the var() override above.  This rule catches
+ * any utility classes that hardcode a border colour. */
+[data-theme="mainframe"] .ct-panel,
+[data-theme="mainframe"] .ct-panel-inner {
+  border: 1px solid #1a3d1a !important;
+  background-color: #000000 !important;
+}
+
+/* Disable CRT scanline and vignette overlays in mainframe mode —
+ * pure flat phosphor green on black needs no extra layering */
+[data-theme="mainframe"] ~ body::before,
+[data-theme="mainframe"] ~ body::after {
+  display: none !important;
+}
+
+/* ── Void Zen theme ──────────────────────────────────────────────────────────
+ * Minimalist silence: dark grey on near-black, clean sans-serif, no borders,
+ * generous line-height for breathing room.
+ * ─────────────────────────────────────────────────────────────────────────── */
+
+[data-theme="void-zen"] {
+  --ct-primary:       #666666;
+  --ct-primary-mid:   #555555;
+  --ct-primary-label: #444444;
+  --ct-primary-dim:   #333333;
+  --ct-border:        transparent;
+  --ct-border-bright: #444444;
+  --ct-bg:            #050505;
+  --ct-bg-dark:       #050505;
+  --ct-bg-panel:      #050505;
+  --ct-echo:          #888888;
+  --ct-glow-rgb:      102, 102, 102;
+  --ct-ghost:         #0a0a0a;
+  --ct-bar-alt:       #555555;
+}
+
+[data-theme="void-zen"],
+[data-theme="void-zen"] * {
+  font-family:   Inter, Arial, "Helvetica Neue", sans-serif !important;
+  font-weight:   normal !important;
+  box-shadow:    none !important;
+  text-shadow:   none !important;
+  border-radius: 0 !important;
+  line-height:   1.6 !important;
+}
+
+[data-theme="void-zen"] *:not(svg):not(path):not(circle):not(g):not(line):not(polygon) {
+  font-size: 14px !important;
+}
+
+/* Strip all borders and background decoration */
+[data-theme="void-zen"] div,
+[data-theme="void-zen"] nav,
+[data-theme="void-zen"] button,
+[data-theme="void-zen"] span,
+[data-theme="void-zen"] section,
+[data-theme="void-zen"] aside {
+  border:           none !important;
+  box-shadow:       none !important;
+  background-image: none !important;
+}
+
+[data-theme="void-zen"] .ct-panel,
+[data-theme="void-zen"] .ct-panel-inner,
+[data-theme="void-zen"] .ct-bar-track {
+  border: none !important;
+}
+
+/* ── Warp Stained theme ───────────────────────────────────────────────────────
+ * Ruinous corruption: neon magenta on deep purple, monospace, double-line
+ * borders, static 1px offset text-shadow for corrupted-signal bleed.
+ * ─────────────────────────────────────────────────────────────────────────── */
+
+[data-theme="warp-stained"] {
+  --ct-primary:       #ff00ff;
+  --ct-primary-mid:   #cc00cc;
+  --ct-primary-label: #aa00aa;
+  --ct-primary-dim:   #660066;
+  --ct-border:        #550055;
+  --ct-border-bright: #ff00ff;
+  --ct-bg:            #100010;
+  --ct-bg-dark:       #100010;
+  --ct-bg-panel:      #100010;
+  --ct-echo:          #ffaaff;
+  --ct-glow-rgb:      255, 0, 255;
+  --ct-ghost:         #0a0010;
+  --ct-bar-alt:       #ff00ff;
+}
+
+[data-theme="warp-stained"],
+[data-theme="warp-stained"] * {
+  font-family:   Consolas, "Courier New", Courier, monospace !important;
+  text-shadow:   1px 1px 0px #880000 !important;
+  box-shadow:    none !important;
+  border-radius: 0 !important;
+}
+
+[data-theme="warp-stained"] *:not(svg):not(path):not(circle):not(g):not(line):not(polygon) {
+  font-size: 14px !important;
+}
+
+/* Replace structural borders with double magenta lines */
+[data-theme="warp-stained"] div,
+[data-theme="warp-stained"] nav,
+[data-theme="warp-stained"] section,
+[data-theme="warp-stained"] aside {
+  border:           1px double #ff00ff !important;
+  background-image: none !important;
+}
+
+[data-theme="warp-stained"] .ct-panel,
+[data-theme="warp-stained"] .ct-panel-inner,
+[data-theme="warp-stained"] .ct-bar-track {
+  border: 1px double #ff00ff !important;
+}
+
+/* Buttons: single solid line keeps them readable and clickable */
+[data-theme="warp-stained"] button {
+  border: 1px solid #ff00ff !important;
+}
+
+/* Inline spans and inputs skip structural borders */
+[data-theme="warp-stained"] span,
+[data-theme="warp-stained"] input {
+  border: none !important;
+}
+
+@layer utilities {
+  /* Phosphor glow on bright text */
+  .ct-glow {
+    text-shadow: 0 0 6px rgba(var(--ct-glow-rgb), 0.8), 0 0 18px rgba(var(--ct-glow-rgb), 0.3);
+  }
+
+  .ct-glow-sm {
+    text-shadow: 0 0 4px rgba(var(--ct-glow-rgb), 0.5);
+  }
+
+  .ct-glow-amber {
+    text-shadow: 0 0 6px rgba(255, 163, 40, 0.7);
+  }
+
+  .ct-glow-cyan {
+    text-shadow: 0 0 6px rgba(0, 229, 255, 0.7);
+  }
+
+  /* Panel box — dark with theme border */
+  .ct-panel {
+    border: 1px solid var(--ct-border);
+    background-color: var(--ct-bg-panel);
+  }
+
+  .ct-panel-inner {
+    border: 1px solid var(--ct-border);
+    background-color: var(--ct-bg-panel);
+  }
+
+  /* Bar chart track */
+  .ct-bar-track {
+    background-color: var(--ct-bg-panel);
+    border: 1px solid var(--ct-border);
+    height: 14px;
+    position: relative;
+    overflow: hidden;
+  }
+
+  .ct-bar-fill {
+    height: 100%;
+    background-color: var(--ct-primary);
+    box-shadow: 0 0 4px rgba(var(--ct-glow-rgb), 0.6);
+    transition: width 0.4s ease;
+  }
+
+  .ct-bar-fill-amber {
+    height: 100%;
+    background-color: #ffa328;
+    box-shadow: 0 0 4px rgba(255, 163, 40, 0.6);
+  }
+
+  .ct-bar-fill-cyan {
+    height: 100%;
+    background-color: #00e5ff;
+    box-shadow: 0 0 4px rgba(0, 229, 255, 0.6);
+  }
+
+  .ct-bar-fill-dim {
+    height: 100%;
+    background-color: var(--ct-primary-dim);
+  }
+
+  /* Section title line */
+  .ct-section-title {
+    color: #ffa328;
+    text-shadow: 0 0 6px rgba(255, 163, 40, 0.6);
+    font-size: 13px;
+    letter-spacing: 0.15em;
+    text-transform: uppercase;
+  }
+
+  /* Scrollbar theming */
+  ::-webkit-scrollbar-thumb { background: var(--ct-border); border-radius: 0; }
+  ::-webkit-scrollbar-thumb:hover { background: var(--ct-border-bright); }
+}

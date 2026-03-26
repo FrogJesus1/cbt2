@@ -1,0 +1,14 @@
+# Python
+__pycache__/
+*.pyc
+*.pyo
+.env
+.venv/
+venv/
+
+# Node
+render/web/node_modules/
+render/web/dist/
+
+# OS
+.DS_Store

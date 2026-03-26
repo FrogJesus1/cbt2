@@ -1,0 +1,42 @@
+# spec breacher team
+# Saved: 2026-03-19
+
++++++++++++++++++++++++++++++++++++++++++++++++
++ FACTION KEYWORD: Xenos - T'au Empire
++ DETACHMENT: Kauyon (Patient Hunter)
++ TOTAL ARMY POINTS: 745pts
++
++ WARLORD: Char2: Commander in Coldstar Battlesuit
++ ENHANCEMENT: Through Unity, Devastation (on Char1: Cadre Fireblade)
+& Solid-image Projection Unit (on Char2: Commander in Coldstar Battlesuit)
++ NUMBER OF UNITS: 7
++ SECONDARY: - Bring It Down: (1x2) + (2x4) - Assassination: 2 Characters
++++++++++++++++++++++++++++++++++++++++++++++++
+
+Char1: 1x Cadre Fireblade (90 pts): Gun Drone, Shield Drone, Close combat weapon, Fireblade pulse rifle
+Enhancement: Through Unity, Devastation (+40 pts)
+Char2: 1x Commander in Coldstar Battlesuit (125 pts): Warlord, Battlesuit support system, High-output burst cannon, 2x Plasma rifle, Battlesuit fists
+Enhancement: Solid-image Projection Unit (+30 pts)
+
+10x Breacher Team (90 pts)
+• 1x Breacher Fire Warrior Shas'ui: Close combat weapon, Pulse blaster, Pulse pistol, Support turret
+• 9x Breacher Fire Warriors: 9 with Close combat weapon, Pulse blaster, Pulse pistol
+10x Breacher Team (90 pts)
+• 1x Breacher Fire Warrior Shas'ui: Close combat weapon, Pulse blaster, Pulse pistol, Support turret
+• 9x Breacher Fire Warriors: 9 with Close combat weapon, Pulse blaster, Pulse pistol
+
+3x Crisis Starscythe Battlesuits (110 pts)
+• 2x Crisis Starscythe Shas’ui
+    1 with Gun Drone, Shield Drone, 2x T'au flamer, Battlesuit fists
+    1 with Gun Drone, Shield Drone, 2x T'au flamer, Battlesuit fists
+• 1x Crisis Starscythe Shas’vre: Gun Drone, Shield Drone, 2x T'au flamer, Battlesuit fists
+3x Crisis Sunforge Battlesuits (140 pts)
+• 2x Crisis Sunforge Shas’ui
+    1 with Gun Drone, Shield Drone, Battlesuit fists, 2x Fusion blaster
+    1 with Gun Drone, Shield Drone, Battlesuit fists, 2x Fusion blaster
+• 1x Crisis Sunforge Shas’vre: Gun Drone, Shield Drone, 2x Fusion blaster, Battlesuit fists
+5x Stealth Battlesuits (100 pts)
+• 4x Stealth Shas'ui
+    3 with Battlesuit fists, Burst cannon
+    1 with Battlesuit fists, Fusion blaster
+• 1x Stealth Shas'vre: Homing beacon, Gun Drone, Marker Drone, Battlesuit fists, Pulse pistol, Fusion blaster

@@ -1,0 +1,2074 @@
+{
+  "metadata": {
+    "name": "Tau Strategic Brain v0.3",
+    "faction": "T'au Empire",
+    "edition": "10th",
+    "scope": "Normalized Tau strategy dataset built from uploaded Goonhammer scrape material",
+    "built_from": [
+      "Tau Strategy Extraction",
+      "Tau Strategy Extraction 2",
+      "Tau Strategy Extraction 3",
+      "Competitive Innovations",
+      "start competing tau empire"
+    ],
+    "notes": [
+      "Focuses on 10th-edition Tau-specific strategy.",
+      "Web filler and non-Tau site chrome were excluded.",
+      "This version adds normalized units, structured tactical rules, and unit-specific guides."
+    ]
+  },
+  "ontology": {
+    "win_conditions": [
+      "Preserve key suit units until they can apply overwhelming shooting",
+      "Use mobility to choose engagements rather than accept trades",
+      "Focus fire to remove whole enemy units instead of spreading damage",
+      "Use cheap, infiltrating, or expendable pieces to control space and objective flow",
+      "Win the mid-to-late game by compounding board position with efficient shooting"
+    ],
+    "phases": {
+      "deployment": [
+        "Stage primary damage units behind obscuring terrain or outside enemy reach",
+        "Use infiltrators, scouts, lone operatives, and cheap hulls to contest space early",
+        "Deploy for lanes that let you collapse one flank rather than split output evenly"
+      ],
+      "early_game": [
+        "Avoid unnecessary exposure if your detachment scales later",
+        "Trade only when you remove a key threat or seize a scoring lead",
+        "Use movement pieces to establish spotting, objective pressure, and screening"
+      ],
+      "mid_game": [
+        "Commit your damage package once enemy anti-tank, melee launch points, or key screens are exposed",
+        "Stack detachment rules, marker support, and stratagems on the turn that matters",
+        "Rotate pressure to the weakest side of the enemy formation"
+      ],
+      "late_game": [
+        "Convert surviving mobile units into objective control and cleanup",
+        "Use remaining speed to deny primary and finish damaged units",
+        "Prioritize score over unnecessary kills once the board is open"
+      ]
+    },
+    "detachments": {
+      "Kauyon": "Patience, delayed spike, late-game output, punishes opponents who cannot close quickly.",
+      "Mont'ka": "Early aggression, forward pressure, first-drop momentum, rewards decisive tempo plays.",
+      "Retaliation Cadre": "Suit toolbox detachment; flexible, mid-tempo, strong profile tailoring and close-range power spikes.",
+      "Kroot Hunting Pack": "Board flood, infiltrate/scout pressure, objective flipping, selective use of heavy gun platforms or counter-charge Krootox.",
+      "Auxiliary Cadre": "Mixed-arms skirmish play that uses auxiliaries to unlock support for non-auxiliary guns.",
+      "Experimental Prototype Cadre": "Not enough clean 10th-edition tactical material in current files to model confidently."
+    }
+  },
+  "normalized_units": [
+    {
+      "unit": "Crisis Fireknife Battlesuits",
+      "aliases": [
+        "Fireknife",
+        "Crisis Fireknife",
+        "Fireknife team"
+      ],
+      "class": "battlesuit",
+      "role": "safe all-rounder / elite hunter",
+      "best_detachments": [
+        "Retaliation Cadre"
+      ],
+      "preferred_phases": [
+        "movement",
+        "shooting"
+      ],
+      "synergies": [
+        "Stealth Suits",
+        "marker support",
+        "safe staging",
+        "mid-tempo attrition"
+      ],
+      "cautions": [
+        "overexposure to melee launch ranges",
+        "low-value target trades"
+      ]
+    },
+    {
+      "unit": "Crisis Sunforge Battlesuits",
+      "aliases": [
+        "Sunforge",
+        "Crisis Sunforge",
+        "Sunforge team"
+      ],
+      "class": "battlesuit",
+      "role": "premium anti-tank / anti-monster hammer",
+      "best_detachments": [
+        "Retaliation Cadre",
+        "Mont'ka"
+      ],
+      "preferred_phases": [
+        "movement",
+        "shooting"
+      ],
+      "synergies": [
+        "ingress or delivery tools",
+        "re-roll support",
+        "target isolation"
+      ],
+      "cautions": [
+        "getting stranded",
+        "trading into low-value targets"
+      ]
+    },
+    {
+      "unit": "Riptide Battlesuit",
+      "aliases": [
+        "Riptide",
+        "Riptides"
+      ],
+      "class": "battlesuit",
+      "role": "durable ranged stabilizer",
+      "best_detachments": [
+        "Kauyon",
+        "Retaliation Cadre",
+        "Mont'ka"
+      ],
+      "preferred_phases": [
+        "deployment",
+        "shooting"
+      ],
+      "synergies": [
+        "protected lanes",
+        "tempo smoothing",
+        "supporting suit shells"
+      ],
+      "cautions": [
+        "being your only pressure piece",
+        "static play without board support"
+      ]
+    },
+    {
+      "unit": "Ghostkeel Battlesuit",
+      "aliases": [
+        "Ghostkeel",
+        "Ghostkeels"
+      ],
+      "class": "battlesuit",
+      "role": "midfield anchor / bait piece / space control",
+      "best_detachments": [
+        "Auxiliary Cadre",
+        "Kroot Hunting Pack",
+        "mixed-arms T'au"
+      ],
+      "preferred_phases": [
+        "deployment",
+        "movement",
+        "primary scoring"
+      ],
+      "synergies": [
+        "midfield objectives",
+        "terrain",
+        "follow-up killers"
+      ],
+      "cautions": [
+        "unsupported exposure",
+        "being asked to do all the damage itself"
+      ]
+    },
+    {
+      "unit": "Stealth Battlesuits",
+      "aliases": [
+        "Stealth Suit",
+        "Stealth Suits",
+        "Stealth teams"
+      ],
+      "class": "battlesuit",
+      "role": "utility support / forward setup",
+      "best_detachments": [
+        "Retaliation Cadre",
+        "generalist shells"
+      ],
+      "preferred_phases": [
+        "deployment",
+        "movement",
+        "shooting"
+      ],
+      "synergies": [
+        "suit shooting buffs",
+        "forward positioning",
+        "objective utility"
+      ],
+      "cautions": [
+        "thinking of them as disposable if they are enabling core damage turns"
+      ]
+    },
+    {
+      "unit": "Pathfinders",
+      "aliases": [
+        "Pathfinder",
+        "Pathfinders"
+      ],
+      "class": "infantry",
+      "role": "marker support / action utility",
+      "best_detachments": [
+        "generalist shells",
+        "Mont'ka"
+      ],
+      "preferred_phases": [
+        "movement",
+        "actions",
+        "scoring"
+      ],
+      "synergies": [
+        "post-action move",
+        "marker support",
+        "objective play"
+      ],
+      "cautions": [
+        "overvaluing token output over movement utility"
+      ]
+    },
+    {
+      "unit": "Piranha",
+      "aliases": [
+        "Piranha",
+        "Piranhas"
+      ],
+      "class": "vehicle",
+      "role": "tempo skirmisher / seeker delivery / scoring denial",
+      "best_detachments": [
+        "Mont'ka",
+        "Kauyon"
+      ],
+      "preferred_phases": [
+        "movement",
+        "shooting",
+        "primary scoring"
+      ],
+      "synergies": [
+        "angles",
+        "OC plays",
+        "seekers",
+        "late-game scaling in Kauyon"
+      ],
+      "cautions": [
+        "idle backfield use",
+        "throwaway trades without tempo gain"
+      ]
+    },
+    {
+      "unit": "Hammerhead / Sky Ray",
+      "aliases": [
+        "Hammerhead",
+        "Sky Ray",
+        "Hammerheads",
+        "Sky Rays"
+      ],
+      "class": "vehicle",
+      "role": "long-range threat projection",
+      "best_detachments": [
+        "generalist shells",
+        "Kauyon"
+      ],
+      "preferred_phases": [
+        "deployment",
+        "shooting"
+      ],
+      "synergies": [
+        "lane control",
+        "monster/vehicle pressure"
+      ],
+      "cautions": [
+        "treating them as universal answers",
+        "overcommitting list structure to single-shot pressure"
+      ]
+    },
+    {
+      "unit": "Breachers + Devilfish",
+      "aliases": [
+        "Breachers",
+        "Devilfish",
+        "Breachers in Devilfish",
+        "Triple Devilfish Breachers"
+      ],
+      "class": "infantry + transport",
+      "role": "close-range pressure package",
+      "best_detachments": [
+        "Mont'ka",
+        "aggressive mixed-arms T'au"
+      ],
+      "preferred_phases": [
+        "movement",
+        "shooting",
+        "primary scoring"
+      ],
+      "synergies": [
+        "ignore cover",
+        "wound re-rolls",
+        "pressure width"
+      ],
+      "cautions": [
+        "piecemeal activations",
+        "letting casualty removal blunt output"
+      ]
+    },
+    {
+      "unit": "Krootox Rampagers",
+      "aliases": [
+        "Krootox Rampagers",
+        "Rampagers"
+      ],
+      "class": "auxiliary",
+      "role": "counter-charge bully",
+      "best_detachments": [
+        "Kroot Hunting Pack"
+      ],
+      "preferred_phases": [
+        "movement",
+        "charge",
+        "fight"
+      ],
+      "synergies": [
+        "enemy overextensions",
+        "mid-board brawls",
+        "AP or wound support"
+      ],
+      "cautions": [
+        "solo launches into premium bricks",
+        "passive use"
+      ]
+    },
+    {
+      "unit": "Kroot Lone-spear",
+      "aliases": [
+        "Kroot Lone-spear",
+        "Lone-spear"
+      ],
+      "class": "auxiliary character",
+      "role": "positional utility / observer support",
+      "best_detachments": [
+        "Kroot Hunting Pack"
+      ],
+      "preferred_phases": [
+        "movement",
+        "scoring",
+        "support"
+      ],
+      "synergies": [
+        "observer-style roles",
+        "angles",
+        "mission play"
+      ],
+      "cautions": [
+        "wasting it on static backfield duty"
+      ]
+    },
+    {
+      "unit": "Kroot Core",
+      "aliases": [
+        "Kroot",
+        "Kroot Hunting Pack"
+      ],
+      "class": "auxiliary infantry core",
+      "role": "board flood / objective saturation",
+      "best_detachments": [
+        "Kroot Hunting Pack"
+      ],
+      "preferred_phases": [
+        "deployment",
+        "movement",
+        "primary scoring"
+      ],
+      "synergies": [
+        "objective flooding",
+        "screening",
+        "piece saturation"
+      ],
+      "cautions": [
+        "assuming they win by kills alone"
+      ]
+    }
+  ],
+  "true_tactical_rules": [
+    {
+      "id": "TR001",
+      "phase": "deployment",
+      "category": "core_identity",
+      "detachment": null,
+      "normalized_units": [],
+      "trigger": "",
+      "action": "T'au should not behave like a static gunline; their strongest game is mobile shooting that gets lethal output into the right place at the right time.",
+      "payoff": "The faction overview explicitly frames movement plus shooting as the soul of good T'au play.",
+      "confidence": "high",
+      "source_file": "start competing tau empire",
+      "priority": "high",
+      "tags": [
+        "mobility",
+        "shooting"
+      ]
+    },
+    {
+      "id": "TR002",
+      "phase": "early_game",
+      "category": "core_identity",
+      "detachment": null,
+      "normalized_units": [],
+      "trigger": "",
+      "action": "Avoid fair early trades unless they remove a key enemy asset or secure a major scoring advantage.",
+      "payoff": "Across the uploaded material, T'au lists succeed by preserving premium output until the board opens.",
+      "confidence": "high",
+      "source_file": "start competing tau empire",
+      "priority": "high",
+      "tags": [
+        "trade_discipline"
+      ]
+    },
+    {
+      "id": "TR003",
+      "phase": "shooting",
+      "category": "target_priority",
+      "detachment": null,
+      "normalized_units": [],
+      "trigger": "a full kill is available.",
+      "action": "Concentrate fire to finish units completely; do not spread damage when a full kill is available.",
+      "payoff": "Markerlight and shooting examples reward stacking bonuses on a single enemy until it is removed.",
+      "confidence": "medium",
+      "source_file": "Tau Strategy Extraction",
+      "priority": "high",
+      "tags": [
+        "focus_fire"
+      ]
+    },
+    {
+      "id": "TR004",
+      "phase": "deployment",
+      "category": "positioning",
+      "detachment": null,
+      "normalized_units": [
+        "Riptide Battlesuit"
+      ],
+      "trigger": "",
+      "action": "Protect primary suit bricks and premium guns behind obscuring terrain until they can attack without immediately losing parity.",
+      "payoff": "Multiple examples emphasize hidden staging before decisive activation.",
+      "confidence": "high",
+      "source_file": "Tau Strategy Extraction",
+      "priority": "high",
+      "tags": [
+        "terrain",
+        "preservation"
+      ]
+    },
+    {
+      "id": "TR005",
+      "phase": "late_game",
+      "category": "objective_play",
+      "detachment": null,
+      "normalized_units": [
+        "Piranha",
+        "Kroot Core"
+      ],
+      "trigger": "the board opens, convert surviving mobile assets into objective denial and primary scoring rather than chasing marginal kills.",
+      "action": "When the board opens, convert surviving mobile assets into objective denial and primary scoring rather than chasing marginal kills.",
+      "payoff": null,
+      "confidence": "medium",
+      "source_file": "Competitive Innovations",
+      "priority": "medium",
+      "tags": [
+        "primary",
+        "late_game"
+      ]
+    },
+    {
+      "id": "TR006",
+      "phase": "shooting",
+      "category": "support_mechanics",
+      "detachment": null,
+      "normalized_units": [
+        "Stealth Battlesuits",
+        "Pathfinders"
+      ],
+      "trigger": "",
+      "action": "Use marker support where it changes breakpoints, not automatically on the nearest target.",
+      "payoff": "The shooting walkthrough shows markerlights being allocated based on who can actually exploit them.",
+      "confidence": "high",
+      "source_file": "Tau Strategy Extraction",
+      "priority": "high",
+      "tags": [
+        "markerlights",
+        "efficiency"
+      ]
+    },
+    {
+      "id": "TR007",
+      "phase": "movement",
+      "category": "support_mechanics",
+      "detachment": null,
+      "normalized_units": [
+        "Pathfinders"
+      ],
+      "trigger": "",
+      "action": "Pathfinders can justify a markerlight stratagem mainly for the post-action move into safety or onto objectives, not just for extra tokens.",
+      "payoff": "The commentary explicitly notes that the movement portion is often the more important effect.",
+      "confidence": "high",
+      "source_file": "Tau Strategy Extraction",
+      "priority": "high",
+      "tags": [
+        "markerlights",
+        "movement"
+      ]
+    },
+    {
+      "id": "TR008",
+      "phase": "shooting",
+      "category": "support_mechanics",
+      "detachment": null,
+      "normalized_units": [
+        "Pathfinders"
+      ],
+      "trigger": "you lack enough quality follow-up units to consume those tokens.",
+      "action": "Do not overinvest markerlights into a target if you lack enough quality follow-up units to consume those tokens.",
+      "payoff": null,
+      "confidence": "high",
+      "source_file": "Tau Strategy Extraction",
+      "priority": "high",
+      "tags": [
+        "markerlights"
+      ]
+    },
+    {
+      "id": "TR009",
+      "phase": "shooting",
+      "category": "sequencing",
+      "detachment": null,
+      "normalized_units": [
+        "Breachers + Devilfish"
+      ],
+      "trigger": "",
+      "action": "Sequence shooting so enemy casualty removal cannot reduce the effectiveness of your shorter-ranged follow-up units.",
+      "payoff": "The example explicitly warns against activating in the wrong order and letting the opponent pull models out of range.",
+      "confidence": "high",
+      "source_file": "Tau Strategy Extraction",
+      "priority": "high",
+      "tags": [
+        "sequencing"
+      ]
+    },
+    {
+      "id": "TR010",
+      "phase": "shooting",
+      "category": "sequencing",
+      "detachment": null,
+      "normalized_units": [
+        "Crisis Fireknife Battlesuits",
+        "Breachers + Devilfish"
+      ],
+      "trigger": "it is engineered, not dribbled out.",
+      "action": "Stack AP, ignore cover, or wound re-roll support on the activation that matters most; T'au damage is best when it is engineered, not dribbled out.",
+      "payoff": null,
+      "confidence": "medium",
+      "source_file": "Tau Strategy Extraction",
+      "priority": "medium",
+      "tags": [
+        "stratagems",
+        "sequencing"
+      ]
+    },
+    {
+      "id": "TR011",
+      "phase": "early_game",
+      "category": "detachment_style",
+      "detachment": "Mont'ka",
+      "normalized_units": [
+        "Riptide Battlesuit",
+        "Piranha",
+        "Hammerhead / Sky Ray",
+        "Breachers + Devilfish"
+      ],
+      "trigger": "",
+      "action": "Mont'ka is for decisive early pressure: build to hit hard on first meaningful contact and force the opponent onto the back foot.",
+      "payoff": null,
+      "confidence": "high",
+      "source_file": "Competitive Innovations",
+      "priority": "high",
+      "tags": [
+        "tempo"
+      ]
+    },
+    {
+      "id": "TR012",
+      "phase": "late_game",
+      "category": "detachment_style",
+      "detachment": "Kauyon",
+      "normalized_units": [
+        "Riptide Battlesuit",
+        "Piranha"
+      ],
+      "trigger": "the detachment's scaling matters most.",
+      "action": "Kauyon rewards patience; preserve output and position for turns 3-5 when the detachment's scaling matters most.",
+      "payoff": null,
+      "confidence": "high",
+      "source_file": "Competitive Innovations",
+      "priority": "high",
+      "tags": [
+        "tempo",
+        "late_spike"
+      ]
+    },
+    {
+      "id": "TR013",
+      "phase": "mid_game",
+      "category": "detachment_style",
+      "detachment": "Retaliation Cadre",
+      "normalized_units": [
+        "Crisis Fireknife Battlesuits",
+        "Crisis Sunforge Battlesuits",
+        "Riptide Battlesuit",
+        "Stealth Battlesuits"
+      ],
+      "trigger": "",
+      "action": "Retaliation Cadre excels as a suit toolbox detachment that whittles with the right Crisis profiles before making a decisive shove.",
+      "payoff": null,
+      "confidence": "high",
+      "source_file": "Competitive Innovations",
+      "priority": "high",
+      "tags": [
+        "toolbox"
+      ]
+    },
+    {
+      "id": "TR014",
+      "phase": "deployment",
+      "category": "detachment_style",
+      "detachment": "Kroot Hunting Pack",
+      "normalized_units": [
+        "Riptide Battlesuit",
+        "Kroot Core"
+      ],
+      "trigger": "",
+      "action": "Kroot Hunting Pack wins by flooding the board, occupying objectives early, and forcing the enemy to solve too many pieces at once.",
+      "payoff": null,
+      "confidence": "high",
+      "source_file": "Competitive Innovations",
+      "priority": "high",
+      "tags": [
+        "board_control"
+      ]
+    },
+    {
+      "id": "TR015",
+      "phase": "mid_game",
+      "category": "detachment_style",
+      "detachment": "Auxiliary Cadre",
+      "normalized_units": [
+        "Ghostkeel Battlesuit",
+        "Hammerhead / Sky Ray",
+        "Breachers + Devilfish",
+        "Kroot Core"
+      ],
+      "trigger": "",
+      "action": "Auxiliary Cadre should be treated as a skirmish detachment where auxiliaries create board state and nearby support for your real guns.",
+      "payoff": null,
+      "confidence": "medium",
+      "source_file": "Tau Strategy Extraction",
+      "priority": "medium",
+      "tags": [
+        "combined_arms"
+      ]
+    },
+    {
+      "id": "TR016",
+      "phase": "mid_game",
+      "category": "unit_role",
+      "detachment": "Retaliation Cadre",
+      "normalized_units": [
+        "Crisis Sunforge Battlesuits"
+      ],
+      "trigger": "",
+      "action": "Sunforge Crisis teams are your premium anti-vehicle and anti-monster punch; commit them where wound and damage re-rolls materially matter.",
+      "payoff": "Their loadout and rules strongly favor high-value armored targets.",
+      "confidence": "high",
+      "source_file": "Tau Strategy Extraction",
+      "priority": "high",
+      "tags": [
+        "anti_tank",
+        "crisis"
+      ]
+    },
+    {
+      "id": "TR017",
+      "phase": "shooting",
+      "category": "unit_role",
+      "detachment": "Retaliation Cadre",
+      "normalized_units": [
+        "Crisis Sunforge Battlesuits"
+      ],
+      "trigger": "",
+      "action": "In Retaliation Cadre, Sunforge teams gain major breakpoint value from extra Strength and close-range delivery tools.",
+      "payoff": null,
+      "confidence": "high",
+      "source_file": "Tau Strategy Extraction",
+      "priority": "high",
+      "tags": [
+        "anti_tank",
+        "breakpoints"
+      ]
+    },
+    {
+      "id": "TR018",
+      "phase": "shooting",
+      "category": "unit_role",
+      "detachment": "Retaliation Cadre",
+      "normalized_units": [
+        "Crisis Fireknife Battlesuits"
+      ],
+      "trigger": "",
+      "action": "Fireknife teams are one of the safest all-rounder Crisis profiles, especially into Marine bodies and mid-weight targets.",
+      "payoff": "Repeated event writeups specifically call Fireknives a sound investment into Marine-heavy metas.",
+      "confidence": "high",
+      "source_file": "Competitive Innovations",
+      "priority": "high",
+      "tags": [
+        "marines",
+        "crisis"
+      ]
+    },
+    {
+      "id": "TR019",
+      "phase": "shooting",
+      "category": "unit_role",
+      "detachment": null,
+      "normalized_units": [
+        "Crisis Fireknife Battlesuits"
+      ],
+      "trigger": "you need ranged, reliable pressure rather than all-in close-range commitment.",
+      "action": "Fireknives are especially attractive when you need ranged, reliable pressure rather than all-in close-range commitment.",
+      "payoff": null,
+      "confidence": "medium",
+      "source_file": "Tau Strategy Extraction",
+      "priority": "medium",
+      "tags": [
+        "ranged_pressure"
+      ]
+    },
+    {
+      "id": "TR020",
+      "phase": "mid_game",
+      "category": "unit_role",
+      "detachment": "Retaliation Cadre",
+      "normalized_units": [],
+      "trigger": "you can deliver them close enough that their profile overwhelms infantry.",
+      "action": "Starscythes want support that amplifies volume and AP; they are strongest when you can deliver them close enough that their profile overwhelms infantry.",
+      "payoff": null,
+      "confidence": "medium",
+      "source_file": "Tau Strategy Extraction",
+      "priority": "high",
+      "tags": [
+        "anti_infantry"
+      ]
+    },
+    {
+      "id": "TR021",
+      "phase": "shooting",
+      "category": "unit_role",
+      "detachment": "Retaliation Cadre",
+      "normalized_units": [
+        "Stealth Battlesuits"
+      ],
+      "trigger": "",
+      "action": "Stealth Suit teams are not just utility pieces; multiple teams can materially juice suit shooting and support Retaliation Cadre's toolbox plan.",
+      "payoff": "One event writeup calls out three Stealth teams specifically as force multipliers.",
+      "confidence": "high",
+      "source_file": "Competitive Innovations",
+      "priority": "high",
+      "tags": [
+        "support",
+        "spotting"
+      ]
+    },
+    {
+      "id": "TR022",
+      "phase": "deployment",
+      "category": "unit_role",
+      "detachment": null,
+      "normalized_units": [
+        "Ghostkeel Battlesuit"
+      ],
+      "trigger": "",
+      "action": "Use Ghostkeels or other lone-operative style pieces on midfield objectives to force the opponent to step into your kill range.",
+      "payoff": "A specific tactic in the uploaded material recommends this to bait enemy damage dealers inside 12 inches.",
+      "confidence": "high",
+      "source_file": "Tau Strategy Extraction",
+      "priority": "high",
+      "tags": [
+        "midfield",
+        "bait"
+      ]
+    },
+    {
+      "id": "TR023",
+      "phase": "deployment",
+      "category": "unit_role",
+      "detachment": null,
+      "normalized_units": [
+        "Ghostkeel Battlesuit"
+      ],
+      "trigger": "the mission rewards early midfield presence but you still need to preserve your main damage package.",
+      "action": "Ghostkeels are valuable when the mission rewards early midfield presence but you still need to preserve your main damage package.",
+      "payoff": null,
+      "confidence": "high",
+      "source_file": "Tau Strategy Extraction",
+      "priority": "high",
+      "tags": [
+        "midfield",
+        "objective_play"
+      ]
+    },
+    {
+      "id": "TR024",
+      "phase": "mid_game",
+      "category": "unit_role",
+      "detachment": null,
+      "normalized_units": [
+        "Riptide Battlesuit"
+      ],
+      "trigger": "",
+      "action": "Riptides smooth out T'au lists by providing durable backline or mid-board fire support that is hard to trade into efficiently.",
+      "payoff": "Multiple successful lists use triptide or dual Riptide shells to stabilize suit detachments.",
+      "confidence": "high",
+      "source_file": "Competitive Innovations",
+      "priority": "high",
+      "tags": [
+        "durability",
+        "anchor"
+      ]
+    },
+    {
+      "id": "TR025",
+      "phase": "shooting",
+      "category": "unit_role",
+      "detachment": null,
+      "normalized_units": [
+        "Riptide Battlesuit"
+      ],
+      "trigger": "you need efficient output into elite infantry bodies.",
+      "action": "Burst or high-volume Riptide profiles become especially valuable when you need efficient output into elite infantry bodies.",
+      "payoff": null,
+      "confidence": "medium",
+      "source_file": "Tau Strategy Extraction",
+      "priority": "medium",
+      "tags": [
+        "anti_elite"
+      ]
+    },
+    {
+      "id": "TR026",
+      "phase": "early_game",
+      "category": "unit_role",
+      "detachment": "Mont'ka",
+      "normalized_units": [
+        "Piranha"
+      ],
+      "trigger": "",
+      "action": "Piranhas are tempo pieces: use their speed, OC, seekers, and melta pressure to create early swings or solve awkward target-access problems.",
+      "payoff": "Mont'ka and anti-C'tan examples repeatedly use larger Piranha contingents to gain legs and spike early damage.",
+      "confidence": "high",
+      "source_file": "Competitive Innovations",
+      "priority": "high",
+      "tags": [
+        "tempo",
+        "speed"
+      ]
+    },
+    {
+      "id": "TR027",
+      "phase": "late_game",
+      "category": "unit_role",
+      "detachment": "Kauyon",
+      "normalized_units": [
+        "Piranha"
+      ],
+      "trigger": "the detachment turns on.",
+      "action": "In Kauyon, massed Piranhas can become devastating because their mobility and seeker package scale well once the detachment turns on.",
+      "payoff": null,
+      "confidence": "high",
+      "source_file": "Tau Strategy Extraction",
+      "priority": "high",
+      "tags": [
+        "late_spike",
+        "vehicles"
+      ]
+    },
+    {
+      "id": "TR028",
+      "phase": "shooting",
+      "category": "unit_role",
+      "detachment": null,
+      "normalized_units": [
+        "Hammerhead / Sky Ray"
+      ],
+      "trigger": "",
+      "action": "Hammerheads and Sky Rays are threat pieces more than universal answers; even one can force honest play from enemy monsters or hulls.",
+      "payoff": "A single Hammerhead in Retaliation Cadre was noted as valuable partly because of the threat it represented.",
+      "confidence": "medium",
+      "source_file": "Competitive Innovations",
+      "priority": "medium",
+      "tags": [
+        "anti_tank"
+      ]
+    },
+    {
+      "id": "TR029",
+      "phase": "early_game",
+      "category": "unit_role",
+      "detachment": "Mont'ka",
+      "normalized_units": [
+        "Riptide Battlesuit"
+      ],
+      "trigger": "you want absurd early firepower attached to a body that can survive return fire.",
+      "action": "Stormsurge in Mont'ka is a brute-force option when you want absurd early firepower attached to a body that can survive return fire.",
+      "payoff": "The event writeup highlights the Stormsurge plus triple Riptide shell as unusually powerful for its points.",
+      "confidence": "high",
+      "source_file": "Competitive Innovations",
+      "priority": "high",
+      "tags": [
+        "big_suit",
+        "firepower"
+      ]
+    },
+    {
+      "id": "TR030",
+      "phase": "early_game",
+      "category": "unit_role",
+      "detachment": null,
+      "normalized_units": [
+        "Breachers + Devilfish"
+      ],
+      "trigger": "you can engineer close-range profiles, ignore cover, and wound re-rolls.",
+      "action": "Breachers in Devilfish generate forward pressure and are strongest when you can engineer close-range profiles, ignore cover, and wound re-rolls.",
+      "payoff": "The shooting walkthrough demonstrates exactly how their output spikes with support.",
+      "confidence": "high",
+      "source_file": "Tau Strategy Extraction",
+      "priority": "high",
+      "tags": [
+        "pressure",
+        "infantry"
+      ]
+    },
+    {
+      "id": "TR031",
+      "phase": "shooting",
+      "category": "unit_role",
+      "detachment": "Mont'ka",
+      "normalized_units": [
+        "Riptide Battlesuit",
+        "Breachers + Devilfish"
+      ],
+      "trigger": "you want more go-wide pressure instead of leaning on Riptides.",
+      "action": "Triple Devilfish Breachers are a valid Mont'ka alternative when you want more go-wide pressure instead of leaning on Riptides.",
+      "payoff": "One high-placing Mont'ka list specifically used this plan.",
+      "confidence": "high",
+      "source_file": "Competitive Innovations",
+      "priority": "high",
+      "tags": [
+        "pressure",
+        "go_wide"
+      ]
+    },
+    {
+      "id": "TR032",
+      "phase": "late_game",
+      "category": "unit_role",
+      "detachment": "Kauyon",
+      "normalized_units": [
+        "Riptide Battlesuit"
+      ],
+      "trigger": "the detachment gives them enough late-game payoff and the meta cannot punish passive early turns fast enough.",
+      "action": "Strike Teams can matter in Kauyon when the detachment gives them enough late-game payoff and the meta cannot punish passive early turns fast enough.",
+      "payoff": null,
+      "confidence": "medium",
+      "source_file": "Competitive Innovations",
+      "priority": "medium",
+      "tags": [
+        "infantry",
+        "late_spike"
+      ]
+    },
+    {
+      "id": "TR033",
+      "phase": "mid_game",
+      "category": "unit_role",
+      "detachment": "Kroot Hunting Pack",
+      "normalized_units": [
+        "Krootox Rampagers",
+        "Kroot Core"
+      ],
+      "trigger": "",
+      "action": "Krootox Rampagers are legitimate counter-charge pieces; do not think of Kroot detachments as purely passive board control.",
+      "payoff": "Event coverage repeatedly highlights their impact mortals and counter-charge value.",
+      "confidence": "high",
+      "source_file": "Competitive Innovations",
+      "priority": "high",
+      "tags": [
+        "counter_charge"
+      ]
+    },
+    {
+      "id": "TR034",
+      "phase": "shooting",
+      "category": "unit_role",
+      "detachment": "Auxiliary Cadre",
+      "normalized_units": [
+        "Kroot Lone-spear",
+        "Kroot Core"
+      ],
+      "trigger": "it gains observer-style support roles.",
+      "action": "Kroot Lone-spear is valuable as a positional utility piece and can become even more useful when it gains observer-style support roles.",
+      "payoff": null,
+      "confidence": "medium",
+      "source_file": "Tau Strategy Extraction",
+      "priority": "medium",
+      "tags": [
+        "support",
+        "positioning"
+      ]
+    },
+    {
+      "id": "TR035",
+      "phase": "mid_game",
+      "category": "play_pattern",
+      "detachment": "Retaliation Cadre",
+      "normalized_units": [
+        "Crisis Fireknife Battlesuits",
+        "Riptide Battlesuit",
+        "Stealth Battlesuits"
+      ],
+      "trigger": "not all-in on Mont'ka, Retaliation Cadre can play a mid-tempo attrition game: chip with the right Crisis teams, then commit once a flank weakens.",
+      "action": "If not all-in on Mont'ka, Retaliation Cadre can play a mid-tempo attrition game: chip with the right Crisis teams, then commit once a flank weakens.",
+      "payoff": null,
+      "confidence": "high",
+      "source_file": "Competitive Innovations",
+      "priority": "high",
+      "tags": [
+        "attrition",
+        "tempo"
+      ]
+    },
+    {
+      "id": "TR036",
+      "phase": "early_game",
+      "category": "play_pattern",
+      "detachment": "Mont'ka",
+      "normalized_units": [
+        "Riptide Battlesuit",
+        "Piranha",
+        "Hammerhead / Sky Ray",
+        "Breachers + Devilfish"
+      ],
+      "trigger": "doing so increases threat width and target flexibility across the list.",
+      "action": "A refined Mont'ka build can drop a Riptide if doing so increases threat width and target flexibility across the list.",
+      "payoff": null,
+      "confidence": "medium",
+      "source_file": "Competitive Innovations",
+      "priority": "medium",
+      "tags": [
+        "list_building"
+      ]
+    },
+    {
+      "id": "TR037",
+      "phase": "early_game",
+      "category": "play_pattern",
+      "detachment": "Mont'ka",
+      "normalized_units": [
+        "Riptide Battlesuit",
+        "Piranha",
+        "Breachers + Devilfish"
+      ],
+      "trigger": "the list compensates with enough forward pressure and target diversity to overload enemy responses.",
+      "action": "No-Riptide Mont'ka is viable when the list compensates with enough forward pressure and target diversity to overload enemy responses.",
+      "payoff": null,
+      "confidence": "high",
+      "source_file": "Competitive Innovations",
+      "priority": "high",
+      "tags": [
+        "pressure"
+      ]
+    },
+    {
+      "id": "TR038",
+      "phase": "deployment",
+      "category": "play_pattern",
+      "detachment": "Mont'ka",
+      "normalized_units": [
+        "Riptide Battlesuit",
+        "Piranha"
+      ],
+      "trigger": "",
+      "action": "Against skew or dominant meta threats, T'au can choose to beat the field first and accept a merely playable line into the top predator.",
+      "payoff": "The Mont'ka anti-C'tan example explicitly follows this logic.",
+      "confidence": "medium",
+      "source_file": "Competitive Innovations",
+      "priority": "medium",
+      "tags": [
+        "meta_call"
+      ]
+    },
+    {
+      "id": "TR039",
+      "phase": "mid_game",
+      "category": "play_pattern",
+      "detachment": "Retaliation Cadre",
+      "normalized_units": [
+        "Riptide Battlesuit"
+      ],
+      "trigger": "",
+      "action": "Retaliation Cadre with a Riptide backline is a strong tournament shell because the Riptides stabilize tempo while the suit elements tailor trades.",
+      "payoff": null,
+      "confidence": "high",
+      "source_file": "Competitive Innovations",
+      "priority": "high",
+      "tags": [
+        "stability",
+        "list_shell"
+      ]
+    },
+    {
+      "id": "TR040",
+      "phase": "deployment",
+      "category": "play_pattern",
+      "detachment": "Kroot Hunting Pack",
+      "normalized_units": [
+        "Riptide Battlesuit"
+      ],
+      "trigger": "",
+      "action": "Board-flood Hunting Pack lists do not need huge damage everywhere; they can win by making the table too wide for the opponent to solve cleanly.",
+      "payoff": "The winning Hunting Pack list is described exactly this way.",
+      "confidence": "high",
+      "source_file": "Competitive Innovations",
+      "priority": "high",
+      "tags": [
+        "board_width"
+      ]
+    },
+    {
+      "id": "TR041",
+      "phase": "mid_game",
+      "category": "play_pattern",
+      "detachment": "Kroot Hunting Pack",
+      "normalized_units": [
+        "Krootox Rampagers"
+      ],
+      "trigger": "",
+      "action": "Hull-plus-Krootox Hunting Pack builds work by combining efficient gun platforms with heavy counter-charge pieces that punish overextension.",
+      "payoff": null,
+      "confidence": "high",
+      "source_file": "Competitive Innovations",
+      "priority": "high",
+      "tags": [
+        "counter_punch"
+      ]
+    },
+    {
+      "id": "TR042",
+      "phase": "deployment",
+      "category": "play_pattern",
+      "detachment": "Kroot Hunting Pack",
+      "normalized_units": [
+        "Ghostkeel Battlesuit",
+        "Kroot Core"
+      ],
+      "trigger": "",
+      "action": "A list with multiple infiltrate or scout units should open by contesting the whole table immediately, then force the enemy to waste activations reclaiming space.",
+      "payoff": null,
+      "confidence": "high",
+      "source_file": "Competitive Innovations",
+      "priority": "high",
+      "tags": [
+        "scout",
+        "infiltrate"
+      ]
+    },
+    {
+      "id": "TR043",
+      "phase": "early_game",
+      "category": "play_pattern",
+      "detachment": "Mont'ka",
+      "normalized_units": [
+        "Crisis Fireknife Battlesuits",
+        "Crisis Sunforge Battlesuits"
+      ],
+      "trigger": "",
+      "action": "Rapid Ingress or scout-enabled Sunforge pressure is one of the few T'au plans that can genuinely confront top-end durable monster skew aggressively.",
+      "payoff": null,
+      "confidence": "high",
+      "source_file": "Competitive Innovations",
+      "priority": "high",
+      "tags": [
+        "anti_skew",
+        "ingress"
+      ]
+    },
+    {
+      "id": "TR044",
+      "phase": "mid_game",
+      "category": "play_pattern",
+      "detachment": null,
+      "normalized_units": [
+        "Hammerhead / Sky Ray"
+      ],
+      "trigger": "it is not expected to solo the matchup.",
+      "action": "A single unusual threat piece can improve a T'au shell by changing enemy movement even if it is not expected to solo the matchup.",
+      "payoff": null,
+      "confidence": "medium",
+      "source_file": "Competitive Innovations",
+      "priority": "medium",
+      "tags": [
+        "threat_projection"
+      ]
+    },
+    {
+      "id": "TR045",
+      "phase": "early_game",
+      "category": "matchup",
+      "detachment": null,
+      "normalized_units": [
+        "Ghostkeel Battlesuit",
+        "Stealth Battlesuits",
+        "Piranha",
+        "Kroot Core"
+      ],
+      "trigger": "",
+      "action": "Into melee armies or lists that win by reaching you, the first task is screening and lane denial rather than raw damage maximization.",
+      "payoff": null,
+      "confidence": "medium",
+      "source_file": "Tau Strategy Extraction",
+      "priority": "medium",
+      "tags": [
+        "screening",
+        "melee"
+      ]
+    },
+    {
+      "id": "TR046",
+      "phase": "mid_game",
+      "category": "matchup",
+      "detachment": "Retaliation Cadre",
+      "normalized_units": [
+        "Crisis Fireknife Battlesuits"
+      ],
+      "trigger": "",
+      "action": "Into Marine-heavy metas, Fireknife suits gain value because they efficiently pressure elite bodies without demanding reckless exposure.",
+      "payoff": null,
+      "confidence": "high",
+      "source_file": "Competitive Innovations",
+      "priority": "high",
+      "tags": [
+        "marines"
+      ]
+    },
+    {
+      "id": "TR047",
+      "phase": "early_game",
+      "category": "matchup",
+      "detachment": "Mont'ka",
+      "normalized_units": [
+        "Riptide Battlesuit",
+        "Piranha",
+        "Hammerhead / Sky Ray"
+      ],
+      "trigger": "",
+      "action": "Into C'tan-heavy Necron builds, many T'au lists should not try to solve every shard cleanly; spike one key target, then win by speed, OC, and board play.",
+      "payoff": null,
+      "confidence": "high",
+      "source_file": "Competitive Innovations",
+      "priority": "high",
+      "tags": [
+        "necrons",
+        "ctan"
+      ]
+    },
+    {
+      "id": "TR048",
+      "phase": "mid_game",
+      "category": "matchup",
+      "detachment": "Retaliation Cadre",
+      "normalized_units": [
+        "Riptide Battlesuit",
+        "Hammerhead / Sky Ray"
+      ],
+      "trigger": "it has enough flexibility to score while selectively pressuring the expensive anchors.",
+      "action": "Retaliation Cadre can still play into top-heavy Necrons if it has enough flexibility to score while selectively pressuring the expensive anchors.",
+      "payoff": null,
+      "confidence": "high",
+      "source_file": "Competitive Innovations",
+      "priority": "high",
+      "tags": [
+        "necrons"
+      ]
+    },
+    {
+      "id": "TR049",
+      "phase": "mid_game",
+      "category": "matchup",
+      "detachment": "Retaliation Cadre",
+      "normalized_units": [
+        "Crisis Fireknife Battlesuits"
+      ],
+      "trigger": "",
+      "action": "Into Drukhari vehicle pressure, close-range suit detachments can punish charges because many T'au vehicles are still happy to shoot while tagged.",
+      "payoff": null,
+      "confidence": "medium",
+      "source_file": "Competitive Innovations",
+      "priority": "medium",
+      "tags": [
+        "drukhari"
+      ]
+    },
+    {
+      "id": "TR050",
+      "phase": "late_game",
+      "category": "matchup",
+      "detachment": "Kauyon",
+      "normalized_units": [
+        "Riptide Battlesuit"
+      ],
+      "trigger": "the opposing army cannot close you down rapidly; that creates room to bank value for turns three to five.",
+      "action": "Kauyon improves when the opposing army cannot close you down rapidly; that creates room to bank value for turns three to five.",
+      "payoff": null,
+      "confidence": "high",
+      "source_file": "Competitive Innovations",
+      "priority": "high",
+      "tags": [
+        "tempo"
+      ]
+    },
+    {
+      "id": "TR051",
+      "phase": "mid_game",
+      "category": "matchup",
+      "detachment": "Kroot Hunting Pack",
+      "normalized_units": [
+        "Krootox Rampagers"
+      ],
+      "trigger": "",
+      "action": "Against updated Aeldari or Thousand Sons, weight of stuff and board width can be more important than trying to out-tech them on a single axis.",
+      "payoff": null,
+      "confidence": "medium",
+      "source_file": "Competitive Innovations",
+      "priority": "medium",
+      "tags": [
+        "aeldari",
+        "thousand_sons"
+      ]
+    },
+    {
+      "id": "TR052",
+      "phase": "shooting",
+      "category": "matchup",
+      "detachment": null,
+      "normalized_units": [],
+      "trigger": "the opponent relies on hit modifiers or layered defensive tricks, prioritize weapons or profiles that sidestep those defenses through volume, ignores, or positioning.",
+      "action": "When the opponent relies on hit modifiers or layered defensive tricks, prioritize weapons or profiles that sidestep those defenses through volume, ignores, or positioning.",
+      "payoff": null,
+      "confidence": "medium",
+      "source_file": "Tau Strategy Extraction",
+      "priority": "medium",
+      "tags": [
+        "defensive_modifiers"
+      ]
+    },
+    {
+      "id": "TR053",
+      "phase": "deployment",
+      "category": "objective_play",
+      "detachment": null,
+      "normalized_units": [
+        "Stealth Battlesuits",
+        "Breachers + Devilfish"
+      ],
+      "trigger": "the mission rewards it, even if that unit is somewhat disposable.",
+      "action": "Use Stealth Suits, Devilfish, or other fast early pieces to reach enemy-territory objectives when the mission rewards it, even if that unit is somewhat disposable.",
+      "payoff": "The mission walkthrough explicitly uses these units to score early enemy-territory points.",
+      "confidence": "high",
+      "source_file": "Tau Strategy Extraction",
+      "priority": "high",
+      "tags": [
+        "mission_play"
+      ]
+    },
+    {
+      "id": "TR054",
+      "phase": "mid_game",
+      "category": "objective_play",
+      "detachment": null,
+      "normalized_units": [
+        "Ghostkeel Battlesuit"
+      ],
+      "trigger": "they die after exposing key enemy units, they probably did their job.",
+      "action": "Cheap or lone-operative midfield pieces are there to force bad enemy activations; if they die after exposing key enemy units, they probably did their job.",
+      "payoff": null,
+      "confidence": "high",
+      "source_file": "Tau Strategy Extraction",
+      "priority": "high",
+      "tags": [
+        "bait",
+        "midfield"
+      ]
+    },
+    {
+      "id": "TR055",
+      "phase": "late_game",
+      "category": "objective_play",
+      "detachment": null,
+      "normalized_units": [
+        "Piranha",
+        "Kroot Core"
+      ],
+      "trigger": "",
+      "action": "T'au often win cleaner by reducing enemy objective control than by table-wiping; keep track of OC swings, not just kills.",
+      "payoff": null,
+      "confidence": "medium",
+      "source_file": "Competitive Innovations",
+      "priority": "medium",
+      "tags": [
+        "oc",
+        "primary"
+      ]
+    },
+    {
+      "id": "TR056",
+      "phase": "deployment",
+      "category": "list_building",
+      "detachment": null,
+      "normalized_units": [
+        "Riptide Battlesuit",
+        "Ghostkeel Battlesuit",
+        "Piranha"
+      ],
+      "trigger": "",
+      "action": "Successful T'au lists in the uploaded material usually combine one stable anchor package, one tempo package, and one board-control package.",
+      "payoff": null,
+      "confidence": "high",
+      "source_file": "Competitive Innovations",
+      "priority": "high",
+      "tags": [
+        "list_theory"
+      ]
+    },
+    {
+      "id": "TR057",
+      "phase": "deployment",
+      "category": "list_building",
+      "detachment": null,
+      "normalized_units": [],
+      "trigger": "",
+      "action": "A good T'au list needs answers for at least three problems: elite infantry, hard armor/monsters, and early board presence.",
+      "payoff": null,
+      "confidence": "high",
+      "source_file": "Competitive Innovations",
+      "priority": "high",
+      "tags": [
+        "list_theory"
+      ]
+    },
+    {
+      "id": "TR058",
+      "phase": "deployment",
+      "category": "list_building",
+      "detachment": null,
+      "normalized_units": [
+        "Hammerhead / Sky Ray"
+      ],
+      "trigger": "",
+      "action": "Do not overload on pure anti-tank platforms before you know how the list will score primary and protect its premium output.",
+      "payoff": null,
+      "confidence": "medium",
+      "source_file": "Tau Strategy Extraction",
+      "priority": "high",
+      "tags": [
+        "anti_tank",
+        "scoring"
+      ]
+    },
+    {
+      "id": "TR059",
+      "phase": "deployment",
+      "category": "list_building",
+      "detachment": null,
+      "normalized_units": [],
+      "trigger": "",
+      "action": "T'au tournament success currently supports multiple viable shells; pick the detachment that matches how you want to win tempo, not just the most efficient datasheet.",
+      "payoff": null,
+      "confidence": "high",
+      "source_file": "Competitive Innovations",
+      "priority": "high",
+      "tags": [
+        "detachments",
+        "meta"
+      ]
+    },
+    {
+      "id": "TR060",
+      "phase": "deployment",
+      "category": "list_building",
+      "detachment": "Auxiliary Cadre",
+      "normalized_units": [
+        "Kroot Core"
+      ],
+      "trigger": "you include auxiliaries, decide whether they are there primarily for board control, support unlocking, or counter-charge, and do not blur those jobs accidentally.",
+      "action": "If you include auxiliaries, decide whether they are there primarily for board control, support unlocking, or counter-charge, and do not blur those jobs accidentally.",
+      "payoff": null,
+      "confidence": "medium",
+      "source_file": "Tau Strategy Extraction",
+      "priority": "high",
+      "tags": [
+        "role_definition"
+      ]
+    }
+  ],
+  "unit_specific_guides": [
+    {
+      "unit": "Crisis Fireknife Battlesuits",
+      "aliases": [
+        "Fireknife",
+        "Crisis Fireknife",
+        "Fireknife team"
+      ],
+      "class": "battlesuit",
+      "battlefield_role": "safe all-rounder / elite hunter",
+      "best_detachments": [
+        "Retaliation Cadre"
+      ],
+      "summary": "Your safest Crisis profile when you want reliable, repeatable trades into elite infantry and mid-weight targets.",
+      "deployment_guide": [
+        "Stage them where they can enter meaningful firing lanes without being the easiest thing to charge.",
+        "Keep enough terrain between them and the opponent that they are not forced into an all-in exposure turn too early."
+      ],
+      "usage_guide": [
+        "Use them to chip down the enemy's best trade pieces before your bigger commitment turn.",
+        "Favor Marine-like bodies and targets that reward clean, efficient shooting rather than overkill."
+      ],
+      "avoid": [
+        "Do not throw them forward just because they can kill something.",
+        "Do not ask them to solve tanks or monster anchors if Sunforge or dedicated threats are available."
+      ],
+      "decision_cues": [
+        "Pick Fireknives when you expect lots of elite infantry.",
+        "Commit them once the return punch is manageable."
+      ],
+      "synergies": [
+        "Stealth Suits",
+        "marker support",
+        "safe staging",
+        "mid-tempo attrition"
+      ],
+      "cautions": [
+        "overexposure to melee launch ranges",
+        "low-value target trades"
+      ]
+    },
+    {
+      "unit": "Crisis Sunforge Battlesuits",
+      "aliases": [
+        "Sunforge",
+        "Crisis Sunforge",
+        "Sunforge team"
+      ],
+      "class": "battlesuit",
+      "battlefield_role": "premium anti-tank / anti-monster hammer",
+      "best_detachments": [
+        "Retaliation Cadre",
+        "Mont'ka"
+      ],
+      "summary": "The premium answer to hard targets. They win games when they delete the one armored piece that unlocks the rest of the table.",
+      "deployment_guide": [
+        "Hide them or reserve them until a premium monster or vehicle can be isolated.",
+        "Only expose them on turns where delivery and follow-up protection are already accounted for."
+      ],
+      "usage_guide": [
+        "Point them at the target that most warps your whole game plan.",
+        "Use them where wound and damage re-rolls materially change the math."
+      ],
+      "avoid": [
+        "Do not trade them for a low-value hull or chip target.",
+        "Do not strand them after a successful kill unless that swing also wins board position."
+      ],
+      "decision_cues": [
+        "If the opponent has one monster or tank you truly need gone, these are the commitment unit.",
+        "If no premium target exists, preserve them."
+      ],
+      "synergies": [
+        "ingress or delivery tools",
+        "re-roll support",
+        "target isolation"
+      ],
+      "cautions": [
+        "getting stranded",
+        "trading into low-value targets"
+      ]
+    },
+    {
+      "unit": "Riptide Battlesuit",
+      "aliases": [
+        "Riptide",
+        "Riptides"
+      ],
+      "class": "battlesuit",
+      "battlefield_role": "durable ranged stabilizer",
+      "best_detachments": [
+        "Kauyon",
+        "Retaliation Cadre",
+        "Mont'ka"
+      ],
+      "summary": "A stabilizer. It smooths the list, holds lanes, and lets the rest of your force play a more patient tempo game.",
+      "deployment_guide": [
+        "Deploy with protected lanes and enough support that it is not the only obvious threat.",
+        "Use it to anchor a flank or center lane that matters over several turns."
+      ],
+      "usage_guide": [
+        "Let it chip every turn while faster pieces shape the map.",
+        "Use high-volume profiles when the table is full of elite infantry."
+      ],
+      "avoid": [
+        "Do not rely on a lone Riptide to carry the whole damage plan.",
+        "Do not let it become static if the mission demands board interaction."
+      ],
+      "decision_cues": [
+        "Take Riptides when you need stability and quality ranged output.",
+        "Use them to buy time for Kauyon or for suit shells setting up trades."
+      ],
+      "synergies": [
+        "protected lanes",
+        "tempo smoothing",
+        "supporting suit shells"
+      ],
+      "cautions": [
+        "being your only pressure piece",
+        "static play without board support"
+      ]
+    },
+    {
+      "unit": "Ghostkeel Battlesuit",
+      "aliases": [
+        "Ghostkeel",
+        "Ghostkeels"
+      ],
+      "class": "battlesuit",
+      "battlefield_role": "midfield anchor / bait piece / space control",
+      "best_detachments": [
+        "Auxiliary Cadre",
+        "Kroot Hunting Pack",
+        "mixed-arms T'au"
+      ],
+      "summary": "A midfield trap piece. It is strongest when it forces the opponent to step into the range bands your real killers want.",
+      "deployment_guide": [
+        "Place it on or near a relevant midfield objective with terrain support.",
+        "Deploy it where answering it costs the opponent positioning."
+      ],
+      "usage_guide": [
+        "Use it to hold space, bait commitment, and make the enemy walk into your punishment turn.",
+        "Treat it as an objective anchor and tempo piece first, not just a damage dealer."
+      ],
+      "avoid": [
+        "Do not leave it unsupported against an army that can solve it efficiently.",
+        "Do not overestimate its solo killing power."
+      ],
+      "decision_cues": [
+        "Use Ghostkeels when the mission rewards early midfield presence.",
+        "Follow them with harder-hitting units waiting just behind."
+      ],
+      "synergies": [
+        "midfield objectives",
+        "terrain",
+        "follow-up killers"
+      ],
+      "cautions": [
+        "unsupported exposure",
+        "being asked to do all the damage itself"
+      ]
+    },
+    {
+      "unit": "Stealth Battlesuits",
+      "aliases": [
+        "Stealth Suit",
+        "Stealth Suits",
+        "Stealth teams"
+      ],
+      "class": "battlesuit",
+      "battlefield_role": "utility support / forward setup",
+      "best_detachments": [
+        "Retaliation Cadre",
+        "generalist shells"
+      ],
+      "summary": "Forward utility that improves your real damage turns. They are enablers, not filler.",
+      "deployment_guide": [
+        "Start them where they can support suit shooting or contest early objectives without feeding away immediately.",
+        "Think of their starting position in terms of what they enable on turn 1 and 2."
+      ],
+      "usage_guide": [
+        "Use them to amplify your key suit turns and to create safe forward presence.",
+        "Keep multiple teams if your list wants redundancy in setup and support."
+      ],
+      "avoid": [
+        "Do not treat them as disposable if your list depends on their support package.",
+        "Do not waste their forward utility on irrelevant corners."
+      ],
+      "decision_cues": [
+        "Bring extra Stealth teams in suit toolbox builds.",
+        "Use them to make your commitment turns cleaner."
+      ],
+      "synergies": [
+        "suit shooting buffs",
+        "forward positioning",
+        "objective utility"
+      ],
+      "cautions": [
+        "thinking of them as disposable if they are enabling core damage turns"
+      ]
+    },
+    {
+      "unit": "Pathfinders",
+      "aliases": [
+        "Pathfinder",
+        "Pathfinders"
+      ],
+      "class": "infantry",
+      "battlefield_role": "marker support / action utility",
+      "best_detachments": [
+        "generalist shells",
+        "Mont'ka"
+      ],
+      "summary": "An action-and-support unit whose movement utility matters as much as its support output.",
+      "deployment_guide": [
+        "Deploy them where they can complete useful early actions and still live to matter again.",
+        "Favor staging that gives access to post-action repositioning."
+      ],
+      "usage_guide": [
+        "Use the markerlight stratagem for movement and safety, not just tokens.",
+        "Turn them into utility pieces that help scoring while still enabling shooters."
+      ],
+      "avoid": [
+        "Do not leave them exposed just to generate support value.",
+        "Do not think of them as a pure token battery."
+      ],
+      "decision_cues": [
+        "Take Pathfinders when your list needs flexible mission utility.",
+        "Exploit post-action movement to stay alive."
+      ],
+      "synergies": [
+        "post-action move",
+        "marker support",
+        "objective play"
+      ],
+      "cautions": [
+        "overvaluing token output over movement utility"
+      ]
+    },
+    {
+      "unit": "Piranha",
+      "aliases": [
+        "Piranha",
+        "Piranhas"
+      ],
+      "class": "vehicle",
+      "battlefield_role": "tempo skirmisher / seeker delivery / scoring denial",
+      "best_detachments": [
+        "Mont'ka",
+        "Kauyon"
+      ],
+      "summary": "A tempo tool. It wins by creating awkward angles, small score swings, and target-access problems the opponent did not want to solve.",
+      "deployment_guide": [
+        "Deploy for lanes and objective pivots, not passive backfield coverage.",
+        "Set them where seekers or melta can threaten something relevant early."
+      ],
+      "usage_guide": [
+        "Use them to force an early answer, steal OC, or pick up a damaged key piece.",
+        "In Kauyon, preserve enough of them that their late-game spike still matters."
+      ],
+      "avoid": [
+        "Do not park them doing nothing.",
+        "Do not trade them off unless you gain score, tempo, or target-access value."
+      ],
+      "decision_cues": [
+        "Lean into them for early Mont'ka pressure or late Kauyon closing power.",
+        "They are best when they create map problems."
+      ],
+      "synergies": [
+        "angles",
+        "OC plays",
+        "seekers",
+        "late-game scaling in Kauyon"
+      ],
+      "cautions": [
+        "idle backfield use",
+        "throwaway trades without tempo gain"
+      ]
+    },
+    {
+      "unit": "Hammerhead / Sky Ray",
+      "aliases": [
+        "Hammerhead",
+        "Sky Ray",
+        "Hammerheads",
+        "Sky Rays"
+      ],
+      "class": "vehicle",
+      "battlefield_role": "long-range threat projection",
+      "best_detachments": [
+        "generalist shells",
+        "Kauyon"
+      ],
+      "summary": "Long-range threat projection that changes how the opponent moves even before it fires.",
+      "deployment_guide": [
+        "Deploy with meaningful fire lanes and a plan for what target must respect them.",
+        "Make the opponent account for them from turn 1."
+      ],
+      "usage_guide": [
+        "Use them to pressure monsters and hulls and to discourage greedy exposure.",
+        "Think of them as honesty pieces that make enemy anchors play cautiously."
+      ],
+      "avoid": [
+        "Do not assume they can solve every hard target by themselves.",
+        "Do not overbuild around single-shot pressure if the rest of the list cannot capitalize."
+      ],
+      "decision_cues": [
+        "Take at least one when the meta demands respect for large targets.",
+        "Their value includes the threat they project, not just what they kill."
+      ],
+      "synergies": [
+        "lane control",
+        "monster/vehicle pressure"
+      ],
+      "cautions": [
+        "treating them as universal answers",
+        "overcommitting list structure to single-shot pressure"
+      ]
+    },
+    {
+      "unit": "Breachers + Devilfish",
+      "aliases": [
+        "Breachers",
+        "Devilfish",
+        "Breachers in Devilfish",
+        "Triple Devilfish Breachers"
+      ],
+      "class": "infantry + transport",
+      "battlefield_role": "close-range pressure package",
+      "best_detachments": [
+        "Mont'ka",
+        "aggressive mixed-arms T'au"
+      ],
+      "summary": "A short-range pressure package for lists that want width, tempo, and objective violence instead of a pure suit shell.",
+      "deployment_guide": [
+        "Stage Devilfish so the disembark creates immediate close-range relevance.",
+        "Use terrain and transport timing so the Breachers are not forced into a weak half-measure turn."
+      ],
+      "usage_guide": [
+        "Sequence the rest of your shooting first so casualty removal does not blunt the Breachers.",
+        "Push them where ignore-cover and wound-reroll support turns a trade into a clean swing."
+      ],
+      "avoid": [
+        "Do not activate them piecemeal.",
+        "Do not expose them without support if their first volley will not matter."
+      ],
+      "decision_cues": [
+        "Choose this package when you want pressure width and mission play.",
+        "Triple Devilfish shells are a real alternative to more static anchors."
+      ],
+      "synergies": [
+        "ignore cover",
+        "wound re-rolls",
+        "pressure width"
+      ],
+      "cautions": [
+        "piecemeal activations",
+        "letting casualty removal blunt output"
+      ]
+    },
+    {
+      "unit": "Krootox Rampagers",
+      "aliases": [
+        "Krootox Rampagers",
+        "Rampagers"
+      ],
+      "class": "auxiliary",
+      "battlefield_role": "counter-charge bully",
+      "best_detachments": [
+        "Kroot Hunting Pack"
+      ],
+      "summary": "The reason Kroot can punish, not just screen. They are a counter-charge answer to enemy overconfidence.",
+      "deployment_guide": [
+        "Keep them near the part of the board where opponents must overextend to contest.",
+        "Use them as a second-wave threat, not a first-wave sacrifice."
+      ],
+      "usage_guide": [
+        "Punish enemies that step too far forward into your mid-board.",
+        "Use them to make your screening pieces dangerous rather than merely annoying."
+      ],
+      "avoid": [
+        "Do not launch them unsupported into the hardest enemy brick on the table.",
+        "Do not leave them so far back that the opponent never has to respect them."
+      ],
+      "decision_cues": [
+        "If you are on Kroot Hunting Pack, make opponents fear the counter-charge.",
+        "They work best as punishment, not initiation."
+      ],
+      "synergies": [
+        "enemy overextensions",
+        "mid-board brawls",
+        "AP or wound support"
+      ],
+      "cautions": [
+        "solo launches into premium bricks",
+        "passive use"
+      ]
+    },
+    {
+      "unit": "Kroot Lone-spear",
+      "aliases": [
+        "Kroot Lone-spear",
+        "Lone-spear"
+      ],
+      "class": "auxiliary character",
+      "battlefield_role": "positional utility / observer support",
+      "best_detachments": [
+        "Kroot Hunting Pack"
+      ],
+      "summary": "A positional utility piece that helps Kroot lists play smarter angles and cleaner missions.",
+      "deployment_guide": [
+        "Deploy with lanes to useful objectives or support angles rather than raw safety alone.",
+        "Use its placement to open future turns, not just to survive."
+      ],
+      "usage_guide": [
+        "Treat it as a support-and-position piece that improves how your board flood functions.",
+        "Use it to create observer-style value and mission flexibility."
+      ],
+      "avoid": [
+        "Do not waste it on static home-duty unless the mission absolutely demands it."
+      ],
+      "decision_cues": [
+        "Best when it helps convert Kroot board presence into actual scoring leverage."
+      ],
+      "synergies": [
+        "observer-style roles",
+        "angles",
+        "mission play"
+      ],
+      "cautions": [
+        "wasting it on static backfield duty"
+      ]
+    },
+    {
+      "unit": "Kroot Core",
+      "aliases": [
+        "Kroot",
+        "Kroot Hunting Pack"
+      ],
+      "class": "auxiliary infantry core",
+      "battlefield_role": "board flood / objective saturation",
+      "best_detachments": [
+        "Kroot Hunting Pack"
+      ],
+      "summary": "Kroot win by saturation, screens, and objective pressure, not by pretending to be a better killing army than they are.",
+      "deployment_guide": [
+        "Deploy wide enough to claim space early and deny easy enemy movement lines.",
+        "Occupy objectives before the opponent can comfortably commit their premium pieces."
+      ],
+      "usage_guide": [
+        "Use Kroot to flood the board and force too many small solves at once.",
+        "Build score pressure first and let counter-charge or hull support punish overextensions."
+      ],
+      "avoid": [
+        "Do not judge them only by damage output.",
+        "Do not under-support them with follow-up punishment pieces."
+      ],
+      "decision_cues": [
+        "If the game is about early board occupation, Kroot should be shaping it from turn 1."
+      ],
+      "synergies": [
+        "objective flooding",
+        "screening",
+        "piece saturation"
+      ],
+      "cautions": [
+        "assuming they win by kills alone"
+      ]
+    }
+  ],
+  "matchup_heuristics": [
+    {
+      "matchup_tag": "vs_necrons_ctan",
+      "problem": "Too many ultra-durable anchors to kill cleanly in sequence",
+      "tau_plan": [
+        "Do not assume you can solve every C'tan",
+        "Build or play for one spiked kill plus superior board control",
+        "Use fast OC and tempo pieces to lock in scoring after the initial swing"
+      ]
+    },
+    {
+      "matchup_tag": "vs_marines_elite_bodies",
+      "problem": "Efficient elite infantry that can trade decently while scoring",
+      "tau_plan": [
+        "Lean on Fireknives and quality mid-strength shooting",
+        "Preserve your range and do not donate charges",
+        "Use detachment timing to overwhelm a section of the board"
+      ]
+    },
+    {
+      "matchup_tag": "vs_fast_melee",
+      "problem": "Opponent wins if they reach you intact",
+      "tau_plan": [
+        "Screen first, kill second",
+        "Use Kroot, Stealth, Piranhas, and midfield bait pieces to distort angles",
+        "Trade only when it reduces launch range or removes a key hammer"
+      ]
+    },
+    {
+      "matchup_tag": "vs_drukhari_vehicle_pressure",
+      "problem": "Fast pressure, awkward tagging, high threat projection",
+      "tau_plan": [
+        "Use close-range suits and flexible vehicles that still function under pressure",
+        "Punish the first overextension hard",
+        "Preserve scoring lanes rather than chasing every skimmer"
+      ]
+    }
+  ],
+  "decision_tree": {
+    "pre_game_questions": [
+      "Can the opponent close on me quickly, or can I bank value for a later spike?",
+      "Which of my units are anchors, tempo pieces, and board-control pieces?",
+      "What single enemy unit or package most threatens my scoring plan?",
+      "Which flank or lane is most realistic to collapse?"
+    ],
+    "turn_1": [
+      "Take space with expendable, infiltrating, or durable bait pieces",
+      "Hide premium suits unless the opening trade is overwhelmingly favorable",
+      "Establish marker or spotting lanes that matter for turn 2",
+      "Score opportunistically with fast assets"
+    ],
+    "turn_2_3": [
+      "Identify exposed anti-tank, melee launchers, or unsupported anchors",
+      "Commit the minimum premium force needed to decisively swing one area",
+      "Use sequencing and support to ensure the chosen kill actually happens",
+      "Rotate remaining speed onto objectives"
+    ],
+    "turn_4_5": [
+      "Convert surviving speed into OC and denial",
+      "Clean up damaged units before fresh ones",
+      "Play the scoreboard; do not overcommit for style points"
+    ]
+  },
+  "sun_tzu_scaffold": [
+    {
+      "principle_name": "Attack weakness, not strength",
+      "tau_translation": "Focus all major shooting into exposed, unsupported, or efficiently killable enemy units before engaging tougher anchors.",
+      "status": "ready_for_direct_text_mapping"
+    },
+    {
+      "principle_name": "Speed and position decide battle",
+      "tau_translation": "Use suits, piranhas, devilfish, scout moves, infiltrators, and rapid ingress to choose where the real fight happens.",
+      "status": "ready_for_direct_text_mapping"
+    },
+    {
+      "principle_name": "Win before full commitment",
+      "tau_translation": "Spend the early turns shaping the board so your decisive shooting turn is overwhelmingly favorable.",
+      "status": "ready_for_direct_text_mapping"
+    },
+    {
+      "principle_name": "Make the enemy react",
+      "tau_translation": "Use lone operatives, flank threats, and board-control pieces to force awkward enemy movement and expose priority targets.",
+      "status": "ready_for_direct_text_mapping"
+    }
+  ]
+}

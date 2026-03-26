@@ -1,0 +1,34 @@
+# Terminator Example List
+# Saved: 2026-03-08
+
++++++++++++++++++++++++++++++++++++++++++++++++
++ FACTION KEYWORD: Imperium - Adeptus Astartes - Dark Angels
++ DETACHMENT: 
++ TOTAL ARMY POINTS: 1580pts
++
++ WARLORD: Char4: Lion El'Jonson
++ ENHANCEMENT: 
++ NUMBER OF UNITS: 11
++ SECONDARY: - Bring It Down: (1x2) - Assassination: 7 Characters
++++++++++++++++++++++++++++++++++++++++++++++++
+
+Char1: 1x Asmodai (70 pts): Crozius Arcanum and Power Weapon, Heavy Bolt Pistol
+Char2: 1x Azrael (125 pts): Lion's Wrath, The Sword of Secrets
+Char3: 1x Belial (85 pts): Master-crafted storm bolter, The Sword of Silence
+Char5: 1x Captain in Terminator Armour (95 pts): Storm Bolter, Relic Weapon
+Char6: 1x Captain in Terminator Armour (95 pts): Storm Bolter, Relic Weapon
+Char7: 1x Chaplain in Terminator Armour (75 pts): Crozius Arcanum, Storm Bolter
+Char4: 1x Lion El'Jonson (315 pts): Warlord, Arma Luminis, Fealty
+
+5x Deathwing Terminator Squad (180 pts)
+• 1x Deathwing Sergeant: Power Weapon, Storm Bolter
+• 4x Deathwing Terminator: 4 with Power Fist, Storm Bolter
+5x Deathwing Terminator Squad (180 pts)
+• 1x Deathwing Sergeant: Power Weapon, Storm Bolter
+• 4x Deathwing Terminator: 4 with Power Fist, Storm Bolter
+5x Deathwing Terminator Squad (180 pts)
+• 1x Deathwing Sergeant: Power Weapon, Storm Bolter
+• 4x Deathwing Terminator: 4 with Power Fist, Storm Bolter
+5x Deathwing Terminator Squad (180 pts)
+• 1x Deathwing Sergeant: Power Weapon, Storm Bolter
+• 4x Deathwing Terminator: 4 with Power Fist, Storm BolterEND

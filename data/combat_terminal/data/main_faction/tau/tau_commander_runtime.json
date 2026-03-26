@@ -1,0 +1,344 @@
+{
+  "name": "tau_commander_runtime",
+  "version": "v1.0",
+  "faction": "Tau Empire",
+  "edition": "10th",
+  "last_updated": "2026-03-06",
+  "purpose": "Operational runtime layer for a Tau strategic AI. Converts doctrine, unit roles, deployment patterns, target priority, matchup logic, and mission context into a turn-by-turn command workflow.",
+  "runtime_order": [
+    "ingest_context",
+    "select_tau_detachment",
+    "select_deployment_pattern",
+    "assign_unit_roles",
+    "build_target_priority_plan",
+    "create_opening_turn_plan",
+    "update_after_enemy_commitment",
+    "re-evaluate_scoring_and_trade_plan_each_turn"
+  ],
+  "input_schema": {
+    "mission": {
+      "name": "string",
+      "deployment_map": "string|null",
+      "primary_scoring_style": "string|null",
+      "special_rules": [
+        "string"
+      ]
+    },
+    "terrain": {
+      "central_ruins": "boolean|null",
+      "firing_lanes_open": "boolean|null",
+      "deep_strike_denial_easy": "boolean|null",
+      "notes": [
+        "string"
+      ]
+    },
+    "tau_list": {
+      "detachment_candidates": [
+        "string"
+      ],
+      "units": [
+        "string"
+      ],
+      "weapon_bias_tags": [
+        "string"
+      ]
+    },
+    "enemy": {
+      "faction": "string",
+      "archetype": "string|null",
+      "key_units": [
+        "string"
+      ],
+      "threat_tags": [
+        "string"
+      ]
+    },
+    "game_state": {
+      "battle_round": "number",
+      "going_first": "boolean|null",
+      "score_state": "string|null",
+      "enemy_reserves_pressure": "boolean|null"
+    }
+  },
+  "detachment_selection_rules": [
+    {
+      "if": [
+        "enemy.threat_tags contains fast_melee_hammer",
+        "tau_list.units contains Kroot Carnivores or Stealth Battlesuits"
+      ],
+      "prefer": "Kauyon",
+      "reason": "Against fast launch pressure, Tau usually prefer layered screens, patience, and a decisive counterpunch."
+    },
+    {
+      "if": [
+        "enemy.archetype in fragile_shooting, light_vehicle_pressure",
+        "tau_list.units contains Devilfish or Breacher Team or Commander in Coldstar Battlesuit"
+      ],
+      "prefer": "Mont'ka",
+      "reason": "Mont'ka is strongest when early tempo and sudden board collapse can punish fragile or lightly anchored opponents."
+    },
+    {
+      "if": [
+        "tau_list.units contains Crisis Fireknife Battlesuits",
+        "tau_list.units contains Crisis Sunforge Battlesuits"
+      ],
+      "prefer": "Retaliation Cadre",
+      "reason": "Suit-heavy lists gain the most from a doctrine centered on premium removals and staged hammer commitments."
+    },
+    {
+      "if": [
+        "tau_list.units contains Kroot Carnivores",
+        "tau_list.units contains Krootox Riders or Kroot Rampagers or Kroot Lone-spear"
+      ],
+      "prefer": "Kroot Hunting Pack",
+      "reason": "Lists with a real Kroot sub-engine should leverage board spread, harassment, and mission distortion."
+    },
+    {
+      "if": [
+        "tau_list.units contains multiple auxiliary pieces",
+        "mission.primary_scoring_style requires broad board coverage"
+      ],
+      "prefer": "Auxiliary Cadre",
+      "reason": "Hybrid auxiliary shells are best when broad mission utility matters more than one huge spike turn."
+    },
+    {
+      "if": [
+        "tau_list.units contains Ghostkeel Battlesuit",
+        "tau_list.units contains Riptide Battlesuit",
+        "enemy.archetype in elite_shooting, precision_trading"
+      ],
+      "prefer": "Experimental Prototype Cadre",
+      "reason": "Prototype-style elite suits are strongest when awkward profiles and specialized pressure matter."
+    }
+  ],
+  "deployment_pattern_selection_rules": [
+    {
+      "pattern": "deep_staging_kauyon_shell",
+      "use_when": [
+        "detachment is Kauyon",
+        "enemy has strong early anti-tank or alpha pressure",
+        "terrain allows meaningful hiding"
+      ],
+      "goal": "Preserve premium units, concede no easy early trade, and prepare a strong midgame swing."
+    },
+    {
+      "pattern": "layered_screen_and_counterpunch",
+      "use_when": [
+        "enemy has fast melee or deep strike pressure",
+        "Tau have Kroot Carnivores, Stealth Battlesuits, or other utility layers"
+      ],
+      "goal": "Trade screens for space, then remove the first real committed threat."
+    },
+    {
+      "pattern": "montka_forward_pressure_shell",
+      "use_when": [
+        "detachment is Mont'ka",
+        "Tau list has Devilfish, Breacher Team, Coldstar, or Piranhas",
+        "enemy is vulnerable to early tempo"
+      ],
+      "goal": "Take the initiative, crack a flank, and destabilize the opponent before they settle."
+    },
+    {
+      "pattern": "castle_with_mobile_hammers",
+      "use_when": [
+        "Tau list includes Broadsides and Hammerhead Gunship",
+        "enemy brings hard armor or large shooting platforms",
+        "backfield protection is available"
+      ],
+      "goal": "Anchor firing lanes with backfield anti-armor while keeping mobile hammers hidden for decisive trades."
+    },
+    {
+      "pattern": "ghostkeel_midboard_disruption",
+      "use_when": [
+        "Tau list includes Ghostkeel Battlesuit",
+        "the mission rewards early central tax",
+        "enemy needs staging space in the midfield"
+      ],
+      "goal": "Make central positioning costly while preserving the main Tau shell."
+    },
+    {
+      "pattern": "wide_denial_with_fast_utilities",
+      "use_when": [
+        "enemy has reserve pressure, teleport, or infiltration",
+        "Tau list includes Kroot Carnivores, Stealth Battlesuits, or Piranhas"
+      ],
+      "goal": "Win space before the first major activation and deny clean enemy arrival lanes."
+    }
+  ],
+  "role_assignment_rules": [
+    {
+      "role": "screen",
+      "assign_priority": [
+        "Kroot Carnivores",
+        "Strike Team",
+        "Stealth Battlesuits",
+        "Devilfish hull after cargo delivery"
+      ],
+      "job": "Absorb launch pressure, deny deep strike lanes, and protect premium guns and suits."
+    },
+    {
+      "role": "anchor",
+      "assign_priority": [
+        "Broadsides",
+        "Riptide Battlesuit",
+        "Hammerhead Gunship",
+        "Ghostkeel Battlesuit"
+      ],
+      "job": "Control lanes, stabilize the shell, and punish enemy movement."
+    },
+    {
+      "role": "primary_hammer",
+      "assign_priority": [
+        "Crisis Fireknife Battlesuits",
+        "Crisis Sunforge Battlesuits",
+        "Commander-led suit package"
+      ],
+      "job": "Remove the enemy piece that changes the battle state."
+    },
+    {
+      "role": "utility_pressure",
+      "assign_priority": [
+        "Piranhas",
+        "Stealth Battlesuits",
+        "Pathfinders",
+        "Kroot Lone-spear"
+      ],
+      "job": "Shape lanes, bait movement, contest weak points, and enable premium shots."
+    },
+    {
+      "role": "objective_flip_package",
+      "assign_priority": [
+        "Devilfish + Breacher Team + Cadre Fireblade"
+      ],
+      "job": "Clear and take a contested objective with one coordinated activation."
+    }
+  ],
+  "target_priority_runtime": {
+    "default_priority_order": [
+      "fast_melee_hammer",
+      "anti_tank_platform",
+      "delivery_transport",
+      "elite_infantry_brick",
+      "light_vehicle_pressure",
+      "heavy_vehicle_or_monster",
+      "objective_holder",
+      "support_character",
+      "screening_unit"
+    ],
+    "modifiers": [
+      {
+        "condition": "enemy unit directly threatens two or more Tau premium assets next turn",
+        "effect": "increase to highest priority"
+      },
+      {
+        "condition": "enemy unit is exposed but not mission-relevant and a higher-priority threat remains active",
+        "effect": "do not over-prioritize the exposed low-value target"
+      },
+      {
+        "condition": "a kill flips primary scoring this round",
+        "effect": "objective_holder can jump above heavy_vehicle_or_monster"
+      },
+      {
+        "condition": "enemy hard target cannot be realistically killed or bracketed",
+        "effect": "screen or ignore it temporarily and kill launch threats first"
+      }
+    ]
+  },
+  "turn_sequence_engine": {
+    "turn_1": {
+      "primary_goal": "shape the game, preserve assets, and remove the enemy piece most likely to break Tau structure",
+      "action_order": [
+        "confirm reserve and deep strike denial net",
+        "establish which enemy unit is the real launch or anti-tank threat",
+        "take only high-value safe shots",
+        "avoid exposing primary_hammer unless detachment and matchup specifically reward it"
+      ],
+      "detachment_bias": {
+        "Kauyon": "minimal early exposure; lean on screens, anchors, and safe attrition",
+        "Mont'ka": "take a meaningful flank or objective swing early if a clean tempo line exists",
+        "Retaliation Cadre": "protect premium suits and set up a decisive turn 2 trade",
+        "Kroot Hunting Pack": "spread board control and start draining enemy time and movement"
+      }
+    },
+    "turn_2": {
+      "primary_goal": "begin decisive trades if the enemy has committed or if the mission requires an objective flip",
+      "action_order": [
+        "check whether enemy anti-tank and launch threats are softened enough for a main commitment",
+        "use utility_pressure pieces to create or widen the real lane",
+        "commit primary_hammer only if the removal changes the board state or scoreline"
+      ]
+    },
+    "turn_3": {
+      "primary_goal": "convert preserved resources into decisive board advantage",
+      "action_order": [
+        "collapse the exposed enemy flank or remove the remaining key threat",
+        "move from pure denial into active scoring pressure",
+        "trade premium assets only if the exchange secures mission advantage"
+      ]
+    },
+    "turn_4_5": {
+      "primary_goal": "protect score lead or recover through selective aggression",
+      "action_order": [
+        "prioritize objective holders and mission pieces over vanity kills",
+        "preserve units that still influence score",
+        "only chase isolated kills if they matter to final scoring"
+      ]
+    }
+  },
+  "enemy_commitment_update_rules": [
+    {
+      "trigger": "enemy commits fast melee hammer into screens",
+      "response": [
+        "do not panic and countercharge with everything",
+        "remove the hammer with concentrated shooting",
+        "rebuild spacing immediately after the kill"
+      ]
+    },
+    {
+      "trigger": "enemy exposes anti-tank platform for a premium shot",
+      "response": [
+        "use exact anti-tank allocation",
+        "prefer kill or meaningful bracket over speculative chip damage",
+        "do not spend anti-tank on lesser targets if the platform still lives"
+      ]
+    },
+    {
+      "trigger": "enemy overextends onto one flank",
+      "response": [
+        "collapse that flank hard",
+        "do not split the response across the board",
+        "force the rest of the enemy army to arrive late"
+      ]
+    },
+    {
+      "trigger": "enemy refuses to commit and plays passively",
+      "response": [
+        "score safely",
+        "expand control with utility units",
+        "do not self-break formation just to start a low-value fight"
+      ]
+    }
+  ],
+  "mission_override_rules": [
+    {
+      "condition": "mission strongly rewards early midfield control",
+      "override": "raise value of Devilfish/Breacher, Ghostkeel, Kroot board control, and utility pressure even in more patient detachments"
+    },
+    {
+      "condition": "mission punishes low board presence",
+      "override": "do not confuse safety with passivity; at least one package must contest space"
+    },
+    {
+      "condition": "mission heavily rewards endgame objective control",
+      "override": "protect mobility and surviving OC units for turns 4-5 even if earlier kill opportunities are tempting"
+    }
+  ],
+  "runtime_checklist": [
+    "What enemy unit most threatens Tau structure next turn?",
+    "What enemy unit most threatens scoring this round?",
+    "Which Tau units are screens, anchors, hammers, and utility this game?",
+    "Which detachment timing window is active right now?",
+    "Can this trade be both tactically favorable and mission-relevant?",
+    "After this activation, can Tau still rebuild spacing and scoring posture?"
+  ]
+}

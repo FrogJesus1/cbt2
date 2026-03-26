@@ -1,0 +1,1008 @@
+{
+  "name": "tau_unit_roles_and_synergies",
+  "version": "v1.0",
+  "faction": "Tau Empire",
+  "edition": "10th",
+  "last_updated": "2026-03-06",
+  "purpose": "Defines battlefield roles, commitment logic, target preferences, and synergy relationships for major Tau units so the AI can reason about army function rather than only raw datasheet text.",
+  "units": [
+    {
+      "unit": "Commander in Coldstar Battlesuit",
+      "category": "leader / mobility enabler",
+      "primary_roles": [
+        "delivery",
+        "tempo pressure",
+        "mobile command node"
+      ],
+      "secondary_roles": [
+        "flank collapse",
+        "late-game objective swing"
+      ],
+      "preferred_targets": [
+        "elite infantry",
+        "light vehicles",
+        "exposed support characters"
+      ],
+      "avoid_targets": [
+        "large melee anvils without support",
+        "full-strength monster bricks"
+      ],
+      "commitment_timing": "early_to_midgame if tempo matters; otherwise hold until a clean strike lane opens",
+      "strengths": [
+        "very high mobility",
+        "excellent at leading aggressive suit packages",
+        "good at converting openings into board swings"
+      ],
+      "weaknesses": [
+        "can be exposed by over-aggressive play",
+        "best when attached to a unit rather than operating unsupported"
+      ],
+      "best_detachments": [
+        "Mont'ka",
+        "Retaliation Cadre"
+      ],
+      "synergies_with": [
+        "Crisis Fireknife Battlesuits",
+        "Crisis Sunforge Battlesuits",
+        "Piranhas",
+        "Stealth Battlesuits"
+      ],
+      "tau_play_notes": [
+        "Use as the speed amplifier for a strike package, not as a lone hero.",
+        "Best when the rest of the army has already shaped safe lanes."
+      ]
+    },
+    {
+      "unit": "Commander in Enforcer Battlesuit",
+      "category": "leader / durable command node",
+      "primary_roles": [
+        "unit anchor",
+        "midboard pressure",
+        "durability support"
+      ],
+      "secondary_roles": [
+        "close-range trading",
+        "attrition leadership"
+      ],
+      "preferred_targets": [
+        "elite infantry",
+        "light vehicles",
+        "midfield pressure units"
+      ],
+      "avoid_targets": [
+        "dedicated heavy anti-tank platforms",
+        "isolated suicidal pushes"
+      ],
+      "commitment_timing": "midgame",
+      "strengths": [
+        "better suited than a Coldstar to sustained fighting in contested zones",
+        "supports more durable suit-based pressure"
+      ],
+      "weaknesses": [
+        "less explosive mobility than Coldstar-led packages"
+      ],
+      "best_detachments": [
+        "Kauyon",
+        "Retaliation Cadre"
+      ],
+      "synergies_with": [
+        "Crisis Fireknife Battlesuits",
+        "Riptide Battlesuit",
+        "Ghostkeel Battlesuit"
+      ],
+      "tau_play_notes": [
+        "Use when the plan values staying power more than raw speed."
+      ]
+    },
+    {
+      "unit": "Cadre Fireblade",
+      "category": "infantry support character",
+      "primary_roles": [
+        "fire support buffing",
+        "home-field support"
+      ],
+      "secondary_roles": [
+        "cheap leadership",
+        "objective accompaniment"
+      ],
+      "preferred_targets": [
+        "infantry targets via attached shooting units"
+      ],
+      "avoid_targets": [
+        "any independent frontline role"
+      ],
+      "commitment_timing": "rarely commits; usually remains in support posture",
+      "strengths": [
+        "efficient support piece for infantry shooting",
+        "good low-cost utility"
+      ],
+      "weaknesses": [
+        "fragile",
+        "limited personal impact"
+      ],
+      "best_detachments": [
+        "Kauyon",
+        "Auxiliary Cadre"
+      ],
+      "synergies_with": [
+        "Breacher Team",
+        "Strike Team",
+        "Devilfish"
+      ],
+      "tau_play_notes": [
+        "Treat as a support multiplier, not a combat piece."
+      ]
+    },
+    {
+      "unit": "Ethereal",
+      "category": "support character / resource node",
+      "primary_roles": [
+        "resource support",
+        "stability",
+        "backline support"
+      ],
+      "secondary_roles": [
+        "objective utility"
+      ],
+      "preferred_targets": [],
+      "avoid_targets": [
+        "frontline exposure",
+        "direct trades"
+      ],
+      "commitment_timing": "backline all game unless mission demands movement",
+      "strengths": [
+        "supports broader army efficiency"
+      ],
+      "weaknesses": [
+        "fragile",
+        "becomes a liability if exposed"
+      ],
+      "best_detachments": [
+        "Kauyon",
+        "Auxiliary Cadre"
+      ],
+      "synergies_with": [
+        "Strike Team",
+        "Broadsides",
+        "backfield support shell"
+      ],
+      "tau_play_notes": [
+        "Keep protected and do not confuse value generation with frontline utility."
+      ]
+    },
+    {
+      "unit": "Breacher Team",
+      "category": "close-range infantry pressure",
+      "primary_roles": [
+        "objective clearing",
+        "short-range alpha into infantry",
+        "Devilfish assault package"
+      ],
+      "secondary_roles": [
+        "midboard trading"
+      ],
+      "preferred_targets": [
+        "infantry",
+        "light objective holders",
+        "screening units"
+      ],
+      "avoid_targets": [
+        "heavy armor",
+        "sustained open-board firefights"
+      ],
+      "commitment_timing": "early_to_midgame when a midfield objective needs flipping",
+      "strengths": [
+        "strong short-range output",
+        "excellent in transport-enabled trading roles"
+      ],
+      "weaknesses": [
+        "short range",
+        "fragile once exposed"
+      ],
+      "best_detachments": [
+        "Mont'ka",
+        "Kauyon"
+      ],
+      "synergies_with": [
+        "Cadre Fireblade",
+        "Devilfish",
+        "Pathfinders",
+        "Piranhas"
+      ],
+      "tau_play_notes": [
+        "Use as a precise scoring and clearing tool, not a general-purpose brawler."
+      ]
+    },
+    {
+      "unit": "Strike Team",
+      "category": "backfield infantry / utility",
+      "primary_roles": [
+        "home objective control",
+        "screen extension",
+        "light fire support"
+      ],
+      "secondary_roles": [
+        "action utility",
+        "late objective transition"
+      ],
+      "preferred_targets": [
+        "light infantry",
+        "screens"
+      ],
+      "avoid_targets": [
+        "elite armor",
+        "close-range melee threats"
+      ],
+      "commitment_timing": "late if ever",
+      "strengths": [
+        "cheap utility",
+        "safe backfield presence"
+      ],
+      "weaknesses": [
+        "limited offensive impact"
+      ],
+      "best_detachments": [
+        "Kauyon",
+        "Auxiliary Cadre"
+      ],
+      "synergies_with": [
+        "Ethereal",
+        "Cadre Fireblade",
+        "Broadsides"
+      ],
+      "tau_play_notes": [
+        "Use for board structure and mission support."
+      ]
+    },
+    {
+      "unit": "Devilfish",
+      "category": "transport / tempo vehicle",
+      "primary_roles": [
+        "delivery",
+        "lane shaping",
+        "objective pressure"
+      ],
+      "secondary_roles": [
+        "screening extension",
+        "movement blocking"
+      ],
+      "preferred_targets": [
+        "light infantry via embarked package",
+        "soft flank pressure points"
+      ],
+      "avoid_targets": [
+        "direct anti-tank duels"
+      ],
+      "commitment_timing": "early if enabling Breachers; otherwise opportunistic",
+      "strengths": [
+        "gives Tau infantry real tempo",
+        "adds movement blocking and mission pressure"
+      ],
+      "weaknesses": [
+        "can become inefficient if cargo is poorly timed"
+      ],
+      "best_detachments": [
+        "Mont'ka",
+        "Kauyon"
+      ],
+      "synergies_with": [
+        "Breacher Team",
+        "Cadre Fireblade",
+        "Pathfinders"
+      ],
+      "tau_play_notes": [
+        "Think of the hull and cargo as one combined mission tool."
+      ]
+    },
+    {
+      "unit": "Pathfinders",
+      "category": "forward utility / spotting support",
+      "primary_roles": [
+        "spotting",
+        "utility support",
+        "screen shaping"
+      ],
+      "secondary_roles": [
+        "objective harassment",
+        "scout pressure"
+      ],
+      "preferred_targets": [
+        "targets selected by heavier Tau guns"
+      ],
+      "avoid_targets": [
+        "extended unsupported firefights"
+      ],
+      "commitment_timing": "early utility, often sacrificial if needed",
+      "strengths": [
+        "improves efficiency of premium shooting",
+        "good utility and board shaping"
+      ],
+      "weaknesses": [
+        "fragile"
+      ],
+      "best_detachments": [
+        "Mont'ka",
+        "Kauyon",
+        "Auxiliary Cadre"
+      ],
+      "synergies_with": [
+        "Broadsides",
+        "Hammerhead Gunship",
+        "Crisis Fireknife Battlesuits",
+        "Breacher Team"
+      ],
+      "tau_play_notes": [
+        "Value comes from what they enable, not what they personally kill."
+      ]
+    },
+    {
+      "unit": "Stealth Battlesuits",
+      "category": "forward utility / staging enabler",
+      "primary_roles": [
+        "forward staging",
+        "space denial",
+        "safe lane creation"
+      ],
+      "secondary_roles": [
+        "mission play",
+        "screen layering"
+      ],
+      "preferred_targets": [
+        "screens",
+        "small exposed infantry",
+        "utility pieces"
+      ],
+      "avoid_targets": [
+        "committed elite melee bricks"
+      ],
+      "commitment_timing": "early board influence, not reckless aggression",
+      "strengths": [
+        "excellent pre-contact influence",
+        "shape lanes and deny enemy setup"
+      ],
+      "weaknesses": [
+        "moderate damage only",
+        "can be wasted if thrown away without payoff"
+      ],
+      "best_detachments": [
+        "Mont'ka",
+        "Kauyon",
+        "Retaliation Cadre"
+      ],
+      "synergies_with": [
+        "Ghostkeel Battlesuit",
+        "Crisis Fireknife Battlesuits",
+        "Crisis Sunforge Battlesuits",
+        "Piranhas",
+        "Kroot Carnivores"
+      ],
+      "tau_play_notes": [
+        "One of the most important enablers in the faction. Their value is positional."
+      ]
+    },
+    {
+      "unit": "Ghostkeel Battlesuit",
+      "category": "midboard disruptor",
+      "primary_roles": [
+        "midboard taxation",
+        "space denial",
+        "pressure absorption"
+      ],
+      "secondary_roles": [
+        "objective contesting",
+        "flank anchoring"
+      ],
+      "preferred_targets": [
+        "light vehicles",
+        "midfield infantry",
+        "enemy screens and pressure pieces"
+      ],
+      "avoid_targets": [
+        "all-in unsupported trades into full anti-tank focus"
+      ],
+      "commitment_timing": "early_to_midgame",
+      "strengths": [
+        "awkward to remove efficiently",
+        "excellent at distorting enemy movement"
+      ],
+      "weaknesses": [
+        "needs follow-up to fully capitalize on the openings it creates"
+      ],
+      "best_detachments": [
+        "Kauyon",
+        "Mont'ka",
+        "Experimental Prototype Cadre"
+      ],
+      "synergies_with": [
+        "Stealth Battlesuits",
+        "Riptide Battlesuit",
+        "Crisis Fireknife Battlesuits",
+        "Piranhas"
+      ],
+      "tau_play_notes": [
+        "Use to tax enemy movement and attention, then punish whatever responds."
+      ]
+    },
+    {
+      "unit": "Riptide Battlesuit",
+      "category": "durable ranged stabilizer",
+      "primary_roles": [
+        "counterpunch anchor",
+        "lane control",
+        "durable pressure"
+      ],
+      "secondary_roles": [
+        "anti-elite shooting",
+        "anti-light vehicle support"
+      ],
+      "preferred_targets": [
+        "elite infantry",
+        "light vehicles",
+        "midfield pressure units"
+      ],
+      "avoid_targets": [
+        "dedicated titanic anti-armor fights without support"
+      ],
+      "commitment_timing": "midgame or earlier if needed to stabilize",
+      "strengths": [
+        "durable compared to many Tau pieces",
+        "good at punishing overextension"
+      ],
+      "weaknesses": [
+        "expensive to misposition",
+        "can get bogged down if left unsupported"
+      ],
+      "best_detachments": [
+        "Kauyon",
+        "Retaliation Cadre",
+        "Experimental Prototype Cadre"
+      ],
+      "synergies_with": [
+        "Kroot Carnivores",
+        "Ghostkeel Battlesuit",
+        "Broadsides",
+        "Stealth Battlesuits"
+      ],
+      "tau_play_notes": [
+        "Use as a stabilizer and punishment platform, not as a solo battering ram."
+      ]
+    },
+    {
+      "unit": "Broadside Battlesuits",
+      "category": "lane control / anti-armor anchor",
+      "primary_roles": [
+        "anti-tank fire support",
+        "lane punishment",
+        "backfield anchor"
+      ],
+      "secondary_roles": [
+        "elite infantry suppression"
+      ],
+      "preferred_targets": [
+        "vehicles",
+        "monsters",
+        "elite heavy targets"
+      ],
+      "avoid_targets": [
+        "wasting volleys into low-value chaff"
+      ],
+      "commitment_timing": "active from turn 1 if lanes exist",
+      "strengths": [
+        "high-quality ranged threat",
+        "excellent deterrence over lanes"
+      ],
+      "weaknesses": [
+        "limited mobility",
+        "vulnerable to being tagged or out-angled without screens"
+      ],
+      "best_detachments": [
+        "Kauyon",
+        "Retaliation Cadre"
+      ],
+      "synergies_with": [
+        "Pathfinders",
+        "Strike Team",
+        "Kroot Carnivores",
+        "Piranhas",
+        "Hammerhead Gunship"
+      ],
+      "tau_play_notes": [
+        "Protect with screens and make the opponent pay for entering their lanes."
+      ]
+    },
+    {
+      "unit": "Hammerhead Gunship",
+      "category": "precision anti-armor",
+      "primary_roles": [
+        "hard target removal",
+        "anti-anchor fire",
+        "psychological pressure"
+      ],
+      "secondary_roles": [
+        "lane denial"
+      ],
+      "preferred_targets": [
+        "heavy vehicles",
+        "monsters",
+        "elite centerpiece threats"
+      ],
+      "avoid_targets": [
+        "screens",
+        "targets already solved by mid-strength fire"
+      ],
+      "commitment_timing": "turn 1 onward if a meaningful anti-armor shot exists",
+      "strengths": [
+        "excellent at threatening priority hard targets"
+      ],
+      "weaknesses": [
+        "can become inefficient if it shoots low-value targets",
+        "needs careful exposure management"
+      ],
+      "best_detachments": [
+        "Kauyon",
+        "Mont'ka"
+      ],
+      "synergies_with": [
+        "Pathfinders",
+        "Broadsides",
+        "Piranhas",
+        "Crisis Sunforge Battlesuits"
+      ],
+      "tau_play_notes": [
+        "Use exact anti-tank allocation. If it cannot kill or meaningfully bracket, reconsider the shot."
+      ]
+    },
+    {
+      "unit": "Sky Ray Gunship",
+      "category": "anti-air / guided fire support",
+      "primary_roles": [
+        "missile support",
+        "vehicle suppression",
+        "guided ranged support"
+      ],
+      "secondary_roles": [
+        "tempo shooting"
+      ],
+      "preferred_targets": [
+        "light to medium vehicles",
+        "flying targets",
+        "elite infantry clusters"
+      ],
+      "avoid_targets": [
+        "pure chaff clearance"
+      ],
+      "commitment_timing": "early_to_midgame",
+      "strengths": [
+        "flexible ranged support"
+      ],
+      "weaknesses": [
+        "less singular than a Hammerhead at hard target deletion"
+      ],
+      "best_detachments": [
+        "Kauyon",
+        "Mont'ka"
+      ],
+      "synergies_with": [
+        "Pathfinders",
+        "Stealth Battlesuits",
+        "Broadsides"
+      ],
+      "tau_play_notes": [
+        "Use where flexible guided pressure is better than all-in anti-armor."
+      ]
+    },
+    {
+      "unit": "Piranhas",
+      "category": "tempo skimmer / lane denial",
+      "primary_roles": [
+        "movement blocking",
+        "tempo shaping",
+        "flank pressure"
+      ],
+      "secondary_roles": [
+        "objective stealing",
+        "sacrificial lane denial"
+      ],
+      "preferred_targets": [
+        "light vehicles",
+        "screens",
+        "support pieces",
+        "soft objectives"
+      ],
+      "avoid_targets": [
+        "prolonged fights",
+        "premium anti-tank attention"
+      ],
+      "commitment_timing": "early_to_midgame",
+      "strengths": [
+        "excellent for distorting enemy movement and threat geometry"
+      ],
+      "weaknesses": [
+        "fragile if left in the open after use"
+      ],
+      "best_detachments": [
+        "Mont'ka",
+        "Kauyon",
+        "Retaliation Cadre"
+      ],
+      "synergies_with": [
+        "Crisis Sunforge Battlesuits",
+        "Broadsides",
+        "Ghostkeel Battlesuit",
+        "Breacher Team"
+      ],
+      "tau_play_notes": [
+        "Use to make the enemy move where your real guns want them."
+      ]
+    },
+    {
+      "unit": "Crisis Fireknife Battlesuits",
+      "category": "all-rounder strike unit",
+      "primary_roles": [
+        "elite hunting",
+        "light vehicle killing",
+        "midboard strike"
+      ],
+      "secondary_roles": [
+        "counterpunch",
+        "flank collapse"
+      ],
+      "preferred_targets": [
+        "elite infantry",
+        "light vehicles",
+        "midfield pressure units"
+      ],
+      "avoid_targets": [
+        "full heavy armor unless sufficiently supported",
+        "extended exposure after one trade"
+      ],
+      "commitment_timing": "midgame, or earlier if a high-value removal is safe",
+      "strengths": [
+        "excellent flexible strike role",
+        "one of the best Tau units for clean sequential removals"
+      ],
+      "weaknesses": [
+        "premium unit that must not be exposed casually"
+      ],
+      "best_detachments": [
+        "Kauyon",
+        "Mont'ka",
+        "Retaliation Cadre"
+      ],
+      "synergies_with": [
+        "Commander in Coldstar Battlesuit",
+        "Commander in Enforcer Battlesuit",
+        "Stealth Battlesuits",
+        "Kroot Carnivores",
+        "Pathfinders",
+        "Ghostkeel Battlesuit"
+      ],
+      "tau_play_notes": [
+        "This is a core decision unit. Keep hidden until it can remove something that matters."
+      ]
+    },
+    {
+      "unit": "Crisis Sunforge Battlesuits",
+      "category": "anti-tank / anti-monster hammer",
+      "primary_roles": [
+        "hard target deletion",
+        "armor cracking",
+        "short-range decisive trade"
+      ],
+      "secondary_roles": [
+        "monster suppression",
+        "centerpiece removal"
+      ],
+      "preferred_targets": [
+        "heavy vehicles",
+        "monsters",
+        "elite multi-wound anchors"
+      ],
+      "avoid_targets": [
+        "screens",
+        "chaff",
+        "unsupported range exposure"
+      ],
+      "commitment_timing": "when a decisive anti-armor trade is available",
+      "strengths": [
+        "excellent at deleting or crippling premium hard targets"
+      ],
+      "weaknesses": [
+        "short range often makes exposure severe",
+        "badly wasted on low-value targets"
+      ],
+      "best_detachments": [
+        "Retaliation Cadre",
+        "Mont'ka",
+        "Kauyon"
+      ],
+      "synergies_with": [
+        "Commander in Coldstar Battlesuit",
+        "Piranhas",
+        "Stealth Battlesuits",
+        "Hammerhead Gunship"
+      ],
+      "tau_play_notes": [
+        "This is a scalpel. Do not spend it on medium-value targets."
+      ]
+    },
+    {
+      "unit": "Kroot Carnivores",
+      "category": "screen / objective utility",
+      "primary_roles": [
+        "screening",
+        "move blocking",
+        "objective control"
+      ],
+      "secondary_roles": [
+        "deployment denial",
+        "mission trading"
+      ],
+      "preferred_targets": [
+        "screens",
+        "small infantry",
+        "objective leftovers"
+      ],
+      "avoid_targets": [
+        "real combat units",
+        "sustained direct confrontation"
+      ],
+      "commitment_timing": "from deployment onward",
+      "strengths": [
+        "cheap board control",
+        "excellent at preserving more valuable Tau units"
+      ],
+      "weaknesses": [
+        "fragile",
+        "limited offensive output"
+      ],
+      "best_detachments": [
+        "Kroot Hunting Pack",
+        "Kauyon",
+        "Auxiliary Cadre"
+      ],
+      "synergies_with": [
+        "Riptide Battlesuit",
+        "Broadsides",
+        "Crisis Fireknife Battlesuits",
+        "Stealth Battlesuits",
+        "Ghostkeel Battlesuit"
+      ],
+      "tau_play_notes": [
+        "One of the most important structural units in the faction. Their value is measured in space and time."
+      ]
+    },
+    {
+      "unit": "Krootox Riders",
+      "category": "auxiliary pressure / countercharge utility",
+      "primary_roles": [
+        "flank support",
+        "midboard pressure",
+        "auxiliary attack support"
+      ],
+      "secondary_roles": [
+        "mission trading"
+      ],
+      "preferred_targets": [
+        "light infantry",
+        "weakened midfield units"
+      ],
+      "avoid_targets": [
+        "dedicated elite killers",
+        "hard armor"
+      ],
+      "commitment_timing": "early_to_midgame in Kroot-centric builds",
+      "strengths": [
+        "extends Kroot package beyond pure screening"
+      ],
+      "weaknesses": [
+        "not a replacement for true Tau elite shooting"
+      ],
+      "best_detachments": [
+        "Kroot Hunting Pack",
+        "Auxiliary Cadre"
+      ],
+      "synergies_with": [
+        "Kroot Carnivores",
+        "Kroot Lone-spear",
+        "Rampagers"
+      ],
+      "tau_play_notes": [
+        "Best used as part of a full Kroot ecosystem, not as isolated add-ons."
+      ]
+    },
+    {
+      "unit": "Kroot Rampagers",
+      "category": "auxiliary melee pressure",
+      "primary_roles": [
+        "countercharge",
+        "flank harassment",
+        "midboard punishment"
+      ],
+      "secondary_roles": [
+        "screen punishment"
+      ],
+      "preferred_targets": [
+        "light infantry",
+        "weakened elite infantry",
+        "exposed support units"
+      ],
+      "avoid_targets": [
+        "dedicated melee bricks",
+        "high-end armor"
+      ],
+      "commitment_timing": "midgame after enemy spacing is compromised",
+      "strengths": [
+        "adds a threat vector many opponents may misjudge from Tau"
+      ],
+      "weaknesses": [
+        "can evaporate if sent in without setup"
+      ],
+      "best_detachments": [
+        "Kroot Hunting Pack",
+        "Auxiliary Cadre"
+      ],
+      "synergies_with": [
+        "Kroot Carnivores",
+        "Krootox Riders",
+        "Ghostkeel Battlesuit"
+      ],
+      "tau_play_notes": [
+        "Use as a punishment piece, not as a frontal assault hammer."
+      ]
+    },
+    {
+      "unit": "Kroot Lone-spear",
+      "category": "auxiliary skirmish leader",
+      "primary_roles": [
+        "forward utility",
+        "Kroot package support",
+        "pressure shaping"
+      ],
+      "secondary_roles": [
+        "mission play",
+        "isolated target punishment"
+      ],
+      "preferred_targets": [
+        "light infantry",
+        "support units",
+        "mission pieces"
+      ],
+      "avoid_targets": [
+        "elite bricks",
+        "dedicated anti-character focus"
+      ],
+      "commitment_timing": "early_to_midgame in Kroot-focused plans",
+      "strengths": [
+        "supports the Kroot sub-engine with speed and board presence"
+      ],
+      "weaknesses": [
+        "not independently durable enough for reckless use"
+      ],
+      "best_detachments": [
+        "Kroot Hunting Pack",
+        "Auxiliary Cadre"
+      ],
+      "synergies_with": [
+        "Kroot Carnivores",
+        "Krootox Riders",
+        "Kroot Rampagers"
+      ],
+      "tau_play_notes": [
+        "Use to make the Kroot package coherent rather than scattered."
+      ]
+    }
+  ],
+  "synergy_packages": [
+    {
+      "package": "screen_then_counterpunch",
+      "core_units": [
+        "Kroot Carnivores",
+        "Stealth Battlesuits",
+        "Crisis Fireknife Battlesuits",
+        "Riptide Battlesuit"
+      ],
+      "purpose": "Absorb the enemy’s first meaningful push, then remove the overextended pressure piece with concentrated suit fire.",
+      "best_into": [
+        "fast melee",
+        "midboard pressure",
+        "elite rush armies"
+      ],
+      "play_pattern": [
+        "Kroot and Stealth shape space and deny clean launches.",
+        "Enemy commits into imperfect ground.",
+        "Riptide and Fireknives remove the first premium threat."
+      ]
+    },
+    {
+      "package": "anti_armor_breaker",
+      "core_units": [
+        "Crisis Sunforge Battlesuits",
+        "Hammerhead Gunship",
+        "Broadsides",
+        "Piranhas"
+      ],
+      "purpose": "Crack hard armor while shaping movement so the decisive anti-tank trade is safe.",
+      "best_into": [
+        "knights",
+        "monster-heavy lists",
+        "vehicle skew"
+      ],
+      "play_pattern": [
+        "Piranhas distort lanes.",
+        "Hammerhead and Broadsides soften or bracket a key target.",
+        "Sunforge commits for decisive removal."
+      ]
+    },
+    {
+      "package": "midboard_tax_shell",
+      "core_units": [
+        "Ghostkeel Battlesuit",
+        "Stealth Battlesuits",
+        "Riptide Battlesuit",
+        "Kroot Carnivores"
+      ],
+      "purpose": "Control central space without donating the main damage package.",
+      "best_into": [
+        "balanced armies",
+        "slow pressure lists",
+        "board-control opponents"
+      ],
+      "play_pattern": [
+        "Ghostkeel taxes central movement.",
+        "Stealth and Kroot protect and extend the shell.",
+        "Riptide punishes commitment into the center."
+      ]
+    },
+    {
+      "package": "mobile_objective_flip",
+      "core_units": [
+        "Devilfish",
+        "Breacher Team",
+        "Cadre Fireblade",
+        "Piranhas"
+      ],
+      "purpose": "Flip an objective by combining delivery, concentrated short-range fire, and lane denial.",
+      "best_into": [
+        "midfield objective armies",
+        "light infantry holders"
+      ],
+      "play_pattern": [
+        "Devilfish delivers Breachers.",
+        "Fireblade amplifies objective-clearing firepower.",
+        "Piranhas prevent easy reinforcement or countercharge lanes."
+      ]
+    },
+    {
+      "package": "kroot_board_net",
+      "core_units": [
+        "Kroot Carnivores",
+        "Krootox Riders",
+        "Kroot Rampagers",
+        "Kroot Lone-spear"
+      ],
+      "purpose": "Create a fast auxiliary network that screens, harasses, and contests while the main Tau guns remain safe.",
+      "best_into": [
+        "mission-heavy games",
+        "reserve denial",
+        "opponents weak to board spread"
+      ],
+      "play_pattern": [
+        "Carnivores take space.",
+        "Lone-spear and Krootox support pressure lines.",
+        "Rampagers punish overextension."
+      ]
+    }
+  ],
+  "runtime_guidance": {
+    "instruction": "Use unit roles to decide what each Tau piece should do before deciding where it should go.",
+    "decision_order": [
+      "Identify mission and enemy threat profile.",
+      "Choose Tau detachment and broad tempo plan.",
+      "Map each Tau unit to its battlefield role.",
+      "Assemble synergy packages rather than treating units individually.",
+      "Determine screens, anchors, hammers, and delivery pieces.",
+      "Only then allocate deployment positions and first-turn target priorities."
+    ]
+  }
+}

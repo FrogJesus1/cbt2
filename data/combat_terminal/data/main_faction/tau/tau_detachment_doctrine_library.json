@@ -1,0 +1,316 @@
+{
+  "name": "tau_detachment_doctrine_library",
+  "version": "v1.0",
+  "faction": "Tau Empire",
+  "edition": "10th",
+  "last_updated": "2026-03-06",
+  "purpose": "Translates Tau detachments into doctrine-level guidance so the AI can choose the right Tau game plan for the matchup, mission, and terrain.",
+  "detachments": [
+    {
+      "detachment": "Kauyon",
+      "tempo_profile": "late_game_scaling",
+      "playstyle": "patient attrition into decisive mid/late-game strikes",
+      "strategic_identity": "Preserve premium assets early, deny efficient enemy trades, then swing the game once lanes and targets are favorable.",
+      "preferred_units": [
+        "Crisis Fireknife Battlesuits",
+        "Broadsides",
+        "Riptide Battlesuit",
+        "Ghostkeel Battlesuit",
+        "Kroot Carnivores",
+        "Stealth Battlesuits"
+      ],
+      "preferred_synergy_packages": [
+        "screen_then_counterpunch",
+        "midboard_tax_shell",
+        "anti_armor_breaker"
+      ],
+      "deployment_style": [
+        "deep_staging_kauyon_shell",
+        "refused_flank_gun_shell",
+        "castle_with_mobile_hammers"
+      ],
+      "priority_targets": [
+        "fast_melee_hammer",
+        "anti_tank_platform",
+        "delivery transports",
+        "deep strike pressure"
+      ],
+      "ideal_matchups": [
+        "fast melee",
+        "elite pressure",
+        "vehicle skew",
+        "mobile shooting mirrors where patience matters"
+      ],
+      "weak_matchups": [
+        "extreme board flood if too passive",
+        "missions where early board presence is mandatory and uncontested"
+      ],
+      "commitment_timing": "usually turns 2-4, often strongest from midgame onward",
+      "battle_plan": [
+        "Minimize early exposure.",
+        "Trade screens, cheap utility, and only safe shots early.",
+        "Once enemy launch threats or anti-tank are softened, commit strike units for clean removals."
+      ],
+      "ai_use_rules": [
+        "Do not take marginal early trades with premium units.",
+        "Prefer clean sequential removals over broad damage spread.",
+        "If the enemy is overextending, counterattack; otherwise preserve and score safely."
+      ]
+    },
+    {
+      "detachment": "Mont'ka",
+      "tempo_profile": "early_game_pressure",
+      "playstyle": "aggressive tempo seizure through movement, delivery, and front-loaded pressure",
+      "strategic_identity": "Take control of the game’s rhythm before the opponent stabilizes, forcing them to react to Tau movement and concentrated forward pressure.",
+      "preferred_units": [
+        "Commander in Coldstar Battlesuit",
+        "Crisis Fireknife Battlesuits",
+        "Crisis Sunforge Battlesuits",
+        "Devilfish",
+        "Breacher Team",
+        "Piranhas",
+        "Stealth Battlesuits"
+      ],
+      "preferred_synergy_packages": [
+        "mobile_objective_flip",
+        "anti_armor_breaker"
+      ],
+      "deployment_style": [
+        "montka_forward_pressure_shell",
+        "bait_and_flank_collapse",
+        "wide_denial_with_fast_utilities"
+      ],
+      "priority_targets": [
+        "light_vehicle_pressure",
+        "support_characters",
+        "screens blocking an alpha",
+        "enemy anti-tank that blunts the push"
+      ],
+      "ideal_matchups": [
+        "fragile shooting",
+        "light vehicle pressure",
+        "armies weak to sudden flank collapse"
+      ],
+      "weak_matchups": [
+        "very durable attrition shells if the first push lacks real payoff",
+        "dense anti-armor overwatch/control"
+      ],
+      "commitment_timing": "turns 1-2 most often",
+      "battle_plan": [
+        "Create immediate threat on one section of the board.",
+        "Use speed and staging pieces to open a kill lane.",
+        "Take a meaningful early objective or removal advantage."
+      ],
+      "ai_use_rules": [
+        "Mont'ka should not become reckless all-in exposure.",
+        "Preserve a second wave even during aggressive openings.",
+        "Only push hard where movement and support make the attack asymmetric."
+      ]
+    },
+    {
+      "detachment": "Retaliation Cadre",
+      "tempo_profile": "suit_hammer_midgame",
+      "playstyle": "battlesuit-centered concentrated violence with premium strike packages",
+      "strategic_identity": "Build around elite suit units and use them as the central engine for deleting the opponent’s most important pieces.",
+      "preferred_units": [
+        "Commander in Coldstar Battlesuit",
+        "Commander in Enforcer Battlesuit",
+        "Crisis Fireknife Battlesuits",
+        "Crisis Sunforge Battlesuits",
+        "Riptide Battlesuit",
+        "Broadsides",
+        "Stealth Battlesuits"
+      ],
+      "preferred_synergy_packages": [
+        "anti_armor_breaker",
+        "screen_then_counterpunch"
+      ],
+      "deployment_style": [
+        "castle_with_mobile_hammers",
+        "refused_flank_gun_shell",
+        "deep_staging_kauyon_shell"
+      ],
+      "priority_targets": [
+        "anti_tank_platform",
+        "heavy_vehicle_or_monster",
+        "elite_infantry_brick",
+        "enemy hammers that threaten suits"
+      ],
+      "ideal_matchups": [
+        "elite armies",
+        "vehicle and monster lists",
+        "factions vulnerable to concentrated quality shooting"
+      ],
+      "weak_matchups": [
+        "extreme board flood if suit count is too low",
+        "dense indirect or deep pressure if screens are insufficient"
+      ],
+      "commitment_timing": "midgame, or earlier for premium anti-armor trades",
+      "battle_plan": [
+        "Protect suit assets with screens and staging tools.",
+        "Use the first major commitment to remove a target that changes the battle state.",
+        "Continue trading premium units only when the exchange remains favorable."
+      ],
+      "ai_use_rules": [
+        "This doctrine is for decisive premium removals, not casual chip damage.",
+        "Do not expose Sunforge or Fireknife units for medium-value targets.",
+        "Use support pieces to shape the lane before the suit package moves."
+      ]
+    },
+    {
+      "detachment": "Kroot Hunting Pack",
+      "tempo_profile": "board_control_and_harassment",
+      "playstyle": "auxiliary-led space control, flanking pressure, and mission disruption",
+      "strategic_identity": "Win by owning space, shaping movement, and forcing the enemy to waste effort on low-cost but strategically valuable pieces.",
+      "preferred_units": [
+        "Kroot Carnivores",
+        "Krootox Riders",
+        "Kroot Rampagers",
+        "Kroot Lone-spear",
+        "Stealth Battlesuits",
+        "Ghostkeel Battlesuit"
+      ],
+      "preferred_synergy_packages": [
+        "kroot_board_net",
+        "midboard_tax_shell"
+      ],
+      "deployment_style": [
+        "wide_denial_with_fast_utilities",
+        "layered_screen_and_counterpunch",
+        "ghostkeel_midboard_disruption"
+      ],
+      "priority_targets": [
+        "enemy screens",
+        "objective holders",
+        "small support units",
+        "units vulnerable to flanking harassment"
+      ],
+      "ideal_matchups": [
+        "mission-heavy games",
+        "reserve pressure",
+        "armies that dislike spread-out board states"
+      ],
+      "weak_matchups": [
+        "heavy elite armor if the list lacks enough real damage",
+        "high-efficiency chaff clear backed by strong anchors"
+      ],
+      "commitment_timing": "continuous pressure from deployment onward",
+      "battle_plan": [
+        "Contest and deny space immediately.",
+        "Force the opponent to spend real resources answering cheap or mobile auxiliary units.",
+        "Let the main Tau guns capitalize on the dislocation."
+      ],
+      "ai_use_rules": [
+        "Do not try to play this like a normal pure-suit castle.",
+        "Use Kroot for time, space, and angles first, damage second.",
+        "Preserve enough backline firepower to punish whatever the Kroot package drags out."
+      ]
+    },
+    {
+      "detachment": "Auxiliary Cadre",
+      "tempo_profile": "hybrid_support_pressure",
+      "playstyle": "combined auxiliary network supporting conventional Tau firepower",
+      "strategic_identity": "Blend Kroot and support elements into a broader Tau shell that is more flexible on the board than a pure gunline.",
+      "preferred_units": [
+        "Kroot Carnivores",
+        "Krootox Riders",
+        "Kroot Lone-spear",
+        "Pathfinders",
+        "Strike Team",
+        "Ghostkeel Battlesuit",
+        "Riptide Battlesuit"
+      ],
+      "preferred_synergy_packages": [
+        "kroot_board_net",
+        "midboard_tax_shell",
+        "screen_then_counterpunch"
+      ],
+      "deployment_style": [
+        "wide_denial_with_fast_utilities",
+        "refused_flank_gun_shell",
+        "layered_screen_and_counterpunch"
+      ],
+      "priority_targets": [
+        "enemy objective holders",
+        "support characters",
+        "small transports",
+        "pressure units trying to breach the shell"
+      ],
+      "ideal_matchups": [
+        "balanced armies",
+        "missions needing broad utility",
+        "opponents who can be stretched across the board"
+      ],
+      "weak_matchups": [
+        "extreme premium armor if the list skimps on anti-tank"
+      ],
+      "commitment_timing": "incremental, often through layered utility rather than one spike turn",
+      "battle_plan": [
+        "Use auxiliary elements to widen Tau board influence.",
+        "Preserve elite guns while auxiliaries handle space and early mission work.",
+        "Transition to focused fire once enemy positioning is compromised."
+      ],
+      "ai_use_rules": [
+        "Treat auxiliaries as enablers and screens, not as replacements for true damage dealers.",
+        "Best when the list balances mission play with enough hard shooting."
+      ]
+    },
+    {
+      "detachment": "Experimental Prototype Cadre",
+      "tempo_profile": "specialized_elite_pressure",
+      "playstyle": "elite battlesuit and prototype-driven pressure with unusual tech pieces",
+      "strategic_identity": "Use advanced suit-based threats and prototype-style advantages to create unusual, hard-to-answer engagements.",
+      "preferred_units": [
+        "Ghostkeel Battlesuit",
+        "Riptide Battlesuit",
+        "Crisis Fireknife Battlesuits",
+        "Broadsides",
+        "Stealth Battlesuits"
+      ],
+      "preferred_synergy_packages": [
+        "midboard_tax_shell",
+        "anti_armor_breaker"
+      ],
+      "deployment_style": [
+        "ghostkeel_midboard_disruption",
+        "castle_with_mobile_hammers",
+        "refused_flank_gun_shell"
+      ],
+      "priority_targets": [
+        "enemy anti-tank",
+        "elite infantry",
+        "midboard anchors",
+        "specialist counters to battlesuits"
+      ],
+      "ideal_matchups": [
+        "elite armies",
+        "precision shooting wars",
+        "games where tech advantages and awkward profiles matter"
+      ],
+      "weak_matchups": [
+        "very wide board flood lists if too few units are present"
+      ],
+      "commitment_timing": "midgame after the prototype advantages can be leveraged cleanly",
+      "battle_plan": [
+        "Leverage awkward durability and specialized suit roles.",
+        "Make the enemy answer unusual pieces on unfavorable terms.",
+        "Preserve premium tech units for high-value trades."
+      ],
+      "ai_use_rules": [
+        "Do not squander specialized tools on low-value targets.",
+        "Use Ghostkeel and advanced suit pieces to create board tax before the decisive strike."
+      ]
+    }
+  ],
+  "runtime_guidance": {
+    "instruction": "Choose detachment based on mission, expected threat type, and the role distribution of the Tau list.",
+    "selection_logic": [
+      "If the matchup is fast melee or rewards patience, favor Kauyon.",
+      "If the matchup rewards early tempo or transport pressure, favor Mont'ka.",
+      "If the list is heavily suit-centered and wants premium removals, favor Retaliation Cadre.",
+      "If the list is Kroot-centric or the mission rewards broad board spread, favor Kroot Hunting Pack.",
+      "If the list mixes auxiliaries with a core shell, favor Auxiliary Cadre.",
+      "If the list is built around prototype/specialized elite suit play, favor Experimental Prototype Cadre."
+    ]
+  }
+}

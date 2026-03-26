@@ -1,0 +1,27 @@
+import { defineConfig } from "vite";
+import react from "@vitejs/plugin-react";
+import path from "path";
+
+export default defineConfig({
+  plugins: [react()],
+  resolve: {
+    alias: {
+      "recharts": path.resolve(__dirname, "./src/recharts-mock.js"),
+      "@": path.resolve(__dirname, "./src"),
+    },
+  },
+  server: {
+    port: 5173,
+    proxy: {
+      // During dev: forward /api/* to FastAPI
+      "/api": {
+        target: "http://localhost:8000",
+        changeOrigin: true,
+      },
+    },
+  },
+  build: {
+    outDir: "dist",
+    emptyOutDir: true,
+  },
+});

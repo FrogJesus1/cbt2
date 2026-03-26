@@ -1,0 +1,59 @@
+# Slanesh Loadout
+# Saved: 2026-03-19
+
++++++++++++++++++++++++++++++++++++++++++++++++
++ FACTION KEYWORD: Chaos - Chaos Daemons
++ DETACHMENT: 
++ TOTAL ARMY POINTS: 1485pts
++
++ ENHANCEMENT: 
++ NUMBER OF UNITS: 15
++ SECONDARY: - Bring It Down: (3x2) - Assassination: 9 Characters
++++++++++++++++++++++++++++++++++++++++++++++++
+
+Char3: 1x Daemon Prince of Chaos (190 pts): Khorne, Hellforged weapons, Infernal cannon
+Char4: 1x Daemon Prince of Chaos with wings (180 pts): Khorne, Hellforged weapons, Infernal cannon
+Char5: 1x Infernal Enrapturess (60 pts): Heartstring lyre, Ravaging claws
+Char6: 1x Infernal Enrapturess (60 pts): Heartstring lyre, Ravaging claws
+Char1: 1x Syll'esske (120 pts): Axe of Dominion, Cacophonic choir, Scourging whip
+Char2: 1x The Masque of Slaanesh (95 pts): Serrated claws
+Char7: 1x Tranceweaver (60 pts): Ravaging claws
+Char8: 1x Tranceweaver (60 pts): Ravaging claws
+Char9: 1x Tranceweaver (60 pts): Ravaging claws
+
+10x Daemonettes (100 pts)
+• 9x Daemonette
+    7 with Slashing claws
+    1 with Instrument of Chaos, Slashing claws
+    1 with Daemonic Icon, Slashing claws
+• 1x Alluress: Slashing claws
+10x Daemonettes (100 pts)
+• 9x Daemonette
+    7 with Slashing claws
+    1 with Instrument of Chaos, Slashing claws
+    1 with Daemonic Icon, Slashing claws
+• 1x Alluress: Slashing claws
+10x Daemonettes (100 pts)
+• 9x Daemonette
+    7 with Slashing claws
+    1 with Instrument of Chaos, Slashing claws
+    1 with Daemonic Icon, Slashing claws
+• 1x Alluress: Slashing claws
+10x Daemonettes (100 pts)
+• 9x Daemonette
+    7 with Slashing claws
+    1 with Instrument of Chaos, Slashing claws
+    1 with Daemonic Icon, Slashing claws
+• 1x Alluress: Slashing claws
+10x Daemonettes (100 pts)
+• 9x Daemonette
+    7 with Slashing claws
+    1 with Instrument of Chaos, Slashing claws
+    1 with Daemonic Icon, Slashing claws
+• 1x Alluress: Slashing claws
+10x Daemonettes (100 pts)
+• 9x Daemonette
+    7 with Slashing claws
+    1 with Instrument of Chaos, Slashing claws
+    1 with Daemonic Icon, Slashing claws
+• 1x Alluress: Slashing claws

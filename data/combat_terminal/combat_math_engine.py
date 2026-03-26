@@ -1,0 +1,649 @@
+
+"""
+combat_math_engine.py
+
+A flexible Warhammer 40K combat math engine designed for the Tau AI system.
+
+Goals
+-----
+- Support exact expected value calculations.
+- Support Monte Carlo simulation.
+- Make modifier handling explicit and configurable.
+- Allow optional inclusion of markerlight / guidance style hit bonuses.
+- Allow stratagems, abilities, and temporary effects to modify:
+    * hit rolls
+    * wound rolls
+    * save rolls
+    * AP
+    * damage
+    * attacks/shots
+    * lethal / sustained style effects
+- Keep the interface generic enough for non-Tau factions later.
+"""
+
+from __future__ import annotations
+
+from dataclasses import dataclass, field, asdict
+from typing import Any, Dict, List, Optional, Tuple
+import json
+import math
+import random
+import statistics
+
+
+def clamp(n: int, low: int, high: int) -> int:
+    return max(low, min(high, n))
+
+
+def parse_roll_value(value: str | int | None) -> Optional[int]:
+    if value is None:
+        return None
+    if isinstance(value, int):
+        return value
+    s = str(value).strip().replace("+", "")
+    if s.isdigit():
+        return int(s)
+    return None
+
+
+def success_probability(target: int, reroll: str = "none", crit_on: int = 6) -> float:
+    target = clamp(target, 2, 6)
+    base_successes = max(0, 7 - target)
+    p_success = base_successes / 6.0
+
+    if reroll == "none":
+        return p_success
+    if reroll == "ones":
+        p_one = 1 / 6.0
+        return p_success + p_one * p_success
+    if reroll == "failed":
+        return p_success + (1 - p_success) * p_success
+    raise ValueError(f"Unknown reroll mode: {reroll}")
+
+
+def crit_probability(target: int, reroll: str = "none", crit_on: int = 6) -> float:
+    crit_on = clamp(crit_on, 2, 6)
+    base_crit = max(0, 7 - crit_on) / 6.0
+
+    if reroll == "none":
+        return base_crit
+    if reroll == "ones":
+        return base_crit + (1 / 6.0) * base_crit
+    if reroll == "failed":
+        p_success = success_probability(target, reroll="none")
+        p_fail = 1 - p_success
+        return base_crit + p_fail * base_crit
+    raise ValueError(f"Unknown reroll mode: {reroll}")
+
+
+def wound_target(strength: int, toughness: int) -> int:
+    if strength >= toughness * 2:
+        return 2
+    if strength > toughness:
+        return 3
+    if strength == toughness:
+        return 4
+    if strength * 2 <= toughness:
+        return 6
+    return 5
+
+
+@dataclass
+class WeaponProfile:
+    name: str
+    attacks: float
+    skill: int
+    strength: int
+    ap: int
+    damage: float
+    range: Optional[str] = None
+    keywords: List[str] = field(default_factory=list)
+    damage_is_variable: bool = False
+    damage_expression: Optional[str] = None
+    attacks_is_variable: bool = False
+    attacks_expression: Optional[str] = None
+    instance_count: int = 1           # total weapon instances on the unit (set by roster loader)
+
+
+@dataclass
+class TargetProfile:
+    name: str
+    toughness: int
+    save: int
+    invulnerable_save: Optional[int]
+    wounds: int
+    models: int = 1
+    feel_no_pain: Optional[int] = None
+    damage_reduction: int = 0
+    cover: bool = False
+
+
+@dataclass
+class AttackModifiers:
+    hit_bonus: int = 0
+    hit_penalty: int = 0
+    reroll_hits: str = "none"
+    crit_hits_on: int = 6
+    sustained_hits: int = 0
+    lethal_hits: bool = False
+
+    wound_bonus: int = 0
+    wound_penalty: int = 0
+    reroll_wounds: str = "none"
+    crit_wounds_on: int = 6
+    devastating_wounds: bool = False
+
+    save_bonus: int = 0
+    save_penalty: int = 0
+    ignore_cover: bool = False
+    ap_modifier: int = 0
+    invuln_modifier: int = 0
+
+    extra_attacks: float = 0.0
+    flat_damage_bonus: float = 0.0
+    damage_multiplier: float = 1.0
+
+    use_markerlights: bool = False
+    markerlight_hit_bonus: int = 1
+
+    use_rapid_fire: bool = False   # flag: CLI resolves per-weapon RF N → extra_attacks
+    use_melta: bool = False        # flag: CLI resolves per-weapon Melta N → flat_damage_bonus
+    use_blast: bool = False        # flag: CLI resolves per-weapon Blast → +1 extra_attacks (6+ models)
+    use_lance: bool = False        # flag: CLI resolves per-weapon Lance → +1 wound_bonus
+
+    use_torrent: bool = False      # auto-detected: weapon auto-hits (no BS roll needed)
+    anti_wound_target: Optional[int] = None  # Auto/manual: Anti-X N+ overrides wound target
+
+    use_overwatch: int = 0         # 0 = normal, 6 = overwatch (hits on 6+), 5 = hits on 5+
+
+    active_effects: List[str] = field(default_factory=list)
+
+
+@dataclass
+class AttackResult:
+    weapon_name: str
+    hit_target: int
+    wound_target: int
+    save_target: Optional[int]
+    hit_probability: float
+    crit_hit_probability: float
+    wound_probability_given_hit: float
+    crit_wound_probability_given_wound_roll: float
+    failed_save_probability: float
+    expected_hits: float
+    expected_wounds: float
+    expected_unsaved_wounds: float
+    expected_damage: float
+    expected_kills: float
+    notes: List[str] = field(default_factory=list)
+
+
+def apply_tau_markerlights(mods: AttackModifiers) -> AttackModifiers:
+    new_mods = AttackModifiers(**asdict(mods))
+    if new_mods.use_markerlights:
+        new_mods.hit_bonus += new_mods.markerlight_hit_bonus
+        new_mods.ignore_cover = True  # Markerlights / Guided grants Ignores Cover
+        if "Markerlights / Guided bonus applied" not in new_mods.active_effects:
+            new_mods.active_effects.append("Markerlights / Guided bonus applied")
+    return new_mods
+
+
+def make_stratagem(name: str, **kwargs: Any) -> Dict[str, Any]:
+    payload = {"name": name}
+    payload.update(kwargs)
+    return payload
+
+
+def apply_effects(base_mods: Optional[AttackModifiers], effects: Optional[List[Dict[str, Any]]]) -> AttackModifiers:
+    mods = AttackModifiers(**asdict(base_mods or AttackModifiers()))
+    for effect in effects or []:
+        name = effect.get("name", "Unnamed effect")
+        for key, value in effect.items():
+            if key == "name":
+                continue
+            if not hasattr(mods, key):
+                continue
+            current = getattr(mods, key)
+            if isinstance(current, (int, float)) and isinstance(value, (int, float)):
+                setattr(mods, key, current + value)
+            elif isinstance(current, list) and isinstance(value, list):
+                setattr(mods, key, current + value)
+            elif isinstance(current, bool) and isinstance(value, bool):
+                setattr(mods, key, current or value)
+            else:
+                setattr(mods, key, value)
+        mods.active_effects.append(name)
+    return mods
+
+
+def compute_save_target(target: TargetProfile, weapon: WeaponProfile, mods: AttackModifiers) -> Optional[int]:
+    effective_ap = weapon.ap - mods.ap_modifier
+    armor_save = target.save
+
+    cover_bonus = 0
+    if target.cover and not mods.ignore_cover:
+        cover_bonus += 1
+
+    # AP adds to the roll target the defender needs — more AP (more negative in 40K)
+    # means a higher roll is required to save, so effective_ap is ADDED here.
+    # e.g. AP-2 (stored unsigned as 2) vs 3+ save → need 5+ to save (3+2=5).
+    effective_armor = armor_save - cover_bonus - mods.save_bonus + mods.save_penalty + effective_ap
+    effective_armor = clamp(effective_armor, 2, 7)
+
+    invuln = target.invulnerable_save
+    if invuln is not None:
+        invuln = clamp(invuln - mods.invuln_modifier, 2, 7)
+
+    candidates = []
+    if effective_armor <= 6:
+        candidates.append(effective_armor)
+    if invuln is not None and invuln <= 6:
+        candidates.append(invuln)
+
+    if not candidates:
+        return None
+    return min(candidates)
+
+
+def compute_attack_result(
+    weapon: WeaponProfile,
+    target: TargetProfile,
+    base_mods: Optional[AttackModifiers] = None,
+    extra_effects: Optional[List[Dict[str, Any]]] = None,
+) -> AttackResult:
+    mods = apply_tau_markerlights(apply_effects(base_mods, extra_effects))
+
+    raw_hit = parse_roll_value(weapon.skill)
+    if raw_hit is None:
+        raise ValueError(f"Invalid weapon skill for {weapon.name}: {weapon.skill}")
+
+    hit_target = clamp(raw_hit - mods.hit_bonus + mods.hit_penalty, 2, 6)
+    p_hit = success_probability(hit_target, reroll=mods.reroll_hits, crit_on=mods.crit_hits_on)
+    p_crit_hit = crit_probability(hit_target, reroll=mods.reroll_hits, crit_on=mods.crit_hits_on)
+
+    # Torrent: weapon auto-hits — no BS roll needed; crits still trigger on natural 6s
+    if mods.use_torrent:
+        p_hit = 1.0
+        p_crit_hit = 1 / 6.0
+
+    base_wound_target = wound_target(weapon.strength, target.toughness)
+    final_wound_target = clamp(base_wound_target - mods.wound_bonus + mods.wound_penalty, 2, 6)
+
+    # Anti-X N+: wound rolls of N+ always succeed — take the better of S-vs-T and Anti threshold
+    if mods.anti_wound_target is not None:
+        final_wound_target = clamp(min(final_wound_target, mods.anti_wound_target), 2, 6)
+    p_wound_roll_success = success_probability(final_wound_target, reroll=mods.reroll_wounds, crit_on=mods.crit_wounds_on)
+    p_crit_wound = crit_probability(final_wound_target, reroll=mods.reroll_wounds, crit_on=mods.crit_wounds_on)
+
+    save_target = compute_save_target(target, weapon, mods)
+    p_fail_save = 1.0 if save_target is None else (1 - success_probability(save_target, reroll="none"))
+
+    attacks = max(0.0, weapon.attacks + mods.extra_attacks)
+
+    expected_hits = attacks * (p_hit + p_crit_hit * mods.sustained_hits)
+
+    # ── Lethal Hits ──────────────────────────────────────────────────────────
+    # Crit hits auto-wound (skip wound roll) and proceed directly to saves.
+    expected_auto_wounds = attacks * p_crit_hit if mods.lethal_hits else 0.0
+
+    # ── Hits that roll to wound ───────────────────────────────────────────────
+    # With Lethal Hits: only non-crit hits + sustained extras roll to wound
+    #                   (crit itself already became an auto-wound)
+    # Without Lethal Hits: ALL hits (including crits) roll to wound,
+    #                      plus any sustained extras from crits
+    if mods.lethal_hits:
+        expected_wound_roll_hits = (attacks * max(0.0, p_hit - p_crit_hit)
+                                    + attacks * p_crit_hit * mods.sustained_hits)
+    else:
+        expected_wound_roll_hits = (attacks * p_hit
+                                    + attacks * p_crit_hit * mods.sustained_hits)
+
+    # ── Devastating Wounds ───────────────────────────────────────────────────
+    # Crit wound rolls (natural 6 on wound) bypass ALL saves as mortal wounds.
+    # Normal wound successes still go through armor/invuln saves.
+    if mods.devastating_wounds:
+        expected_dev_wounds    = expected_wound_roll_hits * p_crit_wound
+        expected_normal_wounds = expected_wound_roll_hits * (p_wound_roll_success - p_crit_wound)
+        expected_wounds  = expected_auto_wounds + expected_dev_wounds + expected_normal_wounds
+        # Auto-wounds (lethal) + normal wounds → armor/invuln saves
+        # Devastating crit wounds → bypass saves entirely
+        expected_unsaved = ((expected_auto_wounds + expected_normal_wounds) * p_fail_save
+                            + expected_dev_wounds)
+    else:
+        expected_wound_roll_wounds = expected_wound_roll_hits * p_wound_roll_success
+        expected_wounds  = expected_auto_wounds + expected_wound_roll_wounds
+        expected_unsaved = expected_wounds * p_fail_save
+
+    effective_damage = max(1.0, ((weapon.damage + mods.flat_damage_bonus) * mods.damage_multiplier) - target.damage_reduction)
+    expected_damage = expected_unsaved * effective_damage
+
+    if target.feel_no_pain is not None:
+        fnp_success = success_probability(target.feel_no_pain, reroll="none")
+        expected_damage *= (1 - fnp_success)
+
+    expected_kills = expected_damage / max(1, target.wounds)
+
+    notes = []
+    if mods.use_markerlights:
+        notes.append("Markerlights / guided bonus included.")
+    if mods.active_effects:
+        notes.append("Active effects: " + ", ".join(mods.active_effects))
+
+    return AttackResult(
+        weapon_name=weapon.name,
+        hit_target=hit_target,
+        wound_target=final_wound_target,
+        save_target=save_target,
+        hit_probability=p_hit,
+        crit_hit_probability=p_crit_hit,
+        wound_probability_given_hit=p_wound_roll_success,
+        crit_wound_probability_given_wound_roll=p_crit_wound,
+        failed_save_probability=p_fail_save,
+        expected_hits=expected_hits,
+        expected_wounds=expected_wounds,
+        expected_unsaved_wounds=expected_unsaved,
+        expected_damage=expected_damage,
+        expected_kills=expected_kills,
+        notes=notes,
+    )
+
+
+def roll_d6() -> int:
+    return random.randint(1, 6)
+
+
+def _passes_roll(target: int) -> bool:
+    return roll_d6() >= target
+
+
+def _reroll_mode(target: int, mode: str) -> Tuple[bool, int]:
+    first = roll_d6()
+    if first >= target:
+        return True, first
+
+    if mode == "none":
+        return False, first
+    if mode == "ones":
+        if first == 1:
+            second = roll_d6()
+            return second >= target, second
+        return False, first
+    if mode == "failed":
+        second = roll_d6()
+        return second >= target, second
+
+    raise ValueError(f"Unknown reroll mode: {mode}")
+
+
+def monte_carlo_attack(
+    weapon: WeaponProfile,
+    target: TargetProfile,
+    base_mods: Optional[AttackModifiers] = None,
+    extra_effects: Optional[List[Dict[str, Any]]] = None,
+    trials: int = 100000,
+    seed: Optional[int] = 42,
+) -> Dict[str, Any]:
+    if seed is not None:
+        random.seed(seed)
+
+    mods = apply_tau_markerlights(apply_effects(base_mods, extra_effects))
+
+    raw_hit = parse_roll_value(weapon.skill)
+    if raw_hit is None:
+        raise ValueError(f"Invalid weapon skill for {weapon.name}: {weapon.skill}")
+
+    hit_target = clamp(raw_hit - mods.hit_bonus + mods.hit_penalty, 2, 6)
+    wound_t = clamp(wound_target(weapon.strength, target.toughness) - mods.wound_bonus + mods.wound_penalty, 2, 6)
+    if mods.anti_wound_target is not None:
+        wound_t = clamp(min(wound_t, mods.anti_wound_target), 2, 6)
+    save_t = compute_save_target(target, weapon, mods)
+
+    attacks = int(max(0, round(weapon.attacks + mods.extra_attacks)))
+    effective_damage = max(1.0, ((weapon.damage + mods.flat_damage_bonus) * mods.damage_multiplier) - target.damage_reduction)
+
+    total_damage = []
+    total_kills = []
+
+    for _ in range(trials):
+        damage_this_trial = 0.0
+
+        for _ in range(attacks):
+            # Torrent: auto-hits — roll a d6 only to check for crit
+            if mods.use_torrent:
+                hit_success = True
+                natural_hit = roll_d6()
+            else:
+                hit_success, natural_hit = _reroll_mode(hit_target, mods.reroll_hits)
+            if not hit_success:
+                continue
+
+            crit_hit = natural_hit >= mods.crit_hits_on
+            pending_hits = 1 + (mods.sustained_hits if crit_hit else 0)
+
+            auto_wounds = 1 if (mods.lethal_hits and crit_hit) else 0
+            rolled_hits = pending_hits - auto_wounds
+
+            # wounds: go through save roll normally (lethal auto-wounds + normal wound rolls)
+            # wounds_dev: devastating crit wounds — bypass all saves
+            wounds = auto_wounds
+            wounds_dev = 0
+
+            for _ in range(max(0, rolled_hits)):
+                wound_success, natural_wound = _reroll_mode(wound_t, mods.reroll_wounds)
+                if wound_success:
+                    crit_wound = natural_wound >= mods.crit_wounds_on
+                    if mods.devastating_wounds and crit_wound:
+                        wounds_dev += 1
+                    else:
+                        wounds += 1
+
+            # Normal wounds — roll saves
+            for _ in range(wounds):
+                failed = True
+                if save_t is not None:
+                    failed = not _passes_roll(save_t)
+                if failed:
+                    dmg = effective_damage
+                    if target.feel_no_pain is not None:
+                        prevented = 0
+                        for _ in range(int(math.floor(dmg))):
+                            if _passes_roll(target.feel_no_pain):
+                                prevented += 1
+                        dmg = max(0, dmg - prevented)
+                    damage_this_trial += dmg
+
+            # Devastating wounds — bypass saves, FNP still applies
+            for _ in range(wounds_dev):
+                dmg = effective_damage
+                if target.feel_no_pain is not None:
+                    prevented = 0
+                    for _ in range(int(math.floor(dmg))):
+                        if _passes_roll(target.feel_no_pain):
+                            prevented += 1
+                    dmg = max(0, dmg - prevented)
+                damage_this_trial += dmg
+
+        total_damage.append(damage_this_trial)
+        total_kills.append(damage_this_trial / max(1, target.wounds))
+
+    kill_probs = {}
+    max_bucket = min(10, max(1, target.models))
+    for bucket in range(0, max_bucket + 1):
+        kill_probs[str(bucket)] = sum(1 for k in total_kills if int(k) == bucket) / trials
+
+    mean_dmg   = statistics.mean(total_damage)
+    std_dmg    = statistics.stdev(total_damage) if len(total_damage) > 1 else 0.0
+    mean_kills = statistics.mean(total_kills)
+
+    # 95% confidence interval half-width as % of mean (margin of error)
+    # Using standard error: SE = std / sqrt(n); 95% CI ≈ 1.96 * SE
+    std_err     = std_dmg / math.sqrt(trials) if trials > 0 else 0.0
+    margin_95ci = 1.96 * std_err
+    # Express as % of mean for display (avoid div/0 when mean is 0)
+    margin_95ci_pct = round((margin_95ci / mean_dmg * 100), 2) if mean_dmg > 0 else 0.0
+
+    # Swinginess: coefficient of variation (std/mean) — 0 = perfectly predictable
+    swinginess_cv = round(std_dmg / mean_dmg, 3) if mean_dmg > 0 else 0.0
+    if   swinginess_cv < 0.15:  swinginess_label = "Stable"
+    elif swinginess_cv < 0.30:  swinginess_label = "Moderate"
+    elif swinginess_cv < 0.50:  swinginess_label = "Variable"
+    else:                        swinginess_label = "Swingy"
+
+    return {
+        "weapon_name":            weapon.name,
+        "trials":                 trials,
+        "mean_damage":            round(mean_dmg,   3),
+        "mean_kills":             round(mean_kills,  3),
+        "median_damage":          round(statistics.median(total_damage), 3),
+        "std_dev_damage":         round(std_dmg,    3),
+        "margin_of_error_95ci":   round(margin_95ci, 3),
+        "margin_of_error_95ci_pct": margin_95ci_pct,
+        "swinginess_cv":          swinginess_cv,
+        "swinginess_label":       swinginess_label,
+        "max_damage_observed":    max(total_damage) if total_damage else 0,
+        "kill_bucket_probabilities": kill_probs,
+        "notes": [
+            "Monte Carlo output approximates discrete outcomes better than exact EV alone.",
+            "Use especially for low-shot high-damage weapons like railguns."
+        ],
+    }
+
+
+def compare_weapon_into_target(
+    weapon_profiles: List[WeaponProfile],
+    target: TargetProfile,
+    base_mods: Optional[AttackModifiers] = None,
+    extra_effects: Optional[List[Dict[str, Any]]] = None,
+) -> List[Dict[str, Any]]:
+    results = []
+    for wp in weapon_profiles:
+        r = compute_attack_result(wp, target, base_mods=base_mods, extra_effects=extra_effects)
+        results.append(asdict(r))
+    results.sort(key=lambda x: x["expected_damage"], reverse=True)
+    return results
+
+
+def sweep_weapon_vs_toughness(
+    weapon: WeaponProfile,
+    toughness_values: Optional[List[int]] = None,
+    skill_values: Optional[List[int]] = None,
+    save_values: Optional[List[int]] = None,
+    base_mods: Optional[AttackModifiers] = None,
+    extra_effects: Optional[List[Dict[str, Any]]] = None,
+    digits: int = 2,
+) -> Dict[str, Any]:
+    """
+    Sweep a single weapon profile across a matrix of target toughness / skill / save values.
+
+    Returns a dict with:
+      - "rows"   : list of row labels (skill values used, e.g. "BS 3+")
+      - "cols"   : list of column labels (toughness values used, e.g. "T4")
+      - "matrix" : 2-D list [row][col] of expected_damage (rounded to `digits`)
+      - "weapon" : weapon name
+      - "mods"   : active effect names (if any)
+
+    Rows vary by BS (skill), columns vary by toughness, using a fixed save.
+    If multiple save values are supplied a separate table is returned per save.
+    """
+    if toughness_values is None:
+        toughness_values = [3, 4, 5, 6, 8, 10]
+    if skill_values is None:
+        skill_values = [2, 3, 4, 5, 6]
+    if save_values is None:
+        save_values = [3]
+
+    tables = {}
+    for sv in save_values:
+        matrix = []
+        for sk in skill_values:
+            row = []
+            w = WeaponProfile(
+                name=weapon.name,
+                attacks=weapon.attacks,
+                skill=sk,
+                strength=weapon.strength,
+                ap=weapon.ap,
+                damage=weapon.damage,
+                range=weapon.range,
+                keywords=list(weapon.keywords),
+                damage_is_variable=weapon.damage_is_variable,
+                damage_expression=weapon.damage_expression,
+                attacks_is_variable=weapon.attacks_is_variable,
+                attacks_expression=weapon.attacks_expression,
+            )
+            for t in toughness_values:
+                target = TargetProfile(
+                    name=f"T{t} Sv{sv}+",
+                    toughness=t,
+                    save=sv,
+                    invulnerable_save=None,
+                    wounds=1,
+                )
+                result = compute_attack_result(w, target, base_mods=base_mods, extra_effects=extra_effects)
+                row.append(round(result.expected_damage, digits))
+            matrix.append(row)
+
+        resolved_mods = apply_tau_markerlights(apply_effects(base_mods, extra_effects))
+        active = list(resolved_mods.active_effects)
+
+        tables[f"Sv{sv}+"] = {
+            "weapon": weapon.name,
+            "save": sv,
+            "rows": [f"BS {sk}+" for sk in skill_values],
+            "cols": [f"T{t}" for t in toughness_values],
+            "matrix": matrix,
+            "active_effects": active,
+        }
+
+    if len(save_values) == 1:
+        return tables[f"Sv{save_values[0]}+"]
+    return tables
+
+
+def railgun_vs_terminator_example() -> Dict[str, Any]:
+    railgun = WeaponProfile(
+        name="Railgun",
+        attacks=1,
+        skill=4,
+        strength=20,
+        ap=-5,
+        damage=12,
+        keywords=["Heavy", "Devastating Wounds"]
+    )
+    terminator = TargetProfile(
+        name="Terminator",
+        toughness=5,
+        save=2,
+        invulnerable_save=4,
+        wounds=3,
+        models=5,
+        cover=False
+    )
+
+    no_support = compute_attack_result(railgun, terminator)
+
+    with_markerlights = compute_attack_result(
+        railgun,
+        terminator,
+        base_mods=AttackModifiers(use_markerlights=True)
+    )
+
+    guided_plus_strat = compute_attack_result(
+        railgun,
+        terminator,
+        base_mods=AttackModifiers(use_markerlights=True),
+        extra_effects=[
+            make_stratagem("Example wound support", wound_bonus=1)
+        ]
+    )
+
+    return {
+        "no_support": asdict(no_support),
+        "with_markerlights": asdict(with_markerlights),
+        "with_markerlights_and_example_stratagem": asdict(guided_plus_strat),
+    }
+
+
+if __name__ == "__main__":
+    example = railgun_vs_terminator_example()
+    print(json.dumps(example, indent=2))

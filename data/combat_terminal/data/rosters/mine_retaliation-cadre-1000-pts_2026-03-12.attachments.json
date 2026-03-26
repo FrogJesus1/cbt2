@@ -1,0 +1,13 @@
+{
+  "version": 1,
+  "attachments": [
+    {
+      "leader_id": "commander_farsight_1",
+      "bodyguard_id": "crisis_starscythe_battlesuits_1"
+    },
+    {
+      "leader_id": "firesight_team_1",
+      "bodyguard_id": "stealth_battlesuits_1"
+    }
+  ]
+}

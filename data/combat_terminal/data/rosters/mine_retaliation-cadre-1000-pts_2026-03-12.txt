@@ -1,0 +1,40 @@
+# Retaliation Cadre 1000 pts
+# Saved: 2026-03-12
+
++++++++++++++++++++++++++++++++++++++++++++++++
++ FACTION KEYWORD: Xenos - T'au Empire
++ DETACHMENT: Retaliation Cadre (Bonded Heroes)
++ TOTAL ARMY POINTS: 1015pts
++
++ ENHANCEMENT: Prototype Weapon System (on Char3: Commander in Coldstar Battlesuit)
+& Starflare Ignition System (on Char4: Commander in Enforcer Battlesuit)
++ NUMBER OF UNITS: 9
++ SECONDARY: - Bring It Down: (3x2) + (4x4) - Assassination: 5 Characters
++++++++++++++++++++++++++++++++++++++++++++++++
+
+Char1: 1x Commander Farsight (85 pts): Dawn Blade, High-intensity plasma rifle
+Char3: 1x Commander in Coldstar Battlesuit (110 pts): Battlesuit support system, 3x Plasma rifle, Battlesuit fists
+Enhancement: Prototype Weapon System (+15 pts)
+Char4: 1x Commander in Enforcer Battlesuit (100 pts): Weapon support system, Gun Drone, Shield Drone, Airbursting fragmentation projector, 2x Missile pod, Battlesuit fists
+Enhancement: Starflare Ignition System (+20 pts)
+Char5: 1x Firesight Team (60 pts): Close combat weapons, Longshot pulse rifles, Pulse pistol
+Char2: 2x The Twin Lance (160 pts)
+• 1x Ri'Lantar: MV15 Gun Drone, Twin pulse blaster, Fusion eliminator, Twin pulse blaster, Shardstorm burst system, XV pulse pistol
+• 1x Ri'Locai: MV15 Gun Drone, Twin pulse blaster, Ion scattercannon, Twin pulse blaster, Shardstorm burst system, XV pulse pistol
+
+2x Broadside Battlesuits (170 pts)
+• 1x Broadside Shas’vre: 2x Missile Drone, Weapon support system, Crushing bulk, High-yield missile pods, Twin smart missile system
+• 1x Broadside Shas’ui: 2x Missile Drone, Weapon support system, Crushing bulk, High-yield missile pods, Twin smart missile system
+3x Crisis Fireknife Battlesuits (120 pts)
+• 2x Crisis Fireknife Shas’ui
+    1 with Gun Drone, Shield Drone, Battlesuit fists, 2x Plasma rifle
+    1 with Gun Drone, Shield Drone, Battlesuit fists, 2x Plasma rifle
+• 1x Crisis Fireknife Shas’vre: Gun Drone, Shield Drone, 2x Plasma rifle, Battlesuit fists
+3x Crisis Starscythe Battlesuits (110 pts)
+• 2x Crisis Starscythe Shas’ui
+    1 with Gun Drone, Shield Drone, 2x T'au flamer, Battlesuit fists
+    1 with Gun Drone, Shield Drone, 2x T'au flamer, Battlesuit fists
+• 1x Crisis Starscythe Shas’vre: Gun Drone, Shield Drone, 2x T'au flamer, Battlesuit fists
+5x Stealth Battlesuits (100 pts)
+• 1x Stealth Shas'vre: Homing beacon, Battlesuit fists, Burst cannon
+• 4x Stealth Shas'ui: 4 with Battlesuit fists, Burst cannon

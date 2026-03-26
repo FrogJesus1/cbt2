@@ -1,0 +1,574 @@
+"""
+math_adapter.py
+
+Translates between the dossier's data format (how parsed_dossier.json stores
+weapons and units) and the CombatMathEngine's typed dataclasses.
+
+Public surface:
+    compute_combat(attacker_unit, defender_unit, flags) -> dict
+
+The returned dict slots directly into engine.py's _query_combat response shape:
+    {
+        "ranged":         { expected_dmg, expected_kills, kill_chance_pct, ... }  or None,
+        "melee":          { ... }  or None,
+        "per_weapon_dmg": { weapon_name: { dmg, kills }, ... },
+        "target_profile": { toughness, save, wounds, invuln },
+    }
+"""
+
+from __future__ import annotations
+
+import re
+from copy import copy
+from dataclasses import fields as dc_fields
+from typing import Optional
+
+from data.combat_terminal.combat_math_engine import (
+    AttackModifiers,
+    AttackResult,
+    TargetProfile,
+    WeaponProfile,
+    compute_attack_result,
+    monte_carlo_attack,
+)
+
+# ─── Monte Carlo config ────────────────────────────────────────────────────────
+# Reduced trial count keeps UI response time under ~0.3s for typical unit matchups.
+# The deterministic EV calculation always runs; MC runs on top to provide variance
+# metrics (swinginess, error margin, kill distribution).
+_MC_TRIALS = 5000
+_MC_SEED   = 42
+
+
+# ─── Dice expression parser ────────────────────────────────────────────────────
+
+_DICE_RE = re.compile(r"(\d*)D(\d+)\s*([+-]\s*\d+)?", re.IGNORECASE)
+
+
+def _expected_dice(expr) -> tuple[float, bool, Optional[str]]:
+    """Return (expected_value, is_variable, raw_expression).
+
+    Examples:
+        "2"      → (2.0,  False, None)
+        "D6"     → (3.5,  True,  "D6")
+        "D6+1"   → (4.5,  True,  "D6+1")
+        "2D6"    → (7.0,  True,  "2D6")
+        "D3"     → (2.0,  True,  "D3")
+        "D6+2"   → (5.5,  True,  "D6+2")
+    """
+    if expr is None:
+        return 1.0, False, None
+    s = str(expr).strip()
+
+    # Plain integer
+    if re.fullmatch(r"\d+", s):
+        return float(int(s)), False, None
+
+    m = _DICE_RE.search(s)
+    if not m:
+        try:
+            return float(s), False, None
+        except ValueError:
+            return 1.0, False, s
+
+    count   = int(m.group(1)) if m.group(1) else 1
+    sides   = int(m.group(2))
+    mod_str = (m.group(3) or "").replace(" ", "")
+    mod     = int(mod_str) if mod_str else 0
+
+    expected = count * (sides + 1) / 2.0 + mod
+    return expected, True, s
+
+
+# ─── Stat parsers ──────────────────────────────────────────────────────────────
+
+def _parse_skill(val) -> Optional[int]:
+    """'4+' → 4,  4 → 4,  None → None"""
+    if val is None:
+        return None
+    s = str(val).strip().replace("+", "").replace("N/A", "")
+    try:
+        return int(s)
+    except ValueError:
+        return None
+
+
+def _parse_stat(val, default: int = 4) -> int:
+    """'6' → 6,  '3+' → 3,  None → default"""
+    if val is None:
+        return default
+    s = str(val).strip().replace("+", "")
+    try:
+        return int(s)
+    except ValueError:
+        return default
+
+
+def _parse_ap(val) -> int:
+    """'-4' → 4,  '0' → 0,  '-1' → 1  (WeaponProfile takes unsigned AP)"""
+    if val is None:
+        return 0
+    try:
+        return abs(int(str(val).strip()))
+    except ValueError:
+        return 0
+
+
+def _normalise_keywords(raw) -> list[str]:
+    if isinstance(raw, str):
+        return [k.strip().upper() for k in raw.split(",") if k.strip()]
+    return [str(k).upper().strip() for k in (raw or [])]
+
+
+# ─── Dossier → engine types ────────────────────────────────────────────────────
+
+def _weapon_to_profile(w: dict) -> tuple[WeaponProfile, AttackModifiers]:
+    """Convert a dossier weapon dict to (WeaponProfile, AttackModifiers).
+
+    Dossier shape (from build_all_factions.py):
+        { name, type, range, a, bs_ws, s, ap, d, keywords }
+    """
+    attacks_val, attacks_var, attacks_expr = _expected_dice(
+        w.get("a") or w.get("attacks") or 1
+    )
+    damage_val, damage_var, damage_expr = _expected_dice(
+        w.get("d") or w.get("damage") or 1
+    )
+
+    skill    = _parse_skill(w.get("bs_ws") or w.get("bs") or w.get("ws")) or 4
+    strength = _parse_stat(w.get("s") or w.get("strength"), default=4)
+    ap       = _parse_ap(w.get("ap"))
+    keywords = _normalise_keywords(w.get("keywords"))
+
+    # Build weapon-level modifiers from keywords
+    mods = AttackModifiers()
+    for kw in keywords:
+        if kw == "DEVASTATING WOUNDS":
+            mods.devastating_wounds = True
+        elif kw == "TORRENT":
+            mods.use_torrent = True
+        elif kw == "TWIN-LINKED":
+            mods.reroll_wounds = "failed"
+        elif kw == "LETHAL HITS":
+            mods.lethal_hits = True
+        elif kw == "LANCE":
+            mods.use_lance = True
+        elif kw == "BLAST":
+            mods.use_blast = True
+        else:
+            m = re.search(r"SUSTAINED HITS\s+(\d+)", kw)
+            if m:
+                mods.sustained_hits = int(m.group(1))
+                continue
+            m = re.search(r"RAPID FIRE\s+(\d+)", kw)
+            if m:
+                mods.extra_attacks += float(m.group(1))
+                continue
+            m = re.search(r"MELTA\s+(\d+)", kw)
+            if m:
+                mods.flat_damage_bonus += float(m.group(1))
+                continue
+            m = re.search(r"ANTI-\S+\s+(\d+)\+", kw)
+            if m:
+                t = int(m.group(1))
+                if mods.anti_wound_target is None or t < mods.anti_wound_target:
+                    mods.anti_wound_target = t
+
+    wp = WeaponProfile(
+        name              = w.get("name", "Unknown"),
+        attacks           = attacks_val,
+        skill             = skill,
+        strength          = strength,
+        ap                = ap,
+        damage            = damage_val,
+        range             = w.get("range"),
+        keywords          = keywords,
+        damage_is_variable   = damage_var,
+        damage_expression    = damage_expr,
+        attacks_is_variable  = attacks_var,
+        attacks_expression   = attacks_expr,
+    )
+    return wp, mods
+
+
+def _unit_to_target(unit: dict) -> TargetProfile:
+    """Convert a dossier unit dict to a TargetProfile."""
+    toughness = _parse_stat(unit.get("T"), default=4)
+    save      = _parse_stat(unit.get("Sv"), default=5)
+    wounds    = _parse_stat(unit.get("W"),  default=1)
+
+    # Try to detect invuln from abilities text
+    invuln = None
+    for ab in unit.get("abilities", []):
+        text = str(ab).lower()
+        for pattern in [
+            r"invulnerable save of (\d)\+",
+            r"(\d)\+ invulnerable",
+            r"invulnerable save: (\d)\+",
+        ]:
+            m = re.search(pattern, text)
+            if m:
+                invuln = int(m.group(1))
+                break
+        if invuln is not None:
+            break
+
+    return TargetProfile(
+        name              = unit.get("name", "Unknown"),
+        toughness         = toughness,
+        save              = save,
+        invulnerable_save = invuln,
+        wounds            = wounds,
+        models            = 1,
+    )
+
+
+# ─── Modifier merge ────────────────────────────────────────────────────────────
+
+def _merge_mods(weapon: AttackModifiers, base: AttackModifiers) -> AttackModifiers:
+    """Layer session-level (flag) mods on top of weapon-level mods."""
+    merged = AttackModifiers()
+    for f in dc_fields(AttackModifiers):
+        wv = getattr(weapon, f.name)
+        bv = getattr(base, f.name)
+        if isinstance(wv, bool):
+            setattr(merged, f.name, wv or bv)
+        elif isinstance(wv, (int, float)):
+            setattr(merged, f.name, wv + bv)
+        elif isinstance(wv, list):
+            setattr(merged, f.name, wv + bv)
+        elif isinstance(wv, str):
+            # "none" is the default for reroll fields — prefer non-default
+            setattr(merged, f.name, wv if wv != "none" else bv)
+        elif wv is None and bv is None:
+            setattr(merged, f.name, None)
+        elif wv is None:
+            setattr(merged, f.name, bv)
+        elif bv is None:
+            setattr(merged, f.name, wv)
+        else:
+            # Optional[int] threshold — take the more aggressive (lower number)
+            setattr(merged, f.name, min(wv, bv))
+    return merged
+
+
+# ─── Public API ────────────────────────────────────────────────────────────────
+
+def compute_combat(
+    attacker_unit: dict,
+    defender_unit: dict,
+    flags: list,
+) -> dict:
+    """Run combat math for every weapon on attacker_unit vs defender_unit.
+
+    flags: list of strings from the CLI — e.g. ["ml", "cover", "invuln:4"]
+
+    Returns:
+        {
+            "ranged":         summary dict or None,
+            "melee":          summary dict or None,
+            "per_weapon_dmg": { weapon_name: { dmg, kills } },
+            "target_profile": { toughness, save, wounds, invuln },
+        }
+    """
+    target    = _unit_to_target(defender_unit)
+    base_mods = AttackModifiers()
+
+    # Apply flags to base modifiers / target
+    for f in flags:
+        key = f.split(":")[0].lower()
+        if key == "ml":
+            base_mods.use_markerlights = True
+        elif key == "cover":
+            target = TargetProfile(
+                name=target.name, toughness=target.toughness, save=target.save,
+                invulnerable_save=target.invulnerable_save, wounds=target.wounds,
+                models=target.models, feel_no_pain=target.feel_no_pain,
+                damage_reduction=target.damage_reduction, cover=True,
+            )
+        elif key.startswith("invuln"):
+            parts = f.split(":")
+            if len(parts) > 1:
+                try:
+                    iv = int(parts[1])
+                    target = TargetProfile(
+                        name=target.name, toughness=target.toughness, save=target.save,
+                        invulnerable_save=iv, wounds=target.wounds,
+                        models=target.models, feel_no_pain=target.feel_no_pain,
+                        damage_reduction=target.damage_reduction, cover=target.cover,
+                    )
+                except ValueError:
+                    pass
+        elif key == "ea" or re.match(r'^ea\d+$', key):
+            # Extra attacks per model.  Accepts both --ea 1 (stored as "ea:1")
+            # and --ea1 (stored as "ea1" — number embedded in flag name).
+            try:
+                if ":" in f:
+                    n = float(f.split(":")[1])
+                else:
+                    n = float(re.sub(r'^ea', '', key) or 0)
+                base_mods.extra_attacks += n
+            except (ValueError, TypeError):
+                pass
+
+    # Split weapons by type
+    ranged_weapons, melee_weapons = [], []
+    for w in attacker_unit.get("weapons", []):
+        if not isinstance(w, dict):
+            continue
+        is_melee = (
+            w.get("type") == "melee"
+            or str(w.get("range", "")).lower() == "melee"
+        )
+        (melee_weapons if is_melee else ranged_weapons).append(w)
+
+    # ── Deterministic EV pass ──────────────────────────────────────────────────
+
+    def _run_ev(weapon_list: list) -> list[tuple[dict, Optional[AttackResult]]]:
+        out = []
+        for w in weapon_list:
+            try:
+                wp, weapon_mods = _weapon_to_profile(w)
+                merged = _merge_mods(weapon_mods, base_mods)
+                result = compute_attack_result(wp, target, base_mods=merged)
+                out.append((w, result))
+            except Exception:
+                out.append((w, None))
+        return out
+
+    def _summarize_ev(weapon_results: list, mc_per_weapon: dict) -> tuple[Optional[dict], dict]:
+        valid = [(w, r) for w, r in weapon_results if r is not None]
+        if not valid:
+            return None, {}
+
+        total_dmg   = sum(r.expected_damage for _, r in valid)
+        total_kills = sum(r.expected_kills  for _, r in valid)
+        n_weapons   = len(valid)
+        kill_chance = min(100.0, total_kills / max(1, target.wounds) * 100)
+
+        # Pull swinginess / overkill from MC if available
+        mc_valid = [mc_per_weapon[w.get("name", "?")] for w, _ in valid if w.get("name", "?") in mc_per_weapon]
+        swinginess_cv    = None
+        swinginess_label = None
+        overkill_pct     = None
+        squad_wipe_pct   = None
+        if mc_valid:
+            # Weighted average swinginess by mean_damage
+            total_mc_dmg = sum(r["mean_damage"] for r in mc_valid)
+            if total_mc_dmg > 0:
+                swinginess_cv = round(
+                    sum(r["swinginess_cv"] * r["mean_damage"] for r in mc_valid) / total_mc_dmg, 3
+                )
+                if   swinginess_cv < 0.15:  swinginess_label = "Stable"
+                elif swinginess_cv < 0.30:  swinginess_label = "Moderate"
+                elif swinginess_cv < 0.50:  swinginess_label = "Variable"
+                else:                        swinginess_label = "Swingy"
+            # Kill-bucket P(≥1 kill) proxy for squad wipe probability
+            # bucket "1" or higher = at least one kill
+            def _kill_chance_mc(r):
+                b = r.get("kill_bucket_probabilities", {})
+                return 1.0 - float(b.get("0", 1.0))
+            squad_wipe_pct = round(sum(_kill_chance_mc(r) for r in mc_valid) / len(mc_valid) * 100, 1)
+
+        summary = {
+            "expected_dmg":       round(total_dmg,   2),
+            "expected_kills":     round(total_kills,  2),
+            "kill_chance_pct":    round(kill_chance,  1),
+            "avg_dmg_per_attack": round(total_dmg / n_weapons, 2),
+            "overkill_waste_pct": overkill_pct,
+            "swinginess":         swinginess_cv,
+            "swinginess_label":   swinginess_label,
+            "squad_wipe_pct":     squad_wipe_pct,
+        }
+        per_weapon = {
+            w.get("name", "?"): {
+                "dmg":           round(r.expected_damage, 2),
+                "kills":         round(r.expected_kills,  2),
+                # Probability chain — shown in TargetingOutcome bar chart
+                "hit_pct":       round(r.hit_probability * 100, 1),
+                "wound_pct":     round(r.wound_probability_given_hit * 100, 1),
+                "fail_save_pct": round(r.failed_save_probability * 100, 1),
+                # Raw roll targets — used for modifier delta colour-coding
+                "hit_target":    r.hit_target,
+                "wound_target":  r.wound_target,
+                # MC variance metrics (if available)
+                "mc": mc_per_weapon.get(w.get("name", "?")),
+            }
+            for w, r in valid
+        }
+        return summary, per_weapon
+
+    # ── Monte Carlo pass ───────────────────────────────────────────────────────
+    # Runs per-weapon to compute variance, swinginess, and kill distributions.
+    # Silently falls back to OFFLINE if any exception occurs.
+
+    mc_per_weapon: dict = {}
+    mc_covers: list[str] = []
+    mc_error: Optional[str] = None
+
+    def _run_mc(weapon_list: list, category: str) -> None:
+        nonlocal mc_error
+        for w in weapon_list:
+            if not isinstance(w, dict):
+                continue
+            try:
+                wp, weapon_mods = _weapon_to_profile(w)
+                merged = _merge_mods(weapon_mods, base_mods)
+                mc_result = monte_carlo_attack(
+                    wp, target, base_mods=merged,
+                    trials=_MC_TRIALS, seed=_MC_SEED,
+                )
+                mc_per_weapon[w.get("name", "?")] = mc_result
+                if category not in mc_covers:
+                    mc_covers.append(category)
+            except Exception as exc:
+                mc_error = str(exc)
+
+    _run_mc(ranged_weapons, "ranged")
+    _run_mc(melee_weapons,  "melee")
+
+    # ── Aggregate simulation block ────────────────────────────────────────────
+
+    simulation_status = "ACTIVE" if mc_per_weapon else "OFFLINE"
+
+    if simulation_status == "ACTIVE":
+        # Compute weighted error margin and confidence rating
+        all_mc = list(mc_per_weapon.values())
+        total_mean = sum(r["mean_damage"] for r in all_mc)
+        if total_mean > 0:
+            w_margin = sum(
+                r["margin_of_error_95ci_pct"] * r["mean_damage"] for r in all_mc
+            ) / total_mean
+        else:
+            w_margin = 0.0
+        w_margin = round(w_margin, 2)
+
+        if   w_margin <= 1.0:  confidence = "Very High"
+        elif w_margin <= 3.0:  confidence = "High"
+        elif w_margin <= 7.0:  confidence = "Medium"
+        else:                   confidence = "Low"
+
+        simulation = {
+            "status":      "ACTIVE",
+            "mode":        "monte_carlo",
+            "iterations":  _MC_TRIALS,
+            "error_margin": w_margin,
+            "confidence":  confidence,
+            "covers":      mc_covers,
+            "message":     None,
+        }
+    else:
+        simulation = {
+            "status":      "OFFLINE",
+            "mode":        "deterministic",
+            "iterations":  None,
+            "error_margin": None,
+            "confidence":  None,
+            "covers":      [],
+            "message":     (
+                "Simulation Engine Offline: Showing Deterministic Averages. "
+                + (f"MC error: {mc_error}" if mc_error else "Monte Carlo loop was not triggered.")
+            ),
+        }
+
+    ranged_results  = _run_ev(ranged_weapons)
+    melee_results   = _run_ev(melee_weapons)
+    ranged_summary, ranged_pw = _summarize_ev(ranged_results, mc_per_weapon)
+    melee_summary,  melee_pw  = _summarize_ev(melee_results,  mc_per_weapon)
+
+    return {
+        "ranged":            ranged_summary,
+        "melee":             melee_summary,
+        "per_weapon_dmg":    {**ranged_pw, **melee_pw},
+        "simulation_status": simulation_status,
+        "simulation":        simulation,
+        "target_profile": {
+            "toughness": target.toughness,
+            "save":      target.save,
+            "wounds":    target.wounds,
+            "invuln":    target.invulnerable_save,
+        },
+    }
+
+
+# ─── Sensitivity sweep ────────────────────────────────────────────────────────
+
+def compute_sensitivity(attacker_unit: dict, defender_unit: dict, flags: list) -> list:
+    """% damage gain from +1 to each key stat (hit, wound, AP, damage).
+
+    Runs EV 4 extra times with one modifier bumped each pass.
+    Returns list of {label: str, value: int} sorted by value descending.
+    Empty list if baseline damage is zero or too few weapons.
+    """
+    # ── Build target + base_mods (mirrors the flag-parsing block in compute_combat) ──
+    target    = _unit_to_target(defender_unit)
+    base_mods = AttackModifiers()
+
+    for f in (flags or []):
+        key = f.split(":")[0].lower()
+        if key == "ml":
+            base_mods.use_markerlights = True
+        elif key == "cover":
+            target = TargetProfile(
+                name=target.name, toughness=target.toughness, save=target.save,
+                invulnerable_save=target.invulnerable_save, wounds=target.wounds,
+                models=target.models, feel_no_pain=target.feel_no_pain,
+                damage_reduction=target.damage_reduction, cover=True,
+            )
+        elif key.startswith("invuln"):
+            parts = f.split(":")
+            if len(parts) > 1:
+                try:
+                    iv = int(parts[1])
+                    target = TargetProfile(
+                        name=target.name, toughness=target.toughness, save=target.save,
+                        invulnerable_save=iv, wounds=target.wounds,
+                        models=target.models, feel_no_pain=target.feel_no_pain,
+                        damage_reduction=target.damage_reduction, cover=target.cover,
+                    )
+                except ValueError:
+                    pass
+        elif key == "ea" or re.match(r'^ea\d+$', key):
+            try:
+                n = float(f.split(":")[1]) if ":" in f else float(re.sub(r'^ea', '', key) or 0)
+                base_mods.extra_attacks += n
+            except (ValueError, TypeError):
+                pass
+
+    all_weapons = [w for w in attacker_unit.get("weapons", []) if isinstance(w, dict)]
+    if not all_weapons:
+        return []
+
+    def _run_total(extra: dict) -> float:
+        mods = copy(base_mods)
+        for field, delta in extra.items():
+            setattr(mods, field, getattr(mods, field, 0) + delta)
+        total = 0.0
+        for w in all_weapons:
+            try:
+                wp, weapon_mods = _weapon_to_profile(w)
+                merged = _merge_mods(weapon_mods, mods)
+                result = compute_attack_result(wp, target, merged)
+                total += result.expected_damage
+            except Exception:
+                pass
+        return total
+
+    baseline = _run_total({})
+    if baseline <= 0:
+        return []
+
+    sweeps = [
+        ("Hit roll +1",   {"hit_bonus":          1}),
+        ("Wound roll +1", {"wound_bonus":         1}),
+        ("AP −1",         {"ap_modifier":        -1}),   # ap_modifier=-1 → effective_ap+1 → harder save → more dmg
+        ("Damage +1",     {"flat_damage_bonus":   1}),
+    ]
+
+    results = []
+    for label, extra in sweeps:
+        modified = _run_total(extra)
+        pct = int(round((modified - baseline) / baseline * 100))
+        results.append({"label": label, "value": pct})
+
+    return sorted(results, key=lambda x: x["value"], reverse=True)

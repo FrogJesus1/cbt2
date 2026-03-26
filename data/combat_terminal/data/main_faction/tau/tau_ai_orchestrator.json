@@ -1,0 +1,152 @@
+{
+  "name": "tau_ai_orchestrator",
+  "version": "v1.0",
+  "edition": "10th",
+  "last_updated": "2026-03-15",
+  "purpose": "Top-level execution layer that tells the AI how to combine doctrine, faction dossiers, Tau doctrine, runtime logic, threat analysis, deployment patterns, matchup logic, target priority, and mission/core rules into one coherent battlefield decision process.",
+  "required_inputs": [
+    "tau_commander_runtime.json",
+    "tau_detachment_doctrine_library.json",
+    "tau_unit_roles_and_synergies.json",
+    "main_faction/<active_faction>/<faction>_parsed_dossier.json (unit stats, weapons, abilities)",
+    "strategy_principles_library_v1.json",
+    "enemy_threat_analysis_engine.json",
+    "deployment_pattern_library.json",
+    "matchup_strategy_library.json",
+    "target_priority_matrix.json",
+    "05_rules_and_missions/data/rules.json (rule text lookup)",
+    "05_rules_and_missions/data/rule_index.json (rule lookups by keyword/mechanic/timing)",
+    "one enemy parsed dossier"
+  ],
+  "optional_inputs": [
+    "points_merger_template.json",
+    "universal_faction_dossier_schema_v1_0.json",
+    "codex_parsing_template_v1_0.md",
+    "universal_codex_parser_v0_5.py",
+    "universal_codex_parser_v0_6.py",
+    "pariah nexus",
+    "core rules again"
+  ],
+  "execution_pipeline": [
+    {
+      "step": 1,
+      "name": "ingest_battle_context",
+      "action": "Read mission, terrain, Tau list, enemy faction, enemy list, and turn/score state.",
+      "outputs": [
+        "battle_context"
+      ]
+    },
+    {
+      "step": 2,
+      "name": "load_tau_self_model",
+      "action": "Load Tau parsed dossier, Tau detachment doctrine library, Tau unit roles and synergies, and Tau commander runtime.",
+      "outputs": [
+        "tau_self_model"
+      ]
+    },
+    {
+      "step": 3,
+      "name": "load_enemy_model",
+      "action": "Load the relevant enemy parsed dossier and classify enemy units with the enemy threat analysis engine.",
+      "outputs": [
+        "enemy_archetype",
+        "enemy_threat_map",
+        "enemy_units_by_role"
+      ]
+    },
+    {
+      "step": 4,
+      "name": "apply_strategy_layer",
+      "action": "Use the strategy principles library to interpret the matchup at a high level: deception, patience, concentration, adaptation, effective first strike, and decision-quality constraints.",
+      "outputs": [
+        "strategic_biases"
+      ]
+    },
+    {
+      "step": 5,
+      "name": "select_tau_detachment",
+      "action": "Use tau_commander_runtime detachment_selection_rules, then validate against tau_detachment_doctrine_library and the actual Tau list.",
+      "outputs": [
+        "selected_detachment",
+        "detachment_reasoning"
+      ]
+    },
+    {
+      "step": 6,
+      "name": "select_deployment_pattern",
+      "action": "Use the deployment_pattern_library plus matchup/threat context to select the highest-confidence deployment pattern.",
+      "outputs": [
+        "selected_deployment_pattern",
+        "deployment_goals",
+        "deployment_failure_conditions"
+      ]
+    },
+    {
+      "step": 7,
+      "name": "assign_tau_unit_roles",
+      "action": "Map Tau units into screens, anchors, hammers, utility pieces, and objective flip packages using tau_unit_roles_and_synergies plus tau_commander_runtime role_assignment_rules.",
+      "outputs": [
+        "tau_role_map",
+        "tau_synergy_packages"
+      ]
+    },
+    {
+      "step": 8,
+      "name": "build_target_priority_plan",
+      "action": "Use the enemy threat map, matchup_strategy_library, and target_priority_matrix to produce the target order for the next turn cycle.",
+      "outputs": [
+        "target_priority_order",
+        "priority_reasoning",
+        "tau_tool_assignments"
+      ]
+    },
+    {
+      "step": 9,
+      "name": "build_opening_plan",
+      "action": "Use tau_commander_runtime turn_sequence_engine and the selected detachment/deployment to create turn 1-3 goals and commitment timing.",
+      "outputs": [
+        "turn_1_plan",
+        "turn_2_plan",
+        "turn_3_plan"
+      ]
+    },
+    {
+      "step": 10,
+      "name": "update_in_game",
+      "action": "After each enemy commitment, use tau_commander_runtime enemy_commitment_update_rules and mission overrides to revise role assignments, target priority, and trade thresholds.",
+      "outputs": [
+        "updated_runtime_plan"
+      ]
+    }
+  ],
+  "decision_contract": {
+    "always_prioritize": [
+      "mission-relevant trades over vanity kills",
+      "engagement control over equal exchanges",
+      "clean removals over broad chip damage unless scoring or bracketing demands otherwise",
+      "survival of premium Tau assets until their best timing window"
+    ],
+    "never_assume": [
+      "that the first visible target is the right target",
+      "that the biggest enemy model is automatically priority one",
+      "that Tau should always attack first",
+      "that a favorable kill is worthwhile if it loses the scoring posture"
+    ]
+  },
+  "expected_outputs": {
+    "pre_game": [
+      "selected detachment",
+      "selected deployment pattern",
+      "role map for Tau units",
+      "enemy archetype and threat map",
+      "target priority order",
+      "opening battle plan"
+    ],
+    "during_game": [
+      "updated target order",
+      "which Tau package commits now",
+      "which Tau assets remain protected",
+      "whether the AI should press, hold, or reposition"
+    ]
+  }
+}

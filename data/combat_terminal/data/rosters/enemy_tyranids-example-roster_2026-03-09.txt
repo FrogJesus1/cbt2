@@ -1,0 +1,27 @@
+# Tyranids Example Roster
+# Saved: 2026-03-09
+
++++++++++++++++++++++++++++++++++++++++++++++++
++ FACTION KEYWORD: Xenos - Tyranids
++ DETACHMENT: Invasion Fleet (Hyper Adaptions)
++ TOTAL ARMY POINTS: 1855pts
++
++ WARLORD: Char1: Old One Eye
++ ENHANCEMENT: 
++ NUMBER OF UNITS: 11
++ SECONDARY: - Bring It Down: (3x2) + (1x4) + (1x6) - Assassination: 3 Characters
++++++++++++++++++++++++++++++++++++++++++++++++
+
+Char2: 1x Hive Tyrant (195 pts): Monstrous bonesword and lash whip, Monstrous scything talons
+Char1: 1x Old One Eye (150 pts): Warlord, Old One Eye’s claws and talons
+Char3: 1x Tervigon (160 pts): Stinger salvoes, Massive scything talons
+
+10x Hormagaunts (65 pts): 10 with Hormagaunt talons
+10x Termagants (60 pts): 10 with Chitinous claws and teeth, Fleshborer
+
+1x Hierophant (810 pts): Bio-plasma torrent, 2x Dire bio-cannon, Lashwhip pods, Titanic scything talons
+3x Hive Guard (90 pts): 3 with Chitinous claws and teeth, Impaler cannon
+3x Hive Guard (90 pts): 3 with Chitinous claws and teeth, Shockcannon
+1x Lictor (60 pts): Lictor claws and talons
+1x Tyrannocyte (105 pts): Flensing Whips, Tyrannocyte Bio-weapons
+3x Venomthropes (70 pts): 3 with Toxic lashes

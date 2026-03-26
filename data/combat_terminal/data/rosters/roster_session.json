@@ -1,0 +1,56 @@
+{
+  "_instructions": "Define your active army list here. Each entry is one unit with its specific weapon loadout. Use exact weapon names from the dossier — run 'list weapons' in the combat terminal to check. If a unit appears multiple times with different loadouts, add a separate entry for each. The 'label' field is optional — use it to distinguish identical unit types.",
+  "roster_name": "My Tau List",
+  "units": [
+    {
+      "unit": "Broadside Battlesuits",
+      "label": "Broadside #1",
+      "weapons": ["Heavy rail rifle", "Twin smart missile system", "Seeker missile"]
+    },
+    {
+      "unit": "Broadside Battlesuits",
+      "label": "Broadside #2",
+      "weapons": ["Heavy rail rifle", "Twin plasma rifle", "Seeker missile"]
+    },
+    {
+      "unit": "Crisis Sunforge Battlesuits",
+      "label": "Crisis Sunforge",
+      "weapons": ["Fusion blaster", "Battlesuit fists"]
+    },
+    {
+      "unit": "Commander in Coldstar Battlesuit",
+      "label": "Coldstar",
+      "weapons": ["Fusion blaster", "High-output burst cannon", "Missile pod"]
+    },
+    {
+      "unit": "Riptide Battlesuit",
+      "label": "Riptide",
+      "weapons": ["Heavy burst cannon", "Twin smart missile system", "Missile pod"]
+    },
+    {
+      "unit": "Ghostkeel Battlesuit",
+      "label": "Ghostkeel",
+      "weapons": ["Fusion collider", "Twin burst cannon"]
+    },
+    {
+      "unit": "Hammerhead Gunship",
+      "label": "Hammerhead",
+      "weapons": ["Ion cannon", "Accelerator burst cannon", "Seeker missile"]
+    },
+    {
+      "unit": "Pathfinder Team",
+      "label": "Pathfinders",
+      "weapons": ["Pulse carbine", "Rail rifle", "Ion rifle"]
+    },
+    {
+      "unit": "Stealth Battlesuits",
+      "label": "Stealth",
+      "weapons": ["Burst cannon", "Fusion blaster"]
+    },
+    {
+      "unit": "Kroot Carnivores",
+      "label": "Kroot",
+      "weapons": ["Kroot rifle", "Close combat weapon"]
+    }
+  ]
+}

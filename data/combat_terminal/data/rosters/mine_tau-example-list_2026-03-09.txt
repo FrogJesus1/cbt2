@@ -1,0 +1,37 @@
+# Tau Example List
+# Saved: 2026-03-09
+
++++++++++++++++++++++++++++++++++++++++++++++++
++ FACTION KEYWORD: Xenos - T'au Empire
++ DETACHMENT: Kauyon (Patient Hunter)
++ TOTAL ARMY POINTS: 835pts
++
++ ENHANCEMENT: Through Unity, Devastation (on Char1: Cadre Fireblade)
++ NUMBER OF UNITS: 9
++ SECONDARY: - Bring It Down: (3x2) + (2x4) - Assassination: 2 Characters
++++++++++++++++++++++++++++++++++++++++++++++++
+
+Char1: 1x Cadre Fireblade (90 pts): 2x Shield Drone, Close combat weapon, Fireblade pulse rifle
+Enhancement: Through Unity, Devastation (+40 pts)
+Char2: 1x Commander in Coldstar Battlesuit (95 pts): Battlesuit support system, Marker Drone, Shield Drone, 2x Fusion blaster, High-output burst cannon, Battlesuit fists
+
+10x Strike Team (70 pts)
+• 1x Fire Warrior Shas'ui: Guardian Drone, Shield Drone, Close combat weapon, Pulse pistol, Pulse rifle, Support turret
+• 9x Fire Warrior: 9 with Close combat weapon, Pulse pistol, Pulse rifle
+
+1x Broadside Battlesuits (80 pts): 2x Shield Drone, Weapon support system, Crushing bulk, High-yield missile pods, Twin smart missile system
+1x Broadside Battlesuits (80 pts): 2x Shield Drone, Crushing bulk, Heavy rail rifle, Seeker missile, Twin plasma rifle
+3x Crisis Starscythe Battlesuits (110 pts)
+• 1x Crisis Starscythe Shas’vre: Marker Drone, Shield Drone, 2x T'au flamer, Battlesuit fists
+• 2x Crisis Starscythe Shas’ui: 2 with Gun Drone, Shield Drone, 2x T'au flamer, Battlesuit fists
+3x Crisis Starscythe Battlesuits (110 pts)
+• 1x Crisis Starscythe Shas’vre: Marker Drone, Shield Drone, 2x T'au flamer, Battlesuit fists
+• 2x Crisis Starscythe Shas’ui: 2 with Gun Drone, Shield Drone, 2x T'au flamer, Battlesuit fists
+10x Pathfinder Team (90 pts)
+• 9x Pathfinders
+    6 with Close combat weapon, Pulse carbine, Pulse pistol
+    3 with Close combat weapon, Pulse pistol, Rail rifle
+• 1x Pathfinder Shas'ui: Marker Drone, Shield Drone, Pulse accelerator drone, Close combat weapon, Pulse carbine, Pulse pistol, Semi-automatic grenade launcher
+5x Stealth Battlesuits (110 pts)
+• 1x Stealth Shas'vre: Homing beacon, Gun Drone, Marker Drone, Battlesuit fists, Fusion blaster
+• 4x Stealth Shas'ui: 4 with Battlesuit fists, Burst cannon

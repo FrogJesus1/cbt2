@@ -1,0 +1,3585 @@
+{
+  "faction": "Imperial Knights",
+  "source_type": "codex_pdf_parse",
+  "source_name": "Imperial Knights — Individual Unit PDFs",
+  "edition": "10",
+  "version": "2.0",
+  "last_updated": "2026-03-19",
+  "army_rules": [
+    {
+      "name": "Datasheets",
+      "summary": "The Rules   Factions Search this site... Imperial Knights  ["
+    },
+    {
+      "name": "No filter",
+      "summary": "] To the sound of fanfare and ground-shaking footfalls, the mighty war engines of the Questor Imperialis - often called Imperial Knights - stride onto the battlefield. Enemy fire clangs harmlessly off armour, or flares brilliantly as protective ion shields repel incoming shots. When the Knights bring their blades and cannon to bear, even the bravest of foes quake in fear."
+    }
+  ],
+  "detachments": [
+    {
+      "name": "VALOURSTRIKE LANCE",
+      "detachment_rule": "Bold Gallantry",
+      "rule_summary": "With their companions beside them - kin of their blood, allies in honour - Knightly Nobles are inspired to near-reckless heroism. Their fervour spreads through neural interfaces to reach the machine spirits of their towering Knight suits. The Knights’ power cores flare with motive energy. Target stabilisers sputter into life, glaring balefully at the foe. Servo-motors and fibre bundles thrum, powering the Nobles’ steeds to a thunderous speed, such that the ground trembles.  Each time an IMPERIAL",
+      "enhancements": [
+        {
+          "name": "Bearer of the Iron Chalice",
+          "points": 20,
+          "description": "Deep within the Knight’s chassis is an ancient STC artefact. The device communes with its weakened machine spirit kin, bolstering their resolve to endure.  IMPERIAL KNIGHTS model only. At the end of your Movement phase, select one other IMPERIAL KNIGHTS model from your army that is within 12\" of and visible to the bearer. That selected model regains up to D3 lost wounds, or up to 3 lost wounds if your army is Honoured.",
+          "applies_to": "IMPERIAL KNIGHTS model only."
+        },
+        {
+          "name": "Sigil",
+          "points": 25,
+          "description": "Honoured with a vivid heraldic insignia, this Noble is a wise mentor in the deadly art of battlefield intercession.  IMPERIAL KNIGHTS model only. At the start of your Charge phase, select one other IMPERIAL KNIGHTS model from your army that is within 12\" of and visible to the bearer. Until the end of the phase, you can re-roll Charge rolls made for that selected model.",
+          "applies_to": "IMPERIAL KNIGHTS model only."
+        }
+      ],
+      "stratagems": [
+        {
+          "name": "THUNDERSTOMP",
+          "cp": 1,
+          "type": "Valourstrike Lance – Battle Tactic Stratagem",
+          "flavour": "The Noble brings their Knight suit’s weight down with the force of an industrial piledriver, trampling their honourless foes beneath their iron tread.",
+          "when": "Fight phase.",
+          "target": "One IMPERIAL KNIGHTS model from your army that has not been selected to fight this phase.",
+          "effect": "Until the end of the phase, the Attacks characteristic of any armoured Feet melee weapons equipped by your model is 8, the Attacks characteristic of any titanic Feet melee weapons equipped by your model is 12, and improve the Armour Penetration characteristic of those weapons by 1."
+        },
+        {
+          "name": "FULL TILT",
+          "cp": 2,
+          "type": "Valourstrike Lance – Battle Tactic Stratagem",
+          "flavour": "With their fellows' oaths ringing through the vox-net and the rush of battle coursing through their veins, Noble pilots pour power into their steeds' motive actuators and thunder onwards.",
+          "when": "Your Movement phase.",
+          "target": "One IMPERIAL KNIGHTS unit from your army that has not been selected to move this phase.",
+          "effect": "Until the end of the phase, add 2\" to the Move characteristic of your models and add 2 to Advance rolls made for those model’s units."
+        },
+        {
+          "name": "VOW OF RETRIBUTION",
+          "cp": 1,
+          "type": "Valourstrike Lance – Strategic Ploy Stratagem",
+          "flavour": "With the swearing of cooperative pacts, Knightly companions vow to visit annihilation on their enemies in a searing barrage of retributive firepower.",
+          "when": "Your Shooting phase.",
+          "target": "One IMPERIAL KNIGHTS unit from your army that has not been selected to shoot this phase.",
+          "effect": "Until the end of the phase, ranged weapons equipped by your models have the [LETHAL HITS] ability."
+        },
+        {
+          "name": "TACTICAL FOIL",
+          "cp": 1,
+          "type": "Valourstrike Lance – Strategic Ploy Stratagem",
+          "flavour": "The neural bond through their Throne Mechanicum enables seasoned pilots to accomplish swift counter-monoeuvres seemingly impossible for such towering war engines.",
+          "when": "Your opponent’s Movement phase, just after an enemy unit ends a Normal, Advance or Fall Back move.",
+          "target": "One IMPERIAL KNIGHTS model from your army that is within 9\" of that unit.",
+          "effect": "Your model can make a Normal move of up to D6\"."
+        },
+        {
+          "name": "ROTATE ION SHIELDS",
+          "cp": 1,
+          "type": "Valourstrike Lance – Wargear Stratagem",
+          "flavour": "Veteran Knight pilots can swiftly re-angle their ion shields and manipulate their energies to deflect incoming firepower.",
+          "when": "Your opponent’s Shooting phase, just after an enemy unit has selected its targets.",
+          "target": "One IMPERIAL KNIGHTS unit from your army that was selected as the target of one or more of the attacking unit’s attacks.",
+          "effect": "Until the end of the phase, models in your unit have a 4+ invulnerable save. Gate Warden Lance The forebears of Knightly Nobles secured their sprawling citadels through Old Night and whispered advice from those times still haunts the oldest Thrones Mechanicum. For generations since, Gate Warden Lances of Knights have thrown back xenos, heretics and mutants not only from their own walls but from those on worlds across the galaxy. Whether a physical revetment exists to guard or not, the Nobles know their duty. They treat the battlefield as their walled realm, with themselves as its bastions. Gig"
+        }
+      ]
+    },
+    {
+      "name": "GATE WARDEN LANCE",
+      "detachment_rule": "Dauntless Defenders",
+      "rule_summary": "With a rigid, strategic intuition born of the unyielding fortifications defended by their ancestors, the Nobles of a Gate Warden Lance hold their ground with an arrogant superiority. While even one defends the marches of their claimed realm, they will fight to the ends of their honour to hurl back the besiegers.  At the start of the first battle round, select two objective markers on the battlefield to be your foundations. When you draw a line from any part of one of your foundations to the othe",
+      "enhancements": [
+        {
+          "name": "Hand",
+          "points": 20,
+          "description": "The Noble dubbed with this honourable title has sworn to purge the frontiers of their realm, scouring it clean of the stain of everything foul and inimical to the Code.  IMPERIAL KNIGHTS model only. Each time the bearer makes a melee attack, if the bearer is on your defensive line, re-roll a Hit roll of 1 and re-roll a Wound roll of 1.",
+          "applies_to": "IMPERIAL KNIGHTS model only."
+        },
+        {
+          "name": "Augury Halo",
+          "points": 20,
+          "description": "This web of neuro-couplings has been worked into a richly ornamented helmet. Through it, the Noble pilot can access nearby hidden augur nodes deployed by servitor clades of the Sacristans, inloading targeting data to pick out the locations of shrouded besiegers.  IMPERIAL KNIGHTS model only. Each time the bearer makes a ranged attack, while the bearer is on your defensive line, weapons equipped by the bearer have the [ignores cover] ability.",
+          "applies_to": "IMPERIAL KNIGHTS model only."
+        },
+        {
+          "name": "Vengeful Tread",
+          "points": 15,
+          "description": "The punitive anger of this pilot towards those who dare defile their realm is terrifying to behold. War horns blaring, they barge and trample forward, crushing their lessers in a terminal lesson of humility.  IMPERIAL KNIGHTS model only. Once per turn, you can target the bearer with the Tank Shock Stratagem for 0CP.",
+          "applies_to": "IMPERIAL KNIGHTS model only."
+        }
+      ],
+      "stratagems": [
+        {
+          "name": "LANCEBREAKER",
+          "cp": 1,
+          "type": "Gate Warden Lance – Strategic Ploy Stratagem",
+          "flavour": "With a command, experienced Nobles can lock huge actuators into position, bring reserve power cells into wakefulness and shunt extra shielding into place to make their Knightly steed a bastion of defi",
+          "when": "Fight phase, just after an enemy unit has selected its targets.",
+          "target": "One IMPERIAL KNIGHTS unit from your army that was selected as the target of one or more of the attacking unit’s attacks and is on your defensive line.",
+          "effect": "Until the end of the phase, each time an attack targets your unit, if the Strength characteristic of that attack is greaterthan the Toughness characteristic of your unit, subtract 1 from the Wound roll"
+        },
+        {
+          "name": "STEADFAST SUPERIORITY",
+          "cp": 1,
+          "type": "Gate Warden Lance – Battle Tactic Stratagem",
+          "flavour": "Once tasked with preserving a war zone’s sanctity, a Knight will fight with unbowed destructive ferocity, unyielding in their anger while foes remain.",
+          "when": "Fight phase.",
+          "target": "One IMPERIAL KNIGHTS unit from your army that is within Engagement Range of one or more enemy units, that is on your defensive line and that has not already been selected to fight this phase.",
+          "effect": "Until the end of the phase, each time a model in your unit makes an attack, you can re-roll the Hit roll."
+        },
+        {
+          "name": "MARSHAL THE DEFENCE",
+          "cp": 1,
+          "type": "Gate Warden Lance – Battle Tactic Stratagem",
+          "flavour": "When the cry goes up to redress their defensive positions - to shut down incursions or leave assaulting enemies flat-footed and vulnerable - the Nobles pour power into their Knights’ servos.",
+          "when": "Your Movement phase.",
+          "target": "Up to two IMPERIAL KNIGHTS units from your army that have not been selected to move this phase.",
+          "effect": "Until the end of the phase, add 3\" to the Move characteristic of models in your units."
+        },
+        {
+          "name": "TITANIC BOMBARDMENT",
+          "cp": 1,
+          "type": "Gate Warden Lance – Battle Tactic Stratagem",
+          "flavour": "Like an imperious artillery captain atop their gatehouse, the Noble directs a deluge of apocalyptic firepower into the enemy's seething tides.",
+          "when": "Your Shooting phase.",
+          "target": "One IMPERIAL KNIGHTS TITANIC unit from your army that Remained Stationary this turn, that is on your defensive line and that has not been selected to shoot this phase.",
+          "effect": "Until the end of the phase, ranged weapons equipped by models in your unit have the [SUSTAINED HITS 2] ability."
+        }
+      ]
+    },
+    {
+      "name": "QUESTORIS COMPANIONS",
+      "detachment_rule": "Heroes of Legend",
+      "rule_summary": "To those who quest for honour - in service to their liege, to avenge atrocities, to wipe clean the stain of disfavour - there can be no end. The Imperium’s foes are legion, an endless horde from which more arise. As one quest ends, another always begins.  At the start of your turn, if your current Oath is fulfilled, determine an additional Oath as described here, with the exception that you cannot select a Deed or Quality you have already selected (if you are randomly selecting the Deed and/or Q",
+      "enhancements": [
+        {
+          "name": "Herald of Triumph",
+          "points": 15,
+          "description": "This Noble’s arrogant challenges herald a feat of victory, a promise of death that blares from their suit’s emitters.  IMPERIAL KNIGHTS model only. When the bearer ends a Charge move, it can use this Enhancement. If it does, this Enhancement is expended, then each enemy unit within Engagement Range of the bearer must take a Battle-shock test, subtracting 1 from the result.",
+          "applies_to": "IMPERIAL KNIGHTS model only."
+        },
+        {
+          "name": "Wyrmslayer Divination",
+          "points": 10,
+          "description": "Whispered to a Knights machine spirit before battle, this techno-omen prophesies doom for airborne foes.  IMPERIAL KNIGHTS model only. In your Shooting phase, when the bearer is selected to shoot, it can use this Enhancement. If it does, this Enhancement is expended, then until the end of the phase, each time it makes an attack that targets a unit that can FLY, you can re-roll the Hit roll.",
+          "applies_to": "IMPERIAL KNIGHTS model only."
+        },
+        {
+          "name": "Pennant of Silvered Fury",
+          "points": 15,
+          "description": "This circuit-etched pennant marks a slayer of hordes and is linked to a glowing electoo beneath the pilot’s skin.  IMPERIAL KNIGHTS model only. When the bearer is selected to fight, it can use this Enhancement. If it does, this Enhancement is expended, then until the end of the phase, melee weapons equipped by the bearer have the [sustained hits 2] ability.",
+          "applies_to": "IMPERIAL KNIGHTS model only."
+        },
+        {
+          "name": "Crushing Condemnation",
+          "points": 10,
+          "description": "With the sweep of an armoured limb, the Noble can cast wreckage and ruin towards yet another foe.  IMPERIAL KNIGHTS model only. When the bearer is selected to fight, after resolving its attacks, if one or more enemy units were destroyed by those attacks, the bearer can use this Enhancement. If it does, this Enhancement is expended, then select one enemy unit that is not within Engagement Range of any units from your army and is within 12\" of and visible to the bearer. Roll six D6: for each 4+, that enemy unit suffers 1 mortal wound.",
+          "applies_to": "IMPERIAL KNIGHTS model only."
+        }
+      ],
+      "stratagems": [
+        {
+          "name": "COURAGEOUS STAND",
+          "cp": 1,
+          "type": "Questoris Companions – Epic Deed Stratagem",
+          "flavour": "When the night is long and the unworthy claw at one's shield, it is chivalry and duty that buoy the soul and bolster failing strength.",
+          "when": "Your opponent’s Shooting phase or the Fight phase, just after an enemy unit has selected its targets.",
+          "target": "One IMPERIAL KNIGHTS TITANIC unit from your army that was selected as the target of one or more of the attacking unit’s attacks.",
+          "effect": "Until the end of the phase, models in your unit have the Feel No Pain 6+ ability."
+        },
+        {
+          "name": "TITANIC DUEL",
+          "cp": 1,
+          "type": "Questoris Companions – Epic Deed Stratagem",
+          "flavour": "The greatest Knightly champions suffer no dishonourable rival to insult them for long with their existence.",
+          "when": "Your Shooting phase or the Fight phase.",
+          "target": "One IMPERIAL KNIGHTS TITANIC model from your army that has not been selected to shoot or fight this phase.",
+          "effect": "Until the end of the phase, each time your model makes an attack that targets a MONSTER, TITANIC or WALKER unit, add 1 to the Hit roll and add 1 to the Wound roll."
+        },
+        {
+          "name": "MOMENT OF GLORY",
+          "cp": 1,
+          "type": "Questoris Companions – Epic Deed Stratagem",
+          "flavour": "Veteran pilots waste no more time exalting their victory than the Code Chivalric demands before powering back into the fray with the long strides of the selflessly determined warrior Noble.",
+          "when": "Fight phase, just before an IMPERIAL KNIGHTS TITANIC unit from your army Consolidates.",
+          "target": "That IMPERIAL KNIGHTS TITANIC unit.",
+          "effect": "Until the end of the phase, each time your unit Consolidates, models in it can move an additional 3\" provided your unit can end that move within Engagement Range of one or more enemy units. HERO’S TREAD 1CP Questoris Companions – Epic Deed Stratagem It is said that unalloyed heroism can purge the foulest dishonour, that the very footsteps of those of noblest purity are enough to sanctify their path. WHEN: End of your Command phase."
+        },
+        {
+          "name": "UNSTOPPABLE WARRIOR",
+          "cp": 2,
+          "type": "Questoris Companions – Epic Deed Stratagem",
+          "flavour": "Death is a distant priority when heroism's favour awaits. A breath to seize a new perspective, a new angle at which to tilt towards the foe, permits only a brief reprieve for the enemy of a true warri",
+          "when": "Your Movement phase, just after an IMPERIAL KNIGHTS TITANIC unit from your army Falls Back.",
+          "target": "That IMPERIAL KNIGHTS TITANIC unit.",
+          "effect": "Until the end of the turn, your unit is eligible to shoot and declare a charge in a turn in which it Fell Back."
+        },
+        {
+          "name": "DRIVEN BY THE PAST",
+          "cp": 1,
+          "type": "Questoris Companions – Epic Deed Stratagem",
+          "flavour": "To the worthiest Noble, the whispers that reach their mind from a Throne Mechanicum appear as a tapestry of virtues, standards they strive to meet with wholehearted alacrity.",
+          "when": "Your Charge phase.",
+          "target": "One IMPERIAL KNIGHTS TITANIC unit from your army.",
+          "effect": "Until the end of the turn, your unit is eligible to declare a charge in a turn in which it Advanced. Spearhead-At-Arms When deployed in large numbers, the swift and agile Armiger-class Knight suits can outmanoeuvre most foes. They strike and withdraw on simultaneous fronts to cut apart more unwieldy armies. Deployed as a Spearhead-at-Arms, meanwhile, and leashed to their Noble masters’ stern wisdom, their loyal conditioning and rapid adoption of complex strategies enable them to eviscerate any enemy. With loping strides, the lead Armigers fan out as a swift vanguard. They devastate enemy scout"
+        }
+      ]
+    },
+    {
+      "name": "SPEARHEAD-AT-ARMS",
+      "detachment_rule": "Knightly Teachings",
+      "rule_summary": "Knightly Nobles are exalted paragons of honour who uphold the tenets of the Code Chivalric and the glorious histories of their household. Through stern teachings and heroic tales, and no less their own deeds, they exemplify the virtues which Bondsmen aspire to emulate. It is not only in courtly life, upon the practice fields and during thrilling hunts that a Nobles squires and retainers cleave to their duty, but also in the fiery heart of every battle. There such teachings are tested as never be",
+      "enhancements": [
+        {
+          "name": "Pride",
+          "points": 20,
+          "description": "A draconian enforcer of stringent standards, when this stern Noble does acknowledge pride in their servants, their Bondsmen zealously strive to retain it.  IMPERIAL KNIGHTS model only. While two or more ARMIGER models are under the effects of the bearers Bondsman ability, each time each of those ARMIGER models makes an attack, you can re-roll a Hit roll of 1.",
+          "applies_to": "IMPERIAL KNIGHTS model only."
+        },
+        {
+          "name": "Fables of Nightmare",
+          "points": 10,
+          "description": "Many are the fiends and unnamed dooms that lead hosts of darkness in the oldest tales. Their retelling spurs this Noble’s Bondsmen to seek out the lurking commanders of the foe and cut them down, so that they may end the spread of their evil.  IMPERIAL KNIGHTS model only. While two or more ARMIGER models are under the effects of the bearer’s Bondsman ability, melee weapons equipped by those ARMIGER models have the [precision] ability.",
+          "applies_to": "IMPERIAL KNIGHTS model only."
+        },
+        {
+          "name": "Tales of Heroism",
+          "points": 10,
+          "description": "Recounting the valorous feats of legendary Nobles, this champion inspires their squires to deride and denounce the foes every attempt at evading a just execution.  IMPERIAL KNIGHTS model only. While two or more ARMIGER models are under the effects of the bearer’s Bondsman ability, each time one of those ARMIGER models makes a melee attack, you can ignore any or all modifiers to the Hit roll and/or the Wound roll.",
+          "applies_to": "IMPERIAL KNIGHTS model only."
+        },
+        {
+          "name": "Martial Tuition",
+          "points": 15,
+          "description": "Long has this Noble trained their Bondsmen in hunting the deadliest prey, instilling in them the skills to honourably exploit any opening in an enemy’s defence.  IMPERIAL KNIGHTS model only. While two or more ARMIGER models arc under the effects of the bearer’s Bondsman ability, once per turn, you can target one of those ARMIGER models with the Counter-offensive Stratagem for 0CP.",
+          "applies_to": "IMPERIAL KNIGHTS model only."
+        }
+      ],
+      "stratagems": [
+        {
+          "name": "VIRTUE OF COURAGE",
+          "cp": 1,
+          "type": "Spearhead-At-Arms – Battle Tactic Stratagem",
+          "flavour": "A Knight must have the courage to face the greatest horrors of the galaxy, with duty focusing their blows.",
+          "when": "Start of the Fight phase.",
+          "target": "One ARMIGER model from your army, or one IMPERIAL KNIGHTS TITANIC model from your army, and one or more friendly ARMIGER models affected by that model’s Bondsman ability.",
+          "effect": "Select one enemy unit. Until the end of the phase, each time one of your ARMIGER models makes an attack that targets that enemy unit, add 1 to the Hit roll. EXEMPLAR’S WISDOM 1CP Spearhead-At-Arms – Battle Tactic Stratagem With a fusillade upon their chosen enemy, the Bondsmen's mentor lectures their loyal servants on the application offeree to the foe's weak points. WHEN: Your Shooting phase, just after an IMPERIAL KNIGHTS TITANIC model from your army has shot."
+        },
+        {
+          "name": "MANTLE OF THE MENTOR",
+          "cp": 1,
+          "type": "Spearhead-At-Arms – Strategic Ploy Stratagem",
+          "flavour": "With a rapid volley of covering fire from a Noble liege, Bondsmen employ hit-and-run tactics at high speed.",
+          "when": "Start of your Shooting phase.",
+          "target": "One ARMIGER model from your army, or one IMPERIAL KNIGHTS TITANIC model from your army, and one or more friendly ARMIGER models affected by that model’s Bondsman ability.",
+          "effect": "Until the end of the phase, your ARMIGER models are eligible to shoot in a turn in which they Fell Back."
+        },
+        {
+          "name": "THIN THEIR RANKS",
+          "cp": 1,
+          "type": "Spearhead-At-Arms – Battle Tactic Stratagem",
+          "flavour": "A stentorian firing solution floods their Helms Mechanicum, and eager young Nobles shred their master's foes in a blizzard of fury.",
+          "when": "Start of your Shooting phase.",
+          "target": "One ARMIGER model from your army, or one IMPERIAL KNIGHTS TITANIC model from your army, and one or more friendly ARMIGER models affected by that model’s Bondsman ability.",
+          "effect": "Until the end of the phase, ranged weapons equipped by your ARMIGER models have the [RAPID FIRE 1] ability."
+        },
+        {
+          "name": "LET DUTY BE YOUR SHIELD",
+          "cp": 1,
+          "type": "Spearhead-At-Arms – Epic Deed Stratagem",
+          "flavour": "Heeding the teachings of their Noble master, a Bondsman is reminded that only by enduring can they hope to discharge their sworn obligations.",
+          "when": "Your opponent’s Shooting phase, just after an enemy unit has selected its targets.",
+          "target": "One ARMIGER unit from your army that was selected as the target of one or more of the attacking units attacks.",
+          "effect": "Until the attacking unit has finished making its attacks, each time an attack targets your unit, worsen the Armour Penetration characteristic of that attack by 1."
+        },
+        {
+          "name": "SQUIRES OFTHE HUNT",
+          "cp": 1,
+          "type": "Spearhead-At-Arms – Strategic Ploy Stratagem",
+          "flavour": "At a ritualised signal, Bondsmen encircle the foe to cut off escape, prowling onto unexpected attack routes.",
+          "when": "End of your opponent’s Fight phase.",
+          "target": "One ARMIGER model from your army, or one IMPERIAL KNIGHTS TITANIC model from your army, and one or more friendly ARMIGER models affected by that model’s Bondsman ability.",
+          "effect": "For each of your ARMIGER models that is within 9\" of one or more battlefield edges and not within Engagement Range of one or more enemy units, remove that ARMIGER model from the battlefield and place it into Strategic Reserves. Questor Forgepact Bound by oaths of fealty or not, many Knightly houses enjoy close relations with the priesthood of the Adeptus Mechanicus. Whether answering the Martian priesthood’s calls to arms or prosecuting their own wars of liberation against the Emperor’s foes, Noble families regularly pilot their war suits to battle alongside their Tech-Priest allies. The Skita"
+        }
+      ]
+    },
+    {
+      "name": "QUESTOR FORGEPACT",
+      "detachment_rule": "Cogbound Alliance",
+      "rule_summary": "The Nobles of Questor Mechanicus houses commonly fight alongside the armies of forge worlds. They are bound together by their shared devotion to the Machine Cult.  IMPERIAL KNIGHTS units from your army have the following the ability:  Sacristan Pledge: In your Command phase, one model in this unit regains 1 lost wound. If this unit is within 3\" of one or more friendly TECH-PRIEST models, one model in this unit regains up to D3 lost wounds instead.  ADEPTUS MECHANICUS units from your army have th",
+      "enhancements": [
+        {
+          "name": "Omnissian Champion",
+          "points": 30,
+          "description": "The Omnissian priesthood has thrice blessed this champion of the Machine God and their Knight suit’s core; it burns with a zeal that cannot be quenched.  IMPERIAL KNIGHTS model only. Add 4 to the bearer’s Wounds characteristic.",
+          "applies_to": "IMPERIAL KNIGHTS model only."
+        },
+        {
+          "name": "Knight of the Opus Machina",
+          "points": 20,
+          "description": "A devotee of the Omnissian creed, this Noble is inspired by the presence of the Adeptus Mechanicus, fighting with greater zeal and vigour in their holy presence.  IMPERIAL KNIGHTS model only. Each time the bearer makes a ranged attack, if the bearer is within 6\" of one or more friendly ADEPTUS MECHANICUS units, re-roll a Hit roll of 1.",
+          "applies_to": "IMPERIAL KNIGHTS model only."
+        },
+        {
+          "name": "Magos Questoris",
+          "points": 35,
+          "description": "An expert in the intricate mechanisms and weapons systems of Imperial Knights, this Tech-Priest taught Sacristans their craft. They now walk in the shadow of these war machines and make field repairs in the midst of battle.  TECH-PRIEST model only. While the bearer is within 3\" of one or more friendly IMPERIAL KNIGHTS units, it has the Lone Operative ability. In your Command phase, select one friendly Imperial Knights model within 3\" of the bearer. That model regains up to 2 lost wounds.",
+          "applies_to": ""
+        },
+        {
+          "name": "Vocifer Magnificat (Aura)",
+          "points": 15,
+          "description": "This titanic war machine’s carapace bristles with vox-grilles and laud hailers that project binharic prayers to the Machine God; these static chants serve both to unnerve the foe and fill the faithful of the Omnissiah with holy fervour.  IMPERIAL KNIGHTS model only. While an enemy unit is within 6\" of the bearer, worsen the Leadership characteristic of models in that unit by 1. While a friendly ADEPTUS MECHANICUS unit is within 6\" of the bearer, improve the Leadership characteristic of 1 models in that ADEPTUS MECHANICUS unit by 1.",
+          "applies_to": "IMPERIAL KNIGHTS model only."
+        }
+      ],
+      "stratagems": [
+        {
+          "name": "VENGEANCE OF THE MACHINE CULT",
+          "cp": 1,
+          "type": "Questor Forgepact – Strategic Ploy Stratagem",
+          "flavour": "Those who dare to fell the Machine God’s creations find themselves subject to the vengeance of the Adeptus Mechanicus.",
+          "when": "Any phase.",
+          "target": "One IMPERIAL KNIGHTS unit from your army that was just destroyed. You can use this Stratagem on that unit even though it was just destroyed.",
+          "effect": "Until the end of the battle, the enemy unit that destroyed your unit is Marked. Each time an ADEPTUS MECHANICUS model from your army makes an attack that targets a Marked unit, that attack has the [LETHAL HITS] ability."
+        },
+        {
+          "name": "BONDED IMPERATIVE",
+          "cp": 1,
+          "type": "Questor Forgepact – Epic Deed Stratagem",
+          "flavour": "Tapping into the noospheric battle-sphere, this Noble pilot issues binharic commands directly into the minds of Adeptus Mechanicus allies.",
+          "when": "Your Command phase, just before an IMPERIAL KNIGHTS CHARACTER unit from your army uses a Bondsman ability.",
+          "target": "That IMPERIAL KNIGHTS CHARACTER unit.",
+          "effect": "When selecting targets for that use of that Bondsman ability, you can select one friendly ADEPTUS MECHANICUS unit within 12\" of your unit in addition, or instead of selecting one ARMIGER model. Until the start of your next Command phase, every model in that ADEPTUS MECHANICUS unit is affected by that Bondsman ability.  RESTRICTIONS: You cannot target a KNIGHT PRECEPTOR with this Stratagem."
+        },
+        {
+          "name": "MACHINE FOCUS",
+          "cp": 1,
+          "type": "Questor Forgepact – Strategic Ploy Stratagem",
+          "flavour": "Soothing psalm programs inloaded by Tech-Priests focus targeting arrays and enhance the responsiveness of the Noble pilot’s mighty Knight suit.",
+          "when": "Your Command phase.",
+          "target": "One IMPERIAL KNIGHTS unit from your army.",
+          "effect": "Until the start of your next turn, your unit can ignore any or all modifiers to the following: the Weapon Skill or Ballistic Skill characteristics of weapons equipped by its models; any Hit roll or Wound roll made for it."
+        },
+        {
+          "name": "AGGRESSION BEGETS AGGRESSION",
+          "cp": 1,
+          "type": "Questor Forgepact – Strategic Ploy Stratagem",
+          "flavour": "Driven by the wrathful whisperings of their Throne Mechanicum, the Noble pilot guides their Knight suit forward, weapons blazing with every step. Inspired by their titanic ally, the warriors of the Ad",
+          "when": "Your Shooting phase.",
+          "target": "One IMPERIAL KNIGHTS unit from your army or one IMPERIAL KNIGHTS CHARACTER unit from your army and one friendly ADEPTUS MECHANICUS unit that is within 6\" of that unit.",
+          "effect": "Until the end of the phase, ranged weapons equipped by models in your units have the [ASSAULT] ability."
+        }
+      ]
+    }
+  ],
+  "units": [
+    {
+      "name": "ARMIGER HELVERIN",
+      "legends": false,
+      "role": "VEHICLE",
+      "faction_keywords": [
+        "KEYWORDS: Vehicle",
+        "Walker",
+        "Battleline",
+        "Imperium",
+        "Armiger",
+        "Helverin",
+        "Imperial Knights"
+      ],
+      "keywords": [
+        "KEYWORDS: Vehicle",
+        "Walker",
+        "Battleline",
+        "Imperium",
+        "Armiger",
+        "Helverin Imperial Knights"
+      ],
+      "points": null,
+      "stats": {
+        "M": "12\"",
+        "T": "10",
+        "Sv": "3+",
+        "W": "12",
+        "Ld": "7+",
+        "OC": "8"
+      },
+      "unit_composition": [
+        "This model’s Questoris heavy stubber can be replaced with 1 meltagun. ■ 1 Armiger Helverin",
+        "This model is equipped with: 2 Armiger autocannons;",
+        "Questoris heavy stubber; armoured feet."
+      ],
+      "base_size": null,
+      "abilities": [
+        {
+          "name": "CORE",
+          "summary": "Deadly Demise D3",
+          "phase_tags": []
+        },
+        {
+          "name": "FACTION",
+          "summary": "Code Chivalric",
+          "phase_tags": []
+        },
+        {
+          "name": "Skyfire Protocols",
+          "summary": "While this model is either wholly within",
+          "phase_tags": []
+        }
+      ],
+      "wargear_options": [],
+      "weapons": [
+        {
+          "name": "Armiger autocannon",
+          "type": "ranged",
+          "range": "48\"",
+          "a": "4",
+          "bs_ws": "3+",
+          "s": "9",
+          "ap": "-1",
+          "d": "3",
+          "keywords": []
+        },
+        {
+          "name": "Meltagun",
+          "type": "ranged",
+          "range": "12\"",
+          "a": "1",
+          "bs_ws": "3+",
+          "s": "9",
+          "ap": "-4",
+          "d": "D6",
+          "keywords": [
+            "MELTA 2"
+          ]
+        },
+        {
+          "name": "Questoris heavy stubber",
+          "type": "ranged",
+          "range": "36\"",
+          "a": "3",
+          "bs_ws": "3+",
+          "s": "4",
+          "ap": "-1",
+          "d": "1",
+          "keywords": [
+            "RAPID FIRE 3"
+          ]
+        },
+        {
+          "name": "Armoured feet",
+          "type": "melee",
+          "range": "Melee",
+          "a": "4",
+          "bs_ws": "3+",
+          "s": "6",
+          "ap": "0",
+          "d": "1",
+          "keywords": []
+        }
+      ],
+      "strengths": [],
+      "weaknesses": [],
+      "target_priority_tags": [],
+      "threat_tags": [
+        "MELEE_THREAT",
+        "RANGED_CAPABLE",
+        "MELTA",
+        "HIGH_DURABILITY"
+      ],
+      "mobility_tags": [
+        "FAST"
+      ],
+      "durability_tags": [
+        "MEDIUM_ARMOUR",
+        "HIGH_TOUGHNESS",
+        "MULTI_WOUND_HIGH"
+      ],
+      "tau_counterplay": [
+        "Melee threat — maintain distance, use Drones as speed bumps, overwatch with Pulse.",
+        "High durability — concentrate fire, Ion Accelerator or Railguns for AP-3+.",
+        "T10 — only Ion Accelerator, Railguns, or AP-2+ volume attacks meaningful."
+      ],
+      "notes": ""
+    },
+    {
+      "name": "ARMIGER WARGLAIVE",
+      "legends": false,
+      "role": "VEHICLE",
+      "faction_keywords": [
+        "KEYWORDS: Vehicle",
+        "Walker",
+        "Battleline",
+        "Imperium",
+        "Armiger",
+        "Warglaive",
+        "Imperial Knights"
+      ],
+      "keywords": [
+        "KEYWORDS: Vehicle",
+        "Walker",
+        "Battleline",
+        "Imperium",
+        "Armiger",
+        "Warglaive Imperial Knights"
+      ],
+      "points": null,
+      "stats": {
+        "M": "12\"",
+        "T": "10",
+        "Sv": "3+",
+        "W": "12",
+        "Ld": "7+",
+        "OC": "8"
+      },
+      "unit_composition": [
+        "This model’s Questoris heavy stubber can be replaced with 1 meltagun. ■ 1 Armiger Warglaive",
+        "This model is equipped with: Questoris heavy stubber;",
+        "thermal spear; reaper chain-cleaver."
+      ],
+      "base_size": null,
+      "abilities": [
+        {
+          "name": "CORE",
+          "summary": "Deadly Demise D3",
+          "phase_tags": []
+        },
+        {
+          "name": "FACTION",
+          "summary": "Code Chivalric",
+          "phase_tags": []
+        },
+        {
+          "name": "Impetuous Glory",
+          "summary": "Each time this model makes a Charge",
+          "phase_tags": []
+        }
+      ],
+      "wargear_options": [],
+      "weapons": [
+        {
+          "name": "Meltagun",
+          "type": "ranged",
+          "range": "12\"",
+          "a": "1",
+          "bs_ws": "3+",
+          "s": "9",
+          "ap": "-4",
+          "d": "D6",
+          "keywords": [
+            "MELTA 2"
+          ]
+        },
+        {
+          "name": "Questoris heavy stubber",
+          "type": "ranged",
+          "range": "36\"",
+          "a": "3",
+          "bs_ws": "3+",
+          "s": "4",
+          "ap": "-1",
+          "d": "1",
+          "keywords": [
+            "RAPID FIRE 3"
+          ]
+        },
+        {
+          "name": "Thermal spear",
+          "type": "ranged",
+          "range": "24\"",
+          "a": "2",
+          "bs_ws": "3+",
+          "s": "12",
+          "ap": "-4",
+          "d": "D6",
+          "keywords": [
+            "MELTA 4"
+          ]
+        },
+        {
+          "name": "Reaper chain-cleaver – strike",
+          "type": "melee",
+          "range": "Melee",
+          "a": "4",
+          "bs_ws": "3+",
+          "s": "10",
+          "ap": "-3",
+          "d": "3",
+          "keywords": []
+        },
+        {
+          "name": "Reaper chain-cleaver – sweep",
+          "type": "melee",
+          "range": "Melee",
+          "a": "8",
+          "bs_ws": "3+",
+          "s": "8",
+          "ap": "-2",
+          "d": "1",
+          "keywords": []
+        }
+      ],
+      "strengths": [],
+      "weaknesses": [],
+      "target_priority_tags": [],
+      "threat_tags": [
+        "MELEE_THREAT",
+        "RANGED_CAPABLE",
+        "MELTA",
+        "HIGH_DURABILITY"
+      ],
+      "mobility_tags": [
+        "FAST"
+      ],
+      "durability_tags": [
+        "MEDIUM_ARMOUR",
+        "HIGH_TOUGHNESS",
+        "MULTI_WOUND_HIGH"
+      ],
+      "tau_counterplay": [
+        "Melee threat — maintain distance, use Drones as speed bumps, overwatch with Pulse.",
+        "High durability — concentrate fire, Ion Accelerator or Railguns for AP-3+.",
+        "T10 — only Ion Accelerator, Railguns, or AP-2+ volume attacks meaningful."
+      ],
+      "notes": ""
+    },
+    {
+      "name": "KNIGHT CASTELLAN",
+      "legends": false,
+      "role": "VEHICLE",
+      "faction_keywords": [
+        "Imperium",
+        "Knight Castellan Imperial Knights"
+      ],
+      "keywords": [
+        "Vehicle",
+        "Walker",
+        "Titanic",
+        "Towering",
+        "Dominus",
+        "Character"
+      ],
+      "points": null,
+      "stats": {
+        "M": "8\"",
+        "T": "13",
+        "Sv": "2+",
+        "W": "24",
+        "Ld": "6+",
+        "OC": "10"
+      },
+      "unit_composition": [
+        "This model’s 2 shieldbreaker missile launchers and twin siegebreaker cannon can be replaced with: ■ 1 Knight Castellan",
+        "1 shieldbreaker missile launcher and 2 twin siegebreaker cannons This model is equipped with: plasma decimator;",
+        "2 shieldbreaker missile launchers; 2 twin meltaguns;",
+        "twin siegebreaker cannon, volcano lance; titanic feet."
+      ],
+      "base_size": null,
+      "abilities": [
+        {
+          "name": "CORE",
+          "summary": "Deadly Demise D6+2",
+          "phase_tags": []
+        },
+        {
+          "name": "FACTION",
+          "summary": "Code Chivalric",
+          "phase_tags": []
+        },
+        {
+          "name": "Ion Aegis (Aura)",
+          "summary": "While a friendly Armiger model is within 6\"",
+          "phase_tags": []
+        },
+        {
+          "name": "Titan Hunter",
+          "summary": "Each time a ranged attack made by this model",
+          "phase_tags": []
+        }
+      ],
+      "wargear_options": [],
+      "weapons": [
+        {
+          "name": "Plasma decimator – standard",
+          "type": "ranged",
+          "range": "48\"",
+          "a": "D6+3",
+          "bs_ws": "3+",
+          "s": "8",
+          "ap": "-2",
+          "d": "2",
+          "keywords": [
+            "BLAST"
+          ]
+        },
+        {
+          "name": "Twin meltagun",
+          "type": "ranged",
+          "range": "12\"",
+          "a": "1",
+          "bs_ws": "3+",
+          "s": "9",
+          "ap": "-4",
+          "d": "D6",
+          "keywords": [
+            "MELTA 2",
+            "TWIN-LINKED"
+          ]
+        },
+        {
+          "name": "Twin siegebreaker cannon",
+          "type": "ranged",
+          "range": "36\"",
+          "a": "D6",
+          "bs_ws": "3+",
+          "s": "6",
+          "ap": "0",
+          "d": "1",
+          "keywords": [
+            "BLAST",
+            "TWIN-LINKED"
+          ]
+        },
+        {
+          "name": "Volcano lance",
+          "type": "ranged",
+          "range": "72\"",
+          "a": "D3",
+          "bs_ws": "3+",
+          "s": "18",
+          "ap": "-5",
+          "d": "D6+8",
+          "keywords": [
+            "BLAST"
+          ]
+        },
+        {
+          "name": "Titanic feet",
+          "type": "melee",
+          "range": "Melee",
+          "a": "4",
+          "bs_ws": "4+",
+          "s": "8",
+          "ap": "-1",
+          "d": "2",
+          "keywords": []
+        }
+      ],
+      "strengths": [],
+      "weaknesses": [],
+      "target_priority_tags": [],
+      "threat_tags": [
+        "MELEE_THREAT",
+        "RANGED_CAPABLE",
+        "BLAST_WEAPONS",
+        "MELTA",
+        "PLASMA",
+        "HIGH_DURABILITY"
+      ],
+      "mobility_tags": [
+        "MOBILE"
+      ],
+      "durability_tags": [
+        "HEAVY_ARMOUR",
+        "VERY_HIGH_TOUGHNESS",
+        "SUPER_MULTI_WOUND"
+      ],
+      "tau_counterplay": [
+        "Melee threat — maintain distance, use Drones as speed bumps, overwatch with Pulse.",
+        "High durability — concentrate fire, Ion Accelerator or Railguns for AP-3+.",
+        "T13 — only Ion Accelerator, Railguns, or AP-2+ volume attacks meaningful."
+      ],
+      "notes": ""
+    },
+    {
+      "name": "KNIGHT VALIANT",
+      "legends": false,
+      "role": "VEHICLE",
+      "faction_keywords": [
+        "Imperium",
+        "Knight Valiant Imperial Knights"
+      ],
+      "keywords": [
+        "Vehicle",
+        "Walker",
+        "Titanic",
+        "Towering",
+        "Dominus",
+        "Character"
+      ],
+      "points": null,
+      "stats": {
+        "M": "8\"",
+        "T": "13",
+        "Sv": "2+",
+        "W": "24",
+        "Ld": "6+",
+        "OC": "10"
+      },
+      "unit_composition": [
+        "This model’s 2 shieldbreaker missile launchers and twin siegebreaker cannon can be replaced with: ■ 1 Knight Valiant",
+        "1 shieldbreaker missile launcher and 2 twin siegebreaker cannons This model is equipped with: conflagration cannon;",
+        "2 shieldbreaker missile launchers; thundercoil harpoon;",
+        "2 twin meltaguns; twin siegebreaker cannon, titanic feet."
+      ],
+      "base_size": null,
+      "abilities": [
+        {
+          "name": "CORE",
+          "summary": "Deadly Demise D6+2",
+          "phase_tags": []
+        },
+        {
+          "name": "FACTION",
+          "summary": "Code Chivalric",
+          "phase_tags": []
+        },
+        {
+          "name": "Ion Aegis (Aura)",
+          "summary": "While a friendly Armiger model is within 6\"",
+          "phase_tags": []
+        },
+        {
+          "name": "Overwhelming Firestorm",
+          "summary": "In your Shooting phase, after this",
+          "phase_tags": []
+        }
+      ],
+      "wargear_options": [],
+      "weapons": [
+        {
+          "name": "Conflagration cannon",
+          "type": "ranged",
+          "range": "18\"",
+          "a": "3D6",
+          "bs_ws": "N/A",
+          "s": "8",
+          "ap": "-1",
+          "d": "2",
+          "keywords": [
+            "IGNORES COVER",
+            "TORRENT"
+          ]
+        },
+        {
+          "name": "Twin meltagun",
+          "type": "ranged",
+          "range": "12\"",
+          "a": "1",
+          "bs_ws": "3+",
+          "s": "9",
+          "ap": "-4",
+          "d": "D6",
+          "keywords": [
+            "MELTA 2",
+            "TWIN-LINKED"
+          ]
+        },
+        {
+          "name": "Thundercoil harpoon",
+          "type": "ranged",
+          "range": "18\"",
+          "a": "1",
+          "bs_ws": "2+",
+          "s": "24",
+          "ap": "-6",
+          "d": "12",
+          "keywords": []
+        },
+        {
+          "name": "Twin siegebreaker cannon",
+          "type": "ranged",
+          "range": "36\"",
+          "a": "D6",
+          "bs_ws": "3+",
+          "s": "6",
+          "ap": "0",
+          "d": "1",
+          "keywords": [
+            "BLAST",
+            "TWIN-LINKED"
+          ]
+        },
+        {
+          "name": "Titanic feet",
+          "type": "melee",
+          "range": "Melee",
+          "a": "4",
+          "bs_ws": "4+",
+          "s": "8",
+          "ap": "-1",
+          "d": "2",
+          "keywords": []
+        }
+      ],
+      "strengths": [],
+      "weaknesses": [],
+      "target_priority_tags": [],
+      "threat_tags": [
+        "MELEE_THREAT",
+        "RANGED_CAPABLE",
+        "BLAST_WEAPONS",
+        "MELTA",
+        "HIGH_DURABILITY"
+      ],
+      "mobility_tags": [
+        "MOBILE"
+      ],
+      "durability_tags": [
+        "HEAVY_ARMOUR",
+        "VERY_HIGH_TOUGHNESS",
+        "SUPER_MULTI_WOUND"
+      ],
+      "tau_counterplay": [
+        "Melee threat — maintain distance, use Drones as speed bumps, overwatch with Pulse.",
+        "High durability — concentrate fire, Ion Accelerator or Railguns for AP-3+.",
+        "T13 — only Ion Accelerator, Railguns, or AP-2+ volume attacks meaningful."
+      ],
+      "notes": ""
+    },
+    {
+      "name": "ACASTUS KNIGHT ASTERIUS",
+      "legends": false,
+      "role": "SUPER-HEAVY",
+      "faction_keywords": [
+        "Knight Asterius Imperial Knights"
+      ],
+      "keywords": [
+        "Vehicle",
+        "Walker",
+        "Titanic",
+        "Towering",
+        "Acastus",
+        "Imperium"
+      ],
+      "points": null,
+      "stats": {
+        "M": "8\"",
+        "T": "13",
+        "Sv": "2+",
+        "W": "30",
+        "Ld": "6+",
+        "OC": "10"
+      },
+      "unit_composition": [
+        "None ■ 1 Acastus Knight Asterius",
+        "This model is equipped with: 2 Asterius volkite culverins;",
+        "karacnos mortar battery; 2 twin conversion beam cannons;",
+        "titanic feet."
+      ],
+      "base_size": null,
+      "abilities": [
+        {
+          "name": "CORE",
+          "summary": "Deadly Demise 2D6",
+          "phase_tags": []
+        },
+        {
+          "name": "FACTION",
+          "summary": "Code Chivalric",
+          "phase_tags": []
+        },
+        {
+          "name": "Sunderer of Fortresses",
+          "summary": "Each time this model makes an",
+          "phase_tags": []
+        },
+        {
+          "name": "Conversion",
+          "summary": "Each time an attack is made with this weapon, if the target is more than 24\" from the bearer, Damage characteristics of that attack by 1. If that attack",
+          "phase_tags": []
+        }
+      ],
+      "wargear_options": [],
+      "weapons": [
+        {
+          "name": "Asterius volkite culverin",
+          "type": "ranged",
+          "range": "24\"",
+          "a": "6",
+          "bs_ws": "3+",
+          "s": "6",
+          "ap": "0",
+          "d": "2",
+          "keywords": [
+            "DEVASTATING WOUNDS"
+          ]
+        },
+        {
+          "name": "Titanic feet",
+          "type": "melee",
+          "range": "Melee",
+          "a": "6",
+          "bs_ws": "4+",
+          "s": "10",
+          "ap": "-1",
+          "d": "2",
+          "keywords": []
+        }
+      ],
+      "strengths": [],
+      "weaknesses": [],
+      "target_priority_tags": [],
+      "threat_tags": [
+        "MELEE_THREAT",
+        "RANGED_CAPABLE",
+        "HIGH_DURABILITY"
+      ],
+      "mobility_tags": [
+        "MOBILE"
+      ],
+      "durability_tags": [
+        "HEAVY_ARMOUR",
+        "VERY_HIGH_TOUGHNESS",
+        "SUPER_MULTI_WOUND"
+      ],
+      "tau_counterplay": [
+        "Melee threat — maintain distance, use Drones as speed bumps, overwatch with Pulse.",
+        "High durability — concentrate fire, Ion Accelerator or Railguns for AP-3+.",
+        "T13 — only Ion Accelerator, Railguns, or AP-2+ volume attacks meaningful."
+      ],
+      "notes": ""
+    },
+    {
+      "name": "ACASTUS KNIGHT PORPHYRION",
+      "legends": false,
+      "role": "SUPER-HEAVY",
+      "faction_keywords": [
+        "Knight Porphyrion Imperial Knights"
+      ],
+      "keywords": [
+        "Vehicle",
+        "Walker",
+        "Titanic",
+        "Towering",
+        "Imperium",
+        "Acastus"
+      ],
+      "points": null,
+      "stats": {
+        "M": "8\"",
+        "T": "13",
+        "Sv": "2+",
+        "W": "30",
+        "Ld": "6+",
+        "OC": "10"
+      },
+      "unit_composition": [
+        "This model’s 2 Acastus autocannons can be replaced with one of the following: ■ 1 Acastus Knight Porphyrion",
+        "2 lascannons This model is equipped with: 2 Acastus autocannons; Acastus",
+        "1 Acastus autocannon and 1 lascannon ironstorm missile pod; 2 twin magna lascannons; titanic feet.",
+        "This model’s Acastus ironstorm missile pod can be replaced with 1 helios defence missiles."
+      ],
+      "base_size": null,
+      "abilities": [
+        {
+          "name": "CORE",
+          "summary": "Deadly Demise 2D6",
+          "phase_tags": []
+        },
+        {
+          "name": "FACTION",
+          "summary": "Code Chivalric",
+          "phase_tags": []
+        },
+        {
+          "name": "Bastion of Firepower",
+          "summary": "Each time this model Remains",
+          "phase_tags": []
+        }
+      ],
+      "wargear_options": [],
+      "weapons": [
+        {
+          "name": "Acastus autocannon",
+          "type": "ranged",
+          "range": "48\"",
+          "a": "2",
+          "bs_ws": "3+",
+          "s": "9",
+          "ap": "-1",
+          "d": "3",
+          "keywords": []
+        },
+        {
+          "name": "Helios defence missiles",
+          "type": "ranged",
+          "range": "48\"",
+          "a": "3",
+          "bs_ws": "3+",
+          "s": "10",
+          "ap": "-2",
+          "d": "D6",
+          "keywords": [
+            "ANTI-FLY 2+",
+            "HEAVY"
+          ]
+        },
+        {
+          "name": "Lascannon",
+          "type": "ranged",
+          "range": "48\"",
+          "a": "1",
+          "bs_ws": "3+",
+          "s": "12",
+          "ap": "-3",
+          "d": "D6+1",
+          "keywords": []
+        },
+        {
+          "name": "Twin magna lascannon",
+          "type": "ranged",
+          "range": "72\"",
+          "a": "D6",
+          "bs_ws": "3+",
+          "s": "18",
+          "ap": "-4",
+          "d": "D6+6",
+          "keywords": [
+            "BLAST",
+            "TWIN-LINKED"
+          ]
+        },
+        {
+          "name": "Titanic feet",
+          "type": "melee",
+          "range": "Melee",
+          "a": "6",
+          "bs_ws": "4+",
+          "s": "10",
+          "ap": "-1",
+          "d": "2",
+          "keywords": []
+        }
+      ],
+      "strengths": [],
+      "weaknesses": [],
+      "target_priority_tags": [],
+      "threat_tags": [
+        "MELEE_THREAT",
+        "RANGED_CAPABLE",
+        "BLAST_WEAPONS",
+        "HIGH_DURABILITY"
+      ],
+      "mobility_tags": [
+        "MOBILE"
+      ],
+      "durability_tags": [
+        "HEAVY_ARMOUR",
+        "VERY_HIGH_TOUGHNESS",
+        "SUPER_MULTI_WOUND"
+      ],
+      "tau_counterplay": [
+        "Melee threat — maintain distance, use Drones as speed bumps, overwatch with Pulse.",
+        "High durability — concentrate fire, Ion Accelerator or Railguns for AP-3+.",
+        "T13 — only Ion Accelerator, Railguns, or AP-2+ volume attacks meaningful."
+      ],
+      "notes": ""
+    },
+    {
+      "name": "ARMIGER MOIRAX",
+      "legends": false,
+      "role": "SUPER-HEAVY",
+      "faction_keywords": [
+        "KEYWORDS: Vehicle",
+        "Walker",
+        "Battleline",
+        "Imperium",
+        "Armiger",
+        "Moirax",
+        "Imperial Knights"
+      ],
+      "keywords": [
+        "KEYWORDS: Vehicle",
+        "Walker",
+        "Battleline",
+        "Imperium",
+        "Armiger",
+        "Moirax Imperial Knights"
+      ],
+      "points": null,
+      "stats": {
+        "M": "12\"",
+        "T": "10",
+        "Sv": "3+",
+        "W": "12",
+        "Ld": "7+",
+        "OC": "8"
+      },
+      "unit_composition": [
+        "This model’s volkite veuglaire can be replaced with one of the following: ■ 1 Armiger Moirax",
+        "1 siege claw and 1 rad cleanser This model is equipped with: graviton pulsar;",
+        "1 graviton pulsar volkite veuglaire; armoured feet.",
+        "1 lightning lock",
+        "1 conversion beam cannon",
+        "This model’s graviton pulsar can be replaced with one of the following;",
+        "1 siege claw and 1 rad cleanser",
+        "1 lightning lock",
+        "1 conversion beam cannon",
+        "1 volkite veuglaire"
+      ],
+      "base_size": null,
+      "abilities": [
+        {
+          "name": "CORE",
+          "summary": "Deadly Demise D3",
+          "phase_tags": []
+        },
+        {
+          "name": "FACTION",
+          "summary": "Code Chivalric",
+          "phase_tags": []
+        },
+        {
+          "name": "Conversion",
+          "summary": "Each time an attack is made with this weapon, if the target is more than 12\" from the bearer, FACTION: Code Chivalric",
+          "phase_tags": []
+        },
+        {
+          "name": "Protection Protocols",
+          "summary": "You can target this unit with the Heroic",
+          "phase_tags": []
+        }
+      ],
+      "wargear_options": [],
+      "weapons": [
+        {
+          "name": "Conversion beam cannon",
+          "type": "ranged",
+          "range": "24\"",
+          "a": "1",
+          "bs_ws": "3+",
+          "s": "10",
+          "ap": "-2",
+          "d": "3",
+          "keywords": []
+        },
+        {
+          "name": "Graviton pulsar",
+          "type": "ranged",
+          "range": "24\"",
+          "a": "D6",
+          "bs_ws": "3+",
+          "s": "7",
+          "ap": "-1",
+          "d": "2",
+          "keywords": [
+            "ANTI-VEHICLE 2+",
+            "BLAST"
+          ]
+        },
+        {
+          "name": "Lightning lock",
+          "type": "ranged",
+          "range": "36\"",
+          "a": "6",
+          "bs_ws": "3+",
+          "s": "8",
+          "ap": "0",
+          "d": "1",
+          "keywords": [
+            "SUSTAINED HITS 2"
+          ]
+        },
+        {
+          "name": "Rad cleanser",
+          "type": "ranged",
+          "range": "12\"",
+          "a": "D6",
+          "bs_ws": "N/A",
+          "s": "2",
+          "ap": "0",
+          "d": "1",
+          "keywords": [
+            "ANTI-INFANTRY 2+",
+            "IGNORES COVER",
+            "TORRENT"
+          ]
+        },
+        {
+          "name": "Volkite veuglaire",
+          "type": "ranged",
+          "range": "36\"",
+          "a": "4",
+          "bs_ws": "3+",
+          "s": "8",
+          "ap": "0",
+          "d": "2",
+          "keywords": [
+            "DEVASTATING WOUNDS"
+          ]
+        },
+        {
+          "name": "Armoured feet",
+          "type": "melee",
+          "range": "Melee",
+          "a": "4",
+          "bs_ws": "3+",
+          "s": "6",
+          "ap": "0",
+          "d": "1",
+          "keywords": []
+        },
+        {
+          "name": "Siege claw",
+          "type": "melee",
+          "range": "Melee",
+          "a": "4",
+          "bs_ws": "3+",
+          "s": "12",
+          "ap": "-3",
+          "d": "D6+2",
+          "keywords": []
+        }
+      ],
+      "strengths": [],
+      "weaknesses": [],
+      "target_priority_tags": [],
+      "threat_tags": [
+        "ELITE_MELEE",
+        "RANGED_CAPABLE",
+        "BLAST_WEAPONS",
+        "HIGH_DURABILITY"
+      ],
+      "mobility_tags": [
+        "FAST"
+      ],
+      "durability_tags": [
+        "MEDIUM_ARMOUR",
+        "HIGH_TOUGHNESS",
+        "MULTI_WOUND_HIGH"
+      ],
+      "tau_counterplay": [
+        "Melee threat — maintain distance, use Drones as speed bumps, overwatch with Pulse.",
+        "High durability — concentrate fire, Ion Accelerator or Railguns for AP-3+.",
+        "T10 — only Ion Accelerator, Railguns, or AP-2+ volume attacks meaningful."
+      ],
+      "notes": ""
+    },
+    {
+      "name": "CERASTUS KNIGHT ACHERON",
+      "legends": false,
+      "role": "SUPER-HEAVY",
+      "faction_keywords": [
+        "Cerastus",
+        "Knight Acheron Imperial Knights"
+      ],
+      "keywords": [
+        "Vehicle",
+        "Walker",
+        "Character",
+        "Titanic",
+        "Towering",
+        "Imperium"
+      ],
+      "points": null,
+      "stats": {
+        "M": "12\"",
+        "T": "12",
+        "Sv": "3+",
+        "W": "25",
+        "Ld": "6+",
+        "OC": "10"
+      },
+      "unit_composition": [
+        "None ■ 1 Cerastus Knight Acheron",
+        "This model is equipped with: Acheron flame cannon;",
+        "twin heavy bolter; reaper chainfist."
+      ],
+      "base_size": null,
+      "abilities": [
+        {
+          "name": "CORE",
+          "summary": "Deadly Demise D6+2",
+          "phase_tags": []
+        },
+        {
+          "name": "FACTION",
+          "summary": "Code Chivalric",
+          "phase_tags": []
+        },
+        {
+          "name": "Duty (Bondsman)",
+          "summary": "While a model is affected by",
+          "phase_tags": []
+        },
+        {
+          "name": "Searing Flames",
+          "summary": "In your Shooting phase, after this model",
+          "phase_tags": []
+        }
+      ],
+      "wargear_options": [],
+      "weapons": [
+        {
+          "name": "Acheron flame cannon",
+          "type": "ranged",
+          "range": "18\"",
+          "a": "2D6",
+          "bs_ws": "N/A",
+          "s": "8",
+          "ap": "-1",
+          "d": "2",
+          "keywords": [
+            "TORRENT",
+            "IGNORES COVER"
+          ]
+        },
+        {
+          "name": "Twin heavy bolter",
+          "type": "ranged",
+          "range": "36\"",
+          "a": "3",
+          "bs_ws": "3+",
+          "s": "5",
+          "ap": "-1",
+          "d": "2",
+          "keywords": [
+            "SUSTAINED HITS 1",
+            "TWIN-LINKED"
+          ]
+        },
+        {
+          "name": "Reaper chainfist – strike",
+          "type": "melee",
+          "range": "Melee",
+          "a": "4",
+          "bs_ws": "3+",
+          "s": "14",
+          "ap": "-4",
+          "d": "6",
+          "keywords": []
+        },
+        {
+          "name": "Reaper chainfist – sweep",
+          "type": "melee",
+          "range": "Melee",
+          "a": "12",
+          "bs_ws": "3+",
+          "s": "9",
+          "ap": "-3",
+          "d": "2",
+          "keywords": []
+        }
+      ],
+      "strengths": [],
+      "weaknesses": [],
+      "target_priority_tags": [],
+      "threat_tags": [
+        "ELITE_MELEE",
+        "RANGED_CAPABLE",
+        "HIGH_DURABILITY"
+      ],
+      "mobility_tags": [
+        "FAST"
+      ],
+      "durability_tags": [
+        "MEDIUM_ARMOUR",
+        "VERY_HIGH_TOUGHNESS",
+        "SUPER_MULTI_WOUND"
+      ],
+      "tau_counterplay": [
+        "Melee threat — maintain distance, use Drones as speed bumps, overwatch with Pulse.",
+        "High durability — concentrate fire, Ion Accelerator or Railguns for AP-3+.",
+        "T12 — only Ion Accelerator, Railguns, or AP-2+ volume attacks meaningful."
+      ],
+      "notes": ""
+    },
+    {
+      "name": "CERASTUS KNIGHT ATRAPOS",
+      "legends": false,
+      "role": "SUPER-HEAVY",
+      "faction_keywords": [
+        "Cerastus",
+        "Knight Atrapos Imperial Knights"
+      ],
+      "keywords": [
+        "Vehicle",
+        "Walker",
+        "Character",
+        "Titanic",
+        "Towering",
+        "Imperium"
+      ],
+      "points": null,
+      "stats": {
+        "M": "12\"",
+        "T": "12",
+        "Sv": "3+",
+        "W": "25",
+        "Ld": "6+",
+        "OC": "10"
+      },
+      "unit_composition": [
+        "None ■ 1 Cerastus Knight Atrapos",
+        "This model is equipped with: Atrapos lascutter;",
+        "graviton singularity cannon."
+      ],
+      "base_size": null,
+      "abilities": [
+        {
+          "name": "CORE",
+          "summary": "Deadly Demise D6+2",
+          "phase_tags": []
+        },
+        {
+          "name": "FACTION",
+          "summary": "Code Chivalric",
+          "phase_tags": []
+        },
+        {
+          "name": "Duty (Bondsman)",
+          "summary": "While a model is affected by this",
+          "phase_tags": []
+        },
+        {
+          "name": "Macro-extinction Protocols",
+          "summary": "Each time this model makes an",
+          "phase_tags": []
+        }
+      ],
+      "wargear_options": [],
+      "weapons": [
+        {
+          "name": "Atrapos lascutter – low intensity",
+          "type": "ranged",
+          "range": "36\"",
+          "a": "2D6",
+          "bs_ws": "3+",
+          "s": "7",
+          "ap": "-1",
+          "d": "2",
+          "keywords": [
+            "SUSTAINED HITS 1"
+          ]
+        },
+        {
+          "name": "Atrapos lascutter – high intensity",
+          "type": "ranged",
+          "range": "24\"",
+          "a": "D6",
+          "bs_ws": "3+",
+          "s": "14",
+          "ap": "-3",
+          "d": "4",
+          "keywords": [
+            "SUSTAINED HITS 1"
+          ]
+        },
+        {
+          "name": "Graviton singularity cannon – contained",
+          "type": "ranged",
+          "range": "24\"",
+          "a": "D3",
+          "bs_ws": "3+",
+          "s": "16",
+          "ap": "-4",
+          "d": "D6+1",
+          "keywords": [
+            "BLAST"
+          ]
+        },
+        {
+          "name": "Atrapos lascutter – low intensity",
+          "type": "melee",
+          "range": "Melee",
+          "a": "12",
+          "bs_ws": "3+",
+          "s": "7",
+          "ap": "-1",
+          "d": "2",
+          "keywords": [
+            "SUSTAINED HITS 1"
+          ]
+        },
+        {
+          "name": "Atrapos lascutter – high intensity",
+          "type": "melee",
+          "range": "Melee",
+          "a": "6",
+          "bs_ws": "3+",
+          "s": "14",
+          "ap": "-3",
+          "d": "4",
+          "keywords": [
+            "SUSTAINED HITS 1"
+          ]
+        }
+      ],
+      "strengths": [],
+      "weaknesses": [],
+      "target_priority_tags": [],
+      "threat_tags": [
+        "ELITE_MELEE",
+        "RANGED_CAPABLE",
+        "BLAST_WEAPONS",
+        "HIGH_DURABILITY"
+      ],
+      "mobility_tags": [
+        "FAST"
+      ],
+      "durability_tags": [
+        "MEDIUM_ARMOUR",
+        "VERY_HIGH_TOUGHNESS",
+        "SUPER_MULTI_WOUND"
+      ],
+      "tau_counterplay": [
+        "Melee threat — maintain distance, use Drones as speed bumps, overwatch with Pulse.",
+        "High durability — concentrate fire, Ion Accelerator or Railguns for AP-3+.",
+        "T12 — only Ion Accelerator, Railguns, or AP-2+ volume attacks meaningful."
+      ],
+      "notes": ""
+    },
+    {
+      "name": "CERASTUS KNIGHT CASTIGATOR",
+      "legends": false,
+      "role": "SUPER-HEAVY",
+      "faction_keywords": [
+        "Cerastus",
+        "Knight Castigator Imperial Knights"
+      ],
+      "keywords": [
+        "Vehicle",
+        "Walker",
+        "Character",
+        "Titanic",
+        "Towering",
+        "Imperium"
+      ],
+      "points": null,
+      "stats": {
+        "M": "12\"",
+        "T": "12",
+        "Sv": "3+",
+        "W": "25",
+        "Ld": "6+",
+        "OC": "10"
+      },
+      "unit_composition": [
+        "None ■ 1 Cerastus Knight Castigator",
+        "This model is equipped with: Castigator bolt cannon;",
+        "tempest warblade."
+      ],
+      "base_size": null,
+      "abilities": [
+        {
+          "name": "CORE",
+          "summary": "Deadly Demise D6+2",
+          "phase_tags": []
+        },
+        {
+          "name": "FACTION",
+          "summary": "Code Chivalric",
+          "phase_tags": []
+        },
+        {
+          "name": "Duty (Bondsman)",
+          "summary": "While a model is affected by",
+          "phase_tags": []
+        },
+        {
+          "name": "Storm of Bolts",
+          "summary": "In your Shooting phase, after this model has",
+          "phase_tags": []
+        }
+      ],
+      "wargear_options": [],
+      "weapons": [
+        {
+          "name": "Castigator bolt cannon",
+          "type": "ranged",
+          "range": "36\"",
+          "a": "18",
+          "bs_ws": "3+",
+          "s": "6",
+          "ap": "-2",
+          "d": "2",
+          "keywords": [
+            "TWIN-LINKED"
+          ]
+        },
+        {
+          "name": "Tempest warblade – strike",
+          "type": "melee",
+          "range": "Melee",
+          "a": "4",
+          "bs_ws": "3+",
+          "s": "14",
+          "ap": "-4",
+          "d": "6",
+          "keywords": []
+        },
+        {
+          "name": "Tempest warblade – sweep",
+          "type": "melee",
+          "range": "Melee",
+          "a": "12",
+          "bs_ws": "3+",
+          "s": "9",
+          "ap": "-3",
+          "d": "2",
+          "keywords": []
+        }
+      ],
+      "strengths": [],
+      "weaknesses": [],
+      "target_priority_tags": [],
+      "threat_tags": [
+        "ELITE_MELEE",
+        "RANGED_CAPABLE",
+        "HIGH_DURABILITY"
+      ],
+      "mobility_tags": [
+        "FAST"
+      ],
+      "durability_tags": [
+        "MEDIUM_ARMOUR",
+        "VERY_HIGH_TOUGHNESS",
+        "SUPER_MULTI_WOUND"
+      ],
+      "tau_counterplay": [
+        "Melee threat — maintain distance, use Drones as speed bumps, overwatch with Pulse.",
+        "High durability — concentrate fire, Ion Accelerator or Railguns for AP-3+.",
+        "T12 — only Ion Accelerator, Railguns, or AP-2+ volume attacks meaningful."
+      ],
+      "notes": ""
+    },
+    {
+      "name": "CERASTUS KNIGHT LANCER",
+      "legends": false,
+      "role": "SUPER-HEAVY",
+      "faction_keywords": [
+        "Cerastus",
+        "Knight Lancer Imperial Knights"
+      ],
+      "keywords": [
+        "Vehicle",
+        "Walker",
+        "Character",
+        "Titanic",
+        "Towering",
+        "Imperium"
+      ],
+      "points": null,
+      "stats": {
+        "M": "14\"",
+        "T": "12",
+        "Sv": "3+",
+        "W": "25",
+        "Ld": "6+",
+        "OC": "10"
+      },
+      "unit_composition": [
+        "None ■ 1 Cerastus Knight Lancer",
+        "This model is equipped with: Cerastus shock lance."
+      ],
+      "base_size": null,
+      "abilities": [
+        {
+          "name": "CORE",
+          "summary": "Deadly Demise D6+2",
+          "phase_tags": []
+        },
+        {
+          "name": "FACTION",
+          "summary": "Code Chivalric",
+          "phase_tags": []
+        },
+        {
+          "name": "Duty (Bondsman)",
+          "summary": "While a model is affected by",
+          "phase_tags": []
+        },
+        {
+          "name": "Shock Charge",
+          "summary": "You can target this model with the Tank Shock",
+          "phase_tags": []
+        }
+      ],
+      "wargear_options": [],
+      "weapons": [
+        {
+          "name": "Cerastus shock lance",
+          "type": "ranged",
+          "range": "12\"",
+          "a": "6",
+          "bs_ws": "3+",
+          "s": "6",
+          "ap": "0",
+          "d": "2",
+          "keywords": [
+            "ASSAULT",
+            "SUSTAINED HITS 2"
+          ]
+        },
+        {
+          "name": "Cerastus shock lance – strike",
+          "type": "melee",
+          "range": "Melee",
+          "a": "5",
+          "bs_ws": "2+",
+          "s": "20",
+          "ap": "-3",
+          "d": "8",
+          "keywords": [
+            "LANCE"
+          ]
+        },
+        {
+          "name": "Cerastus shock lance – sweep",
+          "type": "melee",
+          "range": "Melee",
+          "a": "10",
+          "bs_ws": "2+",
+          "s": "10",
+          "ap": "-2",
+          "d": "3",
+          "keywords": []
+        }
+      ],
+      "strengths": [],
+      "weaknesses": [],
+      "target_priority_tags": [],
+      "threat_tags": [
+        "ELITE_MELEE",
+        "RANGED_CAPABLE",
+        "HIGH_DURABILITY"
+      ],
+      "mobility_tags": [
+        "VERY_FAST"
+      ],
+      "durability_tags": [
+        "MEDIUM_ARMOUR",
+        "VERY_HIGH_TOUGHNESS",
+        "SUPER_MULTI_WOUND"
+      ],
+      "tau_counterplay": [
+        "Melee threat — maintain distance, use Drones as speed bumps, overwatch with Pulse.",
+        "High durability — concentrate fire, Ion Accelerator or Railguns for AP-3+.",
+        "T12 — only Ion Accelerator, Railguns, or AP-2+ volume attacks meaningful."
+      ],
+      "notes": ""
+    },
+    {
+      "name": "QUESTORIS KNIGHT MAGAERA",
+      "legends": false,
+      "role": "SUPER-HEAVY",
+      "faction_keywords": [
+        "Questoris",
+        "Knight Magaera Imperial Knights"
+      ],
+      "keywords": [
+        "Vehicle",
+        "Walker",
+        "Character",
+        "Titanic",
+        "Towering",
+        "Imperium"
+      ],
+      "points": null,
+      "stats": {
+        "M": "10\"",
+        "T": "12",
+        "Sv": "3+",
+        "W": "22",
+        "Ld": "6+",
+        "OC": "10"
+      },
+      "unit_composition": [
+        "This model’s reaper chainsword can be replaced with 1 hekaton siege claw and 1 twin rad cleanser. ■ 1 Questoris Knight Magaera",
+        "This model is equipped with: lightning cannon;",
+        "phased plasma-fusil; reaper chainsword."
+      ],
+      "base_size": null,
+      "abilities": [
+        {
+          "name": "CORE",
+          "summary": "Deadly Demise D6",
+          "phase_tags": []
+        },
+        {
+          "name": "FACTION",
+          "summary": "Code Chivalric",
+          "phase_tags": []
+        },
+        {
+          "name": "Duty (Bondsman)",
+          "summary": "While a model is affected by",
+          "phase_tags": []
+        },
+        {
+          "name": "Repair Auto-simulacra",
+          "summary": "At the end of your Command phase,",
+          "phase_tags": []
+        }
+      ],
+      "wargear_options": [],
+      "weapons": [
+        {
+          "name": "Lightning cannon",
+          "type": "ranged",
+          "range": "48\"",
+          "a": "12",
+          "bs_ws": "3+",
+          "s": "9",
+          "ap": "0",
+          "d": "2",
+          "keywords": [
+            "SUSTAINED HITS 2"
+          ]
+        },
+        {
+          "name": "Phased plasma-fusil",
+          "type": "ranged",
+          "range": "24\"",
+          "a": "2",
+          "bs_ws": "3+",
+          "s": "8",
+          "ap": "-3",
+          "d": "2",
+          "keywords": [
+            "RAPID FIRE 2"
+          ]
+        },
+        {
+          "name": "Hekaton siege claw – strike",
+          "type": "melee",
+          "range": "Melee",
+          "a": "4",
+          "bs_ws": "3+",
+          "s": "20",
+          "ap": "-3",
+          "d": "8",
+          "keywords": []
+        },
+        {
+          "name": "Hekaton siege claw – sweep",
+          "type": "melee",
+          "range": "Melee",
+          "a": "8",
+          "bs_ws": "3+",
+          "s": "10",
+          "ap": "-2",
+          "d": "3",
+          "keywords": []
+        },
+        {
+          "name": "Reaper chainsword – strike",
+          "type": "melee",
+          "range": "Melee",
+          "a": "4",
+          "bs_ws": "3+",
+          "s": "14",
+          "ap": "-4",
+          "d": "6",
+          "keywords": []
+        },
+        {
+          "name": "Reaper chainsword – sweep",
+          "type": "melee",
+          "range": "Melee",
+          "a": "12",
+          "bs_ws": "3+",
+          "s": "9",
+          "ap": "-3",
+          "d": "2",
+          "keywords": []
+        }
+      ],
+      "strengths": [],
+      "weaknesses": [],
+      "target_priority_tags": [],
+      "threat_tags": [
+        "ELITE_MELEE",
+        "RANGED_CAPABLE",
+        "PLASMA",
+        "HIGH_DURABILITY"
+      ],
+      "mobility_tags": [
+        "FAST"
+      ],
+      "durability_tags": [
+        "MEDIUM_ARMOUR",
+        "VERY_HIGH_TOUGHNESS",
+        "SUPER_MULTI_WOUND"
+      ],
+      "tau_counterplay": [
+        "Melee threat — maintain distance, use Drones as speed bumps, overwatch with Pulse.",
+        "High durability — concentrate fire, Ion Accelerator or Railguns for AP-3+.",
+        "T12 — only Ion Accelerator, Railguns, or AP-2+ volume attacks meaningful."
+      ],
+      "notes": ""
+    },
+    {
+      "name": "QUESTORIS KNIGHT STYRIX",
+      "legends": false,
+      "role": "SUPER-HEAVY",
+      "faction_keywords": [
+        "Questoris",
+        "Knight Styrix Imperial Knights"
+      ],
+      "keywords": [
+        "Vehicle",
+        "Walker",
+        "Character",
+        "Titanic",
+        "Towering",
+        "Imperium"
+      ],
+      "points": null,
+      "stats": {
+        "M": "10\"",
+        "T": "12",
+        "Sv": "3+",
+        "W": "22",
+        "Ld": "6+",
+        "OC": "10"
+      },
+      "unit_composition": [
+        "This model’s reaper chainsword can be replaced with 1 hekaton siege claw and 1 twin rad cleanser. ■ 1 Questoris Knight Styrix",
+        "This model is equipped with: graviton crusher;",
+        "volkite chierovile; reaper chainsword."
+      ],
+      "base_size": null,
+      "abilities": [
+        {
+          "name": "CORE",
+          "summary": "Deadly Demise D6",
+          "phase_tags": []
+        },
+        {
+          "name": "FACTION",
+          "summary": "Code Chivalric",
+          "phase_tags": []
+        },
+        {
+          "name": "Duty (Bondsman)",
+          "summary": "While a model is affected by this",
+          "phase_tags": []
+        },
+        {
+          "name": "Grav-pinned",
+          "summary": "In your Shooting phase, after this model has",
+          "phase_tags": []
+        }
+      ],
+      "wargear_options": [],
+      "weapons": [
+        {
+          "name": "Graviton crusher",
+          "type": "ranged",
+          "range": "18\"",
+          "a": "3",
+          "bs_ws": "3+",
+          "s": "6",
+          "ap": "-1",
+          "d": "2",
+          "keywords": [
+            "ANTI-VEHICLE 2+",
+            "BLAST"
+          ]
+        },
+        {
+          "name": "Volkite chierovile",
+          "type": "ranged",
+          "range": "30\"",
+          "a": "9",
+          "bs_ws": "3+",
+          "s": "12",
+          "ap": "0",
+          "d": "3",
+          "keywords": [
+            "DEVASTATING WOUNDS"
+          ]
+        },
+        {
+          "name": "Hekaton siege claw – strike",
+          "type": "melee",
+          "range": "Melee",
+          "a": "4",
+          "bs_ws": "3+",
+          "s": "20",
+          "ap": "-3",
+          "d": "8",
+          "keywords": []
+        },
+        {
+          "name": "Hekaton siege claw – sweep",
+          "type": "melee",
+          "range": "Melee",
+          "a": "8",
+          "bs_ws": "3+",
+          "s": "10",
+          "ap": "-2",
+          "d": "3",
+          "keywords": []
+        },
+        {
+          "name": "Reaper chainsword – strike",
+          "type": "melee",
+          "range": "Melee",
+          "a": "4",
+          "bs_ws": "3+",
+          "s": "14",
+          "ap": "-4",
+          "d": "6",
+          "keywords": []
+        },
+        {
+          "name": "Reaper chainsword – sweep",
+          "type": "melee",
+          "range": "Melee",
+          "a": "12",
+          "bs_ws": "3+",
+          "s": "9",
+          "ap": "-3",
+          "d": "2",
+          "keywords": []
+        }
+      ],
+      "strengths": [],
+      "weaknesses": [],
+      "target_priority_tags": [],
+      "threat_tags": [
+        "ELITE_MELEE",
+        "RANGED_CAPABLE",
+        "BLAST_WEAPONS",
+        "HIGH_DURABILITY"
+      ],
+      "mobility_tags": [
+        "FAST"
+      ],
+      "durability_tags": [
+        "MEDIUM_ARMOUR",
+        "VERY_HIGH_TOUGHNESS",
+        "SUPER_MULTI_WOUND"
+      ],
+      "tau_counterplay": [
+        "Melee threat — maintain distance, use Drones as speed bumps, overwatch with Pulse.",
+        "High durability — concentrate fire, Ion Accelerator or Railguns for AP-3+.",
+        "T12 — only Ion Accelerator, Railguns, or AP-2+ volume attacks meaningful."
+      ],
+      "notes": ""
+    },
+    {
+      "name": "CANIS REX",
+      "legends": false,
+      "role": "VEHICLE",
+      "faction_keywords": [
+        "Epic Hero",
+        "Imperium",
+        "Canis Rex Imperial Knights"
+      ],
+      "keywords": [
+        "Vehicle",
+        "Walker",
+        "Titanic",
+        "Towering",
+        "Questoris",
+        "Character"
+      ],
+      "points": null,
+      "stats": {
+        "M": "10\"",
+        "T": "12",
+        "Sv": "3+",
+        "W": "22",
+        "Ld": "5+",
+        "OC": "10"
+      },
+      "unit_composition": [
+        "– set him up within 3\" of your Canis Rex model before it is",
+        "None ■ 1 Sir Hekhtur – Epic Hero removed. Sir Hekhtur then uses the profile, wargear, abilities",
+        "and keywords shown on this side of the card, but cannot be",
+        "Sir Hekhtur is equipped with: Hekhtur’s pistol; close selected as the target of any of your Stratagems other than",
+        "combat weapon. Core Stratagems. Your Canis Rex unit is not considered to be",
+        "destroyed until Sir Hekhtur is also destroyed."
+      ],
+      "base_size": null,
+      "abilities": [
+        {
+          "name": "CORE",
+          "summary": "Deadly Demise D6",
+          "phase_tags": []
+        },
+        {
+          "name": "FACTION",
+          "summary": "Code Chivalric",
+          "phase_tags": []
+        },
+        {
+          "name": "Legendary Freeblade",
+          "summary": "Once per turn, you can target this",
+          "phase_tags": []
+        },
+        {
+          "name": "Chainbreaker",
+          "summary": "Each time this model makes an attack, an",
+          "phase_tags": []
+        },
+        {
+          "name": "Canis Rex is equipped with",
+          "summary": "Chainbreaker las-impulsor; this model’s Objective Control characteristic and each time",
+          "phase_tags": []
+        }
+      ],
+      "wargear_options": [],
+      "weapons": [
+        {
+          "name": "Chainbreaker las-impulsor – high intensity",
+          "type": "ranged",
+          "range": "24\"",
+          "a": "D6",
+          "bs_ws": "2+",
+          "s": "14",
+          "ap": "-3",
+          "d": "4",
+          "keywords": []
+        },
+        {
+          "name": "Chainbreaker multi-laser",
+          "type": "ranged",
+          "range": "36\"",
+          "a": "4",
+          "bs_ws": "2+",
+          "s": "6",
+          "ap": "0",
+          "d": "1",
+          "keywords": [
+            "SUSTAINED HITS 1"
+          ]
+        },
+        {
+          "name": "Freedom’s Hand – strike",
+          "type": "melee",
+          "range": "Melee",
+          "a": "5",
+          "bs_ws": "2+",
+          "s": "20",
+          "ap": "-3",
+          "d": "9",
+          "keywords": [
+            "SUSTAINED HITS 1"
+          ]
+        },
+        {
+          "name": "Freedom’s Hand – sweep",
+          "type": "melee",
+          "range": "Melee",
+          "a": "10",
+          "bs_ws": "2+",
+          "s": "10",
+          "ap": "-2",
+          "d": "3",
+          "keywords": [
+            "SUSTAINED HITS 1"
+          ]
+        }
+      ],
+      "strengths": [],
+      "weaknesses": [],
+      "target_priority_tags": [],
+      "threat_tags": [
+        "ELITE_MELEE",
+        "RANGED_CAPABLE",
+        "HIGH_DURABILITY"
+      ],
+      "mobility_tags": [
+        "FAST"
+      ],
+      "durability_tags": [
+        "MEDIUM_ARMOUR",
+        "VERY_HIGH_TOUGHNESS",
+        "SUPER_MULTI_WOUND"
+      ],
+      "tau_counterplay": [
+        "Melee threat — maintain distance, use Drones as speed bumps, overwatch with Pulse.",
+        "High durability — concentrate fire, Ion Accelerator or Railguns for AP-3+.",
+        "T12 — only Ion Accelerator, Railguns, or AP-2+ volume attacks meaningful."
+      ],
+      "notes": ""
+    },
+    {
+      "name": "KNIGHT CRUSADER",
+      "legends": false,
+      "role": "VEHICLE",
+      "faction_keywords": [
+        "Imperium",
+        "Knight Crusader Imperial Knights"
+      ],
+      "keywords": [
+        "Vehicle",
+        "Walker",
+        "Titanic",
+        "Towering",
+        "Questoris",
+        "Character"
+      ],
+      "points": null,
+      "stats": {
+        "M": "10\"",
+        "T": "12",
+        "Sv": "3+",
+        "W": "22",
+        "Ld": "6+",
+        "OC": "10"
+      },
+      "unit_composition": [
+        "This model’s meltagun can be replaced with 1 Questoris heavy stubber. ■ 1 Knight Crusader",
+        "This model’s thermal cannon can be replaced with: This model is equipped with: avenger gatling cannon;",
+        "1 rapid-fire battlecannon and 1 Questoris heavy stubber heavy flamer; meltagun; thermal cannon; titanic feet.",
+        "This model can be equipped with one of the following:",
+        "1 Icarus autocannons",
+        "1 ironstorm missile pod",
+        "1 stormspear rocket pod"
+      ],
+      "base_size": null,
+      "abilities": [
+        {
+          "name": "CORE",
+          "summary": "Deadly Demise D6",
+          "phase_tags": []
+        },
+        {
+          "name": "FACTION",
+          "summary": "Code Chivalric",
+          "phase_tags": []
+        },
+        {
+          "name": "Duty (Bondsman)",
+          "summary": "While a model is affected by",
+          "phase_tags": []
+        },
+        {
+          "name": "Punishing Salvoes",
+          "summary": "In your Movement phase, if this",
+          "phase_tags": []
+        }
+      ],
+      "wargear_options": [],
+      "weapons": [
+        {
+          "name": "Avenger gatling cannon",
+          "type": "ranged",
+          "range": "36\"",
+          "a": "18",
+          "bs_ws": "3+",
+          "s": "6",
+          "ap": "-2",
+          "d": "2",
+          "keywords": []
+        },
+        {
+          "name": "Heavy flamer",
+          "type": "ranged",
+          "range": "12\"",
+          "a": "D6",
+          "bs_ws": "N/A",
+          "s": "5",
+          "ap": "-1",
+          "d": "1",
+          "keywords": [
+            "IGNORES COVER",
+            "TORRENT"
+          ]
+        },
+        {
+          "name": "Icarus autocannons",
+          "type": "ranged",
+          "range": "48\"",
+          "a": "3",
+          "bs_ws": "3+",
+          "s": "7",
+          "ap": "-1",
+          "d": "2",
+          "keywords": [
+            "ANTI-FLY 2+",
+            "TWIN-LINKED"
+          ]
+        },
+        {
+          "name": "Ironstorm missile pod",
+          "type": "ranged",
+          "range": "48\"",
+          "a": "D6+1",
+          "bs_ws": "3+",
+          "s": "5",
+          "ap": "0",
+          "d": "1",
+          "keywords": [
+            "BLAST",
+            "INDIRECT FIRE"
+          ]
+        },
+        {
+          "name": "Meltagun",
+          "type": "ranged",
+          "range": "12\"",
+          "a": "1",
+          "bs_ws": "3+",
+          "s": "9",
+          "ap": "-4",
+          "d": "D6",
+          "keywords": [
+            "MELTA 2"
+          ]
+        },
+        {
+          "name": "Questoris heavy stubber",
+          "type": "ranged",
+          "range": "36\"",
+          "a": "3",
+          "bs_ws": "3+",
+          "s": "4",
+          "ap": "-1",
+          "d": "1",
+          "keywords": [
+            "RAPID FIRE 3"
+          ]
+        },
+        {
+          "name": "Rapid-fire battle cannon",
+          "type": "ranged",
+          "range": "72\"",
+          "a": "D6+3",
+          "bs_ws": "3+",
+          "s": "10",
+          "ap": "-1",
+          "d": "3",
+          "keywords": [
+            "BLAST",
+            "RAPID FIRE D6+3"
+          ]
+        },
+        {
+          "name": "Stormspear rocket pod",
+          "type": "ranged",
+          "range": "48\"",
+          "a": "3",
+          "bs_ws": "3+",
+          "s": "8",
+          "ap": "-2",
+          "d": "D6",
+          "keywords": []
+        },
+        {
+          "name": "Thermal cannon",
+          "type": "ranged",
+          "range": "24\"",
+          "a": "2D3",
+          "bs_ws": "3+",
+          "s": "12",
+          "ap": "-4",
+          "d": "D6",
+          "keywords": [
+            "BLAST",
+            "MELTA 6"
+          ]
+        },
+        {
+          "name": "Titanic feet",
+          "type": "melee",
+          "range": "Melee",
+          "a": "4",
+          "bs_ws": "3+",
+          "s": "8",
+          "ap": "-1",
+          "d": "2",
+          "keywords": []
+        }
+      ],
+      "strengths": [],
+      "weaknesses": [],
+      "target_priority_tags": [],
+      "threat_tags": [
+        "MELEE_THREAT",
+        "RANGED_CAPABLE",
+        "BLAST_WEAPONS",
+        "MELTA",
+        "HIGH_DURABILITY"
+      ],
+      "mobility_tags": [
+        "FAST"
+      ],
+      "durability_tags": [
+        "MEDIUM_ARMOUR",
+        "VERY_HIGH_TOUGHNESS",
+        "SUPER_MULTI_WOUND"
+      ],
+      "tau_counterplay": [
+        "Melee threat — maintain distance, use Drones as speed bumps, overwatch with Pulse.",
+        "High durability — concentrate fire, Ion Accelerator or Railguns for AP-3+.",
+        "T12 — only Ion Accelerator, Railguns, or AP-2+ volume attacks meaningful."
+      ],
+      "notes": ""
+    },
+    {
+      "name": "KNIGHT ERRANT",
+      "legends": false,
+      "role": "VEHICLE",
+      "faction_keywords": [
+        "Imperium",
+        "Knight Errant Imperial Knights"
+      ],
+      "keywords": [
+        "Vehicle",
+        "Walker",
+        "Titanic",
+        "Towering",
+        "Questoris",
+        "Character"
+      ],
+      "points": null,
+      "stats": {
+        "M": "10\"",
+        "T": "12",
+        "Sv": "3+",
+        "W": "22",
+        "Ld": "6+",
+        "OC": "10"
+      },
+      "unit_composition": [
+        "This model’s meltagun can be replaced with 1 Questoris heavy stubber. ■ 1 Knight Errant",
+        "This model’s reaper chainsword can be replaced with 1 thunderstrike gauntlet. This model is equipped with: meltagun;",
+        "This model can be equipped with one of the following: thermal cannon; reaper chainsword.",
+        "1 Icarus autocannons",
+        "1 ironstorm missile pod",
+        "1 stormspear rocket pod"
+      ],
+      "base_size": null,
+      "abilities": [
+        {
+          "name": "CORE",
+          "summary": "Deadly Demise D6",
+          "phase_tags": []
+        },
+        {
+          "name": "FACTION",
+          "summary": "Code Chivalric",
+          "phase_tags": []
+        },
+        {
+          "name": "Duty (Bondsman)",
+          "summary": "While a model is affected by this",
+          "phase_tags": []
+        },
+        {
+          "name": "Aggressive Assault",
+          "summary": "Each time this model makes a ranged",
+          "phase_tags": []
+        }
+      ],
+      "wargear_options": [],
+      "weapons": [
+        {
+          "name": "Icarus autocannons",
+          "type": "ranged",
+          "range": "48\"",
+          "a": "3",
+          "bs_ws": "3+",
+          "s": "7",
+          "ap": "-1",
+          "d": "2",
+          "keywords": [
+            "ANTI-FLY 2+",
+            "TWIN-LINKED"
+          ]
+        },
+        {
+          "name": "Ironstorm missile pod",
+          "type": "ranged",
+          "range": "48\"",
+          "a": "D6+1",
+          "bs_ws": "3+",
+          "s": "5",
+          "ap": "0",
+          "d": "1",
+          "keywords": [
+            "BLAST",
+            "INDIRECT FIRE"
+          ]
+        },
+        {
+          "name": "Meltagun",
+          "type": "ranged",
+          "range": "12\"",
+          "a": "1",
+          "bs_ws": "3+",
+          "s": "9",
+          "ap": "-4",
+          "d": "D6",
+          "keywords": [
+            "MELTA 2"
+          ]
+        },
+        {
+          "name": "Questoris heavy stubber",
+          "type": "ranged",
+          "range": "36\"",
+          "a": "3",
+          "bs_ws": "3+",
+          "s": "4",
+          "ap": "-1",
+          "d": "1",
+          "keywords": [
+            "RAPID FIRE 3"
+          ]
+        },
+        {
+          "name": "Stormspear rocket pod",
+          "type": "ranged",
+          "range": "48\"",
+          "a": "3",
+          "bs_ws": "3+",
+          "s": "8",
+          "ap": "-2",
+          "d": "D6",
+          "keywords": []
+        },
+        {
+          "name": "Thermal cannon",
+          "type": "ranged",
+          "range": "24\"",
+          "a": "2D3",
+          "bs_ws": "3+",
+          "s": "12",
+          "ap": "-4",
+          "d": "D6",
+          "keywords": [
+            "BLAST",
+            "MELTA 6"
+          ]
+        },
+        {
+          "name": "Reaper chainsword – strike",
+          "type": "melee",
+          "range": "Melee",
+          "a": "4",
+          "bs_ws": "3+",
+          "s": "14",
+          "ap": "-4",
+          "d": "6",
+          "keywords": []
+        },
+        {
+          "name": "Reaper chainsword – sweep",
+          "type": "melee",
+          "range": "Melee",
+          "a": "12",
+          "bs_ws": "3+",
+          "s": "9",
+          "ap": "-3",
+          "d": "2",
+          "keywords": []
+        },
+        {
+          "name": "Thunderstrike gauntlet – strike",
+          "type": "melee",
+          "range": "Melee",
+          "a": "4",
+          "bs_ws": "3+",
+          "s": "20",
+          "ap": "-3",
+          "d": "8",
+          "keywords": []
+        },
+        {
+          "name": "Thunderstrike gauntlet – sweep",
+          "type": "melee",
+          "range": "Melee",
+          "a": "8",
+          "bs_ws": "3+",
+          "s": "10",
+          "ap": "-2",
+          "d": "3",
+          "keywords": []
+        }
+      ],
+      "strengths": [],
+      "weaknesses": [],
+      "target_priority_tags": [],
+      "threat_tags": [
+        "ELITE_MELEE",
+        "RANGED_CAPABLE",
+        "BLAST_WEAPONS",
+        "MELTA",
+        "HIGH_DURABILITY"
+      ],
+      "mobility_tags": [
+        "FAST"
+      ],
+      "durability_tags": [
+        "MEDIUM_ARMOUR",
+        "VERY_HIGH_TOUGHNESS",
+        "SUPER_MULTI_WOUND"
+      ],
+      "tau_counterplay": [
+        "Melee threat — maintain distance, use Drones as speed bumps, overwatch with Pulse.",
+        "High durability — concentrate fire, Ion Accelerator or Railguns for AP-3+.",
+        "T12 — only Ion Accelerator, Railguns, or AP-2+ volume attacks meaningful."
+      ],
+      "notes": ""
+    },
+    {
+      "name": "KNIGHT GALLANT",
+      "legends": false,
+      "role": "VEHICLE",
+      "faction_keywords": [
+        "Imperium",
+        "Knight Gallant Imperial Knights"
+      ],
+      "keywords": [
+        "Vehicle",
+        "Walker",
+        "Titanic",
+        "Towering",
+        "Questoris",
+        "Character"
+      ],
+      "points": null,
+      "stats": {
+        "M": "12\"",
+        "T": "12",
+        "Sv": "3+",
+        "W": "22",
+        "Ld": "6+",
+        "OC": "10"
+      },
+      "unit_composition": [
+        "This model’s meltagun can be replaced with 1 Questoris heavy stubber. ■ 1 Knight Gallant",
+        "This model can be equipped with one of the following: This model is equipped with: meltagun; thunderstrike",
+        "1 Icarus autocannons gauntlet; reaper chainsword.",
+        "1 ironstorm missile pod",
+        "1 stormspear rocket pod"
+      ],
+      "base_size": null,
+      "abilities": [
+        {
+          "name": "CORE",
+          "summary": "Deadly Demise D6",
+          "phase_tags": []
+        },
+        {
+          "name": "FACTION",
+          "summary": "Code Chivalric",
+          "phase_tags": []
+        },
+        {
+          "name": "Duty (Bondsman)",
+          "summary": "While a model is affected by this",
+          "phase_tags": []
+        },
+        {
+          "name": "Martial Pride",
+          "summary": "Each time a melee attack targets this model,",
+          "phase_tags": []
+        }
+      ],
+      "wargear_options": [],
+      "weapons": [
+        {
+          "name": "Icarus autocannons",
+          "type": "ranged",
+          "range": "48\"",
+          "a": "3",
+          "bs_ws": "3+",
+          "s": "7",
+          "ap": "-1",
+          "d": "2",
+          "keywords": [
+            "ANTI-FLY 2+",
+            "TWIN-LINKED"
+          ]
+        },
+        {
+          "name": "Ironstorm missile pod",
+          "type": "ranged",
+          "range": "48\"",
+          "a": "D6+1",
+          "bs_ws": "3+",
+          "s": "5",
+          "ap": "0",
+          "d": "1",
+          "keywords": [
+            "BLAST",
+            "INDIRECT FIRE"
+          ]
+        },
+        {
+          "name": "Meltagun",
+          "type": "ranged",
+          "range": "12\"",
+          "a": "1",
+          "bs_ws": "3+",
+          "s": "9",
+          "ap": "-4",
+          "d": "D6",
+          "keywords": [
+            "MELTA 2"
+          ]
+        },
+        {
+          "name": "Questoris heavy stubber",
+          "type": "ranged",
+          "range": "36\"",
+          "a": "3",
+          "bs_ws": "3+",
+          "s": "4",
+          "ap": "-1",
+          "d": "1",
+          "keywords": [
+            "RAPID FIRE 3"
+          ]
+        },
+        {
+          "name": "Stormspear rocket pod",
+          "type": "ranged",
+          "range": "48\"",
+          "a": "3",
+          "bs_ws": "3+",
+          "s": "8",
+          "ap": "-2",
+          "d": "D6",
+          "keywords": []
+        },
+        {
+          "name": "Reaper chainsword – strike",
+          "type": "melee",
+          "range": "Melee",
+          "a": "6",
+          "bs_ws": "2+",
+          "s": "14",
+          "ap": "-4",
+          "d": "6",
+          "keywords": []
+        },
+        {
+          "name": "Reaper chainsword – sweep",
+          "type": "melee",
+          "range": "Melee",
+          "a": "18",
+          "bs_ws": "2+",
+          "s": "9",
+          "ap": "-3",
+          "d": "2",
+          "keywords": []
+        },
+        {
+          "name": "Thunderstrike gauntlet – strike",
+          "type": "melee",
+          "range": "Melee",
+          "a": "6",
+          "bs_ws": "2+",
+          "s": "20",
+          "ap": "-3",
+          "d": "8",
+          "keywords": []
+        },
+        {
+          "name": "Thunderstrike gauntlet – sweep",
+          "type": "melee",
+          "range": "Melee",
+          "a": "12",
+          "bs_ws": "2+",
+          "s": "10",
+          "ap": "-2",
+          "d": "3",
+          "keywords": []
+        }
+      ],
+      "strengths": [],
+      "weaknesses": [],
+      "target_priority_tags": [],
+      "threat_tags": [
+        "ELITE_MELEE",
+        "RANGED_CAPABLE",
+        "BLAST_WEAPONS",
+        "MELTA",
+        "HIGH_DURABILITY"
+      ],
+      "mobility_tags": [
+        "FAST"
+      ],
+      "durability_tags": [
+        "MEDIUM_ARMOUR",
+        "VERY_HIGH_TOUGHNESS",
+        "SUPER_MULTI_WOUND"
+      ],
+      "tau_counterplay": [
+        "Melee threat — maintain distance, use Drones as speed bumps, overwatch with Pulse.",
+        "High durability — concentrate fire, Ion Accelerator or Railguns for AP-3+.",
+        "T12 — only Ion Accelerator, Railguns, or AP-2+ volume attacks meaningful."
+      ],
+      "notes": ""
+    },
+    {
+      "name": "KNIGHT PALADIN",
+      "legends": false,
+      "role": "VEHICLE",
+      "faction_keywords": [
+        "Imperium",
+        "Knight Paladin Imperial Knights"
+      ],
+      "keywords": [
+        "Vehicle",
+        "Walker",
+        "Titanic",
+        "Towering",
+        "Questoris",
+        "Character"
+      ],
+      "points": null,
+      "stats": {
+        "M": "10\"",
+        "T": "12",
+        "Sv": "3+",
+        "W": "22",
+        "Ld": "6+",
+        "OC": "10"
+      },
+      "unit_composition": [
+        "This model’s meltagun can be replaced with 1 Questoris heavy stubber. ■ 1 Knight Paladin",
+        "This model’s reaper chainsword can be replaced with 1 thunderstrike gauntlet. This model is equipped with: meltagun; Questoris heavy",
+        "This model can be equipped with one of the following: stubber; rapid-fire battlecannon; reaper chainsword.",
+        "1 Icarus autocannons",
+        "1 ironstorm missile pod",
+        "1 stormspear rocket pod"
+      ],
+      "base_size": null,
+      "abilities": [
+        {
+          "name": "CORE",
+          "summary": "Deadly Demise D6",
+          "phase_tags": []
+        },
+        {
+          "name": "FACTION",
+          "summary": "Code Chivalric",
+          "phase_tags": []
+        },
+        {
+          "name": "Duty (Bondsman)",
+          "summary": "While a model is affected by",
+          "phase_tags": []
+        },
+        {
+          "name": "Seasoned Noble",
+          "summary": "Once per phase, you can re-roll one Hit roll,",
+          "phase_tags": []
+        }
+      ],
+      "wargear_options": [],
+      "weapons": [
+        {
+          "name": "Icarus autocannons",
+          "type": "ranged",
+          "range": "48\"",
+          "a": "3",
+          "bs_ws": "3+",
+          "s": "7",
+          "ap": "-1",
+          "d": "2",
+          "keywords": [
+            "ANTI-FLY 2+",
+            "TWIN-LINKED"
+          ]
+        },
+        {
+          "name": "Ironstorm missile pod",
+          "type": "ranged",
+          "range": "48\"",
+          "a": "D6+1",
+          "bs_ws": "3+",
+          "s": "5",
+          "ap": "0",
+          "d": "1",
+          "keywords": [
+            "BLAST",
+            "INDIRECT FIRE"
+          ]
+        },
+        {
+          "name": "Meltagun",
+          "type": "ranged",
+          "range": "12\"",
+          "a": "1",
+          "bs_ws": "3+",
+          "s": "9",
+          "ap": "-4",
+          "d": "D6",
+          "keywords": [
+            "MELTA 2"
+          ]
+        },
+        {
+          "name": "Questoris heavy stubber",
+          "type": "ranged",
+          "range": "36\"",
+          "a": "3",
+          "bs_ws": "3+",
+          "s": "4",
+          "ap": "-1",
+          "d": "1",
+          "keywords": [
+            "RAPID FIRE 3"
+          ]
+        },
+        {
+          "name": "Rapid-fire battle cannon",
+          "type": "ranged",
+          "range": "72\"",
+          "a": "D6+3",
+          "bs_ws": "3+",
+          "s": "10",
+          "ap": "-1",
+          "d": "3",
+          "keywords": [
+            "BLAST",
+            "RAPID FIRE D6+3"
+          ]
+        },
+        {
+          "name": "Stormspear rocket pod",
+          "type": "ranged",
+          "range": "48\"",
+          "a": "3",
+          "bs_ws": "3+",
+          "s": "8",
+          "ap": "-2",
+          "d": "D6",
+          "keywords": []
+        },
+        {
+          "name": "Reaper chainsword – strike",
+          "type": "melee",
+          "range": "Melee",
+          "a": "4",
+          "bs_ws": "3+",
+          "s": "14",
+          "ap": "-4",
+          "d": "6",
+          "keywords": []
+        },
+        {
+          "name": "Reaper chainsword – sweep",
+          "type": "melee",
+          "range": "Melee",
+          "a": "12",
+          "bs_ws": "3+",
+          "s": "9",
+          "ap": "-3",
+          "d": "2",
+          "keywords": []
+        },
+        {
+          "name": "Thunderstrike gauntlet – strike",
+          "type": "melee",
+          "range": "Melee",
+          "a": "4",
+          "bs_ws": "3+",
+          "s": "20",
+          "ap": "-3",
+          "d": "8",
+          "keywords": []
+        },
+        {
+          "name": "Thunderstrike gauntlet – sweep",
+          "type": "melee",
+          "range": "Melee",
+          "a": "8",
+          "bs_ws": "3+",
+          "s": "10",
+          "ap": "-2",
+          "d": "3",
+          "keywords": []
+        }
+      ],
+      "strengths": [],
+      "weaknesses": [],
+      "target_priority_tags": [],
+      "threat_tags": [
+        "ELITE_MELEE",
+        "RANGED_CAPABLE",
+        "BLAST_WEAPONS",
+        "MELTA",
+        "HIGH_DURABILITY"
+      ],
+      "mobility_tags": [
+        "FAST"
+      ],
+      "durability_tags": [
+        "MEDIUM_ARMOUR",
+        "VERY_HIGH_TOUGHNESS",
+        "SUPER_MULTI_WOUND"
+      ],
+      "tau_counterplay": [
+        "Melee threat — maintain distance, use Drones as speed bumps, overwatch with Pulse.",
+        "High durability — concentrate fire, Ion Accelerator or Railguns for AP-3+.",
+        "T12 — only Ion Accelerator, Railguns, or AP-2+ volume attacks meaningful."
+      ],
+      "notes": ""
+    },
+    {
+      "name": "KNIGHT PRECEPTOR",
+      "legends": false,
+      "role": "VEHICLE",
+      "faction_keywords": [
+        "Imperium",
+        "Knight Preceptor Imperial Knights"
+      ],
+      "keywords": [
+        "Vehicle",
+        "Walker",
+        "Titanic",
+        "Towering",
+        "Questoris",
+        "Character"
+      ],
+      "points": null,
+      "stats": {
+        "M": "10\"",
+        "T": "12",
+        "Sv": "3+",
+        "W": "22",
+        "Ld": "6+",
+        "OC": "10"
+      },
+      "unit_composition": [
+        "This model’s Preceptor multi-laser can be replaced with one of the following: ■ 1 Knight Preceptor",
+        "1 meltagun This model is equipped with: las-impulsor;",
+        "1 Questoris heavy stubber Preceptor multi-laser; reaper chainsword.",
+        "This model’s reaper chainsword can be replaced with 1 thunderstrike gauntlet.",
+        "This model can be equipped with one of the following:",
+        "1 Icarus autocannons",
+        "1 ironstorm missile pod",
+        "1 stormspear rocket pod"
+      ],
+      "base_size": null,
+      "abilities": [
+        {
+          "name": "CORE",
+          "summary": "Deadly Demise D6",
+          "phase_tags": []
+        },
+        {
+          "name": "FACTION",
+          "summary": "Code Chivalric",
+          "phase_tags": []
+        },
+        {
+          "name": "Mentor (Bondsman)",
+          "summary": "While a model is affected by this ability,",
+          "phase_tags": []
+        },
+        {
+          "name": "Exemplar of the Code",
+          "summary": "At the start of the battle, select one unit",
+          "phase_tags": []
+        }
+      ],
+      "wargear_options": [],
+      "weapons": [
+        {
+          "name": "Icarus autocannons",
+          "type": "ranged",
+          "range": "48\"",
+          "a": "3",
+          "bs_ws": "3+",
+          "s": "7",
+          "ap": "-1",
+          "d": "2",
+          "keywords": [
+            "ANTI-FLY 2+",
+            "TWIN-LINKED"
+          ]
+        },
+        {
+          "name": "Ironstorm missile pod",
+          "type": "ranged",
+          "range": "48\"",
+          "a": "D6+1",
+          "bs_ws": "3+",
+          "s": "5",
+          "ap": "0",
+          "d": "1",
+          "keywords": [
+            "BLAST",
+            "INDIRECT FIRE"
+          ]
+        },
+        {
+          "name": "Las-impulsor – high intensity",
+          "type": "ranged",
+          "range": "24\"",
+          "a": "D6",
+          "bs_ws": "3+",
+          "s": "14",
+          "ap": "-3",
+          "d": "4",
+          "keywords": [
+            "BLAST"
+          ]
+        },
+        {
+          "name": "Las-impulsor – low intensity",
+          "type": "ranged",
+          "range": "36\"",
+          "a": "2D6",
+          "bs_ws": "3+",
+          "s": "7",
+          "ap": "-1",
+          "d": "2",
+          "keywords": [
+            "BLAST"
+          ]
+        },
+        {
+          "name": "Meltagun",
+          "type": "ranged",
+          "range": "12\"",
+          "a": "1",
+          "bs_ws": "3+",
+          "s": "9",
+          "ap": "-4",
+          "d": "D6",
+          "keywords": [
+            "MELTA 2"
+          ]
+        },
+        {
+          "name": "Preceptor multi-laser",
+          "type": "ranged",
+          "range": "36\"",
+          "a": "4",
+          "bs_ws": "3+",
+          "s": "6",
+          "ap": "0",
+          "d": "1",
+          "keywords": []
+        },
+        {
+          "name": "Questoris heavy stubber",
+          "type": "ranged",
+          "range": "36\"",
+          "a": "3",
+          "bs_ws": "3+",
+          "s": "4",
+          "ap": "-1",
+          "d": "1",
+          "keywords": [
+            "RAPID FIRE 3"
+          ]
+        },
+        {
+          "name": "Stormspear rocket pod",
+          "type": "ranged",
+          "range": "48\"",
+          "a": "3",
+          "bs_ws": "3+",
+          "s": "8",
+          "ap": "-2",
+          "d": "D6",
+          "keywords": []
+        },
+        {
+          "name": "Reaper chainsword – strike",
+          "type": "melee",
+          "range": "Melee",
+          "a": "4",
+          "bs_ws": "3+",
+          "s": "14",
+          "ap": "-4",
+          "d": "6",
+          "keywords": []
+        },
+        {
+          "name": "Reaper chainsword – sweep",
+          "type": "melee",
+          "range": "Melee",
+          "a": "12",
+          "bs_ws": "3+",
+          "s": "9",
+          "ap": "-3",
+          "d": "2",
+          "keywords": []
+        },
+        {
+          "name": "Thunderstrike gauntlet – strike",
+          "type": "melee",
+          "range": "Melee",
+          "a": "4",
+          "bs_ws": "3+",
+          "s": "20",
+          "ap": "-3",
+          "d": "8",
+          "keywords": []
+        },
+        {
+          "name": "Thunderstrike gauntlet – sweep",
+          "type": "melee",
+          "range": "Melee",
+          "a": "8",
+          "bs_ws": "3+",
+          "s": "10",
+          "ap": "-2",
+          "d": "3",
+          "keywords": []
+        }
+      ],
+      "strengths": [],
+      "weaknesses": [],
+      "target_priority_tags": [],
+      "threat_tags": [
+        "ELITE_MELEE",
+        "RANGED_CAPABLE",
+        "BLAST_WEAPONS",
+        "MELTA",
+        "HIGH_DURABILITY"
+      ],
+      "mobility_tags": [
+        "FAST"
+      ],
+      "durability_tags": [
+        "MEDIUM_ARMOUR",
+        "VERY_HIGH_TOUGHNESS",
+        "SUPER_MULTI_WOUND"
+      ],
+      "tau_counterplay": [
+        "Melee threat — maintain distance, use Drones as speed bumps, overwatch with Pulse.",
+        "High durability — concentrate fire, Ion Accelerator or Railguns for AP-3+.",
+        "T12 — only Ion Accelerator, Railguns, or AP-2+ volume attacks meaningful."
+      ],
+      "notes": ""
+    },
+    {
+      "name": "KNIGHT WARDEN",
+      "legends": false,
+      "role": "VEHICLE",
+      "faction_keywords": [
+        "Imperium",
+        "Knight Warden Imperial Knights"
+      ],
+      "keywords": [
+        "Vehicle",
+        "Walker",
+        "Titanic",
+        "Towering",
+        "Questoris",
+        "Character"
+      ],
+      "points": null,
+      "stats": {
+        "M": "10\"",
+        "T": "12",
+        "Sv": "3+",
+        "W": "22",
+        "Ld": "6+",
+        "OC": "10"
+      },
+      "unit_composition": [
+        "This model’s meltagun can be replaced with 1 Questoris heavy stubber. ■ 1 Knight Warden",
+        "This model’s reaper chainsword can be replaced with 1 thunderstrike gauntlet. This model is equipped with: avenger gatling cannon;",
+        "This model can be equipped with one of the following: heavy flamer; meltagun; reaper chainsword.",
+        "1 Icarus autocannons",
+        "1 ironstorm missile pod",
+        "1 stormspear rocket pod"
+      ],
+      "base_size": null,
+      "abilities": [
+        {
+          "name": "CORE",
+          "summary": "Deadly Demise D6",
+          "phase_tags": []
+        },
+        {
+          "name": "FACTION",
+          "summary": "Code Chivalric",
+          "phase_tags": []
+        },
+        {
+          "name": "Duty (Bondsman)",
+          "summary": "While a model is affected by this",
+          "phase_tags": []
+        },
+        {
+          "name": "Thin Their Ranks",
+          "summary": "Each time this model makes a ranged",
+          "phase_tags": []
+        }
+      ],
+      "wargear_options": [],
+      "weapons": [
+        {
+          "name": "Avenger gatling cannon",
+          "type": "ranged",
+          "range": "36\"",
+          "a": "18",
+          "bs_ws": "3+",
+          "s": "6",
+          "ap": "-2",
+          "d": "2",
+          "keywords": []
+        },
+        {
+          "name": "Heavy flamer",
+          "type": "ranged",
+          "range": "12\"",
+          "a": "D6",
+          "bs_ws": "N/A",
+          "s": "5",
+          "ap": "-1",
+          "d": "1",
+          "keywords": [
+            "IGNORES COVER",
+            "TORRENT"
+          ]
+        },
+        {
+          "name": "Icarus autocannons",
+          "type": "ranged",
+          "range": "48\"",
+          "a": "3",
+          "bs_ws": "3+",
+          "s": "7",
+          "ap": "-1",
+          "d": "2",
+          "keywords": [
+            "ANTI-FLY 2+",
+            "TWIN-LINKED"
+          ]
+        },
+        {
+          "name": "Ironstorm missile pod",
+          "type": "ranged",
+          "range": "48\"",
+          "a": "D6+1",
+          "bs_ws": "3+",
+          "s": "5",
+          "ap": "0",
+          "d": "1",
+          "keywords": [
+            "BLAST",
+            "INDIRECT FIRE"
+          ]
+        },
+        {
+          "name": "Meltagun",
+          "type": "ranged",
+          "range": "12\"",
+          "a": "1",
+          "bs_ws": "3+",
+          "s": "9",
+          "ap": "-4",
+          "d": "D6",
+          "keywords": [
+            "MELTA 2"
+          ]
+        },
+        {
+          "name": "Questoris heavy stubber",
+          "type": "ranged",
+          "range": "36\"",
+          "a": "3",
+          "bs_ws": "3+",
+          "s": "4",
+          "ap": "-1",
+          "d": "1",
+          "keywords": [
+            "RAPID FIRE 3"
+          ]
+        },
+        {
+          "name": "Stormspear rocket pod",
+          "type": "ranged",
+          "range": "48\"",
+          "a": "3",
+          "bs_ws": "3+",
+          "s": "8",
+          "ap": "-2",
+          "d": "D6",
+          "keywords": []
+        },
+        {
+          "name": "Reaper chainsword – strike",
+          "type": "melee",
+          "range": "Melee",
+          "a": "4",
+          "bs_ws": "3+",
+          "s": "14",
+          "ap": "-4",
+          "d": "6",
+          "keywords": []
+        },
+        {
+          "name": "Reaper chainsword – sweep",
+          "type": "melee",
+          "range": "Melee",
+          "a": "12",
+          "bs_ws": "3+",
+          "s": "9",
+          "ap": "-3",
+          "d": "2",
+          "keywords": []
+        },
+        {
+          "name": "Thunderstrike gauntlet – strike",
+          "type": "melee",
+          "range": "Melee",
+          "a": "4",
+          "bs_ws": "3+",
+          "s": "20",
+          "ap": "-3",
+          "d": "8",
+          "keywords": []
+        },
+        {
+          "name": "Thunderstrike gauntlet – sweep",
+          "type": "melee",
+          "range": "Melee",
+          "a": "8",
+          "bs_ws": "3+",
+          "s": "10",
+          "ap": "-2",
+          "d": "3",
+          "keywords": []
+        }
+      ],
+      "strengths": [],
+      "weaknesses": [],
+      "target_priority_tags": [],
+      "threat_tags": [
+        "ELITE_MELEE",
+        "RANGED_CAPABLE",
+        "BLAST_WEAPONS",
+        "MELTA",
+        "HIGH_DURABILITY"
+      ],
+      "mobility_tags": [
+        "FAST"
+      ],
+      "durability_tags": [
+        "MEDIUM_ARMOUR",
+        "VERY_HIGH_TOUGHNESS",
+        "SUPER_MULTI_WOUND"
+      ],
+      "tau_counterplay": [
+        "Melee threat — maintain distance, use Drones as speed bumps, overwatch with Pulse.",
+        "High durability — concentrate fire, Ion Accelerator or Railguns for AP-3+.",
+        "T12 — only Ion Accelerator, Railguns, or AP-2+ volume attacks meaningful."
+      ],
+      "notes": ""
+    }
+  ],
+  "weapons_index": {},
+  "faction_strengths": [],
+  "faction_weaknesses": [],
+  "playstyle_summary": "",
+  "tau_matchup_notes": [],
+  "priority_targets_for_tau": [],
+  "recommended_tau_deployment_tags": [],
+  "recommended_tau_loadout_tags": [],
+  "metadata": {
+    "unit_count": 20,
+    "parse_errors": 0,
+    "points_note": "Fill from Munitorum Field Manual",
+    "builder": "build_all_factions.py v4.0"
+  }
+}
