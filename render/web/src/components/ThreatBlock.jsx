@@ -125,7 +125,7 @@ function SectionDivider({ label }) {
 
 // ─── ThreatBlock ──────────────────────────────────────────────────────────
 
-export function ThreatBlock({ data, meta, onSubmit }) {
+export function ThreatBlock({ data, meta, onSubmit, onInject }) {
   if (!data) return null;
 
   const {

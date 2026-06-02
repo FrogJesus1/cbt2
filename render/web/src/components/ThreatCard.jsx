@@ -234,7 +234,7 @@ function EnhancementBadge({ enhancement }) {
 
 // ─── ThreatCard ──────────────────────────────────────────────────────────────
 
-export function ThreatCard({ data, meta, onSubmit }) {
+export function ThreatCard({ data, meta, onSubmit, onInject }) {
   if (!data) return null;
 
   const {
