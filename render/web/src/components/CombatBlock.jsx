@@ -36,6 +36,7 @@ export { TargetingOutcome }        from "./combat/TargetingOutcome";
 
 // ─── Imports for the composer ──────────────────────────────────────────────
 
+import { useState, useCallback }   from "react";
 import { BannerCard }              from "./combat/BannerCard";
 import { WarningBlock }            from "./combat/WarningBlock";
 import { TotalUnitOutputRanged }   from "./combat/TotalUnitOutputRanged";
@@ -171,7 +172,44 @@ export function CombatBlock({ data, onSubmit }) {
     footer,
   } = data;
 
-  const maxDmg = Math.max(10, ranged?.expected_dmg ?? 0, ...(weapons.map(w => w.dmg ?? 0)));
+  // ── Weapon toggle state ────────────────────────────────────────────────
+  // disabledWeapons: Set of weapon names the user has clicked off.
+  // Reset whenever a fresh combat result arrives (key = attacker+defender).
+  const [disabledWeapons, setDisabledWeapons] = useState(() => new Set());
+
+  const handleToggleWeapon = useCallback((name) => {
+    setDisabledWeapons(prev => {
+      const next = new Set(prev);
+      if (next.has(name)) next.delete(name); else next.add(name);
+      return next;
+    });
+  }, []);
+
+  // ── Adjusted aggregates when weapons are disabled ──────────────────────
+  // Sum per-weapon dmg for enabled weapons only and override the server total.
+  // Kill% and other MC metrics can't easily be recomputed client-side, so we
+  // leave them unchanged and only adjust the damage line.
+  const enabledWeapons     = weapons.filter(w => !disabledWeapons.has(w.name));
+  const enabledRanged      = enabledWeapons.filter(w => w.type !== "melee");
+  const enabledMelee       = enabledWeapons.filter(w => w.type === "melee");
+
+  // Build adjusted ranged/melee data objects.  Only touches expected_dmg;
+  // all other fields (swinginess, kill_chance_pct, etc.) stay from the server.
+  function adjustedData(serverData, enabledSet) {
+    if (!serverData || !disabledWeapons.size) return serverData;
+    const adjustedDmg = enabledSet.reduce((sum, w) => sum + (w.dmg ?? 0), 0);
+    return { ...serverData, expected_dmg: adjustedDmg };
+  }
+
+  const rangedAdj = adjustedData(ranged, enabledRanged);
+  const meleeAdj  = adjustedData(melee,  enabledMelee);
+
+  const maxDmg = Math.max(
+    10,
+    rangedAdj?.expected_dmg ?? 0,
+    meleeAdj?.expected_dmg  ?? 0,
+    ...weapons.map(w => w.dmg ?? 0),
+  );
 
   return (
     <div className="font-mono" style={{ fontSize: "13px", display: "flex", flexDirection: "column", gap: "6px" }}>
@@ -191,8 +229,12 @@ export function CombatBlock({ data, onSubmit }) {
       {/* Full width — warnings */}
       <WarningBlock flag_notes={flag_notes} />
 
-      {/* Full width — weapon spec table (A / BS / S / WR / AP / D) */}
-      <WeaponStatsTable weapons={weapons} />
+      {/* Full width — weapon spec table (A / BS / S / WR / AP / D, clickable rows) */}
+      <WeaponStatsTable
+        weapons={weapons}
+        disabledWeapons={disabledWeapons}
+        onToggleWeapon={handleToggleWeapon}
+      />
 
       {/* Two-column row — equal 50/50 split.
           Left: aggregate output + simulation confidence
@@ -203,15 +245,15 @@ export function CombatBlock({ data, onSubmit }) {
         {/* ── Left — Aggregate Output + Simulation Confidence ── */}
         <div style={{ flex: "1 1 300px", display: "flex", flexDirection: "column", gap: "6px", minWidth: 0 }}>
           <ColumnHeader title="Total Unit Output" />
-          <TotalUnitOutputRanged data={ranged} maxDmg={maxDmg} />
-          <TotalUnitOutputMelee  data={melee}  maxDmg={maxDmg} />
+          <TotalUnitOutputRanged data={rangedAdj} maxDmg={maxDmg} />
+          <TotalUnitOutputMelee  data={meleeAdj}  maxDmg={maxDmg} />
           {simulation && <SimulationConfidence sim={simulation} />}
-          <CalcList attacker_name={attacker_name} weapons={weapons} footer={footer} />
+          <CalcList attacker_name={attacker_name} weapons={enabledWeapons} footer={footer} />
         </div>
 
         {/* ── Right — Per-weapon Targeting + Modifier Impact ── */}
         <div style={{ flex: "1 1 300px", display: "flex", flexDirection: "column", gap: "6px", minWidth: 0 }}>
-          <TargetingOutcome weapons={weapons} />
+          <TargetingOutcome weapons={enabledWeapons} />
           <ModifierImpact   modifiers={modifier_impact} />
         </div>
 

@@ -14,6 +14,7 @@ import { C } from "./shared";
 
 const FLAG_ICONS = {
   lightning: "⚡", skull: "💀", diamond: "🔷", target: "🎯", shield: "🛡", star: "★",
+  zap: "⚡",  // alias for lightning
 };
 
 export function WarningBlock({ flag_notes = [] }) {

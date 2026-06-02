@@ -1,0 +1,270 @@
+{
+  "_meta": {
+    "schema": "missions",
+    "version": "1.0.0",
+    "edition": "10th",
+    "source": "Pariah Nexus Mission Pack",
+    "last_updated": "2026-03-30"
+  },
+  "missions": [
+    {
+      "name": "Annihilation",
+      "type": "Primary",
+      "source": "Pariah Nexus",
+      "size": "Incursion / Strike Force / Onslaught",
+      "deployment": "Search and Destroy",
+      "description": "Both players score Victory Points for destroying enemy units. A relentless war of attrition where every kill counts.",
+      "scoring": [
+        {
+          "header": "Primary Objective",
+          "text": "At the end of each player turn, score 3VP for each enemy unit that was destroyed during that turn. Score 4VP instead if the destroyed unit had a Power Rating of 11 or more."
+        },
+        {
+          "header": "Maximum",
+          "text": "50VP total across the battle."
+        }
+      ],
+      "mission_rules": [
+        {
+          "name": "Marked for Death",
+          "text": "At the start of the battle, both players secretly mark one enemy unit. If that unit is destroyed, score 5 bonus VP."
+        }
+      ],
+      "tip": "Bring high-volume attacks and target elite units for bonus VP. Units with Power Rating 11+ are top priority."
+    },
+    {
+      "name": "Take and Hold",
+      "type": "Primary",
+      "source": "Pariah Nexus",
+      "size": "Incursion / Strike Force / Onslaught",
+      "deployment": "Crucible of Battle",
+      "description": "Control objective markers to score VP. A classic hold-and-control mission that rewards mobility and board presence.",
+      "scoring": [
+        {
+          "header": "Primary Objective",
+          "text": "At the end of each player turn, score 4VP for each objective marker you control. If you control more objective markers than your opponent, score 1 bonus VP."
+        },
+        {
+          "header": "Maximum",
+          "text": "45VP total across the battle."
+        }
+      ],
+      "mission_rules": [
+        {
+          "name": "Choke Points",
+          "text": "Objective markers cannot be placed within 3\" of any terrain feature that blocks line of sight."
+        }
+      ],
+      "tip": "Units with high OC are critical. Spread across the board early and contest as many objectives as possible."
+    },
+    {
+      "name": "Purge the Foe",
+      "type": "Primary",
+      "source": "Pariah Nexus",
+      "size": "Strike Force / Onslaught",
+      "deployment": "Hammer and Anvil",
+      "description": "A dual-scoring mission combining objective control and unit destruction. Rewards aggressive armies that can both hold and kill.",
+      "scoring": [
+        {
+          "header": "Primary Objective — Domination",
+          "text": "At the end of each player turn, score 3VP for each objective marker you control."
+        },
+        {
+          "header": "Primary Objective — Destroy",
+          "text": "At the end of each battle round, each player scores 4VP if more enemy units than friendly units were destroyed this round."
+        },
+        {
+          "header": "Maximum",
+          "text": "45VP from Domination + 20VP from Destroy = 65VP total."
+        }
+      ],
+      "mission_rules": [
+        {
+          "name": "No Mercy, No Respite",
+          "text": "Each time a unit is destroyed, the controlling player of the unit that destroyed it scores 1 bonus VP (max 10 per player)."
+        }
+      ],
+      "tip": "Hybrid playstyle required. Prioritise objective control early, switch to hunting for destroy VP once the board is set."
+    },
+    {
+      "name": "Scorched Earth",
+      "type": "Primary",
+      "source": "Pariah Nexus",
+      "size": "Incursion / Strike Force",
+      "deployment": "Dawn of War",
+      "description": "Both players can score or deny VP by burning objective markers — or conserve them for end-of-game control scoring.",
+      "scoring": [
+        {
+          "header": "Primary Objective — Control",
+          "text": "At the end of the battle, score 4VP for each objective marker you control."
+        },
+        {
+          "header": "Primary Objective — Scorch",
+          "text": "Once per turn, instead of controlling an objective, a unit can perform the Scorch action. At the end of the action, that objective is Scorched — removed from play. You score 6VP when you Scorch an objective marker your opponent controlled at the start of your turn."
+        }
+      ],
+      "mission_rules": [
+        {
+          "name": "Scorched Ground",
+          "text": "Scorched objective markers are removed from play. No player can score VP from a Scorched objective."
+        }
+      ],
+      "tip": "Burn objectives your opponent is about to contest rather than cede them. Timing the Scorch action is the key skill in this mission."
+    },
+    {
+      "name": "Secure Missing Artefacts",
+      "type": "Primary",
+      "source": "Pariah Nexus",
+      "size": "Incursion / Strike Force / Onslaught",
+      "deployment": "Spearhead Assault",
+      "description": "Recover and secure hidden artefacts scattered across the battlefield. Mobile units with strong actions excel here.",
+      "scoring": [
+        {
+          "header": "Artefact Tokens",
+          "text": "At the start of the battle, place 6 artefact tokens on the battlefield — 2 in each player's deployment zone and 2 in No Man's Land. Each token is Hidden until a unit moves within 3\" of it."
+        },
+        {
+          "header": "Primary Objective — Secure",
+          "text": "A unit can perform the Secure Artefact action if it is within 3\" of an artefact token. At the end of the action, remove the token — that player has Secured it. Score 5VP immediately and 3VP at the end of each subsequent turn while the securing unit survives."
+        }
+      ],
+      "mission_rules": [
+        {
+          "name": "Hidden Artefacts",
+          "text": "Artefact tokens are face-down until a unit moves within 3\". Some tokens are Decoys — worth 0VP. Only 4 of the 6 tokens are true artefacts."
+        }
+      ],
+      "tip": "Fast units like bikes, jump infantry, and aircraft excel at securing artefacts. Protect your unit after securing for the ongoing VP."
+    },
+    {
+      "name": "Sites of Power",
+      "type": "Primary",
+      "source": "Pariah Nexus",
+      "size": "Strike Force / Onslaught",
+      "deployment": "Search and Destroy",
+      "description": "Channel power through mystical sites using Psykers and Characters. Rewards army lists built around powerful characters.",
+      "scoring": [
+        {
+          "header": "Primary Objective — Channel",
+          "text": "At the end of each player turn, for each objective marker you control with a CHARACTER or PSYKER unit, score 5VP instead of the standard 3VP."
+        },
+        {
+          "header": "Standard Control",
+          "text": "Objective markers controlled without a CHARACTER or PSYKER score 3VP at the end of each player turn."
+        }
+      ],
+      "mission_rules": [
+        {
+          "name": "Power Nexus",
+          "text": "The central objective marker is worth 2 bonus VP per turn for the player that controls it with a CHARACTER model."
+        }
+      ],
+      "tip": "Build your list around durable Characters. Warlords and named characters are especially valuable here."
+    },
+    {
+      "name": "Priority Targets",
+      "type": "Primary",
+      "source": "Pariah Nexus",
+      "size": "Incursion / Strike Force / Onslaught",
+      "deployment": "Hammer and Anvil",
+      "description": "Four objective markers each assigned a priority level. High-priority objectives give bonus VP at the end of the battle.",
+      "scoring": [
+        {
+          "header": "Priority Levels",
+          "text": "At the start of the battle, each of the 4 objective markers is randomly assigned a priority: Alpha (6VP end-of-battle), Beta (5VP), Gamma (4VP), Delta (3VP)."
+        },
+        {
+          "header": "Primary Objective — Control",
+          "text": "At the end of each player turn, score 3VP for each objective marker you control. At the end of the battle, score bonus VP based on which priority objectives you control."
+        }
+      ],
+      "mission_rules": [
+        {
+          "name": "Concealed Priorities",
+          "text": "Priority cards are hidden until the start of Battle Round 3, when all are revealed simultaneously."
+        }
+      ],
+      "tip": "Play conservatively early while reading your opponent's movements — then pivot to contest revealed high-priority objectives in Round 3."
+    },
+    {
+      "name": "Deployment Map: Search and Destroy",
+      "type": "Deployment",
+      "source": "Core Rules",
+      "size": "Any",
+      "deployment": "Search and Destroy",
+      "description": "Players deploy in opposite corners of the battlefield. Long diagonal engagement distances favour long-range firepower and fast units.",
+      "scoring": [],
+      "mission_rules": [
+        {
+          "name": "Deployment Zone",
+          "text": "Each player deploys in a 12\" triangle in their corner of the battlefield. No Man's Land is the remaining area."
+        }
+      ],
+      "tip": "Fast movement and deep strike units are strong — use them to cross No Man's Land quickly and contest objectives."
+    },
+    {
+      "name": "Deployment Map: Crucible of Battle",
+      "type": "Deployment",
+      "source": "Core Rules",
+      "size": "Any",
+      "deployment": "Crucible of Battle",
+      "description": "Standard side-to-side deployment. Both players set up across the long table edges, with a 12\" No Man's Land between them.",
+      "scoring": [],
+      "mission_rules": [
+        {
+          "name": "Deployment Zone",
+          "text": "Each player deploys within 12\" of their long table edge."
+        }
+      ],
+      "tip": "Balanced deployment for balanced armies. Anvil units hold the line; hammer units push for mid-table objectives."
+    },
+    {
+      "name": "Deployment Map: Dawn of War",
+      "type": "Deployment",
+      "source": "Core Rules",
+      "size": "Any",
+      "deployment": "Dawn of War",
+      "description": "Both players deploy along the short table edges. Short engagement distances mean fighting starts immediately from Turn 1.",
+      "scoring": [],
+      "mission_rules": [
+        {
+          "name": "Deployment Zone",
+          "text": "Each player deploys within 12\" of their short table edge. This reduces the total No Man's Land distance."
+        }
+      ],
+      "tip": "Melee armies love Dawn of War — they get into combat faster. Gunlines need screens and terrain to survive the initial engagement."
+    },
+    {
+      "name": "Deployment Map: Hammer and Anvil",
+      "type": "Deployment",
+      "source": "Core Rules",
+      "size": "Any",
+      "deployment": "Hammer and Anvil",
+      "description": "Players deploy on opposite short edges with maximum separation — 24\" of No Man's Land. Favours shooting armies and units with long range.",
+      "scoring": [],
+      "mission_rules": [
+        {
+          "name": "Deployment Zone",
+          "text": "Each player deploys within 12\" of their short table edge. Maximum 24\" separation — longest possible engagement distance."
+        }
+      ],
+      "tip": "Long-range shooting dominates here. Melee armies need strong screening and mobility tools to cross safely."
+    },
+    {
+      "name": "Deployment Map: Spearhead Assault",
+      "type": "Deployment",
+      "source": "Core Rules",
+      "size": "Any",
+      "deployment": "Spearhead Assault",
+      "description": "One player deploys in a corner, the other in the opposite long edge. Asymmetric deployment creates unique flanking opportunities.",
+      "scoring": [],
+      "mission_rules": [
+        {
+          "name": "Deployment Zone",
+          "text": "One player deploys in a 12\" corner zone; the other deploys along the opposite long table edge within 6\". Asymmetric but balanced at scale."
+        }
+      ],
+      "tip": "The spearhead player should push aggressively into No Man's Land. The long-edge player should hold flanks and react to the thrust."
+    }
+  ]
+}

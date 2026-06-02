@@ -71,16 +71,27 @@ class Terminal:
 
     def _repl(self):
         schema = self._engine.schema()
-        commands = list((schema.get("queries") or {}).keys())
 
-        # Autocomplete
+        # Only expose CLI-compatible commands for tab completion
+        queries = schema.get("queries") or {}
+        cli_commands = [
+            name for name, defn in queries.items()
+            if defn.get("supports_cli", True)
+        ]
+
+        # Autocomplete — only CLI-visible commands
         def completer(text, state):
-            matches = [c for c in commands if c.startswith(text)]
+            matches = [c for c in cli_commands if c.startswith(text)]
             return matches[state] if state < len(matches) else None
         readline.set_completer(completer)
         readline.parse_and_bind("tab: complete")
 
         print("\nType a command, 'help' for commands, or 'quit' to exit.\n")
+        print("  Tip: prefix any command with  math   to see the full math ledger.\n")
+
+        # Per-session command history (for the 'history' command)
+        self._history: list[str] = []
+        math_mode = False
 
         while True:
             try:
@@ -98,13 +109,53 @@ class Terminal:
                 self._print_help(schema)
                 continue
 
+            # ── Math mode prefix ─────────────────────────────────────────────
+            # `math <command>` or `math on/off` as a standalone toggle
+            lower = raw.lower()
+            if lower in ("math on", "mathmode on"):
+                math_mode = True
+                print("\n  [ MATH MODE ON ]  Post-execution math ledger active.\n")
+                self._history.append(raw)
+                continue
+            if lower in ("math off", "mathmode off"):
+                math_mode = False
+                print("\n  [ MATH MODE OFF ]\n")
+                self._history.append(raw)
+                continue
+
+            # Strip `math ` prefix from the command if present, set math mode
+            # for this single query without permanently toggling the flag
+            one_shot_math = False
+            if lower.startswith("math ") and not lower.startswith("mathmode"):
+                raw = raw[5:].strip()
+                one_shot_math = True
+
+            self._history.append(raw)
+
             parts = raw.split(None, 1)
             command = parts[0]
             param_str = parts[1] if len(parts) > 1 else ""
 
-            params = self._parse_params(command, param_str, schema)
-            result = self._engine.query(command, params)
-            self._render_result(result)
+            # Resolve aliases → canonical command name so `roll`, `vs`, etc. work
+            try:
+                from data.combat_terminal import commands as _cmds_mod
+                canonical = _cmds_mod.resolve(command) or command
+            except Exception:
+                canonical = command
+
+            params = self._parse_params(canonical, param_str, schema)
+            result = self._engine.query(canonical, params)
+
+            # Intercept 'history' result_type — render from CLI history list
+            if result.get("result_type") == "history":
+                self._render_history()
+            else:
+                self._render_result(result)
+
+            # ── Math ledger replay ───────────────────────────────────────────
+            if (math_mode or one_shot_math) and result.get("meta", {}).get("math_ledger"):
+                self._render_math_ledger(result["meta"]["math_ledger"])
+
             print()
 
     # ─── Param parsing ─────────────────────────────────────────────────────────
@@ -213,14 +264,89 @@ class Terminal:
 
         print("─" * width)
 
+    def _render_history(self):
+        """Print the CLI session command history."""
+        print()
+        if not self._history:
+            print("  (no commands yet this session)")
+            return
+        print("  Command history:")
+        print()
+        for i, cmd in enumerate(self._history, 1):
+            print(f"    {i:>3}.  {cmd}")
+
+    def _render_math_ledger(self, ledger: list):
+        """Print the math ledger in readable plain-text format.
+
+        The ledger is a list of either:
+          {"type": "group",  "label": ..., "events": [...]}
+          {"type": "event",  "label": ..., "formula": ..., "result": ..., "importance": ...}
+        """
+        if not ledger:
+            return
+        width = min(shutil.get_terminal_size().columns, 80)
+        print()
+        print("  " + "─" * (width - 2))
+        print("  MATH MODE — execution ledger")
+        print("  " + "─" * (width - 2))
+
+        def render_event(ev: dict, indent: str = "  "):
+            label   = ev.get("label", "")
+            formula = ev.get("formula", "")
+            result  = ev.get("result", "")
+            imp     = ev.get("importance", 0)
+            marker  = "▶ " if imp and imp >= 3 else "  "
+            if formula:
+                line = f"{indent}{marker}{label:<28} {formula}"
+                if result not in ("", None):
+                    line += f"  =  {result}"
+            else:
+                line = f"{indent}{marker}{label:<28} {result}"
+            print(line)
+
+        for item in ledger:
+            item_type = item.get("type", "event")
+            if item_type == "group":
+                print(f"\n  ── {item.get('label', '')} ──")
+                for ev in item.get("events", []):
+                    render_event(ev, indent="    ")
+            else:
+                render_event(item)
+        print()
+
     def _print_help(self, schema: dict):
+        from data.combat_terminal import commands as _cmds
         queries = schema.get("queries", {})
+        # Filter to CLI-visible commands only; group by GROUP_ORDER
+        cli_queries = {
+            name: defn for name, defn in queries.items()
+            if defn.get("supports_cli", True)
+        }
+
+        # Organise by group using the registry's GROUP_ORDER / GROUP_LABELS
+        group_order  = _cmds.GROUP_ORDER
+        group_labels = _cmds.GROUP_LABELS
+
+        grouped: dict[str, list] = {g: [] for g in group_order}
+        for name, defn in cli_queries.items():
+            g = defn.get("group", "meta")
+            grouped.setdefault(g, []).append((name, defn))
+
         print()
         print("  Available commands:")
-        print()
-        for name, defn in queries.items():
-            print(f"    {name:<16} {defn.get('description', '')}")
-            example = defn.get("example")
-            if example:
-                print(f"    {'':16} example: {example}")
+        for g in group_order:
+            entries = grouped.get(g, [])
+            if not entries:
+                continue
+            label = group_labels.get(g, g.title())
+            # Skip the navigation group entirely — those are web-only
+            if g == "navigation":
+                continue
+            print()
+            print(f"  ── {label} ──")
+            for name, defn in entries:
+                print(f"    {name:<16} {defn.get('description', '')}")
+                example = defn.get("example")
+                if example:
+                    print(f"    {'':16} e.g.  {example}")
         print()

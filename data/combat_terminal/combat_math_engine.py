@@ -146,9 +146,10 @@ class AttackModifiers:
     use_markerlights: bool = False
     markerlight_hit_bonus: int = 1
 
-    use_rapid_fire: bool = False   # flag: CLI resolves per-weapon RF N → extra_attacks
+    use_rapid_fire: bool = False   # flag: signals weapon is within half range; RF N applied conditionally
+    rf_value: float = 0.0          # RF N parsed from keyword — added to extra_attacks only when use_rapid_fire
     use_melta: bool = False        # flag: CLI resolves per-weapon Melta N → flat_damage_bonus
-    use_blast: bool = False        # flag: CLI resolves per-weapon Blast → +1 extra_attacks (6+ models)
+    use_blast: bool = False        # flag: CLI resolves per-weapon Blast → minimum 3 attacks vs 6+ model units
     use_lance: bool = False        # flag: CLI resolves per-weapon Lance → +1 wound_bonus
 
     use_torrent: bool = False      # auto-detected: weapon auto-hits (no BS roll needed)

@@ -21,6 +21,7 @@ import { TerminalBlock } from "./TerminalBlock";
 import {
   listRosters, listAllRosters, getRoster, findRosterByName, saveRoster,
   deleteRoster, renameRoster, getRosterCount,
+  listFactionsWithRosters, listRostersByFaction,
   listCampaigns, createCampaign, getCampaign, getCampaignCount,
   slugify, labelify,
 } from "@/lib/vfs";
@@ -60,6 +61,60 @@ const NAV_LABELS = {
   settings: "SETTINGS",
   diag:     "DIAGNOSTICS",
 };
+
+// ─── Roster context helpers ───────────────────────────────────────────────────
+
+/**
+ * Parse raw roster text content (CT export format) into a flat unit list.
+ *
+ * Handles lines like:
+ *   "3x Crisis Fireknife Battlesuits (120 pts)"
+ *   "Char1: 1x Commander Farsight (85 pts): Warlord, ..."
+ *   "1x Ghostkeel Battlesuit (160 pts): ..."
+ *
+ * Skips: blank lines, # comments, + section headers, • sub-model bullets,
+ *        indented continuation lines, enhancement lines.
+ *
+ * Returns: [{ name: string, faction: string, models: number }]
+ */
+function parseRosterUnits(roster) {
+  if (!roster?.content) return [];
+  const { faction, content } = roster;
+  const units = [];
+  for (const rawLine of content.split("\n")) {
+    const line = rawLine.trim();
+    if (!line) continue;
+    // Skip comments, headers, sub-model entries, enhancements
+    if (
+      line.startsWith("#") ||
+      line.startsWith("+") ||
+      line.startsWith("•") ||
+      line.startsWith("-") ||
+      line.toLowerCase().startsWith("enhancement:")
+    ) continue;
+    // Strip optional "Char1: " / "CharN: " prefix (character unit entries)
+    const stripped = line.replace(/^Char\d+:\s*/i, "");
+    // Match the leading "Nx" count: "3x Crisis Fireknife Battlesuits (120 pts): ..."
+    const m = stripped.match(/^(\d+)[xX×]\s+([^(:\n]+)/);
+    if (m) {
+      const models = parseInt(m[1], 10);
+      const name   = m[2].trim();
+      if (name) units.push({ name, faction: faction || "", models });
+    }
+  }
+  return units;
+}
+
+/**
+ * Build a roster_context payload from the currently active rosters.
+ * Returns null when both sides have no parsed units (avoids empty POST noise).
+ */
+function buildRosterContext(activeRosters) {
+  const myUnits  = parseRosterUnits(activeRosters.player);
+  const oppUnits = parseRosterUnits(activeRosters.enemy);
+  if (!myUnits.length && !oppUnits.length) return null;
+  return { my_units: myUnits, opponent_units: oppUnits };
+}
 
 // ─── Boot splash ──────────────────────────────────────────────────────────────
 
@@ -372,7 +427,7 @@ export function Terminal({
     // Command-escape for selection flows (roster_select, campaign_select, role_assign, roster_action)
     // If the user types a recognized command keyword, cancel the flow and re-inject the command
     // so it reaches the normal handlers at Priority 8.7/8.8/9.
-    const isSelectionFlow = ["roster_select", "campaign_select", "role_assign", "roster_action"].includes(flow.type);
+    const isSelectionFlow = ["roster_select", "campaign_select", "role_assign", "roster_action", "load_roster_pick", "load_roster_faction"].includes(flow.type);
     const COMMAND_PREFIXES = ["upload", "load ", "delete ", "rename ", "edit ", "new ", "rosters", "campaigns", "clear", "help", "spec ", "list ", "set "];
     if (isSelectionFlow && COMMAND_PREFIXES.some(p => lower === p.trim() || lower.startsWith(p))) {
       clientFlowRef.current = null;
@@ -454,6 +509,110 @@ export function Terminal({
 
       emitError(input, "Type 1 for Player or 2 for Enemy.");
       return;
+    }
+
+    // ── load_roster_pick — flat list pick → role_assign ──────────────────────
+    // Triggered by plain `load roster` (no args).
+    // User picks a roster number → goes directly to role_assign (no action menu).
+    if (flow.type === "load_roster_pick") {
+      const { flat } = flow.data;
+      const n = parseInt(input, 10);
+
+      let picked = null;
+      if (!isNaN(n) && n >= 1 && n <= flat.length) {
+        picked = flat[n - 1];
+      } else {
+        picked = flat.find(r =>
+          r.name.toLowerCase().includes(lower) ||
+          labelify(r.faction).toLowerCase().includes(lower)
+        ) || null;
+      }
+
+      if (!picked) {
+        emitError(input, `No roster matching '${input}'. Type a number (1–${flat.length}) or a name.`);
+        return;
+      }
+
+      clientFlowRef.current = {
+        type: "role_assign", step: "pick",
+        data: { name: picked.name, faction: picked.faction },
+      };
+      emitLocalResult(input, "role_assign", {
+        name:    picked.name,
+        faction: picked.faction,
+        path:    `/rosters/${picked.faction}/${picked.name}`,
+      });
+      return;
+    }
+
+    // ── load_roster_faction — faction pick → roster pick → auto-assign ────────
+    // Triggered by `load roster my` or `load roster enemy`.
+    // Step 1: user picks a faction number → show that faction's rosters.
+    // Step 2: user picks a roster number → auto-assign as player or enemy (no role prompt).
+    if (flow.type === "load_roster_faction") {
+      const { factions, role } = flow.data;
+
+      if (flow.step === "pick_faction") {
+        const n = parseInt(input, 10);
+        let chosenFaction = null;
+
+        if (!isNaN(n) && n >= 1 && n <= factions.length) {
+          chosenFaction = factions[n - 1];
+        } else {
+          chosenFaction = factions.find(f =>
+            f.toLowerCase().includes(lower) ||
+            labelify(f).toLowerCase().includes(lower)
+          ) || null;
+        }
+
+        if (!chosenFaction) {
+          emitError(input, `No faction matching '${input}'. Type a number (1–${factions.length}).`);
+          return;
+        }
+
+        const factionRosters = listRostersByFaction(chosenFaction);
+        if (factionRosters.length === 0) {
+          emitError(input, `No rosters found for ${labelify(chosenFaction)}.`);
+          return;
+        }
+
+        // Build roster_list data shape for the second step
+        const rostersGrouped = { [chosenFaction]: {} };
+        factionRosters.forEach(r => { rostersGrouped[chosenFaction][r.name] = r; });
+
+        flow.step = "pick_roster";
+        flow.data.chosenFaction  = chosenFaction;
+        flow.data.factionRosters = factionRosters;
+
+        emitLocalResult(input, "roster_list", {
+          rosters: rostersGrouped,
+          count:   factionRosters.length,
+          prompt:  `Select a roster to load as ${role === "player" ? "PLAYER" : "ENEMY"} (type a number):`,
+        });
+        return;
+      }
+
+      if (flow.step === "pick_roster") {
+        const { factionRosters } = flow.data;
+        const n = parseInt(input, 10);
+
+        let picked = null;
+        if (!isNaN(n) && n >= 1 && n <= factionRosters.length) {
+          picked = factionRosters[n - 1];
+        } else {
+          picked = factionRosters.find(r => r.name.toLowerCase().includes(lower)) || null;
+        }
+
+        if (!picked) {
+          emitError(input, `No roster matching '${input}'. Type a number (1–${factionRosters.length}).`);
+          return;
+        }
+
+        clientFlowRef.current = null;
+        // Auto-assign directly — no role prompt needed since role is pre-determined
+        onInject?.(`set roster ${role} ${picked.name}`);
+        return;
+      }
     }
 
     // ── upload_roster — step 1: content → step 2: faction → step 3: name ─────
@@ -985,38 +1144,68 @@ export function Terminal({
       return;
     }
 
-    // load roster [name]
+    // load roster [my | enemy | <name>]
+    //
+    // Three paths:
+    //   load roster           → show all rosters numbered → pick roster → pick role (player/enemy)
+    //   load roster my        → show factions → pick faction → show faction rosters → auto-assign player
+    //   load roster enemy     → show factions → pick faction → show faction rosters → auto-assign enemy
+    //   load roster <name>    → resolve roster directly → pick role (player/enemy)
     if (tokens[0] === "load" && tokens[1] === "roster") {
-      const name = tokens.slice(2).join(" ").trim();
-      if (!name) {
-        // No name — show list first
-        const rosters = listRosters();
-        const count   = getRosterCount();
-        if (count > 0) {
-          const flat = listAllRosters();
-          clientFlowRef.current = { type: "roster_select", step: "pick", data: { flat, next: "action" } };
+      const arg = tokens.slice(2).join(" ").trim().toLowerCase();
+
+      // ── Path: load roster my / load roster enemy ──────────────────────────
+      if (arg === "my" || arg === "enemy") {
+        const role     = arg === "my" ? "player" : "enemy";
+        const factions = listFactionsWithRosters();
+        if (factions.length === 0) {
+          emitError(trimmed, "No rosters saved. Type 'upload roster' to save your first roster.");
+          return;
         }
-        emitLocalResult(trimmed, "roster_list", {
-          rosters, count,
-          prompt: "Select a roster to load (type a number or name):",
+        clientFlowRef.current = {
+          type: "load_roster_faction", step: "pick_faction",
+          data: { factions, role },
+        };
+        emitLocalResult(trimmed, "roster_faction_list", {
+          factions,
+          role,
+          prompt: "Type a faction number or name:",
         });
         return;
       }
-      // Name given — find the roster
-      const roster = findRosterByName(name);
-      if (!roster) {
-        emitError(trimmed, `Roster '${name}' not found. Type 'rosters' to list saved rosters.`);
+
+      // ── Path: load roster <name> — direct lookup, skip action menu ────────
+      if (arg) {
+        const roster = findRosterByName(arg);
+        if (!roster) {
+          emitError(trimmed, `Roster '${arg}' not found. Type 'rosters' to list saved rosters.`);
+          return;
+        }
+        // Go straight to role_assign — no action menu
+        clientFlowRef.current = {
+          type: "role_assign", step: "pick",
+          data: { name: roster.name, faction: roster.faction },
+        };
+        emitLocalResult(trimmed, "role_assign", {
+          name:    roster.name,
+          faction: roster.faction,
+          path:    `/rosters/${roster.faction}/${roster.name}`,
+        });
         return;
       }
-      // Show action menu
-      clientFlowRef.current = {
-        type: "roster_action", step: "pick",
-        data: { name: roster.name, faction: roster.faction },
-      };
-      emitLocalResult(trimmed, "roster_action", {
-        name:    roster.name,
-        faction: roster.faction,
-        path:    `/rosters/${roster.faction}/${roster.name}`,
+
+      // ── Path: load roster (no arg) — show all rosters, then pick role ─────
+      const rosters = listRosters();
+      const count   = getRosterCount();
+      if (count === 0) {
+        emitLocalResult(trimmed, "roster_list", { rosters, count });
+        return;
+      }
+      const flat = listAllRosters();
+      clientFlowRef.current = { type: "load_roster_pick", step: "pick", data: { flat } };
+      emitLocalResult(trimmed, "roster_list", {
+        rosters, count,
+        prompt: "Select a roster to load (type a number or name):",
       });
       return;
     }
@@ -1040,6 +1229,16 @@ export function Terminal({
         trimmed,
         `${role.toUpperCase()} roster set → ${roster.name}  [/rosters/${roster.faction}/${roster.name}]`
       );
+      // Sync faction to engine session so unit lookups can auto-prefer this faction.
+      // "faction <name>" sets _session["faction"] (player side);
+      // "enemy <name>"   sets _session["enemy_faction"] (already-existing command).
+      if (roster.faction) {
+        if (role === "player") {
+          onExec?.(`faction ${roster.faction}`);
+        } else {
+          onExec?.(`enemy ${roster.faction}`);
+        }
+      }
       return;
     }
 
@@ -1219,6 +1418,10 @@ export function Terminal({
 
     // ── Priority 9: engine exec ──────────────────────────────────────────────
 
+    // Build roster context once per submission — passed along with every engine
+    // POST so the backend session always reflects the active VFS rosters.
+    const rosterContext = buildRosterContext(activeRostersRef.current);
+
     // ── Silent rerun path: modifier toggles call `rerun --<flag>` / `rerun --<flag> null`
     // These update the existing combat block in-place without adding any stream entry
     // or scrolling the terminal, so the user's position is preserved.
@@ -1226,7 +1429,7 @@ export function Terminal({
     if (isRerun && lastCombatIdRef.current !== null) {
       setLoading(true);
       try {
-        const result = await onExec(trimmed);
+        const result = await onExec(trimmed, rosterContext);
         if (result?.data?._in_place) {
           const cleanData   = { ...result.data };
           delete cleanData._in_place;
@@ -1249,7 +1452,7 @@ export function Terminal({
     setLoading(true);
 
     try {
-      const result = await onExec(trimmed);
+      const result = await onExec(trimmed, rosterContext);
 
       if (result?.result_type === "clear") {
         setStream([]);

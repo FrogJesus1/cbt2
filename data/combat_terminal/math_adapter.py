@@ -162,7 +162,9 @@ def _weapon_to_profile(w: dict) -> tuple[WeaponProfile, AttackModifiers]:
                 continue
             m = re.search(r"RAPID FIRE\s+(\d+)", kw)
             if m:
-                mods.extra_attacks += float(m.group(1))
+                # Store RF N in rf_value — only added to extra_attacks when
+                # use_rapid_fire=True (i.e. the --rf flag signals within-half-range).
+                mods.rf_value += float(m.group(1))
                 continue
             m = re.search(r"MELTA\s+(\d+)", kw)
             if m:
@@ -254,31 +256,71 @@ def _merge_mods(weapon: AttackModifiers, base: AttackModifiers) -> AttackModifie
 
 # ─── Public API ────────────────────────────────────────────────────────────────
 
-def compute_combat(
-    attacker_unit: dict,
-    defender_unit: dict,
-    flags: list,
-) -> dict:
-    """Run combat math for every weapon on attacker_unit vs defender_unit.
+def _apply_flags(flags: list, base_mods: "AttackModifiers", target: "TargetProfile") -> tuple["AttackModifiers", "TargetProfile"]:
+    """Centralised flag → modifier/target application.
 
-    flags: list of strings from the CLI — e.g. ["ml", "cover", "invuln:4"]
+    Handles all recognised CLI modifier flags and returns the updated
+    (base_mods, target) pair.  Called from both compute_combat and
+    compute_sensitivity so flag semantics stay in sync.
 
-    Returns:
-        {
-            "ranged":         summary dict or None,
-            "melee":          summary dict or None,
-            "per_weapon_dmg": { weapon_name: { dmg, kills } },
-            "target_profile": { toughness, save, wounds, invuln },
-        }
+    Supported flags:
+        ml          — Markerlights / Guided: +1 to Hit, Ignores Cover
+        cover       — Target in cover: +1 armour save
+        invuln:N    — Override target invulnerable save to N+
+        ea / ea1    — Extra attacks per model (ea:1 or ea1 form)
+        lethal      — Lethal Hits: unmodified 6s to Hit auto-wound
+        twin        — Twin-linked: re-roll all failed wound rolls
+        sustained / sustained1 / sustained:N  — Sustained Hits N: crit hits add N extra hits
+        dev / devastating — Devastating Wounds: crit wounds bypass all saves
+        blast       — Blast: flag; adapter notes minimum-3-attacks semantic
+        rf          — Rapid Fire: already baked into weapon keyword; flag is informational
+        torrent     — Torrent: weapon auto-hits (no BS roll)
+        lance       — Lance: +1 to wound roll (applied as wound_bonus)
+        fnp:N       — Override target Feel No Pain save to N+
+        dmgplus:N   — Flat +N damage modifier per unsaved wound
     """
-    target    = _unit_to_target(defender_unit)
-    base_mods = AttackModifiers()
-
-    # Apply flags to base modifiers / target
     for f in flags:
         key = f.split(":")[0].lower()
+
+        # ── Hit modifiers ─────────────────────────────────────────────────────
         if key == "ml":
             base_mods.use_markerlights = True
+
+        elif key == "lethal":
+            base_mods.lethal_hits = True
+
+        elif key == "torrent":
+            base_mods.use_torrent = True
+
+        elif key == "lance":
+            # Lance: +1 to wound roll (most impactful approximation without target keyword check)
+            base_mods.wound_bonus = max(base_mods.wound_bonus, 1)
+            if "Lance bonus applied" not in base_mods.active_effects:
+                base_mods.active_effects.append("Lance bonus applied")
+
+        # ── Wound modifiers ───────────────────────────────────────────────────
+        elif key == "twin":
+            base_mods.reroll_wounds = "failed"
+
+        elif key.startswith("sustained"):
+            # Accepts: "sustained" (→1), "sustained1", "sustained:2", etc.
+            n = 1
+            if ":" in f:
+                try:
+                    n = int(f.split(":")[1])
+                except (ValueError, IndexError):
+                    n = 1
+            elif len(key) > len("sustained"):
+                try:
+                    n = int(key[len("sustained"):])
+                except ValueError:
+                    n = 1
+            base_mods.sustained_hits = max(base_mods.sustained_hits, n)
+
+        elif key in ("dev", "devastating"):
+            base_mods.devastating_wounds = True
+
+        # ── Save/AP modifiers ─────────────────────────────────────────────────
         elif key == "cover":
             target = TargetProfile(
                 name=target.name, toughness=target.toughness, save=target.save,
@@ -286,6 +328,7 @@ def compute_combat(
                 models=target.models, feel_no_pain=target.feel_no_pain,
                 damage_reduction=target.damage_reduction, cover=True,
             )
+
         elif key.startswith("invuln"):
             parts = f.split(":")
             if len(parts) > 1:
@@ -299,6 +342,8 @@ def compute_combat(
                     )
                 except ValueError:
                     pass
+
+        # ── Damage modifiers ──────────────────────────────────────────────────
         elif key == "ea" or re.match(r'^ea\d+$', key):
             # Extra attacks per model.  Accepts both --ea 1 (stored as "ea:1")
             # and --ea1 (stored as "ea1" — number embedded in flag name).
@@ -310,6 +355,72 @@ def compute_combat(
                 base_mods.extra_attacks += n
             except (ValueError, TypeError):
                 pass
+
+        elif key == "dmgplus":
+            try:
+                n = float(f.split(":")[1]) if ":" in f else 1.0
+                base_mods.flat_damage_bonus += n
+            except (ValueError, TypeError, IndexError):
+                pass
+
+        elif key.startswith("fnp"):
+            parts = f.split(":")
+            if len(parts) > 1:
+                try:
+                    fnp_val = int(parts[1])
+                    target = TargetProfile(
+                        name=target.name, toughness=target.toughness, save=target.save,
+                        invulnerable_save=target.invulnerable_save, wounds=target.wounds,
+                        models=target.models, feel_no_pain=fnp_val,
+                        damage_reduction=target.damage_reduction, cover=target.cover,
+                    )
+                except ValueError:
+                    pass
+
+        # ── Blast / Rapid Fire ────────────────────────────────────────────────
+        # Blast:  use_blast is set here (flag side) and also auto-detected in
+        #         _weapon_to_profile (keyword side).  The minimum-3-attacks rule
+        #         is applied in _run_ev / _run_mc after merging, using def_models.
+        # Rapid Fire: rf_value is stored per-weapon in _weapon_to_profile and
+        #         carried through _merge_mods.  The --rf flag (within half range)
+        #         sets use_rapid_fire=True; rf_value is only added to extra_attacks
+        #         when use_rapid_fire is True — in _run_ev / _run_mc after merging.
+        elif key == "blast":
+            base_mods.use_blast = True
+        elif key == "rf":
+            base_mods.use_rapid_fire = True
+
+    return base_mods, target
+
+
+def compute_combat(
+    attacker_unit: dict,
+    defender_unit: dict,
+    flags: list,
+    att_models: int = 1,
+    def_models: int = 1,
+) -> dict:
+    """Run combat math for every weapon on attacker_unit vs defender_unit.
+
+    flags:      list of strings from the CLI — e.g. ["ml", "cover", "invuln:4"]
+    att_models: number of models in the attacking unit (from unit_composition).
+                Weapon attacks are multiplied by this unless the weapon carries
+                _no_multiply=True (e.g. support turrets — 1 per unit, not 1 per model).
+    def_models: number of models in the defending unit.  Used for BLAST
+                minimum-3-attacks rule (only applies vs units of 6+ models).
+
+    Returns:
+        {
+            "ranged":         summary dict or None,
+            "melee":          summary dict or None,
+            "per_weapon_dmg": { weapon_name: { dmg, kills } },
+            "target_profile": { toughness, save, wounds, invuln },
+        }
+    """
+    target    = _unit_to_target(defender_unit)
+    base_mods = AttackModifiers()
+
+    base_mods, target = _apply_flags(flags, base_mods, target)
 
     # Split weapons by type
     ranged_weapons, melee_weapons = [], []
@@ -330,6 +441,17 @@ def compute_combat(
             try:
                 wp, weapon_mods = _weapon_to_profile(w)
                 merged = _merge_mods(weapon_mods, base_mods)
+                # ── Rapid Fire: only add RF attacks when within half range ────────
+                # rf_value is stored per-weapon in weapon_mods; use_rapid_fire is
+                # set by the --rf flag.  Only apply when the flag is active.
+                if merged.use_rapid_fire and merged.rf_value > 0:
+                    merged.extra_attacks += merged.rf_value
+                # ── Blast: minimum 3 per-model attacks vs 6+ model units ─────────
+                if merged.use_blast and def_models >= 6:
+                    wp.attacks = max(wp.attacks, 3.0)
+                # Scale attacks by squad size — skip for unit-level weapons (e.g. support turrets)
+                if att_models > 1 and not w.get("_no_multiply"):
+                    wp.attacks = wp.attacks * att_models
                 result = compute_attack_result(wp, target, base_mods=merged)
                 out.append((w, result))
             except Exception:
@@ -380,6 +502,14 @@ def compute_combat(
             "swinginess_label":   swinginess_label,
             "squad_wipe_pct":     squad_wipe_pct,
         }
+        def _kill_chance_from_mc(mc_result) -> Optional[float]:
+            """P(≥1 kill) from MC kill-bucket distribution, or None if MC offline."""
+            if not mc_result:
+                return None
+            b = mc_result.get("kill_bucket_probabilities", {})
+            p_zero = float(b.get("0", 1.0))
+            return round((1.0 - p_zero) * 100, 1)
+
         per_weapon = {
             w.get("name", "?"): {
                 "dmg":           round(r.expected_damage, 2),
@@ -387,7 +517,11 @@ def compute_combat(
                 # Probability chain — shown in TargetingOutcome bar chart
                 "hit_pct":       round(r.hit_probability * 100, 1),
                 "wound_pct":     round(r.wound_probability_given_hit * 100, 1),
+                # fail_save_pct: probability of an unsaved wound (per attack in the chain)
                 "fail_save_pct": round(r.failed_save_probability * 100, 1),
+                # kill_chance_pct: P(≥1 model killed) from Monte Carlo — semantically correct
+                # kill probability for the full weapon output. Falls back to None if MC offline.
+                "kill_chance_pct": _kill_chance_from_mc(mc_per_weapon.get(w.get("name", "?"))),
                 # Raw roll targets — used for modifier delta colour-coding
                 "hit_target":    r.hit_target,
                 "wound_target":  r.wound_target,
@@ -414,6 +548,14 @@ def compute_combat(
             try:
                 wp, weapon_mods = _weapon_to_profile(w)
                 merged = _merge_mods(weapon_mods, base_mods)
+                # Apply same RF and BLAST logic as _run_ev for consistency
+                if merged.use_rapid_fire and merged.rf_value > 0:
+                    merged.extra_attacks += merged.rf_value
+                if merged.use_blast and def_models >= 6:
+                    wp.attacks = max(wp.attacks, 3.0)
+                # Scale attacks by squad size — skip for unit-level weapons
+                if att_models > 1 and not w.get("_no_multiply"):
+                    wp.attacks = wp.attacks * att_models
                 mc_result = monte_carlo_attack(
                     wp, target, base_mods=merged,
                     trials=_MC_TRIALS, seed=_MC_SEED,
@@ -493,47 +635,23 @@ def compute_combat(
 
 # ─── Sensitivity sweep ────────────────────────────────────────────────────────
 
-def compute_sensitivity(attacker_unit: dict, defender_unit: dict, flags: list) -> list:
+def compute_sensitivity(
+    attacker_unit: dict,
+    defender_unit: dict,
+    flags: list,
+    att_models: int = 1,
+    def_models: int = 1,
+) -> list:
     """% damage gain from +1 to each key stat (hit, wound, AP, damage).
 
     Runs EV 4 extra times with one modifier bumped each pass.
     Returns list of {label: str, value: int} sorted by value descending.
     Empty list if baseline damage is zero or too few weapons.
     """
-    # ── Build target + base_mods (mirrors the flag-parsing block in compute_combat) ──
+    # ── Build target + base_mods via the shared flag parser ──────────────────
     target    = _unit_to_target(defender_unit)
     base_mods = AttackModifiers()
-
-    for f in (flags or []):
-        key = f.split(":")[0].lower()
-        if key == "ml":
-            base_mods.use_markerlights = True
-        elif key == "cover":
-            target = TargetProfile(
-                name=target.name, toughness=target.toughness, save=target.save,
-                invulnerable_save=target.invulnerable_save, wounds=target.wounds,
-                models=target.models, feel_no_pain=target.feel_no_pain,
-                damage_reduction=target.damage_reduction, cover=True,
-            )
-        elif key.startswith("invuln"):
-            parts = f.split(":")
-            if len(parts) > 1:
-                try:
-                    iv = int(parts[1])
-                    target = TargetProfile(
-                        name=target.name, toughness=target.toughness, save=target.save,
-                        invulnerable_save=iv, wounds=target.wounds,
-                        models=target.models, feel_no_pain=target.feel_no_pain,
-                        damage_reduction=target.damage_reduction, cover=target.cover,
-                    )
-                except ValueError:
-                    pass
-        elif key == "ea" or re.match(r'^ea\d+$', key):
-            try:
-                n = float(f.split(":")[1]) if ":" in f else float(re.sub(r'^ea', '', key) or 0)
-                base_mods.extra_attacks += n
-            except (ValueError, TypeError):
-                pass
+    base_mods, target = _apply_flags(flags or [], base_mods, target)
 
     all_weapons = [w for w in attacker_unit.get("weapons", []) if isinstance(w, dict)]
     if not all_weapons:
@@ -548,6 +666,13 @@ def compute_sensitivity(attacker_unit: dict, defender_unit: dict, flags: list) -
             try:
                 wp, weapon_mods = _weapon_to_profile(w)
                 merged = _merge_mods(weapon_mods, mods)
+                # Apply same RF / BLAST rules as compute_combat
+                if merged.use_rapid_fire and merged.rf_value > 0:
+                    merged.extra_attacks += merged.rf_value
+                if merged.use_blast and def_models >= 6:
+                    wp.attacks = max(wp.attacks, 3.0)
+                if att_models > 1 and not w.get("_no_multiply"):
+                    wp.attacks = wp.attacks * att_models
                 result = compute_attack_result(wp, target, merged)
                 total += result.expected_damage
             except Exception:

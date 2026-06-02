@@ -9,8 +9,14 @@
  *   green  = improved  (lower roll needed)
  *   red    = degraded  (higher roll needed)
  *
+ * Weapons can be toggled off by clicking their row.  Disabled weapons are
+ * struck through and dimmed.  This calls onToggleWeapon(weaponName) so the
+ * parent can adjust aggregate damage totals.
+ *
  * Props:
- *   weapons — full weapons array from combat engine response
+ *   weapons          — full weapons array from combat engine response
+ *   disabledWeapons  — Set<string> of weapon names currently disabled
+ *   onToggleWeapon   — (name: string) => void  called when a row is clicked
  */
 
 import { Card, CardContent } from "@/components/ui/card";
@@ -85,7 +91,7 @@ function StatCell({ value, delta, dim = false }) {
 
 // ─── Single weapon row ─────────────────────────────────────────────────────
 
-function WeaponRow({ w }) {
+function WeaponRow({ w, disabled, onToggle }) {
   // Build the attacks display:  "2 (4)"  or just  "2"  or the raw string
   let attacksDisplay = w.shots ?? "—";
   if (w.shots_total != null) {
@@ -104,17 +110,32 @@ function WeaponRow({ w }) {
   const rangeDisplay = w.range ?? "—";
 
   // Drone / supplement: cyan name if _drone flag set
-  const nameColor = w._drone ? C.cyan : C.mid;
+  const baseNameColor = w._drone ? C.cyan : C.mid;
+  const nameColor     = disabled ? C.dim : baseNameColor;
 
   return (
-    <tr style={{ borderTop: `1px solid ${C.border}` }}>
+    <tr
+      onClick={() => onToggle?.(w.name)}
+      title={disabled ? `Click to enable: ${w.name}` : `Click to disable: ${w.name}`}
+      style={{
+        borderTop:  `1px solid ${C.border}`,
+        cursor:     onToggle ? "pointer" : "default",
+        opacity:    disabled ? 0.35 : 1,
+        transition: "opacity 0.15s",
+      }}
+    >
       {/* Weapon name + keyword badges */}
       <td style={{ padding: "4px 8px 4px 2px", verticalAlign: "middle" }}>
         <div style={{ display: "flex", alignItems: "center", gap: "5px", flexWrap: "wrap" }}>
-          <span style={{ color: nameColor, fontSize: "12px", whiteSpace: "nowrap" }}>
+          <span style={{
+            color:          nameColor,
+            fontSize:       "12px",
+            whiteSpace:     "nowrap",
+            textDecoration: disabled ? "line-through" : "none",
+          }}>
             {w.name}
           </span>
-          {(w.keywords || []).map((kw, i) => (
+          {!disabled && (w.keywords || []).map((kw, i) => (
             <span
               key={i}
               title={kw}
@@ -131,6 +152,19 @@ function WeaponRow({ w }) {
               {kwAbbrev(kw)}
             </span>
           ))}
+          {disabled && (
+            <span style={{
+              fontSize:      "9px",
+              color:         C.dim,
+              border:        `1px solid ${C.border}`,
+              padding:       "0 3px",
+              letterSpacing: "0.06em",
+              flexShrink:    0,
+              lineHeight:    "14px",
+            }}>
+              OFF
+            </span>
+          )}
         </div>
       </td>
 
@@ -193,7 +227,7 @@ const HEADER_STYLE = {
   fontWeight:    600,
 };
 
-function WeaponSection({ title, weapons }) {
+function WeaponSection({ title, weapons, disabledWeapons, onToggle }) {
   if (!weapons || weapons.length === 0) return null;
 
   return (
@@ -215,14 +249,21 @@ function WeaponSection({ title, weapons }) {
           — {title} —
         </td>
       </tr>
-      {weapons.map((w, i) => <WeaponRow key={i} w={w} />)}
+      {weapons.map((w, i) => (
+        <WeaponRow
+          key={i}
+          w={w}
+          disabled={disabledWeapons?.has(w.name)}
+          onToggle={onToggle}
+        />
+      ))}
     </>
   );
 }
 
 // ─── WeaponStatsTable ──────────────────────────────────────────────────────
 
-export function WeaponStatsTable({ weapons = [] }) {
+export function WeaponStatsTable({ weapons = [], disabledWeapons, onToggleWeapon }) {
   const ranged = weapons.filter(w => w.type !== "melee");
   const melee  = weapons.filter(w => w.type === "melee");
 
@@ -234,6 +275,8 @@ export function WeaponStatsTable({ weapons = [] }) {
     ? `${models} models · A shows per-model (squad total)`
     : null;
 
+  const disabledCount = disabledWeapons ? disabledWeapons.size : 0;
+
   return (
     <Card style={CARD_STYLE}>
       <CardContent style={CARD_PAD}>
@@ -244,6 +287,16 @@ export function WeaponStatsTable({ weapons = [] }) {
           {modelNote && (
             <span style={{ color: C.dim, fontSize: "10px", letterSpacing: "0.05em" }}>
               {modelNote}
+            </span>
+          )}
+          {onToggleWeapon && (
+            <span style={{ color: C.label, fontSize: "10px", letterSpacing: "0.04em", marginLeft: "auto" }}>
+              click row to toggle
+              {disabledCount > 0 && (
+                <span style={{ color: C.amber, marginLeft: "6px" }}>
+                  · {disabledCount} off
+                </span>
+              )}
             </span>
           )}
         </div>
@@ -265,8 +318,18 @@ export function WeaponStatsTable({ weapons = [] }) {
             </tr>
           </thead>
           <tbody>
-            <WeaponSection title="Ranged Weapons" weapons={ranged} />
-            <WeaponSection title="Melee Weapons"  weapons={melee}  />
+            <WeaponSection
+              title="Ranged Weapons"
+              weapons={ranged}
+              disabledWeapons={disabledWeapons}
+              onToggle={onToggleWeapon}
+            />
+            <WeaponSection
+              title="Melee Weapons"
+              weapons={melee}
+              disabledWeapons={disabledWeapons}
+              onToggle={onToggleWeapon}
+            />
           </tbody>
         </table>
       </CardContent>

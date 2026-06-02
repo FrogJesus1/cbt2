@@ -177,6 +177,27 @@ export function getRosterCount() {
   return Object.values(rosters).reduce((n, f) => n + Object.keys(f).length, 0);
 }
 
+/**
+ * Return sorted array of faction slugs that have at least one roster.
+ */
+export function listFactionsWithRosters() {
+  const rosters = _load().rosters;
+  return Object.keys(rosters)
+    .filter(f => Object.keys(rosters[f]).length > 0)
+    .sort();
+}
+
+/**
+ * Return a flat array of roster objects for a given faction slug.
+ * Returns [] if faction not found or has no rosters.
+ */
+export function listRostersByFaction(faction) {
+  const slug = slugify(faction);
+  const rosters = _load().rosters;
+  const factionRosters = rosters[slug] || {};
+  return Object.values(factionRosters).sort((a, b) => a.name.localeCompare(b.name));
+}
+
 // ─── Campaign CRUD ────────────────────────────────────────────────────────────
 
 /**

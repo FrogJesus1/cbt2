@@ -110,6 +110,9 @@ const CommandBar = forwardRef(function CommandBar(
   }
 
   useImperativeHandle(ref, () => ({
+    focus() {
+      inputRef.current?.focus();
+    },
     animateAndSubmit(cmd) {
       if (animTimer.current) clearTimeout(animTimer.current);
       animActive.current = true;
@@ -297,13 +300,32 @@ export default function App() {
     return () => document.removeEventListener("mousedown", handler);
   }, []);
 
+  // Persistent CLI focus — refocus the command bar after any click on
+  // non-interactive content so the user can always keep typing.
+  // Skips buttons, inputs, selects, textareas, links, and [contenteditable]
+  // so built-in browser behaviour for those elements is never disrupted.
+  useEffect(() => {
+    const SKIP_TAGS = new Set(["INPUT", "TEXTAREA", "SELECT", "BUTTON", "A", "LABEL"]);
+    const handler = (e) => {
+      const tag = e.target?.tagName ?? "";
+      const editable = e.target?.isContentEditable;
+      if (SKIP_TAGS.has(tag) || editable) return;
+      // Small defer so the click handler on the target fires first
+      setTimeout(() => cmdBarRef.current?.focus(), 0);
+    };
+    document.addEventListener("mousedown", handler);
+    return () => document.removeEventListener("mousedown", handler);
+  }, []);
+
   // ── Exec handler ─────────────────────────────────────────────────────────
 
-  const handleExec = useCallback(async (rawInput) => {
+  const handleExec = useCallback(async (rawInput, rosterContext = null) => {
+    const body = { input: rawInput };
+    if (rosterContext) body.roster_context = rosterContext;
     const res = await fetch(`${API}/engines/${activeEngineId}/exec`, {
       method:  "POST",
       headers: { "Content-Type": "application/json" },
-      body:    JSON.stringify({ input: rawInput }),
+      body:    JSON.stringify(body),
     });
     if (!res.ok) {
       return {

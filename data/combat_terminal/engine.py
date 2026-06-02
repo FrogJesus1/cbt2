@@ -12,6 +12,7 @@ and dispatches to the appropriate query handler.
 
 from __future__ import annotations
 
+import random
 import re
 import sys
 from pathlib import Path
@@ -158,6 +159,10 @@ _UNIT_WEAPON_SUPPLEMENTS: dict = {
             "bs_ws": "5+", "s": "7", "ap": "-1", "d": "2",
             "keywords": ["ASSAULT"],
             "_drone": False,
+            # _no_multiply = True: this weapon belongs to the unit as a whole
+            # (1 turret per unit, not one per model).  The shots count must NOT
+            # be scaled by att_models when computing squad totals.
+            "_no_multiply": True,
             "_supplement_note": "Requires Remains Stationary",
         },
     ],
@@ -188,7 +193,36 @@ class CombatTerminalEngine(EngineBase):
             #   active_attacker_flags, active_defender_flags  ← currently live
             # }
             "last_combat": None,
+            # Session-scoped issue log — populated by _log_issue() throughout the
+            # session.  Surfaced by the `issues` command to show missing data
+            # discovered during actual use (not just static domain checks).
+            "issue_log": [],
         }
+
+    # ─── Session issue logger ─────────────────────────────────────────────────
+
+    def _log_issue(self, domain: str, message: str, context: str = "") -> None:
+        """Append a runtime data gap or error to the session issue log.
+
+        Called whenever a query encounters missing data, a math error, or a
+        stub condition during normal use.  The log is surfaced by `issues`.
+
+        Args:
+            domain:  category label (e.g. "combat_math", "unit_lookup", "weapon_data")
+            message: human-readable description of the problem
+            context: optional detail string (unit name, faction, flag, etc.)
+        """
+        import datetime
+        entry = {
+            "domain":    domain,
+            "message":   message,
+            "context":   context,
+            "timestamp": datetime.datetime.now().strftime("%H:%M:%S"),
+        }
+        log = self._session.setdefault("issue_log", [])
+        # Deduplicate: skip if an identical (domain, message) already logged this session
+        if not any(e["domain"] == domain and e["message"] == message for e in log):
+            log.append(entry)
 
     # ─── Drone / supplement augmentation ──────────────────────────────────────
 
@@ -294,6 +328,20 @@ class CombatTerminalEngine(EngineBase):
         if not raw:
             return ("help", {})
 
+        # ── Two-word command normalisation ────────────────────────────────────
+        # Convert natural-language multi-word prefixes to canonical command names
+        # before first-token dispatch so aliases like "army rules" route correctly.
+        _two_word_map = {
+            "army rules":    "army_rules",
+            "faction rules": "army_rules",
+        }
+        raw_lower = raw.lower()
+        for prefix, canonical_cmd in _two_word_map.items():
+            if raw_lower.startswith(prefix):
+                suffix = raw[len(prefix):].strip()
+                raw = f"{canonical_cmd} {suffix}".strip()
+                break
+
         # ── Numeric selection — resolves active disambiguation ─────────────────
         # A bare integer (e.g. "2") routes to the select handler when
         # disambiguation is active.  This must come before all other parsing.
@@ -340,13 +388,28 @@ class CombatTerminalEngine(EngineBase):
             sub = rest.split(None, 1)
             list_type = sub[0].lower() if sub else ""
             remainder = sub[1] if len(sub) > 1 else ""
-            remainder, faction = self._extract_flag(remainder, "faction")
+            # If first word isn't a recognised list type, treat the entire
+            # remainder as a faction name and default to listing units.
+            # e.g. "list chaos daemons" → list units --faction "chaos daemons"
+            _VALID_LIST_TYPES = {"units", "unit", "weapons", "weapon", "factions", "faction", "stratagems", "stratagem"}
+            if list_type and list_type not in _VALID_LIST_TYPES:
+                remainder, faction = self._extract_flag(rest, "faction")
+                if not faction:
+                    # whole rest is the faction name (no --faction flag given)
+                    faction = rest.strip()
+                    remainder = ""
+                list_type = "units"
+            else:
+                remainder, faction = self._extract_flag(remainder, "faction")
             remainder, _ = self._extract_flag(remainder, "ranged")
             remainder, _ = self._extract_flag(remainder, "melee")
             # Extract boolean --flags as keyword filters (--blast, --deepstrike, etc.)
             # These are always boolean; we do NOT consume the next word as a value.
             keyword_flags, remainder = self._extract_bool_flags(remainder)
             return ("list", {"type": list_type, "filter": remainder.strip(), "faction": faction, "keywords": keyword_flags})
+
+        elif canonical == "faction":
+            return ("faction", {"name": rest})
 
         elif canonical == "enemy":
             return ("enemy", {"name": rest})
@@ -398,6 +461,15 @@ class CombatTerminalEngine(EngineBase):
         elif canonical == "rerun":
             # "rerun [--flag [null] ...]" — modifier toggle replay
             return ("rerun", {"mods": rest})
+
+        elif canonical == "legend":
+            return ("legend", {})
+
+        elif canonical == "detachment":
+            return ("detachment", {"faction": rest})
+
+        elif canonical == "army_rules":
+            return ("army_rules", {"faction": rest})
 
         elif canonical == "combat":
             # "combat" without "vs" — try to split on "vs" or return error
@@ -492,6 +564,7 @@ class CombatTerminalEngine(EngineBase):
             "threat":      self._query_threats,
             "analyze":     self._query_analyze,
             "list":        self._query_list,
+            "faction":     self._query_set_faction,
             "enemy":       self._query_enemy,
             "roster":      self._query_roster,
             "session":     self._query_session,
@@ -505,8 +578,12 @@ class CombatTerminalEngine(EngineBase):
             "ability":     self._query_ability,
             "enhancement": self._query_enhancement,
             "mission":     self._query_mission,
+            "issues":      self._query_issues,
+            "legend":      self._query_legend,
             "unknown":     self._query_unknown,
             "mathmode":    self._query_mathmode,
+            "detachment":  self._query_detachment,
+            "army_rules":  self._query_army_rules,
         }
 
         if command not in dispatch:
@@ -555,13 +632,38 @@ class CombatTerminalEngine(EngineBase):
             "pending_field":   pending_field,
             "matches":         matches,
         }
-        labels = [
+        # Build labels.  When multiple matches share the same name+faction pair
+        # (e.g. three "COMMANDER" entries in the Tau dossier) append a
+        # distinguishing hint from the unit's unique ability so the player can tell
+        # them apart:  "COMMANDER  [Coldstar Commander]  (Tau)"
+        _SKIP_TAGS = frozenset({"CORE", "FACTION", "CHARACTER"})
+
+        def _distinguisher(m: dict) -> str:
+            for ab in m.get("abilities", []):
+                if isinstance(ab, dict):
+                    ab_name = (ab.get("name") or "").strip()
+                    if ab_name.upper() not in _SKIP_TAGS and ab_name:
+                        return ab_name
+            return ""
+
+        # Check for label collisions before building
+        raw_labels = [
             "{name}  ({faction})".format(
                 name    = m.get("name", "?"),
                 faction = m.get("faction", "").replace("_", " ").title(),
             )
             for m in matches
         ]
+        has_duplicates = len(set(raw_labels)) < len(raw_labels)
+
+        labels = []
+        for m, raw in zip(matches, raw_labels):
+            if has_duplicates:
+                hint = _distinguisher(m)
+                labels.append(f"{raw}  [{hint}]" if hint else raw)
+            else:
+                labels.append(raw)
+
         noun = pending_field if pending_field != "name" else "unit"
         return {
             "ok":          True,
@@ -666,15 +768,31 @@ class CombatTerminalEngine(EngineBase):
         if not name:
             return self._err("spec", "Usage: spec <unit name>  e.g. spec broadside")
 
-        # If a faction hint is provided (from disambiguation resolution), do an
-        # exact lookup — this path always finds exactly one unit.
+        # If a faction hint is provided (from disambiguation resolution or --faction flag),
+        # do an exact lookup — this path always finds exactly one unit.
         if faction:
             result = self._loader.get_unit(name, faction=faction)
             if not result:
                 return self._err("spec", f"No unit found matching '{name}' in faction '{faction}'.")
             return self._build_spec_result(result)
 
-        # Multi-match check — trigger disambiguation when more than one unit matches.
+        # No explicit faction — check session faction first.
+        # When a player roster is active the session faction is set, which lets
+        # `spec <unit>` resolve without cross-faction disambiguation when the unit
+        # exists in the player's faction.
+        session_faction = self._session.get("faction")
+        if session_faction:
+            session_matches = self._loader.get_units_matching(name, faction=session_faction, limit=9)
+            if len(session_matches) == 1:
+                # Unambiguous match within player's faction — use it directly
+                return self._build_spec_result(session_matches[0])
+            elif len(session_matches) > 1:
+                # Multiple variants in the same faction (e.g. COMMANDER variants) — disambiguate
+                return self._disambiguate("spec", {}, "name", session_matches)
+            # Zero matches in session faction — fall through to global search
+
+        # Global multi-faction search — only reached when no session faction is set
+        # or when the unit doesn't exist in the session faction.
         matches = self._loader.get_units_matching(name, limit=9)
         if not matches:
             return self._err("spec", f"No unit found matching '{name}'.")
@@ -701,55 +819,144 @@ class CombatTerminalEngine(EngineBase):
             return self._err("combat", "Usage: <attacker> vs <defender>  e.g. broadside vs intercessors")
 
         # ── Resolve attacker ──────────────────────────────────────────────────
-        # _attacker_faction is set when coming from a disambiguation selection,
-        # ensuring exact lookup without retriggering disambiguation.
+        # Resolution order:
+        #   1. _attacker_faction param (set after disambiguation selection)
+        #   2. Session player faction (auto-prefer when roster is loaded)
+        #   3. Global all-faction search → may trigger disambiguation
         att_faction = params.get("_attacker_faction")
         if att_faction:
             att_unit = self._loader.get_unit(attacker_raw, faction=att_faction)
         else:
-            att_matches = self._loader.get_units_matching(attacker_raw, limit=9)
-            if len(att_matches) > 1:
-                return self._disambiguate(
-                    "combat_attacker",
-                    {"attacker": attacker_raw, "defender": defender_raw, "flags": flags},
-                    "attacker",
-                    att_matches,
-                )
-            att_unit = att_matches[0] if att_matches else None
+            session_faction = self._session.get("faction")
+            if session_faction:
+                sf_matches = self._loader.get_units_matching(attacker_raw, faction=session_faction, limit=9)
+                if len(sf_matches) == 1:
+                    att_unit = sf_matches[0]
+                elif len(sf_matches) > 1:
+                    return self._disambiguate(
+                        "combat_attacker",
+                        {"attacker": attacker_raw, "defender": defender_raw, "flags": flags},
+                        "attacker",
+                        sf_matches,
+                    )
+                else:
+                    # Not in session faction — fall to global search
+                    sf_matches = None
+                    att_matches = self._loader.get_units_matching(attacker_raw, limit=9)
+                    if len(att_matches) > 1:
+                        return self._disambiguate(
+                            "combat_attacker",
+                            {"attacker": attacker_raw, "defender": defender_raw, "flags": flags},
+                            "attacker",
+                            att_matches,
+                        )
+                    att_unit = att_matches[0] if att_matches else None
+            else:
+                att_matches = self._loader.get_units_matching(attacker_raw, limit=9)
+                if len(att_matches) > 1:
+                    return self._disambiguate(
+                        "combat_attacker",
+                        {"attacker": attacker_raw, "defender": defender_raw, "flags": flags},
+                        "attacker",
+                        att_matches,
+                    )
+                att_unit = att_matches[0] if att_matches else None
 
         # ── Resolve defender ──────────────────────────────────────────────────
+        # Resolution order:
+        #   1. _defender_faction param (set after disambiguation selection)
+        #   2. Session enemy faction (auto-prefer when enemy roster is loaded)
+        #   3. Global all-faction search → may trigger disambiguation
         def_faction = params.get("_defender_faction")
         if def_faction:
             def_unit = self._loader.get_unit(defender_raw, faction=def_faction)
         else:
-            def_matches = self._loader.get_units_matching(defender_raw, limit=9)
-            if len(def_matches) > 1:
-                # Attacker is already resolved — carry its identity forward
-                return self._disambiguate(
-                    "combat_defender",
-                    {
-                        "attacker":          att_unit.get("name", attacker_raw) if att_unit else attacker_raw,
-                        "_attacker_faction": att_unit.get("faction") if att_unit else None,
-                        "defender":          defender_raw,
-                        "flags":             flags,
-                    },
-                    "defender",
-                    def_matches,
-                )
-            def_unit = def_matches[0] if def_matches else None
+            enemy_faction = self._session.get("enemy_faction")
+            if enemy_faction:
+                ef_matches = self._loader.get_units_matching(defender_raw, faction=enemy_faction, limit=9)
+                if len(ef_matches) == 1:
+                    def_unit = ef_matches[0]
+                elif len(ef_matches) > 1:
+                    return self._disambiguate(
+                        "combat_defender",
+                        {
+                            "attacker":          att_unit.get("name", attacker_raw) if att_unit else attacker_raw,
+                            "_attacker_faction": att_unit.get("faction") if att_unit else None,
+                            "defender":          defender_raw,
+                            "flags":             flags,
+                        },
+                        "defender",
+                        ef_matches,
+                    )
+                else:
+                    # Not in enemy faction — fall to global search
+                    def_matches = self._loader.get_units_matching(defender_raw, limit=9)
+                    if len(def_matches) > 1:
+                        return self._disambiguate(
+                            "combat_defender",
+                            {
+                                "attacker":          att_unit.get("name", attacker_raw) if att_unit else attacker_raw,
+                                "_attacker_faction": att_unit.get("faction") if att_unit else None,
+                                "defender":          defender_raw,
+                                "flags":             flags,
+                            },
+                            "defender",
+                            def_matches,
+                        )
+                    def_unit = def_matches[0] if def_matches else None
+            else:
+                def_matches = self._loader.get_units_matching(defender_raw, limit=9)
+                if len(def_matches) > 1:
+                    # Attacker is already resolved — carry its identity forward
+                    return self._disambiguate(
+                        "combat_defender",
+                        {
+                            "attacker":          att_unit.get("name", attacker_raw) if att_unit else attacker_raw,
+                            "_attacker_faction": att_unit.get("faction") if att_unit else None,
+                            "defender":          defender_raw,
+                            "flags":             flags,
+                        },
+                        "defender",
+                        def_matches,
+                    )
+                def_unit = def_matches[0] if def_matches else None
 
         att_name = att_unit.get("name", attacker_raw) if att_unit else attacker_raw
         def_name = def_unit.get("name", defender_raw) if def_unit else defender_raw
+
+        # Log lookup failures to the session issue log
+        if not att_unit:
+            self._log_issue("unit_lookup", f"Attacker not found: '{attacker_raw}'", f"query={raw if 'raw' in dir() else attacker_raw}")
+        if not def_unit:
+            self._log_issue("unit_lookup", f"Defender not found: '{defender_raw}'", f"query={defender_raw}")
 
         # Augment attacker with drone / turret weapons so they appear in the
         # combat weapon table and are included in combat math.
         if att_unit:
             att_unit = self._augment_unit_with_supplements(att_unit)
 
-        # Model count — parsed from unit_composition bullet entries.
-        # Used to compute shots_total so the UI can show "A: 2 (4)".
-        # When a roster is eventually wired, override this with roster data.
+        # Model count — start from the dossier's unit_composition minimum,
+        # then override with the actual roster squad size when available.
         att_models = _parse_min_models(att_unit.get("unit_composition", [])) if att_unit else 1
+        if att_unit:
+            _att_name = att_unit.get("name", "").lower()
+            for _ru in self._session.get("roster_my", []):
+                _ru_name = (_ru.get("name") or "").lower()
+                if _ru_name and (_ru_name in _att_name or _att_name in _ru_name):
+                    if _ru.get("models"):
+                        att_models = int(_ru["models"])
+                    break
+
+        # Defender model count — drives BLAST minimum-3-attacks rule.
+        def_models = _parse_min_models(def_unit.get("unit_composition", [])) if def_unit else 1
+        if def_unit:
+            _def_name = def_unit.get("name", "").lower()
+            for _ru in self._session.get("roster_enemy", []):
+                _ru_name = (_ru.get("name") or "").lower()
+                if _ru_name and (_ru_name in _def_name or _def_name in _ru_name):
+                    if _ru.get("models"):
+                        def_models = int(_ru["models"])
+                    break
 
         # Extra attacks per model from attacker-side flags.
         # Supports both --ea 1 (stored as "ea:1") and --ea1 (stored as "ea1").
@@ -789,7 +996,10 @@ class CombatTerminalEngine(EngineBase):
                         try:
                             shots_num = int(str(shots_raw).strip()) + _ea_extra
                             shots_raw = shots_num  # update displayed per-model value
-                            if att_models > 1:
+                            # Only multiply by model count if this weapon is per-model.
+                            # Unit-level weapons (support turrets, etc.) carry
+                            # _no_multiply=True to prevent incorrect inflation.
+                            if att_models > 1 and not w.get("_no_multiply"):
                                 shots_total = shots_num * att_models
                         except ValueError:
                             pass  # dice expression (D6 etc.) — leave as None
@@ -860,9 +1070,14 @@ class CombatTerminalEngine(EngineBase):
 
         # Flag notes for active modifiers
         FLAG_NOTE_MAP = {
-            "ml":    {"icon": "target",    "text": "Markerlights active — +1 to Hit rolls, Ignores Cover"},
-            "cover": {"icon": "shield",    "text": "Target in cover — +1 to armour saves"},
-            "dev":   {"icon": "skull",     "text": "Devastating Wounds — critical wounds bypass saves"},
+            "ml":        {"icon": "target",    "text": "Markerlights active — +1 to Hit rolls, Ignores Cover"},
+            "cover":     {"icon": "shield",    "text": "Target in cover — +1 to armour saves"},
+            "dev":       {"icon": "skull",     "text": "Devastating Wounds — critical wounds bypass saves"},
+            "lethal":    {"icon": "lightning", "text": "Lethal Hits — unmodified 6s to Hit auto-wound"},
+            "twin":      {"icon": "star",      "text": "Twin-linked — re-roll all wound rolls"},
+            "sustained": {"icon": "star",      "text": "Sustained Hits 1 — critical hits generate +1 extra hit"},
+            "blast":     {"icon": "skull",     "text": "Blast — makes minimum 3 attacks against units of 6+ models"},
+            "rf":        {"icon": "lightning", "text": "Rapid Fire — +attacks equal to weapon's Rapid Fire value within half range"},
         }
         flag_notes = []
         for f in flags:
@@ -871,7 +1086,7 @@ class CombatTerminalEngine(EngineBase):
                 flag_notes.append(FLAG_NOTE_MAP[key])
             elif key.startswith("invuln"):
                 val = f.split(":")[1] if ":" in f else "?"
-                flag_notes.append({"icon": "diamond", "text": f"Invulnerable save: {val}+"})
+                flag_notes.append({"icon": "diamond", "text": f"Invulnerable save active — {val}+ invuln overrides armour save"})
             elif key == "ea" or re.match(r'^ea\d+$', key):
                 val = f.split(":")[1] if ":" in f else re.sub(r'^ea', '', key)
                 flag_notes.append({"icon": "zap", "text": f"+{val} extra attack(s) per model"})
@@ -885,15 +1100,24 @@ class CombatTerminalEngine(EngineBase):
         footer = " · ".join(footer_parts) + f" · {model_note} · ranked by kills" if footer_parts else ""
 
         # ── Run combat math ──────────────────────────────────────────────────
+        # att_models: multiplies per-model attack counts by squad size.
+        # def_models: used by BLAST minimum-3-attacks rule (rule applies vs 6+ model units).
         math_result = {}
         sensitivity = []
         if att_unit and def_unit:
             try:
-                math_result = compute_combat(att_unit, def_unit, flags)
-                sensitivity = compute_sensitivity(att_unit, def_unit, flags)
-            except Exception:
+                math_result = compute_combat(
+                    att_unit, def_unit, flags,
+                    att_models=att_models, def_models=def_models,
+                )
+                sensitivity = compute_sensitivity(
+                    att_unit, def_unit, flags,
+                    att_models=att_models, def_models=def_models,
+                )
+            except Exception as _ce:
                 math_result = {}
                 sensitivity = []
+                self._log_issue("combat_math", f"Math engine error for {att_name} vs {def_name}: {_ce}")
 
         # Defender toughness — needed for wound-roll delta baseline
         def_T = None
@@ -913,7 +1137,8 @@ class CombatTerminalEngine(EngineBase):
             w["kills"]        = pw.get("kills")
             w["hit_pct"]      = pw.get("hit_pct")
             w["wound_pct"]    = pw.get("wound_pct")
-            w["kill_pct"]     = pw.get("fail_save_pct")  # prob of unsaved wound
+            w["kill_pct"]     = pw.get("kill_chance_pct")  # P(≥1 kill) from MC distribution
+            w["fail_save_pct"] = pw.get("fail_save_pct")   # prob of unsaved wound — kept for completeness
             w["hit_target"]   = pw.get("hit_target")
             w["wound_target"] = pw.get("wound_target")
 
@@ -1104,11 +1329,36 @@ class CombatTerminalEngine(EngineBase):
         is_stub = not matched_faction
 
         if is_stub:
+            # Check if the user accidentally passed a unit name instead of a faction.
+            # e.g. "threat beast of nurgle" — Beast of Nurgle is a unit, not a faction.
+            unit_matches = self._loader.get_units_matching(faction, limit=1)
+            if unit_matches:
+                unit_name = unit_matches[0].get("name", faction).title()
+                unit_faction = unit_matches[0].get("faction", "")
+                faction_hint = f" ({unit_faction.title()})" if unit_faction else ""
+                return self._err(
+                    "threat",
+                    f"'{faction}' is a unit{faction_hint}, not a faction. "
+                    f"Try:  threat {unit_faction}  to see all {unit_faction.title()} threats, "
+                    f"or:  analyze {faction}  for a counter-pick analysis of {unit_name}."
+                )
             matched_faction = faction
 
         faction_label = matched_faction.replace("_", " ").title()
 
-        # Build per-unit threat data (same shape as threat_card but without counters)
+        # Pre-resolve my roster once so _compute_counters_math can iterate it
+        # cheaply for every enemy unit without repeated loader lookups.
+        roster_my = self._session.get("roster_my", [])
+        resolved_roster: list[dict] = []
+        for ru in roster_my:
+            if isinstance(ru, dict):
+                resolved_roster.append(ru)
+            else:
+                ruu = self._loader.get_unit(str(ru))
+                if ruu:
+                    resolved_roster.append(ruu)
+
+        # Build per-unit threat data (same shape as threat_card with real counters)
         unit_data = []
         for unit in raw_units:
             metrics      = self._compute_metrics(unit)
@@ -1118,6 +1368,14 @@ class CombatTerminalEngine(EngineBase):
 
             abilities = [self._normalize_ability(ab) for ab in unit.get("abilities", [])]
 
+            # Compute real counter picks when roster is loaded
+            if resolved_roster:
+                counters      = self._compute_counters_math(unit, resolved_roster, top_n=3)
+                show_counters = True
+            else:
+                counters      = []
+                show_counters = False
+
             unit_data.append({
                 "name":          unit.get("name", "Unknown"),
                 "threat_level":  threat_level,
@@ -1126,8 +1384,8 @@ class CombatTerminalEngine(EngineBase):
                 "keywords":      unit.get("keywords", []),
                 "abilities":     abilities,
                 "enhancement":   str(unit.get("enhancement", unit.get("warlord_trait", "")) or ""),
-                "counters":      [],
-                "show_counters": False,
+                "counters":      counters,
+                "show_counters": show_counters,
                 "_stub":         unit.get("_stub", False),
             })
 
@@ -1228,6 +1486,32 @@ class CombatTerminalEngine(EngineBase):
                 "meta":        {"type": list_type, "count": len(items)},
             }
 
+    def _query_set_faction(self, params: dict) -> dict:
+        """Set the player's own faction in the session.
+
+        Called by the client whenever a player roster is activated so that
+        subsequent unit lookups (spec, combat) can auto-prefer this faction
+        without requiring --faction flags or triggering cross-faction disambiguation.
+        """
+        name = (params.get("name") or "").strip()
+        if not name:
+            current = self._session.get("faction") or "not set"
+            return {
+                "ok":          True,
+                "command":     "faction",
+                "result_type": "text",
+                "data":        f"Player faction: {current}\nUsage: faction <faction name>",
+                "meta":        {},
+            }
+        self._session["faction"] = name
+        return {
+            "ok":          True,
+            "command":     "faction",
+            "result_type": "system_msg",
+            "data":        f"Player faction set: {name}",
+            "meta":        {"faction": name},
+        }
+
     def _query_enemy(self, params: dict) -> dict:
         name = (params.get("name") or "").strip()
         if not name:
@@ -1247,6 +1531,27 @@ class CombatTerminalEngine(EngineBase):
             "data":        f"Enemy faction set: {name}\nRun 'threat' to analyze threats, or 'spec <unit>' for enemy unit sheets.",
             "meta":        {"enemy_faction": name},
         }
+
+    # ─── Roster context sync (called by the web layer on every exec) ─────────
+
+    def sync_roster_context(self, context: dict) -> None:
+        """Sync frontend VFS roster state into engine session.
+
+        Called by the FastAPI exec handler before every command dispatch so
+        that _session["roster_my"] / _session["roster_enemy"] always reflect
+        the rosters the user currently has loaded in the UI.
+
+        Expected context shape:
+          {
+            "my_units":       [{ "name": str, "faction": str, "models": int }, ...],
+            "opponent_units": [{ "name": str, "faction": str, "models": int }, ...],
+          }
+        Either key may be absent — only present keys are updated.
+        """
+        if "my_units" in context:
+            self._session["roster_my"] = context["my_units"] or []
+        if "opponent_units" in context:
+            self._session["roster_enemy"] = context["opponent_units"] or []
 
     def _query_roster(self, params: dict) -> dict:
         side   = (params.get("side") or "my").strip().lower()
@@ -1341,12 +1646,65 @@ class CombatTerminalEngine(EngineBase):
     def _query_nextturn(self, params: dict) -> dict:
         self._session["turn"] = self._session.get("turn", 0) + 1
         turn = self._session["turn"]
+
+        # ── Phase reminders — turn-sensitive notes for standard matched play ──
+        phase_reminders = []
+        phase_reminders.append({
+            "icon": "◈",
+            "text": "Command phase: gain 1 Command Point (standard matched play).",
+        })
+        if turn == 1:
+            phase_reminders.append({
+                "icon": "◎",
+                "text": "Declare Battle Tactics stratagem before scoring begins.",
+            })
+        if turn >= 2:
+            phase_reminders.append({
+                "icon": "◎",
+                "text": "Secondary objectives can be scored this round.",
+            })
+        if turn >= 3:
+            phase_reminders.append({
+                "icon": "◎",
+                "text": "Turn 3+: Decisive Action and fixed-score primaries now active.",
+            })
+        if turn == 4:
+            phase_reminders.append({
+                "icon": "⚠",
+                "text": "Penultimate round — position for final objective push.",
+            })
+        if turn == 5:
+            phase_reminders.append({
+                "icon": "⚠",
+                "text": "Final battle round — all objectives contested. No more scoring after this.",
+            })
+        if turn > 5:
+            phase_reminders.append({
+                "icon": "⚠",
+                "text": f"Round {turn} exceeds standard 5-round mission length.",
+            })
+
+        # ── Active modifiers from last combat (for reminder display) ──
+        last      = self._session.get("last_combat") or {}
+        att_flags = list(last.get("active_attacker_flags") or [])
+        def_flags = list(last.get("active_defender_flags") or [])
+        all_mods  = att_flags + def_flags
+
         return {
             "ok":          True,
             "command":     "nextturn",
-            "result_type": "text",
-            "data":        f"Battle round {turn} begins.\nGood luck, Commander.",
-            "meta":        {"turn": turn},
+            "result_type": "nextturn_block",
+            "data": {
+                "turn":             turn,
+                "cp_gained":        1,
+                "phase_reminders":  phase_reminders,
+                "active_modifiers": all_mods,
+                "attacker":         last.get("attacker"),
+                "defender":         last.get("defender"),
+                "faction":          self._session.get("faction"),
+                "enemy_faction":    self._session.get("enemy_faction"),
+            },
+            "meta": {"turn": turn},
         }
 
     def _query_status(self, params: dict) -> dict:
@@ -1432,7 +1790,102 @@ class CombatTerminalEngine(EngineBase):
         }
 
     def _query_dice(self, params: dict) -> dict:
-        return self._err("dice", "Dice roller not yet implemented. Coming soon.")
+        """
+        Roll dice.  Supports:
+          NdN            — e.g. 2d6, d6, 3d8
+          NdN+M / NdN-M  — flat modifier, e.g. 2d6+3
+          reroll <N>     — reroll any die showing N (first occurrence)
+          explode        — dice showing max face are rerolled and added
+
+        Returns result_type: "text" with individual rolls shown.
+        """
+        expr = (params.get("expression") or "").strip()
+        if not expr:
+            return self._err("dice", "Usage: dice 2d6  |  dice 3d6+2  |  dice d6 reroll 1")
+
+        # ── Parse ────────────────────────────────────────────────────────────
+        # Base expression:  [N]dF[+/-M]
+        base_pat = re.match(
+            r'^(\d*)d(\d+)([+-]\d+)?',
+            expr, re.IGNORECASE
+        )
+        if not base_pat:
+            return self._err("dice", f"Could not parse dice expression: '{expr}'.  "
+                             "Use a format like  2d6,  d6+3,  3d8-1.")
+
+        n_dice  = int(base_pat.group(1)) if base_pat.group(1) else 1
+        faces   = int(base_pat.group(2))
+        mod     = int(base_pat.group(3)) if base_pat.group(3) else 0
+        rest    = expr[base_pat.end():].strip().lower()
+
+        if n_dice < 1 or n_dice > 100:
+            return self._err("dice", "Number of dice must be between 1 and 100.")
+        if faces < 2 or faces > 1000:
+            return self._err("dice", "Die faces must be between 2 and 1000.")
+
+        # Optional modifiers in the rest of the expression
+        reroll_on: set[int] = set()
+        explode = False
+
+        reroll_match = re.search(r'reroll\s+(\d+(?:,\s*\d+)*)', rest)
+        if reroll_match:
+            reroll_on = {int(v.strip()) for v in reroll_match.group(1).split(",")}
+
+        if "explode" in rest:
+            explode = True
+
+        # ── Roll ─────────────────────────────────────────────────────────────
+        def roll_one(faces: int) -> int:
+            return random.randint(1, faces)
+
+        rolls: list[int] = []
+        notes: list[str] = []
+
+        for _ in range(n_dice):
+            r = roll_one(faces)
+            if reroll_on and r in reroll_on:
+                old = r
+                r = roll_one(faces)
+                notes.append(f"rerolled {old} → {r}")
+            if explode and r == faces:
+                extra = roll_one(faces)
+                notes.append(f"exploded {r} + {extra}")
+                r += extra
+            rolls.append(r)
+
+        total = sum(rolls) + mod
+
+        # ── Format output ─────────────────────────────────────────────────────
+        dice_label = f"{n_dice}d{faces}"
+        mod_label  = f"{'+' if mod >= 0 else ''}{mod}" if mod != 0 else ""
+        rolls_str  = "  [" + "  ".join(str(r) for r in rolls) + "]"
+
+        lines = [
+            f"  🎲  {dice_label}{mod_label}",
+            f"",
+            f"  Rolls:  {rolls_str}",
+        ]
+        if mod != 0:
+            lines.append(f"  Modifier:  {'+' if mod >= 0 else ''}{mod}")
+        lines.append(f"")
+        lines.append(f"  Total:  {total}")
+
+        if notes:
+            lines.append("")
+            for note in notes:
+                lines.append(f"  ↳ {note}")
+
+        return {
+            "ok":          True,
+            "command":     "dice",
+            "result_type": "text",
+            "data":        "\n".join(lines),
+            "meta": {
+                "expression": f"{dice_label}{mod_label}",
+                "rolls":      rolls,
+                "total":      total,
+            },
+        }
 
     def _query_stratagem(self, params: dict) -> dict:
         name       = (params.get("name") or "").strip()
@@ -1473,19 +1926,37 @@ class CombatTerminalEngine(EngineBase):
 
         result = self._loader.get_ability(name)
         if not result:
-            return self._err("ability", f"No ability found matching '{name}'.")
+            return self._err(
+                "ability",
+                f"No ability found matching '{name}'. "
+                "Try: ability <name>  e.g. ability deadly demise d3 · ability one shot · ability for the greater good"
+            )
+
+        # Build display text — for CORE/FACTION/CHARACTER, the "name" IS the ability
+        # name (e.g. "Deadly Demise D3") and the type tag is carried separately.
+        ability_type = result.get("type")  # "CORE" | "FACTION" | None
+        display_name = result.get("name", name)
+        display_text = result.get("description", "")
+
+        # For unit-list: cap at 8 so the output stays readable
+        units = result.get("units", [])
+        units_preview = units[:8]
+        units_more    = max(0, len(units) - 8)
 
         return {
             "ok":          True,
             "command":     "ability",
             "result_type": "ability_block",
             "data": {
-                "name":   result.get("name", name),
-                "text":   result.get("description", result.get("text", result.get("effect", "—"))),
-                "units":  result.get("units", []),
-                "phase":  result.get("phase", ""),
-                "source": result.get("source", result.get("book", "")),
-                "_stub":  result.get("_stub", False),
+                "name":       display_name,
+                "type_tag":   ability_type,   # "CORE" | "FACTION" | None — for display
+                "text":       display_text or "—",
+                "units":      units_preview,
+                "units_more": units_more,
+                "factions":   result.get("factions", []),
+                "phase":      result.get("phase", ""),
+                "source":     result.get("source", ""),
+                "_stub":      False,
             },
             "meta": {"name": name},
         }
@@ -1552,6 +2023,100 @@ class CombatTerminalEngine(EngineBase):
             "meta": {"name": name},
         }
 
+    def _query_detachment(self, params: dict) -> dict:
+        """Return all detachments for a faction with their rules, enhancements, stratagems."""
+        faction_raw = (params.get("faction") or "").strip()
+
+        # Fall back to session faction if none specified
+        if not faction_raw:
+            faction_raw = self._session.get("faction") or ""
+
+        if not faction_raw:
+            return self._err(
+                "detachment",
+                "Specify a faction: e.g. detachment tau  |  or set one with: faction tau",
+            )
+
+        detachments = self._loader.get_detachments(faction_raw)
+        if detachments is None:
+            return self._err(
+                "detachment",
+                f"No detachment data found for '{faction_raw}'. "
+                "Check that the faction dossier has a detachments[] array.",
+            )
+
+        # Resolve the display-friendly faction label
+        faction_label = faction_raw.replace("_", " ").title()
+        # Try to get canonical label from the units index
+        matched, _ = self._loader.get_faction_units(faction_raw)
+        if matched:
+            faction_label = matched.replace("_", " ").title()
+
+        return {
+            "ok":          True,
+            "command":     "detachment",
+            "result_type": "detachment_block",
+            "data": {
+                "faction":     faction_label,
+                "detachments": [
+                    {
+                        "name":         d.get("name", ""),
+                        "rule_name":    d.get("rule_name", ""),
+                        "description":  d.get("description", ""),
+                        "enhancements": d.get("enhancements", []),
+                        "stratagems":   d.get("stratagems", []),
+                    }
+                    for d in detachments
+                ],
+            },
+            "meta": {"faction": faction_raw},
+        }
+
+    def _query_army_rules(self, params: dict) -> dict:
+        """Return faction-level army rules for a faction."""
+        faction_raw = (params.get("faction") or "").strip()
+
+        # Fall back to session faction if none specified
+        if not faction_raw:
+            faction_raw = self._session.get("faction") or ""
+
+        if not faction_raw:
+            return self._err(
+                "army_rules",
+                "Specify a faction: e.g. army_rules tau  |  or set one with: faction tau",
+            )
+
+        rules = self._loader.get_army_rules(faction_raw)
+        if rules is None:
+            return self._err(
+                "army_rules",
+                f"No army rules data found for '{faction_raw}'. "
+                "Check that the faction dossier has an army_rules[] array.",
+            )
+
+        # Resolve the display-friendly faction label
+        faction_label = faction_raw.replace("_", " ").title()
+        matched, _ = self._loader.get_faction_units(faction_raw)
+        if matched:
+            faction_label = matched.replace("_", " ").title()
+
+        return {
+            "ok":          True,
+            "command":     "army_rules",
+            "result_type": "army_rules_block",
+            "data": {
+                "faction": faction_label,
+                "rules":   [
+                    {
+                        "name":        r.get("name", ""),
+                        "description": r.get("description", ""),
+                    }
+                    for r in rules
+                ],
+            },
+            "meta": {"faction": faction_raw},
+        }
+
     def _query_analyze(self, params: dict) -> dict:
         name          = (params.get("name") or "").strip()
         no_counters   = params.get("no_counters", False)
@@ -1594,14 +2159,25 @@ class CombatTerminalEngine(EngineBase):
         # Enhancement (field may not exist in all schemas)
         enhancement = str(unit.get("enhancement", unit.get("warlord_trait", "")) or "")
 
-        # Counters
+        # Counter picks — real math (deterministic EV, no MC) per roster unit
         counters = []
         if show_counters:
             roster_my = self._session.get("roster_my", [])
             if roster_my:
-                counters = self._compute_counters(metrics, unit, roster_my)
+                # Roster loaded: score each of my units vs the threat target
+                counters = self._compute_counters_math(unit, roster_my, top_n=5)
             else:
-                counters = self._suggest_counters(metrics, unit.get("name", name))
+                # No roster: sample up to 10 units from the player's faction as a preview
+                my_faction = self._session.get("faction", "")
+                if my_faction:
+                    try:
+                        _, faction_units = self._loader.get_faction_units(my_faction)
+                        sample   = (faction_units or [])[:10]
+                        counters = self._compute_counters_math(unit, sample, top_n=5)
+                    except Exception:
+                        counters = self._suggest_counters(metrics, unit.get("name", name))
+                else:
+                    counters = self._suggest_counters(metrics, unit.get("name", name))
 
         return {
             "ok":          True,
@@ -1643,6 +2219,222 @@ class CombatTerminalEngine(EngineBase):
             "result_type": "text",
             "data":        msg,
             "meta":        {},
+        }
+
+    def _query_issues(self, params: dict) -> dict:
+        """Report engine data gaps: commands still returning stubs vs real data.
+
+        Checks each major data domain and reports loaded count vs expected.
+        Marks each as D0 (stub / no data), D1 (real data, no computation),
+        or D2 (full computation).
+        """
+        loader_status = self._loader.status()
+        summary = loader_status.get("summary", {})
+
+        entries = []
+
+        # ── Domain checks ──────────────────────────────────────────────────────
+        domains = [
+            {
+                "command":  "strat <name>",
+                "domain":   "Stratagems",
+                "count":    summary.get("stratagems", 0),
+                "level":    "D1" if summary.get("stratagems", 0) > 0 else "D0",
+                "note":     f"{summary.get('stratagems', 0)} loaded from faction dossiers"
+                            if summary.get("stratagems", 0) > 0
+                            else "No stratagem data indexed — run load()",
+            },
+            {
+                "command":  "enhancement <name>",
+                "domain":   "Enhancements",
+                "count":    summary.get("enhancements", 0),
+                "level":    "D1" if summary.get("enhancements", 0) > 0 else "D0",
+                "note":     f"{summary.get('enhancements', 0)} loaded from faction dossiers"
+                            if summary.get("enhancements", 0) > 0
+                            else "No enhancement data indexed — run load()",
+            },
+            {
+                "command":  "mission <name>",
+                "domain":   "Missions",
+                "count":    summary.get("missions", 0),
+                "level":    "D1" if summary.get("missions", 0) > 0 else "D0",
+                "note":     f"{summary.get('missions', 0)} loaded from missions.json"
+                            if summary.get("missions", 0) > 0
+                            else "No mission data — add data/rules/missions.json",
+            },
+            {
+                "command":  "rule <term>",
+                "domain":   "Rules + Hierarchy",
+                "count":    summary.get("rules", 0),
+                "level":    "D1" if summary.get("rules", 0) > 0 else "D0",
+                "note":     f"{summary.get('rules', 0)} rules with related-rule graph"
+                            if summary.get("rules", 0) > 0
+                            else "No rules data — check data/rules/rules.json",
+            },
+            {
+                "command":  "ability <name>",
+                "domain":   "Abilities",
+                "count":    summary.get("abilities", 0),
+                "level":    "D1" if summary.get("abilities", 0) > 0 else "D0",
+                "note":     f"{summary.get('abilities', 0)} indexed from unit ability lists"
+                            if summary.get("abilities", 0) > 0
+                            else "No ability index built",
+            },
+            {
+                "command":  "threat <faction>",
+                "domain":   "Threat Scoring",
+                "count":    None,
+                "level":    "D1",  # heuristic only, no stat-based scoring yet
+                "note":     "Keyword heuristic scoring only — no stat-based damage/durability math yet (D2 gap)",
+            },
+            {
+                "command":  "analyze <unit>",
+                "domain":   "Counter Picks",
+                "count":    None,
+                "level":    "D1",
+                "note":     "Threat metrics computed; counters list always empty — no cross-unit stat matching yet",
+            },
+        ]
+
+        # ── Session-discovered issues ─────────────────────────────────────────
+        # Issues logged during actual use this session (unit lookups, math errors, etc.)
+        session_log = list(self._session.get("issue_log", []))
+        for entry in session_log:
+            entries.append({
+                "domain":  entry["domain"],
+                "command": entry.get("context", ""),
+                "level":   "D0",
+                "note":    entry["message"],
+                "time":    entry.get("timestamp", ""),
+            })
+
+        # Loader errors
+        errors = loader_status.get("errors", [])
+
+        return {
+            "ok":          True,
+            "command":     "issues",
+            "result_type": "stub_log",
+            "data":        {
+                "entries": entries,
+                "domains": domains,
+                "errors":  errors,
+                "summary": summary,
+                "session_issues_count": len(session_log),
+            },
+            "meta":        {"total_domains": len(domains)},
+        }
+
+    def _query_legend(self, params: dict) -> dict:
+        """Return a structured glossary of all abbreviations, column headers,
+        probability chain fields, and modifier flags used in combat output.
+
+        result_type: "legend"
+
+        Data shape:
+            {
+                "stat_columns":   [ {abbrev, full_name, description}, ... ],
+                "probability_chain": [ {label, description, example}, ... ],
+                "modifier_flags":    [ {flag, display, description, math_effect}, ... ],
+                "swinginess_labels": [ {label, range, meaning}, ... ],
+                "notes":             [ str, ... ],
+            }
+        """
+        stat_columns = [
+            {"abbrev": "A",   "full": "Attacks",              "desc": "Number of attack dice rolled per model per shooting/fight phase"},
+            {"abbrev": "A(T)","full": "Attacks (Total)",      "desc": "Total attacks from the whole squad: A × model count, shown in parentheses"},
+            {"abbrev": "BS",  "full": "Ballistic Skill",      "desc": "Hit roll needed for ranged weapons — e.g. 3+ means you need a 3 or higher"},
+            {"abbrev": "WS",  "full": "Weapon Skill",         "desc": "Hit roll needed for melee weapons"},
+            {"abbrev": "S",   "full": "Strength",             "desc": "Used with target Toughness to determine wound roll needed"},
+            {"abbrev": "AP",  "full": "Armour Penetration",   "desc": "Modifier applied to target's armour save. AP-2 means the defender saves on their armour +2"},
+            {"abbrev": "D",   "full": "Damage",               "desc": "Wounds dealt per unsaved wound. Can be a fixed value or a dice expression (e.g. D6)"},
+            {"abbrev": "T",   "full": "Toughness",            "desc": "Target stat — compared vs attacker Strength to determine wound threshold"},
+            {"abbrev": "Sv",  "full": "Save",                 "desc": "Armour save value of the defending unit (e.g. 3+ = roll 3 or higher to save)"},
+            {"abbrev": "W",   "full": "Wounds",               "desc": "Number of wounds a model has — damage is applied until this reaches 0 (model dies)"},
+            {"abbrev": "Rng", "full": "Range",                "desc": "Maximum range of the weapon in inches"},
+            {"abbrev": "OC",  "full": "Objective Control",    "desc": "How many models count toward holding an objective marker"},
+            {"abbrev": "M",   "full": "Move",                 "desc": "Distance in inches the unit can move per Movement phase"},
+            {"abbrev": "Ld",  "full": "Leadership",           "desc": "Used for Battle-shock tests — roll 2D6, if result exceeds Ld the unit is Battle-shocked"},
+        ]
+
+        probability_chain = [
+            {
+                "label":  "Hit%",
+                "desc":   "Probability that a single attack roll hits (reaches the BS/WS threshold or better)",
+                "note":   "Colour-coded green when a modifier (e.g. --ml) improves BS; red when worsened",
+                "example":"BS 4+ → Hit% = 50%.  BS 4+ with --ml (+1 hit) → BS 3+ → Hit% = 67%",
+            },
+            {
+                "label":  "Wound%",
+                "desc":   "Probability that a hit roll then succeeds at wounding (S vs T lookup, then dice roll). Conditional on a hit.",
+                "note":   "Colour-coded green when a modifier (e.g. Twin-linked reroll) improves WR; red when worsened",
+                "example":"S4 vs T4 → wound on 4+ → Wound% = 50%",
+            },
+            {
+                "label":  "Save%",
+                "desc":   "Probability that a wound is NOT saved (= 1 − P(armour save succeeds)). Conditional on a wound.",
+                "note":   "AP makes this higher (harder to save); cover makes it lower",
+                "example":"AP-2 vs Sv3+ → defender needs 5+ → Save% (unsaved) = 67%",
+            },
+            {
+                "label":  "Dmg",
+                "desc":   "Expected damage output per weapon per phase: A × Hit% × Wound% × Save% × damage_value",
+                "note":   "Accounts for squad size — uses total attacks across all models in the unit",
+                "example":"3 Broadsides, railgun A2 → 6 total attacks × probabilities × D3+3 damage",
+            },
+            {
+                "label":  "Kills",
+                "desc":   "Expected number of models removed: Dmg ÷ target Wounds",
+                "note":   "Kill% (in TargetingOutcome bars) = P(at least 1 kill) from Monte Carlo distribution",
+                "example":"Expected damage 6 vs 3W Terminators → ~2 expected kills",
+            },
+        ]
+
+        modifier_flags = [
+            {"flag": "--ml",          "display": "[ml]",         "desc": "Markerlights / Guided",      "effect": "+1 to all Hit rolls, Ignores Cover"},
+            {"flag": "--cover",       "display": "[cover]",      "desc": "Target in cover",            "effect": "+1 to target armour saves (e.g. Sv3+ → Sv2+)"},
+            {"flag": "--lethal",      "display": "[lethal]",     "desc": "Lethal Hits",                "effect": "Unmodified 6s to Hit auto-wound (skip wound roll, proceed to saves)"},
+            {"flag": "--twin",        "display": "[twin]",       "desc": "Twin-linked",                "effect": "Re-roll all failed wound rolls"},
+            {"flag": "--sustained1",  "display": "[sustained]",  "desc": "Sustained Hits 1",           "effect": "Critical hit (6+) generates 1 additional hit. Use --sustained:2 for Sustained Hits 2"},
+            {"flag": "--dev",         "display": "[dev]",        "desc": "Devastating Wounds",         "effect": "Critical wounds (6+ on wound roll) bypass all saves (mortal wound equivalent)"},
+            {"flag": "--blast",       "display": "[blast]",      "desc": "Blast",                      "effect": "Minimum 3 attacks when targeting 6+ model units — defender model count required for full resolution"},
+            {"flag": "--rf",          "display": "[rf]",         "desc": "Rapid Fire (in range)",      "effect": "Rapid Fire N already baked into A count; flag signals in-half-range condition"},
+            {"flag": "--ea1",         "display": "[ea1]",        "desc": "Extra Attacks +1",           "effect": "+1 extra attack per model before squad scaling (also: --ea:2, --ea:3 etc.)"},
+            {"flag": "--invuln:4",    "display": "[invuln:4]",   "desc": "Invulnerable Save Override", "effect": "Forces target invulnerable save to the specified value (e.g. 4+)"},
+            {"flag": "--lance",       "display": "[lance]",      "desc": "Lance",                      "effect": "+1 to wound rolls (approximation — full rule applies vs VEHICLES/MONSTERS only)"},
+            {"flag": "--torrent",     "display": "[torrent]",    "desc": "Torrent",                    "effect": "Weapon auto-hits (no BS roll required); natural 6s on separate die still trigger crits"},
+            {"flag": "--fnp:6",       "display": "[fnp:6]",      "desc": "Feel No Pain Override",      "effect": "Target gains/overrides Feel No Pain save to specified value (e.g. 6+)"},
+            {"flag": "--dmgplus:1",   "display": "[dmgplus:1]",  "desc": "Flat Damage Bonus",          "effect": "+N flat damage per unsaved wound (e.g. Melta half-range bonus)"},
+        ]
+
+        swinginess_labels = [
+            {"label": "Stable",   "cv_range": "< 0.15", "meaning": "Very consistent output — close to expected value every time"},
+            {"label": "Moderate", "cv_range": "0.15–0.30", "meaning": "Some variance — typical for multi-shot medium-damage weapons"},
+            {"label": "Variable", "cv_range": "0.30–0.50", "meaning": "Notable variance — low shot counts or high damage dice"},
+            {"label": "Swingy",   "cv_range": "> 0.50",  "meaning": "High variance — e.g. single-shot railguns, D6 damage weapons"},
+        ]
+
+        notes = [
+            "Hit%, Wound%, Save% are CONDITIONAL probabilities in the attack chain — each is conditioned on the previous step succeeding.",
+            "Dmg and Kills are EXPECTED VALUES — the average result over many simulations. Monte Carlo (5,000 trials) provides the distribution.",
+            "Squad attacks: A column shows per-model attacks; parenthetical value (e.g. 2 (6)) shows total for the whole squad.",
+            "AP in dossiers is stored as unsigned integer — AP-2 is stored as 2. The save formula: effective_save = armour_save + AP.",
+            "Blast minimum-3 attacks requires knowing the defender's squad size; currently uses dossier minimum composition.",
+            "Rapid Fire attacks are baked in at full value — the --rf flag is informational only (no additional math effect).",
+        ]
+
+        return {
+            "ok":          True,
+            "command":     "legend",
+            "result_type": "legend",
+            "data": {
+                "stat_columns":       stat_columns,
+                "probability_chain":  probability_chain,
+                "modifier_flags":     modifier_flags,
+                "swinginess_labels":  swinginess_labels,
+                "notes":              notes,
+            },
+            "meta": {},
         }
 
     def _query_unknown(self, params: dict) -> dict:
@@ -1894,6 +2686,48 @@ class CombatTerminalEngine(EngineBase):
             return "medium"
         return "low"
 
+    def _compute_threat_score(self, attacker_unit: dict, defender_unit: dict) -> float:
+        """Deterministic expected damage: attacker → defender, no Monte Carlo.
+
+        Iterates every weapon on attacker_unit, runs probability math against
+        defender_unit stats, and returns the total expected damage.
+
+        Fast (pure arithmetic, no simulation) — safe to call in bulk for
+        counter-pick ranking across many unit pairs.
+
+        Returns 0.0 on any error.
+        """
+        try:
+            from data.combat_terminal.math_adapter import (
+                _unit_to_target,
+                _weapon_to_profile,
+                _merge_mods,
+            )
+            from data.combat_terminal.combat_math_engine import (
+                AttackModifiers,
+                compute_attack_result,
+            )
+
+            target    = _unit_to_target(defender_unit)
+            base_mods = AttackModifiers()
+            total_dmg = 0.0
+
+            for w in attacker_unit.get("weapons", []):
+                if not isinstance(w, dict):
+                    continue
+                try:
+                    wp, weapon_mods = _weapon_to_profile(w)
+                    merged          = _merge_mods(weapon_mods, base_mods)
+                    result          = compute_attack_result(wp, target, base_mods=merged)
+                    total_dmg      += result.expected_damage
+                except Exception:
+                    pass
+
+            return total_dmg
+
+        except Exception:
+            return 0.0
+
     def _compute_counters(
         self, enemy_metrics: dict, enemy_unit: dict, my_roster: list
     ) -> list[dict]:
@@ -1916,6 +2750,61 @@ class CombatTerminalEngine(EngineBase):
 
         scored.sort(key=lambda x: x["score"], reverse=True)
         return scored[:3]
+
+    def _compute_counters_math(
+        self, enemy_unit: dict, my_roster: list, top_n: int = 5
+    ) -> list[dict]:
+        """Real-math counter-pick ranking for one enemy unit vs my roster.
+
+        For each unit in my_roster:
+          - dmg_dealt    = expected damage MY unit deals to ENEMY (deterministic EV)
+          - dmg_received = expected damage ENEMY deals to MY unit (reverse)
+          - efficiency   = dmg_dealt / max(dmg_received, 0.01)
+
+        Score (0–100) is normalised: the best counter always shows 100 and the
+        rest scale relative to it by dmg_dealt.
+
+        Returns top_n entries sorted by dmg_dealt descending.
+        Each entry: { name, score, reason, dmg_dealt, dmg_received, efficiency }
+        """
+        scored = []
+        for u in my_roster:
+            if isinstance(u, dict):
+                my_unit = u
+            else:
+                my_unit = self._loader.get_unit(str(u)) or {"name": str(u)}
+
+            dmg_dealt    = self._compute_threat_score(my_unit, enemy_unit)
+            dmg_received = self._compute_threat_score(enemy_unit, my_unit)
+            efficiency   = dmg_dealt / max(dmg_received, 0.01)
+
+            scored.append({
+                "name":         my_unit.get("name", str(u)),
+                "dmg_dealt":    round(dmg_dealt,    2),
+                "dmg_received": round(dmg_received, 2),
+                "efficiency":   round(efficiency,   2),
+                "_sort_key":    dmg_dealt,
+            })
+
+        scored.sort(key=lambda x: x["_sort_key"], reverse=True)
+        top = scored[:top_n]
+
+        # Normalise score: best unit = 100, rest scale proportionally
+        max_dmg = max((x["dmg_dealt"] for x in top), default=0.0)
+
+        for entry in top:
+            raw_score    = (entry["dmg_dealt"] / max_dmg * 100) if max_dmg > 0 else 0
+            entry["score"] = int(round(raw_score))
+
+            parts = [f"{entry['dmg_dealt']:.1f} dmg dealt"]
+            if entry["dmg_received"] > 0:
+                parts.append(f"{entry['dmg_received']:.1f} back")
+            parts.append(f"ratio {entry['efficiency']:.1f}x")
+            entry["reason"] = " · ".join(parts)
+
+            del entry["_sort_key"]
+
+        return top
 
     @staticmethod
     def _counter_score_vs(my_metrics: dict, enemy_metrics: dict) -> float:

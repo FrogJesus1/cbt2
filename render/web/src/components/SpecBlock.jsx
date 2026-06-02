@@ -37,7 +37,7 @@ import { C }                   from "./spec/shared";
 
 // ─── SpecBlock ─────────────────────────────────────────────────────────────
 
-export function SpecBlock({ data, meta, onSubmit }) {
+export function SpecBlock({ data, meta, onSubmit, onInject }) {
   if (!data) return null;
 
   const {
@@ -77,7 +77,7 @@ export function SpecBlock({ data, meta, onSubmit }) {
       )}
 
       {/* 1. Banner */}
-      <SpecBannerCard title={title} subtitle={subtitle} />
+      <SpecBannerCard title={title} subtitle={subtitle} onInject={onInject} />
 
       {/* 2. Keywords — full width, directly below banner */}
       {/* faction from meta scopes click commands to this unit's faction */}

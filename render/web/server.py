@@ -22,12 +22,14 @@ Routes:
 from __future__ import annotations
 
 import importlib
+import json
+import os
 import sys
 from pathlib import Path
 
 from fastapi import FastAPI, HTTPException
 from fastapi.middleware.cors import CORSMiddleware
-from fastapi.responses import FileResponse, PlainTextResponse
+from fastapi.responses import FileResponse, JSONResponse, PlainTextResponse
 from fastapi.staticfiles import StaticFiles
 from pydantic import BaseModel
 
@@ -115,6 +117,7 @@ class QueryBody(BaseModel):
 
 class ExecBody(BaseModel):
     input: str = ""
+    roster_context: dict | None = None
 
 
 # ─── App factory ──────────────────────────────────────────────────────────────
@@ -125,9 +128,10 @@ def create_app(config: dict) -> FastAPI:
 
     app = FastAPI()
 
+    origins = os.environ.get("CORS_ORIGINS", "http://localhost:5173").split(",")
     app.add_middleware(
         CORSMiddleware,
-        allow_origins=["http://localhost:5173"],
+        allow_origins=origins,
         allow_methods=["GET", "POST", "OPTIONS"],
         allow_headers=["Content-Type", "Accept"],
     )
@@ -160,6 +164,12 @@ def create_app(config: dict) -> FastAPI:
         engine = registry.get(name)
         if not engine:
             raise HTTPException(status_code=404, detail=f"Engine '{name}' not loaded")
+        # Sync roster context into engine session before dispatching.
+        # This keeps _session["roster_my"] / _session["roster_enemy"] in step
+        # with whatever rosters the frontend has active, without requiring a
+        # separate round-trip.
+        if body.roster_context is not None and hasattr(engine, "sync_roster_context"):
+            engine.sync_roster_context(body.roster_context)
         if hasattr(engine, "exec"):
             return engine.exec(body.input)
         return engine.query(body.input.strip(), {})
@@ -183,6 +193,12 @@ def create_app(config: dict) -> FastAPI:
         if not engine:
             raise HTTPException(status_code=404, detail=f"Engine '{name}' not loaded")
         return engine.status()
+
+    # ── Health check ─────────────────────────────────────────────────────────
+
+    @app.get("/health")
+    def health():
+        return JSONResponse({"status": "ok"})
 
     # ── Static file serving + SPA fallback ────────────────────────────────────
 
@@ -208,3 +224,9 @@ def create_app(config: dict) -> FastAPI:
         )
 
     return app
+
+
+# ─── Module-level app instance (used by Docker CMD / uvicorn import) ─────────
+
+_config = json.loads((Path(__file__).parent.parent.parent / "config.json").read_text())
+app_instance = create_app(_config)

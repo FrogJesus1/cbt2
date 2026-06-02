@@ -7,14 +7,22 @@
  *
  * Props:
  *   counters     — array of { name, score, reason? }
- *   onSubmit     — (cmd: string) => void  (optional — makes names clickable)
+ *   onInject     — (cmd: string) => void  (optional — animate-types spec lookup into bar)
+ *   onSubmit     — (cmd: string) => void  (optional — legacy fallback)
  */
 
 import { Card, CardContent, C, CARD_STYLE, CARD_PAD, Bar, SectionTitle } from "./shared";
 
-function CounterRow({ counter, onSubmit, isLast }) {
+function CounterRow({ counter, onInject, onSubmit, isLast }) {
   const { name = "Unknown", score = 0, reason = "" } = counter;
   const pct = Math.min(100, Math.max(0, Number(score)));
+  // Prefer onInject (animate-type) over onSubmit (silent submit)
+  const handleClick = onInject
+    ? () => onInject(`spec ${name}`)
+    : onSubmit
+    ? () => onSubmit(`spec ${name}`)
+    : null;
+  const clickable = Boolean(handleClick);
 
   return (
     <div style={{
@@ -30,18 +38,19 @@ function CounterRow({ counter, onSubmit, isLast }) {
         gap:            "8px",
       }}>
         <span
-          onClick={() => onSubmit?.(`spec ${name}`)}
+          onClick={handleClick ?? undefined}
           style={{
-            color:      onSubmit ? C.green : C.mid,
-            fontWeight: 600,
-            fontSize:   "12px",
-            cursor:     onSubmit ? "pointer" : "default",
-            userSelect: "none",
-            flex:       1,
-            overflow:   "hidden",
+            color:        clickable ? C.green : C.mid,
+            fontWeight:   600,
+            fontSize:     "12px",
+            cursor:       clickable ? "pointer" : "default",
+            userSelect:   "none",
+            flex:         1,
+            overflow:     "hidden",
             textOverflow: "ellipsis",
-            whiteSpace: "nowrap",
+            whiteSpace:   "nowrap",
           }}
+          title={clickable ? `Look up: spec ${name}` : undefined}
         >
           {name}
         </span>
@@ -62,9 +71,9 @@ function CounterRow({ counter, onSubmit, isLast }) {
       {/* Optional reason */}
       {reason && (
         <div style={{
-          color:     C.dim,
-          fontSize:  "11px",
-          marginTop: "4px",
+          color:      C.dim,
+          fontSize:   "11px",
+          marginTop:  "4px",
           lineHeight: "1.4",
         }}>
           {reason}
@@ -75,7 +84,7 @@ function CounterRow({ counter, onSubmit, isLast }) {
   );
 }
 
-export function CounterBlock({ counters = [], onSubmit }) {
+export function CounterBlock({ counters = [], onInject, onSubmit }) {
   return (
     <Card style={CARD_STYLE}>
       <CardContent style={CARD_PAD}>
@@ -91,6 +100,7 @@ export function CounterBlock({ counters = [], onSubmit }) {
               <CounterRow
                 key={i}
                 counter={c}
+                onInject={onInject}
                 onSubmit={onSubmit}
                 isLast={i === Math.min(counters.length, 3) - 1}
               />

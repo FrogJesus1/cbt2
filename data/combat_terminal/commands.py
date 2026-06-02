@@ -109,8 +109,8 @@ REGISTRY: dict[str, Command] = {
 
     "dice": Command(
         name="dice",
-        description="Roll dice with optional reroll and explode logic",
-        usage="dice <NdN> [reroll <values>] [explode]",
+        description="Roll dice — supports NdN, NdN+M, reroll N, explode",
+        usage="dice <NdN[+/-M]> [reroll <N>] [explode]",
         group="math",
         aliases=["roll"],
         params={
@@ -118,10 +118,10 @@ REGISTRY: dict[str, Command] = {
         },
         examples=[
             "dice 2d6",
-            "dice 3d6 reroll 1",
-            "dice 6d6",
+            "dice 3d6+2",
+            "dice 4d6 reroll 1",
+            "dice 2d6 explode",
         ],
-        stub=True,
     ),
 
     "rerun": Command(
@@ -252,6 +252,40 @@ REGISTRY: dict[str, Command] = {
         ],
     ),
 
+    "detachment": Command(
+        name="detachment",
+        description="Show all detachment rules for a faction — name, rule text, enhancement and stratagem counts",
+        usage="detachment [faction]",
+        group="rules",
+        aliases=["detachments"],
+        params={
+            "faction": Param("string", False, "Faction name (uses session faction if omitted)", "tau"),
+        },
+        examples=[
+            "detachment tau",
+            "detachment space marines",
+            "detachment tyranids",
+            "detachment",
+        ],
+    ),
+
+    "army_rules": Command(
+        name="army_rules",
+        description="Show faction-level special rules that apply to every model in the army",
+        usage="army_rules [faction]",
+        group="rules",
+        aliases=["army rules", "faction rules"],
+        params={
+            "faction": Param("string", False, "Faction name (uses session faction if omitted)", "tau"),
+        },
+        examples=[
+            "army_rules tau",
+            "army rules space marines",
+            "army_rules necrons",
+            "army_rules",
+        ],
+    ),
+
     "mission": Command(
         name="mission",
         description="Look up a mission — type, deployment, scoring, rules, tip",
@@ -272,12 +306,28 @@ REGISTRY: dict[str, Command] = {
 
     # ── Session ───────────────────────────────────────────────────────────────
 
+    "faction": Command(
+        name="faction",
+        description="Set your own (player) faction for this session — unit lookups will prefer this faction",
+        usage="faction <faction name>",
+        group="session",
+        aliases=[],
+        params={
+            "name": Param("string", True, "Player faction name", "tau"),
+        },
+        examples=[
+            "faction tau",
+            "faction space marines",
+            "faction tyranids",
+        ],
+    ),
+
     "enemy": Command(
         name="enemy",
         description="Set the active enemy faction for this session",
         usage="enemy <faction name>",
         group="session",
-        aliases=["faction"],
+        aliases=[],
         params={
             "name": Param("string", True, "Enemy faction name", "tau"),
         },
@@ -487,6 +537,26 @@ REGISTRY: dict[str, Command] = {
         aliases=[],
         params={},
         examples=["status"],
+    ),
+
+    "issues": Command(
+        name="issues",
+        description="Report commands that are still returning stubs — shows what data is missing",
+        usage="issues",
+        group="meta",
+        aliases=["stubs", "missing"],
+        params={},
+        examples=["issues"],
+    ),
+
+    "legend": Command(
+        name="legend",
+        description="Show the abbreviation key for all stat columns, probability chain fields, and modifier flags",
+        usage="legend",
+        group="meta",
+        aliases=["key", "abbrev", "glossary"],
+        params={},
+        examples=["legend"],
     ),
 
     "clear": Command(

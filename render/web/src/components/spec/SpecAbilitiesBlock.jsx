@@ -16,14 +16,31 @@ import { Card, CardContent, C, CARD_STYLE, CARD_PAD, SectionTitle } from "./shar
 // of always being fully visible.
 const LONG_TEXT_THRESHOLD = 180;
 
+// Ability category keywords — when name is one of these, the actual ability
+// name lives in description (e.g. name="CORE", description="Deadly Demise D3").
+const CATEGORY_TAGS = new Set(["FACTION", "CORE", "CHARACTER"]);
+
 // ─── Ability row ──────────────────────────────────────────────────────────
 
 function AbilityRow({ ab, onSubmit, isLast }) {
-  const name       = typeof ab === "string" ? ab : (ab.name || String(ab));
-  const isStub     = typeof ab !== "string" && ab._stub === true;
-  const bodyText   = isStub
-    ? null
-    : (typeof ab === "string" ? null : (ab.description || ab.summary || ab.desc || ab.text || null));
+  const isStub       = typeof ab !== "string" && ab._stub === true;
+  const rawName      = typeof ab === "string" ? ab : (ab.name || String(ab));
+  const rawSummary   = typeof ab === "string" ? null
+    : (ab.description || ab.summary || ab.desc || ab.text || null);
+
+  // For CORE / FACTION / CHARACTER: combine the tag + summary into a single label.
+  //   name="CORE"    summary="Deadly Demise D3"  →  displayName = "CORE Deadly Demise D3"
+  //   name="FACTION" summary="For the Greater Good" → "FACTION For the Greater Good"
+  const isCategoryTag = !isStub && CATEGORY_TAGS.has((rawName || "").toUpperCase());
+  const displayName   = isCategoryTag && rawSummary
+    ? `${rawName} ${rawSummary}`
+    : rawName;
+
+  // Body text: only for regular (non-category) abilities.
+  // Category tags have their full info in displayName already.
+  const bodyText = isStub ? null
+    : isCategoryTag ? null
+    : rawSummary;
 
   // Long descriptions collapse by default; short ones are always open.
   const isLong      = bodyText && bodyText.length > LONG_TEXT_THRESHOLD;
@@ -33,7 +50,7 @@ function AbilityRow({ ab, onSubmit, isLast }) {
     return (
       <div style={{ borderBottom: isLast ? "none" : `1px solid ${C.border}` }}>
         <div
-          onClick={() => onSubmit?.(`ability ${name}`)}
+          onClick={() => onSubmit?.(`ability ${displayName}`)}
           style={{
             display:    "flex",
             alignItems: "flex-start",
@@ -52,7 +69,7 @@ function AbilityRow({ ab, onSubmit, isLast }) {
             flex:       1,
             lineHeight: "1.4",
           }}>
-            {name}
+            {displayName}
           </span>
           <span style={{
             color:         C.dim,
@@ -84,7 +101,7 @@ function AbilityRow({ ab, onSubmit, isLast }) {
       >
         <span style={{ color: C.amber, fontSize: "12px", flexShrink: 0, marginTop: "2px" }}>◆</span>
         <span style={{
-          color:      C.mid,
+          color:      isCategoryTag ? C.label : C.mid,
           fontWeight: 600,
           fontSize:   "13px",
           flex:       1,
@@ -92,7 +109,7 @@ function AbilityRow({ ab, onSubmit, isLast }) {
           // Allow the name to wrap — no truncation
           whiteSpace: "normal",
         }}>
-          {name}
+          {displayName}
         </span>
       </div>
 

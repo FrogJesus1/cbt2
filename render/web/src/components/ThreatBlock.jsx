@@ -181,6 +181,7 @@ export function ThreatBlock({ data, meta, onSubmit }) {
                 unitData={unit}
                 index={i + 1}
                 onSubmit={onSubmit}
+                onInject={onInject}
               />
             ))}
           </div>

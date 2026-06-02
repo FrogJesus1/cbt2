@@ -49,11 +49,21 @@ def _normalise(s: str) -> str:
 
 class CombatTerminalLoader:
 
+    # Category tags whose `name` field is the tag type and `summary` is the ability name.
+    _CATEGORY_TAGS = frozenset({"CORE", "FACTION", "CHARACTER"})
+
     def __init__(self):
-        self._units:   dict[str, list]  = {}   # faction_name → [unit, ...]
-        self._rules:   dict[str, dict]  = {}   # keyword_lower → rule dict
-        self._loaded:  bool             = False
-        self._errors:  list[str]        = []
+        self._units:        dict[str, list]  = {}   # faction_name → [unit, ...]
+        self._rules:        dict[str, dict]  = {}   # keyword_lower → rule dict
+        self._rule_related: dict[str, list]  = {}   # rule_id → [related rule names]
+        self._abilities:    dict[str, dict]  = {}   # ability_name_lower → ability dict
+        self._stratagems:   dict[str, dict]  = {}   # norm_name_lower → stratagem dict
+        self._enhancements: dict[str, dict]  = {}   # norm_name_lower → enhancement dict
+        self._missions:     dict[str, dict]  = {}   # norm_name_lower → mission dict
+        self._detachments:  dict[str, list]  = {}   # faction_key → [detachment_dict, ...]
+        self._army_rules:   dict[str, list]  = {}   # faction_key → [rule_dict, ...]
+        self._loaded:       bool             = False
+        self._errors:       list[str]        = []
 
     # ─── Load ──────────────────────────────────────────────────────────────────
 
@@ -63,7 +73,340 @@ class CombatTerminalLoader:
             return
         self._load_units()
         self._load_rules()
+        self._load_missions()
+        self._build_ability_index()
+        self._build_stratagem_index()
+        self._build_enhancement_index()
+        self._build_detachment_index()
+        self._build_army_rules_index()
         self._loaded = True
+
+    def _build_ability_index(self):
+        """Build a flat ability index from all loaded unit abilities.
+
+        Indexes by normalised ability name so `ability <name>` can do a fast lookup.
+
+        CORE / FACTION / CHARACTER abilities store their real name in the 'summary'
+        field (e.g. name='CORE', summary='Deadly Demise D3').  We index those by the
+        summary value and tag the entry with the category type.
+
+        Regular abilities (name='One Shot', summary='The bearer can only shoot...')
+        are indexed by their name with the summary stored as description.
+        """
+        for faction_name, faction_units in self._units.items():
+            for unit in faction_units:
+                unit_name = unit.get("name", "")
+                for ab in unit.get("abilities", []):
+                    if not isinstance(ab, dict):
+                        ab_name = str(ab).strip()
+                        ab_desc = ""
+                        ab_type = None
+                    else:
+                        raw_name    = (ab.get("name") or "").strip()
+                        raw_summary = (
+                            ab.get("summary") or ab.get("description") or
+                            ab.get("text")    or ab.get("effect") or ""
+                        ).strip()
+                        if raw_name.upper() in self._CATEGORY_TAGS:
+                            # summary IS the ability name; category tag becomes the type
+                            ab_name = raw_summary
+                            ab_desc = ""
+                            ab_type = raw_name.upper()
+                        else:
+                            ab_name = raw_name
+                            ab_desc = raw_summary
+                            ab_type = None
+
+                    if not ab_name:
+                        continue
+
+                    key = _normalise(ab_name)
+                    if key not in self._abilities:
+                        self._abilities[key] = {
+                            "name":        ab_name,
+                            "description": ab_desc,
+                            "type":        ab_type,   # "CORE" | "FACTION" | None
+                            "units":       [],
+                            "factions":    [],
+                        }
+                    entry = self._abilities[key]
+                    if unit_name and unit_name not in entry["units"]:
+                        entry["units"].append(unit_name)
+                    if faction_name not in entry.get("factions", []):
+                        entry.setdefault("factions", []).append(faction_name)
+
+    def _build_stratagem_index(self):
+        """Index all stratagems from faction dossier detachments.
+
+        Each dossier's detachments[] array contains a stratagems[] list.
+        Stored in self._stratagems keyed by normalised name so partial-match
+        lookups work instantly.
+
+        Stored fields per stratagem:
+          name, cost (cp), type, flavour, when, target, effect,
+          faction, detachment, phase
+        """
+        factions_dir = self._find_factions_dir()
+        if not factions_dir:
+            return
+
+        for faction_dir in sorted(factions_dir.iterdir()):
+            if not faction_dir.is_dir() or faction_dir.name.startswith("."):
+                continue
+            faction = faction_dir.name
+
+            candidates = list(faction_dir.glob("*parsed_dossier*.json"))
+            dossier = candidates[0] if candidates else None
+            if not dossier:
+                continue
+
+            try:
+                with open(dossier, encoding="utf-8") as f:
+                    raw = json.load(f)
+            except Exception:
+                continue
+
+            if isinstance(raw, list):
+                continue  # old list-format dossier, no detachments key
+
+            for det in raw.get("detachments", []):
+                det_name = det.get("name", "")
+                for s in det.get("stratagems", []):
+                    if not isinstance(s, dict):
+                        continue
+                    name = (s.get("name") or "").strip()
+                    if not name:
+                        continue
+                    key = _normalise(name)
+                    # If duplicate name, keep first seen (or overwrite if from better faction)
+                    if key not in self._stratagems:
+                        cp_raw = s.get("cp", s.get("cost", "?"))
+                        cost_str = (
+                            f"{cp_raw}CP" if str(cp_raw).lstrip("-").isdigit()
+                            else str(cp_raw)
+                        )
+                        self._stratagems[key] = {
+                            "name":       name,
+                            "cost":       cost_str,
+                            "type":       s.get("type", ""),
+                            "flavour":    s.get("flavour", ""),
+                            "when":       s.get("when", ""),
+                            "target":     s.get("target", ""),
+                            "effect":     s.get("effect", s.get("description", "")),
+                            "phase":      s.get("phase", ""),
+                            "faction":    faction.replace("_", " ").title(),
+                            "detachment": det_name,
+                            "_stub":      False,
+                        }
+
+    def _build_enhancement_index(self):
+        """Index all enhancements from faction dossier detachments.
+
+        Each dossier's detachments[] array contains an enhancements[] list.
+        Stored in self._enhancements keyed by normalised name.
+
+        Stored fields per enhancement:
+          name, points, description, applies_to, faction, detachment
+        """
+        factions_dir = self._find_factions_dir()
+        if not factions_dir:
+            return
+
+        for faction_dir in sorted(factions_dir.iterdir()):
+            if not faction_dir.is_dir() or faction_dir.name.startswith("."):
+                continue
+            faction = faction_dir.name
+
+            candidates = list(faction_dir.glob("*parsed_dossier*.json"))
+            dossier = candidates[0] if candidates else None
+            if not dossier:
+                continue
+
+            try:
+                with open(dossier, encoding="utf-8") as f:
+                    raw = json.load(f)
+            except Exception:
+                continue
+
+            if isinstance(raw, list):
+                continue
+
+            for det in raw.get("detachments", []):
+                det_name = det.get("name", "")
+                for e in det.get("enhancements", []):
+                    if not isinstance(e, dict):
+                        continue
+                    name = (e.get("name") or "").strip()
+                    if not name:
+                        continue
+                    key = _normalise(name)
+                    if key not in self._enhancements:
+                        pts_raw = e.get("points", e.get("cost", "?"))
+                        self._enhancements[key] = {
+                            "name":        name,
+                            "points":      pts_raw,
+                            "description": e.get("description", e.get("effect", e.get("text", ""))),
+                            "links":       e.get("applies_to", e.get("units", [])),
+                            "faction":     faction.replace("_", " ").title(),
+                            "detachment":  det_name,
+                            "_stub":       False,
+                        }
+
+    # Names / patterns that indicate a garbage army_rules entry scraped from
+    # navigation chrome rather than actual rules text.
+    _ARMY_RULES_GARBAGE = frozenset({
+        "datasheets", "no filter", "no Filter", "pause", "watch on",
+    })
+    _ARMY_RULES_GARBAGE_FRAGMENTS = (
+        "factions search this site",
+        "search this site",
+        "watch on",
+        "video channel logo",
+        "now playing",
+        "books book",
+    )
+
+    def _build_detachment_index(self):
+        """Index all detachments from faction dossier files.
+
+        Iterates every *parsed_dossier*.json in the factions directory and
+        reads the top-level ``detachments`` list.  Results are stored in
+        ``self._detachments`` keyed by faction folder name (e.g. "tau").
+
+        Each stored entry shape:
+          {name, rule_name, description, enhancements, stratagems}
+        where ``name`` is the detachment label (e.g. "KAUYON"),
+        ``rule_name`` is the detachment's named rule (e.g. "Patient Hunter"),
+        and ``description`` is the rule's full text.
+        """
+        factions_dir = self._find_factions_dir()
+        if not factions_dir:
+            return
+
+        for faction_dir in sorted(factions_dir.iterdir()):
+            if not faction_dir.is_dir() or faction_dir.name.startswith("."):
+                continue
+            faction_key = faction_dir.name
+
+            candidates = list(faction_dir.glob("*parsed_dossier*.json"))
+            dossier = candidates[0] if candidates else None
+            if not dossier:
+                continue
+
+            try:
+                with open(dossier, encoding="utf-8") as f:
+                    raw = json.load(f)
+            except Exception:
+                continue
+
+            if isinstance(raw, list):
+                continue  # old list-format dossier, no detachments key
+
+            raw_dets = raw.get("detachments", [])
+            if not raw_dets:
+                continue
+
+            entries = []
+            for det in raw_dets:
+                if not isinstance(det, dict):
+                    continue
+                name = (det.get("name") or "").strip()
+                if not name:
+                    continue
+                entries.append({
+                    "name":         name,
+                    "rule_name":    (det.get("detachment_rule") or "").strip(),
+                    "description":  (det.get("rule_summary") or det.get("description") or "").strip(),
+                    "enhancements": det.get("enhancements", []),
+                    "stratagems":   det.get("stratagems", []),
+                })
+
+            if entries:
+                self._detachments[faction_key] = entries
+
+    def _build_army_rules_index(self):
+        """Index faction-level army rules from faction dossier files.
+
+        Reads the top-level ``army_rules`` list from each dossier.  Entries
+        that look like scraped navigation garbage are filtered out.
+
+        Results stored in ``self._army_rules`` keyed by faction folder name.
+        Each stored entry shape: {name, description}
+        """
+        factions_dir = self._find_factions_dir()
+        if not factions_dir:
+            return
+
+        for faction_dir in sorted(factions_dir.iterdir()):
+            if not faction_dir.is_dir() or faction_dir.name.startswith("."):
+                continue
+            faction_key = faction_dir.name
+
+            candidates = list(faction_dir.glob("*parsed_dossier*.json"))
+            dossier = candidates[0] if candidates else None
+            if not dossier:
+                continue
+
+            try:
+                with open(dossier, encoding="utf-8") as f:
+                    raw = json.load(f)
+            except Exception:
+                continue
+
+            if isinstance(raw, list):
+                continue
+
+            raw_rules = raw.get("army_rules", [])
+            if not raw_rules:
+                continue
+
+            entries = []
+            for rule in raw_rules:
+                if not isinstance(rule, dict):
+                    continue
+                name = (rule.get("name") or "").strip()
+                desc = (rule.get("summary") or rule.get("description") or "").strip()
+
+                # Skip obvious navigation garbage
+                if _normalise(name) in {_normalise(g) for g in self._ARMY_RULES_GARBAGE}:
+                    continue
+                desc_lower = desc.lower()
+                if any(frag in desc_lower for frag in self._ARMY_RULES_GARBAGE_FRAGMENTS):
+                    continue
+                if not name:
+                    continue
+
+                entries.append({
+                    "name":        name,
+                    "description": desc,
+                })
+
+            if entries:
+                self._army_rules[faction_key] = entries
+
+    def _load_missions(self):
+        """Load missions from missions.json if it exists in the rules data directory."""
+        missions_paths = [
+            _INTERNAL / "rules" / "missions.json",
+        ]
+        for path in missions_paths:
+            if not path.exists():
+                continue
+            try:
+                with open(path, encoding="utf-8") as f:
+                    raw = json.load(f)
+                missions_list = raw if isinstance(raw, list) else raw.get("missions", [])
+                for m in missions_list:
+                    if not isinstance(m, dict):
+                        continue
+                    name = (m.get("name") or "").strip()
+                    if not name:
+                        continue
+                    key = _normalise(name)
+                    self._missions[key] = m
+                return  # first found wins
+            except Exception as e:
+                self._errors.append(f"Failed to load missions: {e}")
 
     def _load_units(self):
         """Load faction dossiers from the first available factions directory."""
@@ -100,7 +443,16 @@ class CombatTerminalLoader:
                 self._errors.append(f"[{faction}] Failed to load {dossier.name}: {e}")
 
     def _load_rules(self):
-        """Load rules from the first available rules.json."""
+        """Load rules from the first available rules.json, then build the
+        related-rules graph from rule_index.json (same directory).
+
+        rules.json shape: {"_meta": ..., "rules": {"id": rule_dict, ...}}
+        rule_index.json shape: {"by_mechanic": {"mechanic": [id, ...]}, ...}
+
+        After loading, self._rule_related maps each rule *name* (normalised)
+        to a list of related rule *names* — built by collecting all rules in
+        the same mechanic group (excluding self) + any explicit 'related' list.
+        """
         rules_file = self._find_rules_file()
         if not rules_file:
             # Non-fatal — rules lookup will just return nothing
@@ -115,7 +467,9 @@ class CombatTerminalLoader:
             #   {"rules": [rule, ...]}
             #   {"rules": {"id": rule_dict, ...}}
             raw_rules = data if isinstance(data, list) else data.get("rules", [])
+            id_to_rule: dict = {}   # rule id → rule dict (for index cross-ref)
             if isinstance(raw_rules, dict):
+                id_to_rule = raw_rules
                 rules_list = list(raw_rules.values())
             else:
                 rules_list = raw_rules
@@ -126,6 +480,66 @@ class CombatTerminalLoader:
                 key = _normalise(rule.get("name", ""))
                 if key:
                     self._rules[key] = rule
+                    if not id_to_rule and rule.get("id"):
+                        id_to_rule[rule["id"]] = rule
+
+            # ── Build related-rules graph from rule_index.json ─────────────────
+            index_path = rules_file.parent / "rule_index.json"
+            if not index_path.exists():
+                return
+            with open(index_path, encoding="utf-8") as f:
+                idx = json.load(f)
+
+            by_mechanic: dict[str, list] = idx.get("by_mechanic", {})
+            # For each rule, find peers in the same mechanic group
+            for rule in rules_list:
+                if not isinstance(rule, dict):
+                    continue
+                rule_id   = rule.get("id", "")
+                rule_name = rule.get("name", "")
+                mechanic  = rule.get("mechanic", "")
+                if not rule_name:
+                    continue
+
+                norm_key = _normalise(rule_name)
+                related: list[str] = []
+
+                # Peers in same mechanic group
+                mechanic_peers = by_mechanic.get(mechanic, [])
+                for peer_id in mechanic_peers:
+                    # by_mechanic values are plain IDs (e.g. "battle_shock_test")
+                    if peer_id == rule_id:
+                        continue
+                    peer = id_to_rule.get(peer_id)
+                    if peer and isinstance(peer, dict):
+                        peer_name = peer.get("name", "")
+                        if peer_name and peer_name not in related:
+                            related.append(peer_name)
+
+                # If no mechanic peers, fall back to multi-tag intersection peers —
+                # require at least 2 overlapping tags to avoid noise matches.
+                if not related:
+                    rule_tags = set(rule.get("tags", []))
+                    if len(rule_tags) >= 2:
+                        for peer_id, peer in id_to_rule.items():
+                            if peer_id == rule_id or not isinstance(peer, dict):
+                                continue
+                            peer_tags = set(peer.get("tags", []))
+                            if len(rule_tags & peer_tags) >= 2:
+                                peer_name = peer.get("name", "")
+                                if peer_name and peer_name not in related:
+                                    related.append(peer_name)
+                                if len(related) >= 6:
+                                    break
+
+                # Explicit see_also / related in the rule itself
+                for r in rule.get("related", rule.get("see_also", [])):
+                    if r and r not in related:
+                        related.append(r)
+
+                # Cap at 6 for readability
+                self._rule_related[norm_key] = related[:6]
+
         except Exception as e:
             self._errors.append(f"Failed to load rules: {e}")
 
@@ -186,6 +600,12 @@ class CombatTerminalLoader:
                 "factions":    len(self._units),
                 "total_units": total_units,
                 "rules":       len(self._rules),
+                "stratagems":  len(self._stratagems),
+                "enhancements":len(self._enhancements),
+                "missions":    len(self._missions),
+                "abilities":   len(self._abilities),
+                "detachment_factions": len(self._detachments),
+                "army_rules_factions": len(self._army_rules),
             },
             "per_faction": per_faction,
             "errors": self._errors,
@@ -215,6 +635,18 @@ class CombatTerminalLoader:
                 if query in _normalise(unit.get("name", "")):
                     return {**unit, "faction": faction_name}
 
+        # Word-token match — handles singular/plural differences and partial names.
+        # Strips common filler words and requires all remaining query tokens to
+        # appear anywhere in the unit name (e.g. "beast of nurgle" → "beasts of nurgle").
+        _STOP_WORDS = {"of", "the", "a", "an"}
+        query_tokens = [t for t in query.split() if t not in _STOP_WORDS] or query.split()
+        if query_tokens:
+            for faction_name, units in factions_to_search.items():
+                for unit in units:
+                    u_norm = _normalise(unit.get("name", ""))
+                    if all(tok in u_norm for tok in query_tokens):
+                        return {**unit, "faction": faction_name}
+
         # Stub fallback when no data is loaded at all
         if not self._units:
             return self._stub_unit(name)
@@ -238,11 +670,30 @@ class CombatTerminalLoader:
         results: list[dict] = []
         seen: set[tuple] = set()
 
+        def _unit_key(unit: dict, faction_name: str) -> tuple:
+            """Build a unique key for a unit.
+
+            Units sharing a name within the same faction (e.g. the three Tau
+            COMMANDER variants) are distinguished by their first non-CORE /
+            non-FACTION / non-CHARACTER ability name.  This keeps deduplication
+            tight while still surfacing all true variants.
+            """
+            base_name = unit.get("name", "")
+            # Find a distinguishing ability (skips generic category tags)
+            distinguisher = ""
+            for ab in unit.get("abilities", []):
+                if isinstance(ab, dict):
+                    ab_name = (ab.get("name") or "").strip().upper()
+                    if ab_name not in ("CORE", "FACTION", "CHARACTER") and ab_name:
+                        distinguisher = ab_name
+                        break
+            return (base_name, faction_name, distinguisher)
+
         # 1. Exact normalised matches first
         for faction_name, units in factions_to_search.items():
             for unit in units:
                 if _normalise(unit.get("name", "")) == query:
-                    key = (unit.get("name", ""), faction_name)
+                    key = _unit_key(unit, faction_name)
                     if key not in seen:
                         seen.add(key)
                         results.append({**unit, "faction": faction_name})
@@ -254,12 +705,28 @@ class CombatTerminalLoader:
             for unit in units:
                 u_norm = _normalise(unit.get("name", ""))
                 if query in u_norm:
-                    key = (unit.get("name", ""), faction_name)
+                    key = _unit_key(unit, faction_name)
                     if key not in seen:
                         seen.add(key)
                         results.append({**unit, "faction": faction_name})
                         if len(results) >= limit:
                             return results
+
+        # 3. Word-token matches — handles singular/plural and partial names.
+        # e.g. "beast of nurgle" → all of ["beast", "nurgle"] appear in "beasts of nurgle"
+        _STOP_WORDS = {"of", "the", "a", "an"}
+        query_tokens = [t for t in query.split() if t not in _STOP_WORDS] or query.split()
+        if query_tokens:
+            for faction_name, units in factions_to_search.items():
+                for unit in units:
+                    u_norm = _normalise(unit.get("name", ""))
+                    if all(tok in u_norm for tok in query_tokens):
+                        key = _unit_key(unit, faction_name)
+                        if key not in seen:
+                            seen.add(key)
+                            results.append({**unit, "faction": faction_name})
+                            if len(results) >= limit:
+                                return results
 
         return results
 
@@ -286,17 +753,30 @@ class CombatTerminalLoader:
     # ─── Query: rules ─────────────────────────────────────────────────────────
 
     def get_rule(self, term: str) -> dict | None:
-        """Look up a rule or keyword by name (normalised match)."""
+        """Look up a rule or keyword by name (normalised match).
+
+        Returns the matched rule dict augmented with a 'related' list built
+        from the rule_index mechanic-peer graph loaded at startup.
+        """
         key = _normalise(term)
 
+        matched_key = None
         # Exact match
         if key in self._rules:
-            return self._rules[key]
+            matched_key = key
+        else:
+            # Substring match — prefer shortest key (closest match)
+            candidates = [(k, v) for k, v in self._rules.items() if key in k]
+            if candidates:
+                candidates.sort(key=lambda x: len(x[0]))
+                matched_key = candidates[0][0]
 
-        # Substring match
-        for rule_key, rule in self._rules.items():
-            if key in rule_key:
-                return rule
+        if matched_key:
+            rule = dict(self._rules[matched_key])  # shallow copy
+            # Inject related-rules graph
+            if "related" not in rule or not rule["related"]:
+                rule["related"] = self._rule_related.get(matched_key, [])
+            return rule
 
         # Stub fallback when no rules loaded
         if not self._rules:
@@ -362,6 +842,46 @@ class CombatTerminalLoader:
                 "_stub":  True,
             }
         ]
+
+    # ─── Query: detachments ───────────────────────────────────────────────────
+
+    def get_detachments(self, faction: str) -> list | None:
+        """Return the detachment list for a faction by fuzzy-matching the faction name.
+
+        Returns None if the faction is not found in the loaded index.
+        """
+        query = _normalise(faction)
+
+        # Exact key match first
+        for key in self._detachments:
+            if _normalise(key) == query:
+                return self._detachments[key]
+
+        # Substring match
+        for key in self._detachments:
+            if query in _normalise(key):
+                return self._detachments[key]
+
+        return None
+
+    def get_army_rules(self, faction: str) -> list | None:
+        """Return the army rules list for a faction by fuzzy-matching the faction name.
+
+        Returns None if the faction is not found in the loaded index.
+        """
+        query = _normalise(faction)
+
+        # Exact key match first
+        for key in self._army_rules:
+            if _normalise(key) == query:
+                return self._army_rules[key]
+
+        # Substring match
+        for key in self._army_rules:
+            if query in _normalise(key):
+                return self._army_rules[key]
+
+        return None
 
     # ─── Query: threats ───────────────────────────────────────────────────────
 
@@ -514,54 +1034,133 @@ class CombatTerminalLoader:
     # ─── Query: stratagems ────────────────────────────────────────────────────
 
     def get_stratagem(self, name: str, detachment: str | None = None) -> dict | None:
-        """Look up a stratagem by name (partial match). Stub until data is loaded."""
+        """Look up a stratagem by name (partial match, accent-insensitive).
+
+        Search order:
+          1. Exact normalised key match
+          2. Substring match — return the shortest key containing the query
+
+        Returns None if not found (caller decides on stub fallback).
+        """
         query = _normalise(name)
-        # Search loaded stratagems once that data layer exists
-        stratagems = getattr(self, "_stratagems", {})
-        for key, s in stratagems.items():
-            if query in key:
-                if detachment and _normalise(detachment) not in _normalise(s.get("detachment", "")):
-                    continue
-                return s
-        # Stub fallback
-        return self._stub_stratagem(name, detachment)
+        if not query:
+            return None
+
+        det_q = _normalise(detachment) if detachment else None
+
+        def _det_ok(s: dict) -> bool:
+            if not det_q:
+                return True
+            return det_q in _normalise(s.get("detachment", ""))
+
+        # Exact
+        if query in self._stratagems and _det_ok(self._stratagems[query]):
+            return self._stratagems[query]
+
+        # Substring — sorted by key length (closest match first)
+        candidates = [(k, v) for k, v in self._stratagems.items() if query in k and _det_ok(v)]
+        if candidates:
+            candidates.sort(key=lambda x: len(x[0]))
+            return candidates[0][1]
+
+        # Stub fallback only when nothing is loaded at all
+        if not self._stratagems:
+            return self._stub_stratagem(name, detachment)
+        return None
 
     # ─── Query: abilities ─────────────────────────────────────────────────────
 
     def get_ability(self, name: str) -> dict | None:
-        """Look up an ability by name (partial match). Stub until data is loaded."""
+        """Look up an ability by name (partial match, accent-insensitive).
+
+        Searches the ability index built at load time from all unit abilities.
+        Returns the best match or None (never returns a stub — callers decide on fallback).
+
+        Search order:
+          1. Exact normalised key match
+          2. Substring match (query is a substring of any ability key)
+        """
         query = _normalise(name)
-        abilities = getattr(self, "_abilities", {})
-        for key, a in abilities.items():
-            if query in key:
-                return a
-        return self._stub_ability(name)
+        if not query:
+            return None
+
+        # 1. Exact match
+        if query in self._abilities:
+            return self._abilities[query]
+
+        # 2. Substring match — find the shortest key that contains the query
+        #    (avoids spuriously matching very generic fragments)
+        candidates = [(k, v) for k, v in self._abilities.items() if query in k]
+        if candidates:
+            # Prefer the shortest key (closest match)
+            candidates.sort(key=lambda x: len(x[0]))
+            return candidates[0][1]
+
+        return None
 
     # ─── Query: enhancements ──────────────────────────────────────────────────
 
     def get_enhancement(self, name: str, detachment: str | None = None) -> dict | None:
-        """Look up an enhancement by name (partial match). Stub until data is loaded."""
+        """Look up an enhancement by name (partial match, accent-insensitive).
+
+        Returns None if not found (caller decides on stub fallback).
+        """
         query = _normalise(name)
-        enhancements = getattr(self, "_enhancements", {})
-        for key, e in enhancements.items():
-            if query in key:
-                if detachment and _normalise(detachment) not in _normalise(e.get("detachment", "")):
-                    continue
-                return e
-        return self._stub_enhancement(name, detachment)
+        if not query:
+            return None
+
+        det_q = _normalise(detachment) if detachment else None
+
+        def _det_ok(e: dict) -> bool:
+            if not det_q:
+                return True
+            return det_q in _normalise(e.get("detachment", ""))
+
+        # Exact
+        if query in self._enhancements and _det_ok(self._enhancements[query]):
+            return self._enhancements[query]
+
+        # Substring
+        candidates = [(k, v) for k, v in self._enhancements.items() if query in k and _det_ok(v)]
+        if candidates:
+            candidates.sort(key=lambda x: len(x[0]))
+            return candidates[0][1]
+
+        if not self._enhancements:
+            return self._stub_enhancement(name, detachment)
+        return None
 
     # ─── Query: missions ──────────────────────────────────────────────────────
 
     def get_mission(self, name: str, source: str | None = None) -> dict | None:
-        """Look up a mission by name (partial match). Stub until data is loaded."""
+        """Look up a mission by name (partial match, accent-insensitive).
+
+        Returns None if not found (caller decides on stub fallback).
+        """
         query = _normalise(name)
-        missions = getattr(self, "_missions", {})
-        for key, m in missions.items():
-            if query in key:
-                if source and _normalise(source) not in _normalise(m.get("source", "")):
-                    continue
-                return m
-        return self._stub_mission(name, source)
+        if not query:
+            return None
+
+        src_q = _normalise(source) if source else None
+
+        def _src_ok(m: dict) -> bool:
+            if not src_q:
+                return True
+            return src_q in _normalise(m.get("source", ""))
+
+        # Exact
+        if query in self._missions and _src_ok(self._missions[query]):
+            return self._missions[query]
+
+        # Substring
+        candidates = [(k, v) for k, v in self._missions.items() if query in k and _src_ok(v)]
+        if candidates:
+            candidates.sort(key=lambda x: len(x[0]))
+            return candidates[0][1]
+
+        if not self._missions:
+            return self._stub_mission(name, source)
+        return None
 
     # ─── Stubs ────────────────────────────────────────────────────────────────
 

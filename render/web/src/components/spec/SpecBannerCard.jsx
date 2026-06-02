@@ -7,15 +7,26 @@
  * Props:
  *   title    — string  (unit name)
  *   subtitle — string  (e.g. "T'au Empire  ·  125pts")
+ *   onInject — (cmd: string) => void  (optional — makes title re-runnable)
  */
 
 import { Card, CardContent, C, CARD_STYLE, CARD_PAD } from "./shared";
 
-export function SpecBannerCard({ title = "", subtitle = "" }) {
+export function SpecBannerCard({ title = "", subtitle = "", onInject }) {
   return (
     <Card style={{ ...CARD_STYLE, border: `1px solid ${C.bordermid}`, boxShadow: `inset 0 0 0 1px ${C.border}` }}>
       <CardContent style={{ ...CARD_PAD, fontSize: "20px", lineHeight: "1.3" }}>
-        <span style={{ color: C.amber, textShadow: `0 0 10px ${C.amber}60`, fontWeight: 600 }}>
+        <span
+          onClick={() => onInject?.(`spec ${title}`)}
+          style={{
+            color:      C.amber,
+            textShadow: `0 0 10px ${C.amber}60`,
+            fontWeight: 600,
+            cursor:     onInject ? "pointer" : "default",
+            userSelect: "none",
+          }}
+          title={onInject ? `Re-run: spec ${title}` : undefined}
+        >
           {(title || "—").toUpperCase()}
         </span>
         {subtitle && (

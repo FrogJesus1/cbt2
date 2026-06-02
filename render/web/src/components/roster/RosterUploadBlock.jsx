@@ -71,6 +71,76 @@ export function RosterSavedBlock({ data, onInject }) {
   );
 }
 
+/**
+ * RosterFactionListBlock
+ *
+ * Renders a numbered list of factions (those with saved rosters) for the
+ * `load roster my` / `load roster enemy` faction-selection step.
+ *
+ * result_type: "roster_faction_list"
+ * data: { factions: string[], role: "player"|"enemy", prompt?: string }
+ */
+export function RosterFactionListBlock({ data }) {
+  const { factions = [], role = "player", prompt } = data;
+  const roleLabel = role === "player" ? "PLAYER" : "ENEMY";
+  const roleColor = role === "player" ? C.green : "#ff3b3b";
+
+  if (factions.length === 0) {
+    return (
+      <div className="font-mono" style={{ paddingLeft: "18px", fontSize: "14px" }}>
+        <div style={{ color: C.dim }}>
+          No rosters saved.  Type{" "}
+          <span style={{ color: C.cyan }}>upload roster</span>
+          {" "}to save your first roster.
+        </div>
+      </div>
+    );
+  }
+
+  return (
+    <div className="font-mono" style={{ paddingLeft: "18px", fontSize: "14px" }}>
+      {/* Header */}
+      <div style={{ display: "flex", alignItems: "baseline", gap: "10px", marginBottom: "6px" }}>
+        <span style={{ color: roleColor, fontWeight: 700, letterSpacing: "0.08em" }}>
+          LOAD ROSTER
+        </span>
+        <span style={{ color: C.amber, fontWeight: 700 }}>[{roleLabel}]</span>
+        <span style={{ color: C.dim, fontSize: "12px" }}>Select a faction</span>
+      </div>
+
+      <div style={{ color: C.border, marginBottom: "10px" }}>{"─".repeat(52)}</div>
+
+      {factions.map((slug, i) => {
+        const label = slug.split("-").map(w => w.charAt(0).toUpperCase() + w.slice(1)).join(" ");
+        return (
+          <div
+            key={slug}
+            style={{
+              display:    "flex",
+              alignItems: "baseline",
+              gap:        "10px",
+              lineHeight: "1.9",
+              color:      C.dim,
+            }}
+          >
+            <span style={{ minWidth: "20px", textAlign: "right", flexShrink: 0 }}>
+              {i + 1}.
+            </span>
+            <span style={{ color: C.mid }}>
+              {label}
+            </span>
+          </div>
+        );
+      })}
+
+      <div style={{ color: C.border, marginTop: "8px", marginBottom: "6px" }}>{"─".repeat(52)}</div>
+      <div style={{ color: C.label, fontSize: "13px" }}>
+        {prompt || "Type a faction number or name."}
+      </div>
+    </div>
+  );
+}
+
 /** Shown as a prompt step during multi-step flows (upload, rename, new campaign). */
 export function RosterPromptBlock({ data }) {
   const { message, hint } = data;

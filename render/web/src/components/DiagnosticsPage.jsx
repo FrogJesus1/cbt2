@@ -31,40 +31,41 @@ const C = {
   bg:        "var(--ct-bg)",
 };
 
-// ─── Known faction reference counts (from tau-ai skill data) ──────────────────
-// Used to compute completion % for the Data Integrity grid.
-// Sourced from the faction library as of 2026-03-09.
+// ─── Known faction reference counts (sourced from loaded dossiers, 2026-03-31) ──
+// These reflect the actual unit counts in the parsed dossier files.
+// Faction keys normalised to lowercase with spaces (underscores replaced).
+// Used to compute the Data Integrity completion percentage per faction.
 
 const KNOWN_FACTION_COUNTS = {
-  "aeldari":             72,
-  "space marines":       72,
-  "tyranids":            51,
+  "space marines":       221,   // includes all SM chapter supplements
+  "orks":                85,
+  "astra militarum":     89,
+  "space wolves":        66,
+  "blood angels":        56,
+  "dark angels":         56,
+  "black templars":      50,
+  "tau":                 48,
   "chaos space marines": 49,
+  "tyranids":            51,
+  "aeldari":             72,
   "necrons":             55,
-  "astra militarum":     51,
   "chaos daemons":       55,
-  "tau":                 41,
-  "adepta sororitas":    32,
-  "deathguard":          32,
   "adeptus custodes":    31,
   "grey knights":        30,
   "adeptus mechanicus":  29,
-  "orks":                31,
+  "adepta sororitas":    32,
+  "deathguard":          32,
   "thousand sons":       28,
   "drukhari":            25,
   "worldeaters":         23,
+  "emperors children":   22,
   "genestealer cults":   22,
   "imperial knights":    20,
   "chaos knights":       19,
-  "space wolves":        17,
   "imperial agents":     17,
-  "dark angels":         12,
   "leagues of votann":   12,
-  "blood angels":        9,
-  "black templars":      9,
-  "deathwatch":          9,
+  "deathwatch":          2,    // only core index entries loaded
   "adeptus titanicus":   4,
-  "emperors children":   0,
 };
 
 // ─── Helpers ──────────────────────────────────────────────────────────────────
@@ -264,9 +265,18 @@ function SystemHealthHeader({ status, lastUpdated }) {
 // ─── Data Integrity Grid ──────────────────────────────────────────────────────
 
 function DataIntegrityGrid({ perFaction }) {
+  // Normalise the API's per_faction keys (may use underscores, e.g. "adepta_sororitas")
+  // into the same lowercase-spaces form used by KNOWN_FACTION_COUNTS.
+  const normPerFaction = {};
+  if (perFaction) {
+    for (const [k, v] of Object.entries(perFaction)) {
+      normPerFaction[k.toLowerCase().replace(/_/g, " ")] = v;
+    }
+  }
+
   // Merge loaded counts with known reference counts
   const rows = Object.keys(KNOWN_FACTION_COUNTS).map(faction => {
-    const loaded   = perFaction?.[faction] ?? 0;
+    const loaded   = normPerFaction[faction] ?? 0;
     const expected = KNOWN_FACTION_COUNTS[faction] ?? 0;
     const pct      = expected === 0
       ? (loaded > 0 ? 100 : 0)

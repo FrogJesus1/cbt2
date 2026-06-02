@@ -276,8 +276,8 @@ export function ThreatCard({ data, meta, onSubmit }) {
         </div>
       )}
 
-      {/* 1. Banner */}
-      <ThreatBanner name={name} threatLevel={threat_level} />
+      {/* 1. Banner — unit name is clickable → spec lookup */}
+      <ThreatBanner name={name} threatLevel={threat_level} onInject={onInject} />
 
       {/* 2. Metrics + Counters (side by side) */}
       <div style={{ display: "flex", gap: "6px", alignItems: "flex-start" }}>
@@ -290,7 +290,7 @@ export function ThreatCard({ data, meta, onSubmit }) {
         {/* CounterBlock — takes 2/5 when shown */}
         {hasCounters && (
           <div style={{ flex: "2 1 0" }}>
-            <CounterBlock counters={counters} onSubmit={onSubmit} />
+            <CounterBlock counters={counters} onInject={onInject} onSubmit={onSubmit} />
           </div>
         )}
 

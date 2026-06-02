@@ -15,6 +15,8 @@
  *   list           → numbered multi-column list (full-width, clickable)
  *   text           → plain pre-wrapped text
  *   help           → command reference grouped by category
+ *   legend         → tabbed glossary: stat columns, prob chain, modifier flags, swinginess
+ *   session_summary→ session state: turn, faction, rosters, mods
  *   error          → red error message with numbered suggestions
  */
 
@@ -28,7 +30,7 @@ import { RosterListBlock }   from "./roster/RosterListBlock";
 import { RosterActionBlock } from "./roster/RosterActionBlock";
 import { RoleAssignBlock }   from "./roster/RoleAssignBlock";
 import { CampaignListBlock } from "./roster/CampaignListBlock";
-import { RosterSavedBlock, RosterPromptBlock } from "./roster/RosterUploadBlock";
+import { RosterSavedBlock, RosterPromptBlock, RosterFactionListBlock } from "./roster/RosterUploadBlock";
 import { UploadBlock } from "./roster/UploadBlock";
 
 // ─── Colour palette ────────────────────────────────────────────────────────
@@ -226,6 +228,86 @@ export function StubLog({ entries = [] }) {
   );
 }
 
+// ─── Issues / Data Status Log ─────────────────────────────────────────────
+// Renders the output of the `issues` command — domain-by-domain data status.
+
+function IssuesLog({ data }) {
+  // Support both old flat-array format and new {domains, errors, summary} format
+  const domains = data?.domains || [];
+  const errors  = data?.errors  || [];
+  const summary = data?.summary || {};
+
+  // Old flat-array path (backwards compat)
+  if (Array.isArray(data) && data.length > 0) {
+    return <StubLog entries={data} />;
+  }
+
+  const levelColor = { D0: C.red, D1: C.amber, D2: C.green, D3: C.cyan };
+
+  return (
+    <div className="font-mono" style={{ paddingLeft: "18px", fontSize: "14px" }}>
+
+      {/* Header */}
+      <div style={{ display: "flex", alignItems: "baseline", gap: "10px", marginBottom: "6px" }}>
+        <span style={{ color: C.amber, fontWeight: 700 }}>ENGINE DATA STATUS</span>
+        <span style={{ color: C.dim, fontSize: "12px" }}>
+          {summary.factions || 0} factions · {summary.total_units || 0} units · {summary.stratagems || 0} strats · {summary.enhancements || 0} enhances
+        </span>
+      </div>
+      <div style={{ color: C.border, marginBottom: "8px" }}>{"─".repeat(62)}</div>
+
+      {/* Domain table */}
+      <div style={{
+        display: "grid",
+        gridTemplateColumns: "4ch 24ch 1fr",
+        gap: "0 12px",
+        color: C.label, fontSize: "11px", fontWeight: 600,
+        textTransform: "uppercase", letterSpacing: "0.1em", marginBottom: "4px",
+      }}>
+        <span>Lvl</span><span>Domain</span><span>Status</span>
+      </div>
+      <div style={{ color: C.border, marginBottom: "4px" }}>{"─".repeat(62)}</div>
+
+      {domains.map((d, i) => (
+        <div key={i} style={{
+          display: "grid",
+          gridTemplateColumns: "4ch 24ch 1fr",
+          gap: "0 12px",
+          lineHeight: "1.9",
+        }}>
+          <span style={{ color: levelColor[d.level] || C.label, fontWeight: 700, fontSize: "12px" }}>
+            {d.level}
+          </span>
+          <span style={{ color: d.level === "D0" ? C.dim : C.mid }}>{d.domain}</span>
+          <span style={{ color: d.level === "D0" ? C.red : d.level === "D1" ? C.amber : C.green, fontSize: "12px" }}>
+            {d.note}
+          </span>
+        </div>
+      ))}
+
+      {/* Loader errors */}
+      {errors.length > 0 && (
+        <>
+          <div style={{ color: C.border, margin: "10px 0 6px" }}>{"─".repeat(62)}</div>
+          <div style={{ color: C.red, fontSize: "12px", marginBottom: "4px", textTransform: "uppercase", letterSpacing: "0.1em" }}>
+            Loader Errors ({errors.length})
+          </div>
+          {errors.slice(0, 5).map((e, i) => (
+            <div key={i} style={{ color: C.dim, fontSize: "12px", lineHeight: "1.7" }}>
+              {e}
+            </div>
+          ))}
+        </>
+      )}
+
+      {/* Legend */}
+      <div style={{ marginTop: "10px", color: C.dim, fontSize: "11px", borderTop: `1px solid ${C.border}`, paddingTop: "8px" }}>
+        D0 = stub · D1 = real data · D2 = computed · D3 = compound query
+      </div>
+    </div>
+  );
+}
+
 // ─── Disambiguation Block ─────────────────────────────────────────────────
 // Rendered when the engine returns result_type: "disambiguation".
 // Shows a numbered list of matches; clicking a number animates it into the bar.
@@ -342,18 +424,33 @@ function TerminalResult({ result, onSubmit, onInject, onUpload }) {
 
   switch (result_type) {
     case "disambiguation":  return <DisambiguationBlock data={data} onInject={onInject} />;
-    case "combat":          return <div style={{ paddingLeft: "18px" }}><CombatBlock data={data} onSubmit={onSubmit} /></div>;
+    case "combat": {
+      // Key on attacker|defender so the same CombatBlock instance (and its
+      // weapon-toggle state) is reused across reruns for the same matchup.
+      // A fresh attacker/defender pair mounts a new instance with clean state.
+      const combatKey = `${data?.attacker_name ?? ""}||${data?.defender_name ?? ""}`;
+      return <div style={{ paddingLeft: "18px" }}><CombatBlock key={combatKey} data={data} onSubmit={onSubmit} /></div>;
+    }
     case "spec_sheet":      return <div style={{ paddingLeft: "18px" }}><SpecBlock   data={data} meta={meta} onSubmit={onSubmit} onInject={onInject} /></div>;
     case "threat_card":     return <div style={{ paddingLeft: "18px" }}><ThreatCard  data={data} meta={meta} onSubmit={onSubmit} onInject={onInject} /></div>;
     case "threat_view":     return <div style={{ paddingLeft: "18px" }}><ThreatBlock data={data} meta={meta} onSubmit={onSubmit} onInject={onInject} /></div>;
     case "math_replay":     return <MathModeBlock data={data} />;
-    case "rule_block":      return <TerminalRuleBlock data={data} onInject={onInject} />;
-    case "stub_log":        return <StubLog entries={data} />;
+    case "rule_block":       return <TerminalRuleBlock       data={data} onInject={onInject} />;
+    case "stratagem_block":  return <TerminalStratagemBlock  data={data} onInject={onInject} />;
+    case "enhancement_block":return <TerminalEnhancementBlock data={data} onInject={onInject} />;
+    case "mission_block":    return <TerminalMissionBlock    data={data} onInject={onInject} />;
+    case "ability_block":    return <TerminalAbilityBlock    data={data} onInject={onInject} />;
+    case "detachment_block": return <TerminalDetachmentBlock data={data} onInject={onInject} />;
+    case "army_rules_block": return <TerminalArmyRulesBlock  data={data} onInject={onInject} />;
+    case "stub_log":         return <IssuesLog data={data} />;
+    case "nextturn_block":  return <TerminalNextTurnBlock data={data} onInject={onInject} />;
+    case "session_summary": return <TerminalSessionBlock data={data} onInject={onInject} />;
     case "unit_list_rich":  return <UnitListRich data={data} meta={meta} onInject={onInject} />;
     // ── Roster / Campaign blocks ───────────────────────────────────────────────
-    case "roster_list":     return <RosterListBlock    data={data} onInject={onInject} />;
-    case "roster_action":   return <RosterActionBlock  data={data} onInject={onInject} />;
-    case "role_assign":     return <RoleAssignBlock     data={data} onInject={onInject} />;
+    case "roster_list":         return <RosterListBlock       data={data} onInject={onInject} />;
+    case "roster_action":       return <RosterActionBlock     data={data} onInject={onInject} />;
+    case "role_assign":         return <RoleAssignBlock        data={data} onInject={onInject} />;
+    case "roster_faction_list": return <RosterFactionListBlock data={data} onInject={onInject} />;
     case "campaign_list":   return <CampaignListBlock  data={data} onInject={onInject} />;
     case "roster_saved":    return <RosterSavedBlock   data={data} onInject={onInject} />;
     case "roster_prompt":   return <RosterPromptBlock  data={data} />;
@@ -366,10 +463,164 @@ function TerminalResult({ result, onSubmit, onInject, onUpload }) {
     case "text":       return <TerminalText     data={data} />;
     case "help":       return <TerminalHelp     data={data} />;
     case "system_msg": return <TerminalSystemMsg data={data} />;
+    case "legend":     return <TerminalLegendBlock data={data} />;
     case "clear":      return null;
     case "history":    return null;
     default:           return <TerminalText data={JSON.stringify(data, null, 2)} />;
   }
+}
+
+// ─── Legend Block ─────────────────────────────────────────────────────────────
+// Renders the `legend` command output: glossary of stat columns, probability
+// chain fields, modifier flags, swinginess labels, and footnotes.
+// Tabs: Stat Columns | Probability Chain | Modifier Flags | Swinginess
+
+const LEGEND_TABS = [
+  { key: "stat_columns",      label: "Stat Columns" },
+  { key: "probability_chain", label: "Probability Chain" },
+  { key: "modifier_flags",    label: "Modifier Flags" },
+  { key: "swinginess_labels", label: "Swinginess" },
+];
+
+function TerminalLegendBlock({ data }) {
+  const [activeTab, setActiveTab] = useState("stat_columns");
+  const {
+    stat_columns      = [],
+    probability_chain = [],
+    modifier_flags    = [],
+    swinginess_labels = [],
+    notes             = [],
+  } = data || {};
+
+  const panels = { stat_columns, probability_chain, modifier_flags, swinginess_labels };
+
+  const rowStyle = {
+    display: "grid",
+    gap: "0 12px",
+    padding: "5px 0",
+    borderBottom: `1px solid ${C.border}`,
+    fontSize: "13px",
+    lineHeight: "1.5",
+    color: C.label,
+  };
+
+  function StatColumnsPanel() {
+    return (
+      <div>
+        {stat_columns.map((r, i) => (
+          <div key={i} style={{ ...rowStyle, gridTemplateColumns: "48px 160px 1fr" }}>
+            <span style={{ color: C.green, fontWeight: 700, letterSpacing: "0.04em" }}>{r.abbrev}</span>
+            <span style={{ color: C.mid }}>{r.full}</span>
+            <span style={{ color: C.label }}>{r.desc}</span>
+          </div>
+        ))}
+      </div>
+    );
+  }
+
+  function ProbChainPanel() {
+    return (
+      <div>
+        {probability_chain.map((r, i) => (
+          <div key={i} style={{ padding: "8px 0", borderBottom: `1px solid ${C.border}` }}>
+            <div style={{ display: "flex", alignItems: "baseline", gap: "10px", marginBottom: "3px" }}>
+              <span style={{ fontSize: "13px", fontWeight: 700, color: C.green, minWidth: "56px" }}>{r.label}</span>
+              <span style={{ fontSize: "13px", color: C.label }}>{r.desc}</span>
+            </div>
+            {r.note && (
+              <div style={{ fontSize: "12px", color: C.dim, paddingLeft: "66px", marginBottom: "2px" }}>{r.note}</div>
+            )}
+            {r.example && (
+              <div style={{ fontSize: "12px", color: C.amber, paddingLeft: "66px", fontStyle: "italic" }}>e.g. {r.example}</div>
+            )}
+          </div>
+        ))}
+      </div>
+    );
+  }
+
+  function ModFlagsPanel() {
+    return (
+      <div>
+        {modifier_flags.map((r, i) => (
+          <div key={i} style={{ ...rowStyle, gridTemplateColumns: "110px 130px 1fr" }}>
+            <span style={{ color: C.green, fontFamily: "monospace", fontSize: "12px" }}>{r.flag}</span>
+            <span style={{ color: C.cyan }}>{r.desc}</span>
+            <span style={{ color: C.label }}>{r.effect}</span>
+          </div>
+        ))}
+      </div>
+    );
+  }
+
+  function SwingPanel() {
+    return (
+      <div>
+        {swinginess_labels.map((r, i) => (
+          <div key={i} style={{ ...rowStyle, gridTemplateColumns: "90px 100px 1fr" }}>
+            <span style={{ color: C.amber, fontWeight: 600 }}>{r.label}</span>
+            <span style={{ color: C.dim, fontFamily: "monospace", fontSize: "12px" }}>CV {r.cv_range}</span>
+            <span style={{ color: C.label }}>{r.meaning}</span>
+          </div>
+        ))}
+      </div>
+    );
+  }
+
+  const panelComponents = {
+    stat_columns:      <StatColumnsPanel />,
+    probability_chain: <ProbChainPanel />,
+    modifier_flags:    <ModFlagsPanel />,
+    swinginess_labels: <SwingPanel />,
+  };
+
+  return (
+    <div className="font-mono" style={{ paddingLeft: "18px", fontSize: "14px" }}>
+      {/* Tab bar */}
+      <div style={{ display: "flex", gap: "4px", marginBottom: "10px", borderBottom: `1px solid ${C.border}`, paddingBottom: "6px" }}>
+        {LEGEND_TABS.map(t => {
+          const active = t.key === activeTab;
+          return (
+            <button
+              key={t.key}
+              onClick={() => setActiveTab(t.key)}
+              style={{
+                fontSize: "12px",
+                padding: "3px 10px",
+                border: `1px solid ${active ? C.green : C.border}`,
+                borderRadius: "3px",
+                background: active ? "rgba(var(--ct-glow-rgb),0.08)" : "transparent",
+                color: active ? C.green : C.dim,
+                cursor: "pointer",
+                fontFamily: "monospace",
+                letterSpacing: "0.02em",
+              }}
+            >
+              {t.label}
+            </button>
+          );
+        })}
+      </div>
+
+      {/* Active panel */}
+      <div style={{ marginBottom: "12px" }}>
+        {panelComponents[activeTab]}
+      </div>
+
+      {/* Notes footer — always visible */}
+      {notes.length > 0 && (
+        <div style={{ borderTop: `1px solid ${C.border}`, paddingTop: "8px", marginTop: "6px" }}>
+          <div style={{ color: C.dim, fontSize: "11px", marginBottom: "4px", letterSpacing: "0.08em", textTransform: "uppercase" }}>Notes</div>
+          {notes.map((n, i) => (
+            <div key={i} style={{ display: "flex", gap: "8px", fontSize: "12px", color: C.dim, marginBottom: "3px", lineHeight: "1.5" }}>
+              <span style={{ color: C.border, flexShrink: 0 }}>·</span>
+              <span>{n}</span>
+            </div>
+          ))}
+        </div>
+      )}
+    </div>
+  );
 }
 
 // ─── Rule Block ──────────────────────────────────────────────────────────────
@@ -436,6 +687,417 @@ function TerminalRuleBlock({ data, onInject }) {
               {term}
             </span>
           ))}
+        </div>
+      )}
+    </div>
+  );
+}
+
+// ─── Stratagem Block ─────────────────────────────────────────────────────────
+// Renders a stratagem lookup: name, CP cost, when/target/effect, detachment badge.
+
+function TerminalStratagemBlock({ data, onInject }) {
+  const { name, cost, detachment, faction, type: stratType, flavour, when, target, effect, phase, _stub } = data;
+
+  const phaseColor = {
+    shooting:  C.cyan,
+    fight:     "#ff6b6b",
+    movement:  C.green,
+    charge:    "#ffa328",
+    command:   C.label,
+  };
+  const phaseKey = (phase || "").toLowerCase();
+  const phaseC = phaseColor[phaseKey] || C.label;
+
+  return (
+    <div className="font-mono" style={{ paddingLeft: "18px", fontSize: "14px" }}>
+
+      {/* Header row */}
+      <div style={{ display: "flex", alignItems: "baseline", gap: "10px", marginBottom: "6px", flexWrap: "wrap" }}>
+        <span style={{ color: C.amber, fontWeight: 700, fontSize: "16px", textTransform: "uppercase", letterSpacing: "0.06em" }}>
+          {name}
+        </span>
+        <span style={{
+          color: C.green, fontWeight: 700, fontSize: "13px",
+          border: `1px solid ${C.green}60`, padding: "1px 8px",
+        }}>
+          {cost || "?CP"}
+        </span>
+        {detachment && (
+          <span style={{ color: C.label, fontSize: "11px", border: `1px solid ${C.border}`, padding: "1px 6px" }}>
+            {detachment}
+          </span>
+        )}
+        {faction && (
+          <span style={{ color: C.dim, fontSize: "12px" }}>{faction}</span>
+        )}
+        {_stub && (
+          <span style={{ color: C.dim, fontSize: "11px", border: `1px solid ${C.border}`, padding: "1px 5px" }}>STUB</span>
+        )}
+      </div>
+
+      {/* Type / phase tag */}
+      {stratType && (
+        <div style={{ color: C.label, fontSize: "11px", textTransform: "uppercase", letterSpacing: "0.1em", marginBottom: "6px" }}>
+          {stratType}
+        </div>
+      )}
+
+      {/* Flavour text */}
+      {flavour && (
+        <div style={{ color: C.dim, fontSize: "12px", fontStyle: "italic", maxWidth: "72ch", marginBottom: "8px", lineHeight: "1.5" }}>
+          {flavour}
+        </div>
+      )}
+
+      <div style={{ color: C.border, marginBottom: "8px" }}>{"─".repeat(52)}</div>
+
+      {/* When / Target / Effect table */}
+      {[
+        ["WHEN",   when],
+        ["TARGET", target],
+        ["EFFECT", effect],
+      ].filter(([, v]) => v).map(([label, text]) => (
+        <div key={label} style={{ marginBottom: "8px", display: "flex", gap: "12px", alignItems: "flex-start" }}>
+          <span style={{
+            color: C.amber, fontSize: "11px", fontWeight: 700, textTransform: "uppercase",
+            letterSpacing: "0.12em", flexShrink: 0, minWidth: "52px", paddingTop: "1px",
+          }}>
+            {label}
+          </span>
+          <span style={{ color: C.mid, lineHeight: "1.6", maxWidth: "64ch" }}>{text}</span>
+        </div>
+      ))}
+    </div>
+  );
+}
+
+// ─── Enhancement Block ───────────────────────────────────────────────────────
+// Renders an enhancement lookup: name, points cost, detachment, rules text.
+
+function TerminalEnhancementBlock({ data, onInject }) {
+  const { name, points, detachment, faction, text, links, _stub } = data;
+  const linksArr = Array.isArray(links) ? links : (links ? [links] : []);
+
+  return (
+    <div className="font-mono" style={{ paddingLeft: "18px", fontSize: "14px" }}>
+
+      {/* Header */}
+      <div style={{ display: "flex", alignItems: "baseline", gap: "10px", marginBottom: "6px", flexWrap: "wrap" }}>
+        <span style={{ color: C.amber, fontWeight: 700, fontSize: "16px", textTransform: "uppercase", letterSpacing: "0.06em" }}>
+          {name}
+        </span>
+        <span style={{
+          color: C.cyan, fontWeight: 700, fontSize: "13px",
+          border: `1px solid ${C.cyan}60`, padding: "1px 8px",
+        }}>
+          {points || "?"}pts
+        </span>
+        {detachment && (
+          <span style={{ color: C.label, fontSize: "11px", border: `1px solid ${C.border}`, padding: "1px 6px" }}>
+            {detachment}
+          </span>
+        )}
+        {faction && (
+          <span style={{ color: C.dim, fontSize: "12px" }}>{faction}</span>
+        )}
+        {_stub && (
+          <span style={{ color: C.dim, fontSize: "11px", border: `1px solid ${C.border}`, padding: "1px 5px" }}>STUB</span>
+        )}
+      </div>
+
+      <div style={{ color: C.border, marginBottom: "8px" }}>{"─".repeat(52)}</div>
+
+      {/* Rules text */}
+      <div style={{ color: C.mid, lineHeight: "1.65", maxWidth: "72ch", whiteSpace: "pre-wrap", marginBottom: "8px" }}>
+        {text || "—"}
+      </div>
+
+      {/* Applies to */}
+      {linksArr.length > 0 && (
+        <div style={{ color: C.label, fontSize: "12px" }}>
+          <span style={{ textTransform: "uppercase", letterSpacing: "0.08em", marginRight: "6px" }}>Applies to:</span>
+          {linksArr.slice(0, 4).join("  ·  ")}
+        </div>
+      )}
+    </div>
+  );
+}
+
+// ─── Detachment Block ────────────────────────────────────────────────────────
+// Renders all detachments for a faction: name, rule name + description, strat/enhancement counts.
+
+function TerminalDetachmentBlock({ data, onInject }) {
+  const { faction, detachments = [] } = data;
+
+  return (
+    <div className="font-mono" style={{ paddingLeft: "18px", fontSize: "14px" }}>
+
+      {/* Faction header */}
+      <div style={{ marginBottom: "10px" }}>
+        <span style={{ color: C.label, fontSize: "11px", textTransform: "uppercase", letterSpacing: "0.12em" }}>
+          DETACHMENTS  ·
+        </span>
+        <span style={{ color: C.amber, fontWeight: 700, fontSize: "13px", textTransform: "uppercase", letterSpacing: "0.08em" }}>
+          {faction}
+        </span>
+        <span style={{ color: C.dim, fontSize: "11px", marginLeft: "8px" }}>
+          {detachments.length} available
+        </span>
+      </div>
+
+      {detachments.map((det, i) => {
+        const stratCount = Array.isArray(det.stratagems) ? det.stratagems.length : 0;
+        const enhCount   = Array.isArray(det.enhancements) ? det.enhancements.length : 0;
+
+        return (
+          <div key={i} style={{ marginBottom: "20px" }}>
+            <div style={{ color: C.border }}>{"─".repeat(52)}</div>
+
+            {/* Detachment name + rule name row */}
+            <div style={{ display: "flex", alignItems: "baseline", gap: "10px", margin: "6px 0 4px", flexWrap: "wrap" }}>
+              <span style={{ color: C.amber, fontWeight: 700, fontSize: "15px", textTransform: "uppercase", letterSpacing: "0.07em" }}>
+                {det.name}
+              </span>
+              {det.rule_name && (
+                <span style={{
+                  color: C.cyan, fontSize: "12px", fontWeight: 600,
+                  border: `1px solid ${C.cyan}55`, padding: "1px 7px",
+                }}>
+                  {det.rule_name}
+                </span>
+              )}
+            </div>
+
+            {/* Rule description */}
+            {det.description && (
+              <div style={{ color: C.mid, lineHeight: "1.6", maxWidth: "72ch", marginBottom: "8px", whiteSpace: "pre-wrap" }}>
+                {det.description}
+              </div>
+            )}
+
+            {/* Strat / enhancement count badges */}
+            <div style={{ display: "flex", gap: "10px", flexWrap: "wrap" }}>
+              {stratCount > 0 && (
+                <span
+                  style={{ color: C.green, fontSize: "11px", border: `1px solid ${C.green}55`, padding: "1px 7px", cursor: "pointer" }}
+                  title={`Show all stratagems for ${det.name}`}
+                  onClick={() => onInject && onInject(`stratagem --detachment ${det.name}`)}
+                >
+                  {stratCount} stratagem{stratCount !== 1 ? "s" : ""}
+                </span>
+              )}
+              {enhCount > 0 && (
+                <span style={{ color: C.label, fontSize: "11px", border: `1px solid ${C.border}`, padding: "1px 7px" }}>
+                  {enhCount} enhancement{enhCount !== 1 ? "s" : ""}
+                </span>
+              )}
+            </div>
+          </div>
+        );
+      })}
+    </div>
+  );
+}
+
+// ─── Army Rules Block ────────────────────────────────────────────────────────
+// Renders faction-level special rules: name and full description text.
+
+function TerminalArmyRulesBlock({ data, onInject }) {
+  const { faction, rules = [] } = data;
+
+  return (
+    <div className="font-mono" style={{ paddingLeft: "18px", fontSize: "14px" }}>
+
+      {/* Faction header */}
+      <div style={{ marginBottom: "10px" }}>
+        <span style={{ color: C.label, fontSize: "11px", textTransform: "uppercase", letterSpacing: "0.12em" }}>
+          ARMY RULES  ·
+        </span>
+        <span style={{ color: C.amber, fontWeight: 700, fontSize: "13px", textTransform: "uppercase", letterSpacing: "0.08em" }}>
+          {faction}
+        </span>
+      </div>
+
+      {rules.length === 0 && (
+        <div style={{ color: C.dim, fontSize: "13px" }}>No army rules data available for this faction.</div>
+      )}
+
+      {rules.map((rule, i) => (
+        <div key={i} style={{ marginBottom: "16px" }}>
+          <div style={{ color: C.border }}>{"─".repeat(52)}</div>
+
+          {/* Rule name */}
+          <div style={{ color: C.amber, fontWeight: 700, fontSize: "14px", textTransform: "uppercase", letterSpacing: "0.06em", margin: "6px 0 4px" }}>
+            {rule.name}
+          </div>
+
+          {/* Rule description */}
+          {rule.description && (
+            <div style={{ color: C.mid, lineHeight: "1.65", maxWidth: "72ch", whiteSpace: "pre-wrap" }}>
+              {rule.description}
+            </div>
+          )}
+        </div>
+      ))}
+    </div>
+  );
+}
+
+// ─── Mission Block ───────────────────────────────────────────────────────────
+// Renders a mission lookup: name, type, deployment, scoring summary, rules.
+
+function TerminalMissionBlock({ data, onInject }) {
+  const { name, type: missionType, source, size, deployment, description, scoring = [], mission_rules = [], tip, _stub } = data;
+
+  return (
+    <div className="font-mono" style={{ paddingLeft: "18px", fontSize: "14px" }}>
+
+      {/* Header */}
+      <div style={{ display: "flex", alignItems: "baseline", gap: "10px", marginBottom: "6px", flexWrap: "wrap" }}>
+        <span style={{ color: C.amber, fontWeight: 700, fontSize: "16px", textTransform: "uppercase", letterSpacing: "0.06em" }}>
+          {name}
+        </span>
+        {missionType && (
+          <span style={{ color: C.label, fontSize: "11px", border: `1px solid ${C.border}`, padding: "1px 6px" }}>
+            {missionType}
+          </span>
+        )}
+        {source && <span style={{ color: C.dim, fontSize: "12px" }}>{source}</span>}
+        {_stub && (
+          <span style={{ color: C.dim, fontSize: "11px", border: `1px solid ${C.border}`, padding: "1px 5px" }}>STUB</span>
+        )}
+      </div>
+
+      {/* Meta row */}
+      {(deployment || size) && (
+        <div style={{ color: C.label, fontSize: "12px", marginBottom: "6px", display: "flex", gap: "16px" }}>
+          {deployment && <span><span style={{ color: C.dim }}>Deployment: </span>{deployment}</span>}
+          {size && <span><span style={{ color: C.dim }}>Size: </span>{size}</span>}
+        </div>
+      )}
+
+      <div style={{ color: C.border, marginBottom: "8px" }}>{"─".repeat(52)}</div>
+
+      {/* Description */}
+      {description && (
+        <div style={{ color: C.mid, lineHeight: "1.65", maxWidth: "72ch", marginBottom: "10px" }}>
+          {description}
+        </div>
+      )}
+
+      {/* Scoring */}
+      {scoring.length > 0 && (
+        <div style={{ marginBottom: "10px" }}>
+          <div style={{ color: C.amber, fontSize: "11px", textTransform: "uppercase", letterSpacing: "0.12em", fontWeight: 700, marginBottom: "6px" }}>
+            Scoring
+          </div>
+          {scoring.map((s, i) => (
+            <div key={i} style={{ marginBottom: "6px" }}>
+              <div style={{ color: C.label, fontSize: "12px", fontWeight: 600, marginBottom: "2px" }}>{s.header}</div>
+              <div style={{ color: C.mid, fontSize: "13px", lineHeight: "1.55", maxWidth: "68ch", paddingLeft: "8px" }}>{s.text}</div>
+            </div>
+          ))}
+        </div>
+      )}
+
+      {/* Mission Rules */}
+      {mission_rules.length > 0 && (
+        <div style={{ marginBottom: "10px" }}>
+          <div style={{ color: C.amber, fontSize: "11px", textTransform: "uppercase", letterSpacing: "0.12em", fontWeight: 700, marginBottom: "6px" }}>
+            Mission Rules
+          </div>
+          {mission_rules.map((r, i) => (
+            <div key={i} style={{ marginBottom: "6px" }}>
+              <span style={{ color: C.cyan, fontSize: "12px", fontWeight: 600 }}>{r.name}: </span>
+              <span style={{ color: C.mid, fontSize: "13px", lineHeight: "1.55" }}>{r.text}</span>
+            </div>
+          ))}
+        </div>
+      )}
+
+      {/* Tip */}
+      {tip && (
+        <div style={{ marginTop: "6px", paddingLeft: "12px", borderLeft: `2px solid ${C.amber}60` }}>
+          <span style={{ color: C.amber, fontSize: "11px", textTransform: "uppercase", letterSpacing: "0.1em", marginRight: "8px" }}>Tip</span>
+          <span style={{ color: C.dim, fontSize: "12px", lineHeight: "1.5" }}>{tip}</span>
+        </div>
+      )}
+    </div>
+  );
+}
+
+// ─── Ability Block ───────────────────────────────────────────────────────────
+// Renders an ability lookup: name, type tag (CORE/FACTION), rules text, units list.
+
+function TerminalAbilityBlock({ data, onInject }) {
+  const { name, type_tag, text, units = [], units_more = 0, factions = [], _stub } = data;
+
+  return (
+    <div className="font-mono" style={{ paddingLeft: "18px", fontSize: "14px" }}>
+
+      {/* Header */}
+      <div style={{ display: "flex", alignItems: "baseline", gap: "10px", marginBottom: "6px", flexWrap: "wrap" }}>
+        {type_tag && (
+          <span style={{
+            color: C.amber, fontSize: "11px", fontWeight: 700, textTransform: "uppercase",
+            letterSpacing: "0.14em", border: `1px solid ${C.amber}60`, padding: "1px 7px",
+          }}>
+            {type_tag}
+          </span>
+        )}
+        <span style={{ color: C.amber, fontWeight: 700, fontSize: "16px", letterSpacing: "0.04em" }}>
+          {name}
+        </span>
+        {_stub && (
+          <span style={{ color: C.dim, fontSize: "11px", border: `1px solid ${C.border}`, padding: "1px 5px" }}>STUB</span>
+        )}
+      </div>
+
+      <div style={{ color: C.border, marginBottom: "8px" }}>{"─".repeat(52)}</div>
+
+      {/* Ability text */}
+      <div style={{ color: C.mid, lineHeight: "1.65", maxWidth: "72ch", whiteSpace: "pre-wrap", marginBottom: "10px" }}>
+        {text || "—"}
+      </div>
+
+      {/* Factions */}
+      {factions.length > 0 && (
+        <div style={{ color: C.label, fontSize: "12px", marginBottom: "6px" }}>
+          <span style={{ textTransform: "uppercase", letterSpacing: "0.08em", marginRight: "6px", color: C.dim }}>Factions:</span>
+          {factions.slice(0, 6).map(f => f.replace(/_/g, " ")).join("  ·  ")}
+        </div>
+      )}
+
+      {/* Units that carry this ability */}
+      {units.length > 0 && (
+        <div style={{ marginTop: "6px" }}>
+          <div style={{ color: C.dim, fontSize: "11px", textTransform: "uppercase", letterSpacing: "0.1em", marginBottom: "4px" }}>
+            Found on:
+          </div>
+          <div style={{ display: "flex", flexWrap: "wrap", gap: "4px" }}>
+            {units.map((u, i) => (
+              <span
+                key={i}
+                onClick={() => onInject?.(`spec ${u}`)}
+                style={{
+                  color:      onInject ? C.green : C.label,
+                  fontSize:   "12px",
+                  border:     `1px solid ${onInject ? C.green + "50" : C.border}`,
+                  padding:    "1px 7px",
+                  cursor:     onInject ? "pointer" : "default",
+                  userSelect: "none",
+                }}
+              >
+                {u}
+              </span>
+            ))}
+            {units_more > 0 && (
+              <span style={{ color: C.dim, fontSize: "12px", padding: "1px 4px" }}>
+                +{units_more} more
+              </span>
+            )}
+          </div>
         </div>
       )}
     </div>
@@ -1194,4 +1856,425 @@ function TerminalHelp({ data }) {
   }
 
   return null;
+}
+
+// ─── Next Turn Block ─────────────────────────────────────────────────────────
+// Renders the output of the `nextturn` command: round number, CP gain,
+// turn-specific phase reminders, and a recap of active combat modifiers.
+
+function TerminalNextTurnBlock({ data, onInject }) {
+  if (!data) return null;
+
+  const {
+    turn             = 1,
+    cp_gained        = 1,
+    phase_reminders  = [],
+    active_modifiers = [],
+    attacker         = null,
+    defender         = null,
+    faction          = null,
+    enemy_faction    = null,
+  } = data;
+
+  const turnLabel = `BATTLE ROUND ${turn}`;
+
+  return (
+    <div
+      className="font-mono"
+      style={{
+        paddingLeft:   "18px",
+        display:       "flex",
+        flexDirection: "column",
+        gap:           "6px",
+        fontSize:      "13px",
+      }}
+    >
+
+      {/* ── Round banner ── */}
+      <div style={{
+        display:        "flex",
+        alignItems:     "center",
+        justifyContent: "space-between",
+        padding:        "10px 16px",
+        background:     C.panel,
+        border:         `1px solid ${C.border}`,
+        borderLeft:     `3px solid ${C.amber}`,
+      }}>
+        <span style={{
+          color:         C.amber,
+          fontSize:      "18px",
+          fontWeight:    700,
+          letterSpacing: "0.12em",
+          textShadow:    `0 0 10px ${C.amber}50`,
+        }}>
+          {turnLabel}
+        </span>
+
+        {/* CP gained badge */}
+        <div style={{ display: "flex", alignItems: "center", gap: "6px" }}>
+          <span style={{
+            color:         C.green,
+            fontSize:      "11px",
+            fontWeight:    700,
+            letterSpacing: "0.1em",
+            border:        `1px solid ${C.green}60`,
+            padding:       "2px 10px",
+            background:    `${C.green}10`,
+          }}>
+            +{cp_gained} CP
+          </span>
+          <span style={{ color: C.dim, fontSize: "10px", letterSpacing: "0.08em" }}>
+            COMMAND PHASE
+          </span>
+        </div>
+      </div>
+
+      {/* ── Phase reminders ── */}
+      {phase_reminders.length > 0 && (
+        <div style={{
+          background: C.panel,
+          border:     `1px solid ${C.border}`,
+          padding:    "10px 14px",
+          display:    "flex",
+          flexDirection: "column",
+          gap:        "6px",
+        }}>
+          <div style={{
+            color:         C.label,
+            fontSize:      "9px",
+            fontWeight:    700,
+            letterSpacing: "0.18em",
+            marginBottom:  "2px",
+          }}>
+            PHASE NOTES
+          </div>
+          {phase_reminders.map((r, i) => (
+            <div key={i} style={{ display: "flex", alignItems: "flex-start", gap: "9px" }}>
+              <span style={{ color: C.cyan, fontSize: "11px", flexShrink: 0, marginTop: "1px" }}>
+                {r.icon ?? "◈"}
+              </span>
+              <span style={{ color: C.mid, fontSize: "12px", lineHeight: "1.5" }}>
+                {r.text}
+              </span>
+            </div>
+          ))}
+        </div>
+      )}
+
+      {/* ── Active modifiers recap ── */}
+      {active_modifiers.length > 0 && (
+        <div style={{
+          background: C.panel,
+          border:     `1px solid ${C.border}`,
+          padding:    "10px 14px",
+        }}>
+          <div style={{
+            color:         C.label,
+            fontSize:      "9px",
+            fontWeight:    700,
+            letterSpacing: "0.18em",
+            marginBottom:  "8px",
+          }}>
+            LAST COMBAT MODIFIERS
+          </div>
+          <div style={{ display: "flex", flexWrap: "wrap", gap: "5px" }}>
+            {active_modifiers.map((flag, i) => (
+              <span key={i} style={{
+                color:         C.amber,
+                fontSize:      "11px",
+                border:        `1px solid ${C.amber}40`,
+                padding:       "1px 7px",
+                background:    `${C.amber}08`,
+                letterSpacing: "0.04em",
+                fontFamily:    "monospace",
+              }}>
+                {flag}
+              </span>
+            ))}
+          </div>
+          {(attacker || defender) && (
+            <div style={{
+              color:      C.dim,
+              fontSize:   "11px",
+              marginTop:  "7px",
+              lineHeight: "1.4",
+            }}>
+              {attacker && defender
+                ? `${attacker} vs ${defender}`
+                : attacker || defender}
+              {" — "}
+              <span
+                onClick={() => attacker && defender && onInject?.(`${attacker} vs ${defender}`)}
+                style={{
+                  color:      onInject && attacker && defender ? C.cyan : C.dim,
+                  cursor:     onInject && attacker && defender ? "pointer" : "default",
+                  userSelect: "none",
+                }}
+              >
+                rerun combat
+              </span>
+            </div>
+          )}
+        </div>
+      )}
+
+      {/* ── Faction reminder (dim, only when set) ── */}
+      {(faction || enemy_faction) && (
+        <div style={{
+          display:    "flex",
+          gap:        "12px",
+          padding:    "6px 14px",
+          background: C.panel,
+          border:     `1px solid ${C.border}`,
+          fontSize:   "11px",
+        }}>
+          {faction && (
+            <span>
+              <span style={{ color: C.dim, marginRight: "5px" }}>Player:</span>
+              <span
+                onClick={() => onInject?.(`list units ${faction}`)}
+                style={{
+                  color:      onInject ? C.cyan : C.label,
+                  cursor:     onInject ? "pointer" : "default",
+                  userSelect: "none",
+                }}
+              >
+                {faction}
+              </span>
+            </span>
+          )}
+          {enemy_faction && (
+            <span>
+              <span style={{ color: C.dim, marginRight: "5px" }}>Enemy:</span>
+              <span
+                onClick={() => onInject?.(`threat ${enemy_faction}`)}
+                style={{
+                  color:      onInject ? C.red : C.label,
+                  cursor:     onInject ? "pointer" : "default",
+                  userSelect: "none",
+                }}
+              >
+                {enemy_faction}
+              </span>
+            </span>
+          )}
+        </div>
+      )}
+
+    </div>
+  );
+}
+
+// ─── Session Summary Block ────────────────────────────────────────────────────
+// Renders the output of the `session` command in a readable, structured layout.
+// Shows current turn, faction assignments, roster status, and active modifiers.
+
+function TerminalSessionBlock({ data, onInject }) {
+  const { state = {}, my_roster = {}, enemy_roster = {} } = data ?? {};
+
+  const ROW = ({ label, value, color, clickCmd }) => (
+    <div style={{
+      display:       "grid",
+      gridTemplateColumns: "130px 1fr",
+      gap:           "8px",
+      padding:       "3px 0",
+      borderBottom:  `1px solid ${C.border}`,
+    }}>
+      <span style={{ color: C.label, fontSize: "12px", textTransform: "uppercase", letterSpacing: "0.1em" }}>
+        {label}
+      </span>
+      <span
+        style={{
+          color:     color ?? C.mid,
+          fontSize:  "13px",
+          fontFamily: "monospace",
+          cursor:    clickCmd ? "pointer" : "default",
+          textDecoration: clickCmd ? "none" : undefined,
+        }}
+        onClick={() => clickCmd && onInject?.(clickCmd)}
+      >
+        {value ?? "—"}
+      </span>
+    </div>
+  );
+
+  function RosterPanel({ roster, side, clickPrefix }) {
+    const { name, unit_count, total_points, units = [] } = roster;
+    const hasUnits = units.length > 0;
+    const sideColor = side === "PLAYER" ? C.cyan : C.amber;
+
+    return (
+      <div style={{
+        flex:       1,
+        padding:    "10px 14px",
+        background: C.panel,
+        border:     `1px solid ${C.border}`,
+      }}>
+        {/* Roster header */}
+        <div style={{
+          display:        "flex",
+          justifyContent: "space-between",
+          alignItems:     "baseline",
+          marginBottom:   "8px",
+          paddingBottom:  "6px",
+          borderBottom:   `1px solid ${C.border}`,
+        }}>
+          <div style={{ display: "flex", alignItems: "center", gap: "8px" }}>
+            <span style={{
+              color:         sideColor,
+              fontSize:      "9px",
+              letterSpacing: "0.16em",
+              textTransform: "uppercase",
+              border:        `1px solid ${sideColor}50`,
+              padding:       "1px 5px",
+            }}>
+              {side}
+            </span>
+            <span style={{ color: C.green, fontWeight: 700, fontSize: "13px", textTransform: "uppercase", letterSpacing: "0.06em" }}>
+              {name || "—"}
+            </span>
+          </div>
+          <div style={{ display: "flex", gap: "12px", fontSize: "11px" }}>
+            <span style={{ color: C.dim }}>
+              {unit_count} {unit_count === 1 ? "unit" : "units"}
+            </span>
+            {total_points && (
+              <span style={{ color: C.amber, fontFamily: "monospace" }}>
+                {total_points} pts
+              </span>
+            )}
+          </div>
+        </div>
+
+        {/* Unit list */}
+        {hasUnits ? (
+          <div style={{ display: "flex", flexDirection: "column", gap: "2px" }}>
+            {units.slice(0, 12).map((u, i) => {
+              const uname = typeof u === "string" ? u : u.name;
+              const upts  = typeof u === "object" ? u.points : null;
+              return (
+                <div key={i} style={{
+                  display:        "flex",
+                  justifyContent: "space-between",
+                  alignItems:     "center",
+                  padding:        "2px 0",
+                }}>
+                  <span
+                    style={{
+                      color:     C.mid,
+                      fontSize:  "12px",
+                      cursor:    onInject ? "pointer" : "default",
+                    }}
+                    onClick={() => onInject?.(`${clickPrefix} ${uname}`)}
+                  >
+                    {uname}
+                  </span>
+                  {upts && (
+                    <span style={{ color: C.dim, fontSize: "11px", fontFamily: "monospace" }}>
+                      {upts}
+                    </span>
+                  )}
+                </div>
+              );
+            })}
+            {units.length > 12 && (
+              <span style={{ color: C.dim, fontSize: "11px", marginTop: "4px" }}>
+                +{units.length - 12} more…
+              </span>
+            )}
+          </div>
+        ) : (
+          <div style={{ color: C.dim, fontSize: "12px", fontStyle: "italic" }}>
+            No roster loaded
+          </div>
+        )}
+      </div>
+    );
+  }
+
+  return (
+    <div className="font-mono" style={{ paddingLeft: "18px", fontSize: "13px" }}>
+
+      {/* Header */}
+      <div style={{
+        display:        "flex",
+        alignItems:     "center",
+        justifyContent: "space-between",
+        marginBottom:   "10px",
+      }}>
+        <span style={{
+          color:         C.amber,
+          fontWeight:    700,
+          fontSize:      "14px",
+          textTransform: "uppercase",
+          letterSpacing: "0.1em",
+        }}>
+          Session State
+        </span>
+        <span style={{
+          color:         C.green,
+          fontFamily:    "monospace",
+          fontSize:      "11px",
+          border:        `1px solid ${C.border}`,
+          padding:       "1px 8px",
+          letterSpacing: "0.12em",
+        }}>
+          TURN {state.turn ?? 0}
+        </span>
+      </div>
+
+      {/* Divider */}
+      <div style={{ color: C.border, marginBottom: "10px" }}>{"─".repeat(52)}</div>
+
+      {/* State grid */}
+      <div style={{ marginBottom: "14px" }}>
+        <ROW label="Roster Mode" value={state.roster_mode}
+          color={state.roster_mode === "ON" ? C.green : C.dim} />
+        <ROW label="Player Faction" value={state.faction !== "—" ? state.faction?.toUpperCase() : "—"}
+          color={state.faction !== "—" ? C.cyan : C.dim}
+          clickCmd={state.faction !== "—" ? `list units ${state.faction}` : null} />
+        <ROW label="Enemy Faction" value={state.enemy !== "—" ? state.enemy?.toUpperCase() : "—"}
+          color={state.enemy !== "—" ? C.amber : C.dim}
+          clickCmd={state.enemy !== "—" ? `list units ${state.enemy}` : null} />
+        <ROW label="Active Mods" value={state.mods ?? "none"} color={C.dim} />
+        <ROW label="Campaign" value={state.campaign ?? "—"} color={C.dim} />
+      </div>
+
+      {/* Roster panels */}
+      <div style={{ display: "flex", gap: "10px", flexWrap: "wrap" }}>
+        <RosterPanel roster={my_roster}    side="PLAYER" clickPrefix="spec" />
+        <RosterPanel roster={enemy_roster} side="ENEMY"  clickPrefix="spec" />
+      </div>
+
+      {/* Quick actions */}
+      <div style={{
+        marginTop:  "10px",
+        display:    "flex",
+        gap:        "8px",
+        flexWrap:   "wrap",
+      }}>
+        {[
+          { label: "next turn",    cmd: "next turn" },
+          { label: "load roster",  cmd: "load roster" },
+          { label: "issues",       cmd: "issues" },
+        ].map(({ label, cmd }) => (
+          <span
+            key={cmd}
+            onClick={() => onInject?.(cmd)}
+            style={{
+              color:         C.green,
+              fontSize:      "11px",
+              border:        `1px solid ${C.border}`,
+              padding:       "2px 8px",
+              cursor:        "pointer",
+              letterSpacing: "0.08em",
+              textTransform: "uppercase",
+            }}
+          >
+            {label}
+          </span>
+        ))}
+      </div>
+    </div>
+  );
 }

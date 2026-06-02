@@ -8,11 +8,12 @@
  * Props:
  *   name         — string  (unit name)
  *   threatLevel  — "high" | "medium" | "low"
+ *   onInject     — (cmd: string) => void  (optional — makes name clickable → spec lookup)
  */
 
 import { Card, CardContent, C, CARD_STYLE, CARD_PAD, THREAT_COLORS, THREAT_LABELS } from "./shared";
 
-export function ThreatBanner({ name = "", threatLevel = "medium" }) {
+export function ThreatBanner({ name = "", threatLevel = "medium", onInject }) {
   const lvlColor = THREAT_COLORS[threatLevel] ?? C.amber;
   const lvlLabel = THREAT_LABELS[threatLevel] ?? threatLevel.toUpperCase();
 
@@ -31,13 +32,19 @@ export function ThreatBanner({ name = "", threatLevel = "medium" }) {
         lineHeight: "1.3",
       }}>
 
-        {/* Unit name */}
-        <span style={{
-          color:      lvlColor,
-          fontWeight: 700,
-          textShadow: `0 0 10px ${lvlColor}50`,
-          flex:       1,
-        }}>
+        {/* Unit name — clickable to run spec lookup */}
+        <span
+          onClick={() => onInject?.(`spec ${name}`)}
+          style={{
+            color:      lvlColor,
+            fontWeight: 700,
+            textShadow: `0 0 10px ${lvlColor}50`,
+            flex:       1,
+            cursor:     onInject ? "pointer" : "default",
+            userSelect: "none",
+          }}
+          title={onInject ? `Look up: spec ${name}` : undefined}
+        >
           {(name || "—").toUpperCase()}
         </span>
 
