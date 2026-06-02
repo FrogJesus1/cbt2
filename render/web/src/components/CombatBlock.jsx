@@ -131,21 +131,29 @@ function ColumnHeader({ title }) {
     <div style={{
       display:       "flex",
       alignItems:    "center",
-      gap:           "10px",
+      gap:           "0",
       marginBottom:  "6px",
+      fontFamily:    "monospace",
+      fontSize:      "12px",
+      color:         C.border,
+      letterSpacing: "0.04em",
     }}>
+      <span>{"───"} </span>
       <span style={{
         color:         C.amber,
-        textShadow:    `0 0 8px ${C.amber}90`,
-        fontSize:      "14px",
+        textShadow:    `0 0 6px ${C.amber}60`,
         fontWeight:    700,
-        letterSpacing: "0.15em",
+        letterSpacing: "0.12em",
         textTransform: "uppercase",
         flexShrink:    0,
+        padding:       "0 6px",
+        fontSize:      "11px",
       }}>
         {title}
       </span>
-      <div style={{ flex: 1, height: "1px", background: C.border }} />
+      <span style={{ flex: 1, overflow: "hidden", whiteSpace: "nowrap" }}>
+        {"─".repeat(60)}
+      </span>
     </div>
   );
 }
@@ -252,7 +260,9 @@ export function CombatBlock({ data, onSubmit }) {
 
         {/* ── Right — Per-weapon Targeting + Modifier Impact ── */}
         <div style={{ flex: "1 1 300px", display: "flex", flexDirection: "column", gap: "6px", minWidth: 0 }}>
+          <ColumnHeader title="Weapon Platforms" />
           <TargetingOutcome weapons={enabledWeapons} />
+          <ColumnHeader title="Sensitivity" />
           <ModifierImpact   modifiers={modifier_impact} />
         </div>
 

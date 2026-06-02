@@ -192,6 +192,11 @@ function ArmyPanel({ roster, side, onInject }) {
               label="view"
               onClick={() => onInject?.(`roster ${side === "PLAYER" ? "my" : "enemy"}`)}
             />
+            <ActionChip
+              label="clear"
+              onClick={() => onInject?.(`clear roster ${side.toLowerCase()}`)}
+              color={C.red}
+            />
           </>
         )}
       </div>
@@ -205,95 +210,87 @@ function SavedRostersSection({ onInject }) {
   const rosters      = listRosters();
   const rosterCount  = getRosterCount();
   const factions     = Object.keys(rosters).sort();
+  const [expanded, setExpanded] = useState(null);   // faction slug or null
+  const [activeRoster, setActiveRoster] = useState(null); // roster name showing actions
 
   return (
     <div>
-      <SectionHeader
-        title="Saved Rosters"
-        subtitle={`${rosterCount} saved`}
-      />
-      <Divider />
+      <SectionHeader title="Saved Rosters" subtitle={`${rosterCount} saved`} />
 
       {rosterCount === 0 ? (
         <div style={{ color: C.dim, fontSize: "13px", fontFamily: "monospace", marginBottom: "8px" }}>
           No rosters saved yet.
         </div>
       ) : (
-        factions.map(faction => {
-          const factionRosters = Object.keys(rosters[faction] || {}).sort();
-          return (
-            <div key={faction} style={{ marginBottom: "10px" }}>
-              <div style={{
-                color: C.amber, fontWeight: 700, fontSize: "11px",
-                textTransform: "uppercase", letterSpacing: "0.12em",
-                marginBottom: "3px", fontFamily: "monospace",
-              }}>
-                [{labelify(faction)}]
-              </div>
-              {factionRosters.map(name => {
-                const r = rosters[faction][name];
-                return (
-                  <div
-                    key={name}
-                    style={{
-                      display: "flex", alignItems: "baseline", gap: "8px",
-                      lineHeight: "1.8", cursor: "pointer", userSelect: "none",
-                      fontFamily: "monospace", fontSize: "13px",
-                    }}
-                    onClick={() => onInject?.(`load roster ${name}`)}
-                    onMouseEnter={e => e.currentTarget.style.color = C.green}
-                    onMouseLeave={e => e.currentTarget.style.color = "inherit"}
-                  >
-                    <span style={{ color: C.mid, flex: 1 }}>{name}</span>
-                    <div style={{ display: "flex", gap: "6px", flexShrink: 0 }}>
-                      <span
-                        style={{ color: C.dim, fontSize: "11px", cursor: "pointer" }}
-                        onClick={e => { e.stopPropagation(); onInject?.(`set roster player ${name}`); }}
-                        onMouseEnter={e => e.currentTarget.style.color = C.cyan}
-                        onMouseLeave={e => e.currentTarget.style.color = C.dim}
-                        title="Load as player"
-                      >
-                        [P]
-                      </span>
-                      <span
-                        style={{ color: C.dim, fontSize: "11px", cursor: "pointer" }}
-                        onClick={e => { e.stopPropagation(); onInject?.(`set roster enemy ${name}`); }}
-                        onMouseEnter={e => e.currentTarget.style.color = C.amber}
-                        onMouseLeave={e => e.currentTarget.style.color = C.dim}
-                        title="Load as enemy"
-                      >
-                        [E]
-                      </span>
-                      <span
-                        style={{ color: C.dim, fontSize: "11px", cursor: "pointer" }}
-                        onClick={e => { e.stopPropagation(); onInject?.(`edit roster ${name}`); }}
-                        onMouseEnter={e => e.currentTarget.style.color = C.mid}
-                        onMouseLeave={e => e.currentTarget.style.color = C.dim}
-                        title="Edit roster"
-                      >
-                        [✎]
-                      </span>
-                      <span
-                        style={{ color: C.dim, fontSize: "11px", cursor: "pointer" }}
-                        onClick={e => { e.stopPropagation(); onInject?.(`delete roster ${name}`); }}
-                        onMouseEnter={e => e.currentTarget.style.color = C.red}
-                        onMouseLeave={e => e.currentTarget.style.color = C.dim}
-                        title="Delete roster"
-                      >
-                        [×]
-                      </span>
+        <div style={{ display: "flex", flexDirection: "column", gap: "1px", marginBottom: "8px" }}>
+          {factions.map(faction => {
+            const factionRosters = Object.keys(rosters[faction] || {}).sort();
+            const isOpen = expanded === faction;
+            return (
+              <div key={faction}>
+                {/* Faction row — click to expand */}
+                <div
+                  onClick={() => { setExpanded(isOpen ? null : faction); setActiveRoster(null); }}
+                  style={{
+                    display: "flex", alignItems: "center", gap: "8px",
+                    padding: "5px 8px", cursor: "pointer", userSelect: "none",
+                    fontFamily: "monospace", fontSize: "13px",
+                    background: isOpen ? C.panel : "transparent",
+                    borderLeft: isOpen ? `2px solid ${C.amber}` : "2px solid transparent",
+                    transition: "background 0.1s",
+                  }}
+                  onMouseEnter={e => { if (!isOpen) e.currentTarget.style.background = C.panel; }}
+                  onMouseLeave={e => { if (!isOpen) e.currentTarget.style.background = "transparent"; }}
+                >
+                  <span style={{ color: C.dim, fontSize: "10px", width: "10px", textAlign: "center" }}>
+                    {isOpen ? "▾" : "▸"}
+                  </span>
+                  <span style={{ color: isOpen ? C.amber : C.mid, flex: 1, fontWeight: 600 }}>
+                    {labelify(faction)}
+                  </span>
+                  <span style={{
+                    color: C.dim, fontSize: "11px",
+                    background: C.bgDark, padding: "0 6px",
+                    border: `1px solid ${C.border}`,
+                  }}>
+                    {factionRosters.length}
+                  </span>
+                </div>
+
+                {/* Expanded roster list */}
+                {isOpen && factionRosters.map(name => (
+                  <div key={name} style={{ paddingLeft: "22px" }}>
+                    <div
+                      onClick={() => setActiveRoster(activeRoster === name ? null : name)}
+                      style={{
+                        display: "flex", alignItems: "center", gap: "8px",
+                        padding: "3px 8px", cursor: "pointer", userSelect: "none",
+                        fontFamily: "monospace", fontSize: "12px",
+                      }}
+                      onMouseEnter={e => { e.currentTarget.style.color = C.green; }}
+                      onMouseLeave={e => { e.currentTarget.style.color = "inherit"; }}
+                    >
+                      <span style={{ color: C.mid, flex: 1 }}>{name}</span>
                     </div>
-                    {r?.updated_at && (
-                      <span style={{ color: C.dim, fontSize: "11px", flexShrink: 0 }}>
-                        {new Date(r.updated_at).toLocaleDateString()}
-                      </span>
+                    {/* Action row for selected roster */}
+                    {activeRoster === name && (
+                      <div style={{
+                        display: "flex", gap: "6px", padding: "2px 8px 6px",
+                        fontFamily: "monospace", fontSize: "11px",
+                      }}>
+                        <ActionChip label="load" onClick={() => onInject?.(`load roster ${name}`)} color={C.green} />
+                        <ActionChip label="player" onClick={() => onInject?.(`set roster player ${name}`)} color={C.cyan} />
+                        <ActionChip label="enemy" onClick={() => onInject?.(`set roster enemy ${name}`)} color={C.amber} />
+                        <ActionChip label="edit" onClick={() => onInject?.(`edit roster ${name}`)} color={C.mid} />
+                        <ActionChip label="delete" onClick={() => onInject?.(`delete roster ${name}`)} color={C.red} />
+                      </div>
                     )}
                   </div>
-                );
-              })}
-            </div>
-          );
-        })
+                ))}
+              </div>
+            );
+          })}
+        </div>
       )}
 
       <div style={{ display: "flex", gap: "8px", marginTop: "6px" }}>
@@ -453,57 +450,8 @@ export function RostersContext({ engineId, onExec, onInject, theme }) {
       {/* ── Scrollable content ── */}
       <div style={{ flex: 1, overflow: "auto", padding: "16px 24px 24px" }}>
 
-        {/* ── Session header ── */}
-        <SectionHeader
-          title="Session State"
-          badge={`TURN ${state.turn ?? 0}`}
-        />
-        <Divider />
-
-        {/* State grid */}
-        <div style={{
-          display: "grid", gridTemplateColumns: "130px 1fr",
-          gap: "0", marginBottom: "14px", fontFamily: "monospace",
-        }}>
-          {[
-            { label: "Roster Mode", value: state.roster_mode, color: state.roster_mode === "ON" ? C.green : C.dim },
-            {
-              label: "Player Faction",
-              value: state.faction !== "—" ? state.faction?.toUpperCase() : "—",
-              color: state.faction !== "—" ? C.cyan : C.dim,
-              click: state.faction !== "—" ? `list units ${state.faction}` : null,
-            },
-            {
-              label: "Enemy Faction",
-              value: state.enemy !== "—" ? state.enemy?.toUpperCase() : "—",
-              color: state.enemy !== "—" ? C.amber : C.dim,
-              click: state.enemy !== "—" ? `list units ${state.enemy}` : null,
-            },
-          ].map(({ label, value, color, click }) => (
-            <div key={label} style={{ display: "contents" }}>
-              <span style={{
-                color: C.label, fontSize: "12px", textTransform: "uppercase",
-                letterSpacing: "0.1em", padding: "4px 0", borderBottom: `1px solid ${C.border}`,
-              }}>
-                {label}
-              </span>
-              <span
-                style={{
-                  color: color ?? C.mid, fontSize: "13px", padding: "4px 0",
-                  borderBottom: `1px solid ${C.border}`,
-                  cursor: click ? "pointer" : "default",
-                }}
-                onClick={() => click && handleInject(click)}
-              >
-                {value ?? "—"}
-              </span>
-            </div>
-          ))}
-        </div>
-
         {/* Quick actions row */}
         <div style={{ display: "flex", gap: "8px", marginBottom: "20px", flexWrap: "wrap" }}>
-          <ActionChip label="next turn" onClick={() => handleInject("next turn")} color={C.green} />
           <ActionChip label="session" onClick={() => handleInject("session")} />
         </div>
 

@@ -23,7 +23,7 @@ sys.path.insert(0, str(Path(__file__).parent.parent.parent))
 from data._base import EngineBase
 from data.combat_terminal.loader import CombatTerminalLoader
 from data.combat_terminal import commands as _cmds
-from data.combat_terminal.math_adapter import compute_combat, compute_sensitivity
+from data.combat_terminal.math_adapter import compute_combat, compute_sensitivity, validate_flags
 from data.combat_terminal.math_ledger import build_combat_ledger
 
 
@@ -941,6 +941,17 @@ class CombatTerminalEngine(EngineBase):
 
         att_name = att_unit.get("name", attacker_raw) if att_unit else attacker_raw
         def_name = def_unit.get("name", defender_raw) if def_unit else defender_raw
+
+        # ── Validate flags — reject unknown modifiers with suggestions ───────
+        flag_errors = validate_flags(flags)
+        if flag_errors:
+            parts = []
+            for fe in flag_errors:
+                msg = f"Unknown modifier: --{fe['flag']}"
+                if fe["suggestions"]:
+                    msg += f". Did you mean: {', '.join('--' + s for s in fe['suggestions'])}?"
+                parts.append(msg)
+            return self._err("combat", "\n".join(parts))
 
         # Log lookup failures to the session issue log
         if not att_unit:

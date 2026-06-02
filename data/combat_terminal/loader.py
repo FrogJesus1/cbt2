@@ -65,89 +65,38 @@ class CombatTerminalLoader:
         self._loaded:       bool             = False
         self._errors:       list[str]        = []
 
+        # Lazy loading support
+        self._faction_dossier_paths: dict[str, Path] = {}  # faction_key → dossier path
+        self._loaded_factions: set[str] = set()             # which factions have been loaded
+
     # ─── Load ──────────────────────────────────────────────────────────────────
 
     def load(self):
-        """Load all data. Safe to call multiple times (idempotent)."""
+        """Discover factions and load non-faction data. Safe to call multiple times (idempotent).
+
+        Faction data is loaded lazily on first access via _ensure_faction_loaded().
+        """
         if self._loaded:
             return
-        self._load_units()
-        self._load_rules()
-        self._load_missions()
-        self._build_ability_index()
-        self._build_stratagem_index()
-        self._build_enhancement_index()
-        self._build_detachment_index()
-        self._build_army_rules_index()
+        self._discover_factions()   # fast — just records paths
+        self._load_rules()          # rules are not per-faction
+        self._load_missions()       # missions are not per-faction
         self._loaded = True
 
-    def _build_ability_index(self):
-        """Build a flat ability index from all loaded unit abilities.
+    # ─── Lazy faction loading ─────────────────────────────────────────────────
 
-        Indexes by normalised ability name so `ability <name>` can do a fast lookup.
+    def _discover_factions(self):
+        """Scan the factions directory and record dossier paths without loading them.
 
-        CORE / FACTION / CHARACTER abilities store their real name in the 'summary'
-        field (e.g. name='CORE', summary='Deadly Demise D3').  We index those by the
-        summary value and tag the entry with the category type.
-
-        Regular abilities (name='One Shot', summary='The bearer can only shoot...')
-        are indexed by their name with the summary stored as description.
-        """
-        for faction_name, faction_units in self._units.items():
-            for unit in faction_units:
-                unit_name = unit.get("name", "")
-                for ab in unit.get("abilities", []):
-                    if not isinstance(ab, dict):
-                        ab_name = str(ab).strip()
-                        ab_desc = ""
-                        ab_type = None
-                    else:
-                        raw_name    = (ab.get("name") or "").strip()
-                        raw_summary = (
-                            ab.get("summary") or ab.get("description") or
-                            ab.get("text")    or ab.get("effect") or ""
-                        ).strip()
-                        if raw_name.upper() in self._CATEGORY_TAGS:
-                            # summary IS the ability name; category tag becomes the type
-                            ab_name = raw_summary
-                            ab_desc = ""
-                            ab_type = raw_name.upper()
-                        else:
-                            ab_name = raw_name
-                            ab_desc = raw_summary
-                            ab_type = None
-
-                    if not ab_name:
-                        continue
-
-                    key = _normalise(ab_name)
-                    if key not in self._abilities:
-                        self._abilities[key] = {
-                            "name":        ab_name,
-                            "description": ab_desc,
-                            "type":        ab_type,   # "CORE" | "FACTION" | None
-                            "units":       [],
-                            "factions":    [],
-                        }
-                    entry = self._abilities[key]
-                    if unit_name and unit_name not in entry["units"]:
-                        entry["units"].append(unit_name)
-                    if faction_name not in entry.get("factions", []):
-                        entry.setdefault("factions", []).append(faction_name)
-
-    def _build_stratagem_index(self):
-        """Index all stratagems from faction dossier detachments.
-
-        Each dossier's detachments[] array contains a stratagems[] list.
-        Stored in self._stratagems keyed by normalised name so partial-match
-        lookups work instantly.
-
-        Stored fields per stratagem:
-          name, cost (cp), type, flavour, when, target, effect,
-          faction, detachment, phase
+        This replaces the old _load_units() for the discovery phase — same directory
+        scanning logic but only records paths instead of parsing JSON.
         """
         factions_dir = self._find_factions_dir()
         if not factions_dir:
+            self._errors.append(
+                "No faction data found. Checked: "
+                + ", ".join(str(p) for p in _FACTION_PATHS)
+            )
             return
 
         for faction_dir in sorted(factions_dir.iterdir()):
@@ -155,20 +104,46 @@ class CombatTerminalLoader:
                 continue
             faction = faction_dir.name
 
-            candidates = list(faction_dir.glob("*parsed_dossier*.json"))
-            dossier = candidates[0] if candidates else None
-            if not dossier:
-                continue
+            # Look for a parsed dossier JSON — accept any *_parsed_dossier.json
+            dossier = faction_dir / f"{faction}_parsed_dossier.json"
+            if not dossier.exists():
+                candidates = list(faction_dir.glob("*parsed_dossier*.json"))
+                dossier = candidates[0] if candidates else None
 
-            try:
-                with open(dossier, encoding="utf-8") as f:
-                    raw = json.load(f)
-            except Exception:
-                continue
+            if dossier:
+                self._faction_dossier_paths[faction] = dossier
 
-            if isinstance(raw, list):
-                continue  # old list-format dossier, no detachments key
+    def _load_faction(self, faction_key: str):
+        """Load a single faction dossier and extract ALL data in one pass.
 
+        Extracts: units, stratagems, enhancements, detachments, army rules,
+        and abilities — all from one JSON parse.
+        """
+        if faction_key in self._loaded_factions:
+            return
+
+        dossier_path = self._faction_dossier_paths.get(faction_key)
+        if not dossier_path:
+            return
+
+        try:
+            with open(dossier_path, encoding="utf-8") as f:
+                raw = json.load(f)
+        except Exception as e:
+            self._errors.append(f"[{faction_key}] Failed to load {dossier_path.name}: {e}")
+            self._loaded_factions.add(faction_key)
+            return
+
+        is_list = isinstance(raw, list)
+
+        # ── Units ─────────────────────────────────────────────────────────────
+        units_raw = raw if is_list else raw.get("units", [])
+        if units_raw:
+            self._units[faction_key] = [self._normalise_unit(u) for u in units_raw]
+
+        # Everything below requires dict-format dossiers (not old list-format)
+        if not is_list:
+            # ── Stratagems ────────────────────────────────────────────────────
             for det in raw.get("detachments", []):
                 det_name = det.get("name", "")
                 for s in det.get("stratagems", []):
@@ -178,7 +153,7 @@ class CombatTerminalLoader:
                     if not name:
                         continue
                     key = _normalise(name)
-                    # If duplicate name, keep first seen (or overwrite if from better faction)
+                    # First-seen wins (dedup across factions)
                     if key not in self._stratagems:
                         cp_raw = s.get("cp", s.get("cost", "?"))
                         cost_str = (
@@ -194,43 +169,12 @@ class CombatTerminalLoader:
                             "target":     s.get("target", ""),
                             "effect":     s.get("effect", s.get("description", "")),
                             "phase":      s.get("phase", ""),
-                            "faction":    faction.replace("_", " ").title(),
+                            "faction":    faction_key.replace("_", " ").title(),
                             "detachment": det_name,
                             "_stub":      False,
                         }
 
-    def _build_enhancement_index(self):
-        """Index all enhancements from faction dossier detachments.
-
-        Each dossier's detachments[] array contains an enhancements[] list.
-        Stored in self._enhancements keyed by normalised name.
-
-        Stored fields per enhancement:
-          name, points, description, applies_to, faction, detachment
-        """
-        factions_dir = self._find_factions_dir()
-        if not factions_dir:
-            return
-
-        for faction_dir in sorted(factions_dir.iterdir()):
-            if not faction_dir.is_dir() or faction_dir.name.startswith("."):
-                continue
-            faction = faction_dir.name
-
-            candidates = list(faction_dir.glob("*parsed_dossier*.json"))
-            dossier = candidates[0] if candidates else None
-            if not dossier:
-                continue
-
-            try:
-                with open(dossier, encoding="utf-8") as f:
-                    raw = json.load(f)
-            except Exception:
-                continue
-
-            if isinstance(raw, list):
-                continue
-
+            # ── Enhancements ──────────────────────────────────────────────────
             for det in raw.get("detachments", []):
                 det_name = det.get("name", "")
                 for e in det.get("enhancements", []):
@@ -240,6 +184,7 @@ class CombatTerminalLoader:
                     if not name:
                         continue
                     key = _normalise(name)
+                    # First-seen wins (dedup across factions)
                     if key not in self._enhancements:
                         pts_raw = e.get("points", e.get("cost", "?"))
                         self._enhancements[key] = {
@@ -247,16 +192,141 @@ class CombatTerminalLoader:
                             "points":      pts_raw,
                             "description": e.get("description", e.get("effect", e.get("text", ""))),
                             "links":       e.get("applies_to", e.get("units", [])),
-                            "faction":     faction.replace("_", " ").title(),
+                            "faction":     faction_key.replace("_", " ").title(),
                             "detachment":  det_name,
                             "_stub":       False,
                         }
+
+            # ── Detachments ───────────────────────────────────────────────────
+            raw_dets = raw.get("detachments", [])
+            if raw_dets:
+                entries = []
+                for det in raw_dets:
+                    if not isinstance(det, dict):
+                        continue
+                    name = (det.get("name") or "").strip()
+                    if not name:
+                        continue
+                    entries.append({
+                        "name":         name,
+                        "rule_name":    (det.get("detachment_rule") or "").strip(),
+                        "description":  (det.get("rule_summary") or det.get("description") or "").strip(),
+                        "enhancements": det.get("enhancements", []),
+                        "stratagems":   det.get("stratagems", []),
+                    })
+                if entries:
+                    self._detachments[faction_key] = entries
+
+            # ── Army rules ────────────────────────────────────────────────────
+            raw_rules = raw.get("army_rules", [])
+            if raw_rules:
+                entries = []
+                for rule in raw_rules:
+                    if not isinstance(rule, dict):
+                        continue
+                    name = (rule.get("name") or "").strip()
+                    desc = (rule.get("summary") or rule.get("description") or "").strip()
+
+                    # Skip obvious navigation garbage
+                    if _normalise(name) in self._ARMY_RULES_GARBAGE_NORM:
+                        continue
+                    desc_lower = desc.lower()
+                    if any(frag in desc_lower for frag in self._ARMY_RULES_GARBAGE_FRAGMENTS):
+                        continue
+                    if not name:
+                        continue
+
+                    entries.append({
+                        "name":        name,
+                        "description": desc,
+                    })
+                if entries:
+                    self._army_rules[faction_key] = entries
+
+        # ── Abilities (from loaded units) ─────────────────────────────────────
+        faction_units = self._units.get(faction_key, [])
+        for unit in faction_units:
+            unit_name = unit.get("name", "")
+            for ab in unit.get("abilities", []):
+                if not isinstance(ab, dict):
+                    ab_name = str(ab).strip()
+                    ab_desc = ""
+                    ab_type = None
+                else:
+                    raw_name    = (ab.get("name") or "").strip()
+                    raw_summary = (
+                        ab.get("summary") or ab.get("description") or
+                        ab.get("text")    or ab.get("effect") or ""
+                    ).strip()
+                    if raw_name.upper() in self._CATEGORY_TAGS:
+                        ab_name = raw_summary
+                        ab_desc = ""
+                        ab_type = raw_name.upper()
+                    else:
+                        ab_name = raw_name
+                        ab_desc = raw_summary
+                        ab_type = None
+
+                if not ab_name:
+                    continue
+
+                ab_key = _normalise(ab_name)
+                if ab_key not in self._abilities:
+                    self._abilities[ab_key] = {
+                        "name":        ab_name,
+                        "description": ab_desc,
+                        "type":        ab_type,
+                        "units":       [],
+                        "factions":    [],
+                    }
+                entry = self._abilities[ab_key]
+                if unit_name and unit_name not in entry["units"]:
+                    entry["units"].append(unit_name)
+                if faction_key not in entry.get("factions", []):
+                    entry.setdefault("factions", []).append(faction_key)
+
+        self._loaded_factions.add(faction_key)
+
+    def _ensure_faction_loaded(self, faction_key: str):
+        """Load a faction if not already loaded."""
+        if faction_key not in self._loaded_factions:
+            self._load_faction(faction_key)
+
+    def _ensure_all_loaded(self):
+        """Load all discovered factions that haven't been loaded yet."""
+        for faction_key in self._faction_dossier_paths:
+            self._ensure_faction_loaded(faction_key)
+
+    def _resolve_faction_key(self, faction_query: str) -> str | None:
+        """Resolve a fuzzy faction query to a discovered faction key.
+
+        Checks both already-loaded factions (self._units keys) and all
+        discovered factions (self._faction_dossier_paths keys).
+        Returns the matching faction key, or None if not found.
+        """
+        query = _normalise(faction_query)
+        all_keys = set(self._units.keys()) | set(self._faction_dossier_paths.keys())
+
+        # Exact normalised match
+        for key in all_keys:
+            if _normalise(key) == query:
+                return key
+
+        # Substring match
+        for key in all_keys:
+            if query in _normalise(key):
+                return key
+
+        return None
 
     # Names / patterns that indicate a garbage army_rules entry scraped from
     # navigation chrome rather than actual rules text.
     _ARMY_RULES_GARBAGE = frozenset({
         "datasheets", "no filter", "no Filter", "pause", "watch on",
     })
+    _ARMY_RULES_GARBAGE_NORM = frozenset(
+        _normalise(g) for g in _ARMY_RULES_GARBAGE
+    )
     _ARMY_RULES_GARBAGE_FRAGMENTS = (
         "factions search this site",
         "search this site",
@@ -265,124 +335,6 @@ class CombatTerminalLoader:
         "now playing",
         "books book",
     )
-
-    def _build_detachment_index(self):
-        """Index all detachments from faction dossier files.
-
-        Iterates every *parsed_dossier*.json in the factions directory and
-        reads the top-level ``detachments`` list.  Results are stored in
-        ``self._detachments`` keyed by faction folder name (e.g. "tau").
-
-        Each stored entry shape:
-          {name, rule_name, description, enhancements, stratagems}
-        where ``name`` is the detachment label (e.g. "KAUYON"),
-        ``rule_name`` is the detachment's named rule (e.g. "Patient Hunter"),
-        and ``description`` is the rule's full text.
-        """
-        factions_dir = self._find_factions_dir()
-        if not factions_dir:
-            return
-
-        for faction_dir in sorted(factions_dir.iterdir()):
-            if not faction_dir.is_dir() or faction_dir.name.startswith("."):
-                continue
-            faction_key = faction_dir.name
-
-            candidates = list(faction_dir.glob("*parsed_dossier*.json"))
-            dossier = candidates[0] if candidates else None
-            if not dossier:
-                continue
-
-            try:
-                with open(dossier, encoding="utf-8") as f:
-                    raw = json.load(f)
-            except Exception:
-                continue
-
-            if isinstance(raw, list):
-                continue  # old list-format dossier, no detachments key
-
-            raw_dets = raw.get("detachments", [])
-            if not raw_dets:
-                continue
-
-            entries = []
-            for det in raw_dets:
-                if not isinstance(det, dict):
-                    continue
-                name = (det.get("name") or "").strip()
-                if not name:
-                    continue
-                entries.append({
-                    "name":         name,
-                    "rule_name":    (det.get("detachment_rule") or "").strip(),
-                    "description":  (det.get("rule_summary") or det.get("description") or "").strip(),
-                    "enhancements": det.get("enhancements", []),
-                    "stratagems":   det.get("stratagems", []),
-                })
-
-            if entries:
-                self._detachments[faction_key] = entries
-
-    def _build_army_rules_index(self):
-        """Index faction-level army rules from faction dossier files.
-
-        Reads the top-level ``army_rules`` list from each dossier.  Entries
-        that look like scraped navigation garbage are filtered out.
-
-        Results stored in ``self._army_rules`` keyed by faction folder name.
-        Each stored entry shape: {name, description}
-        """
-        factions_dir = self._find_factions_dir()
-        if not factions_dir:
-            return
-
-        for faction_dir in sorted(factions_dir.iterdir()):
-            if not faction_dir.is_dir() or faction_dir.name.startswith("."):
-                continue
-            faction_key = faction_dir.name
-
-            candidates = list(faction_dir.glob("*parsed_dossier*.json"))
-            dossier = candidates[0] if candidates else None
-            if not dossier:
-                continue
-
-            try:
-                with open(dossier, encoding="utf-8") as f:
-                    raw = json.load(f)
-            except Exception:
-                continue
-
-            if isinstance(raw, list):
-                continue
-
-            raw_rules = raw.get("army_rules", [])
-            if not raw_rules:
-                continue
-
-            entries = []
-            for rule in raw_rules:
-                if not isinstance(rule, dict):
-                    continue
-                name = (rule.get("name") or "").strip()
-                desc = (rule.get("summary") or rule.get("description") or "").strip()
-
-                # Skip obvious navigation garbage
-                if _normalise(name) in {_normalise(g) for g in self._ARMY_RULES_GARBAGE}:
-                    continue
-                desc_lower = desc.lower()
-                if any(frag in desc_lower for frag in self._ARMY_RULES_GARBAGE_FRAGMENTS):
-                    continue
-                if not name:
-                    continue
-
-                entries.append({
-                    "name":        name,
-                    "description": desc,
-                })
-
-            if entries:
-                self._army_rules[faction_key] = entries
 
     def _load_missions(self):
         """Load missions from missions.json if it exists in the rules data directory."""
@@ -408,39 +360,7 @@ class CombatTerminalLoader:
             except Exception as e:
                 self._errors.append(f"Failed to load missions: {e}")
 
-    def _load_units(self):
-        """Load faction dossiers from the first available factions directory."""
-        factions_dir = self._find_factions_dir()
-        if not factions_dir:
-            self._errors.append(
-                "No faction data found. Checked: "
-                + ", ".join(str(p) for p in _FACTION_PATHS)
-            )
-            return
-
-        for faction_dir in sorted(factions_dir.iterdir()):
-            if not faction_dir.is_dir() or faction_dir.name.startswith("."):
-                continue
-            faction = faction_dir.name
-
-            # Look for a parsed dossier JSON — accept any *_parsed_dossier.json
-            dossier = faction_dir / f"{faction}_parsed_dossier.json"
-            if not dossier.exists():
-                # Fallback: first JSON file in the folder
-                candidates = list(faction_dir.glob("*parsed_dossier*.json"))
-                dossier    = candidates[0] if candidates else None
-
-            if not dossier:
-                continue
-
-            try:
-                with open(dossier, encoding="utf-8") as f:
-                    raw = json.load(f)
-                units = raw if isinstance(raw, list) else raw.get("units", [])
-                if units:
-                    self._units[faction] = [self._normalise_unit(u) for u in units]
-            except Exception as e:
-                self._errors.append(f"[{faction}] Failed to load {dossier.name}: {e}")
+    # _load_units() has been replaced by _discover_factions() + lazy _load_faction()
 
     def _load_rules(self):
         """Load rules from the first available rules.json, then build the
@@ -586,6 +506,7 @@ class CombatTerminalLoader:
     # ─── Status ────────────────────────────────────────────────────────────────
 
     def status(self) -> dict:
+        self._ensure_all_loaded()
         total_units = sum(len(v) for v in self._units.values())
         # Per-faction unit counts — sorted by count descending for display
         per_faction = {
@@ -615,6 +536,16 @@ class CombatTerminalLoader:
 
     def get_unit(self, name: str, faction: str | None = None) -> dict | None:
         """Find a unit by name (partial, accent-insensitive). Optionally filter by faction."""
+        if faction:
+            resolved = self._resolve_faction_key(faction)
+            if resolved:
+                self._ensure_faction_loaded(resolved)
+            else:
+                # No matching faction discovered at all
+                self._ensure_all_loaded()
+        else:
+            self._ensure_all_loaded()
+
         query = _normalise(name)
 
         factions_to_search = (
@@ -659,6 +590,15 @@ class CombatTerminalLoader:
         Unlike get_unit() which returns the first match, this returns ALL matches
         up to `limit` so the caller can detect ambiguity and trigger disambiguation.
         """
+        if faction:
+            resolved = self._resolve_faction_key(faction)
+            if resolved:
+                self._ensure_faction_loaded(resolved)
+            else:
+                self._ensure_all_loaded()
+        else:
+            self._ensure_all_loaded()
+
         query = _normalise(name)
 
         factions_to_search = (
@@ -773,6 +713,10 @@ class CombatTerminalLoader:
         Tries exact match first, then substring match.
         Returns (None, []) if no faction data is loaded or faction not found.
         """
+        resolved = self._resolve_faction_key(faction_query)
+        if resolved:
+            self._ensure_faction_loaded(resolved)
+
         query = _normalise(faction_query)
 
         # Exact normalised match
@@ -831,6 +775,10 @@ class CombatTerminalLoader:
 
         Returns None if the faction is not found in the loaded index.
         """
+        resolved = self._resolve_faction_key(faction)
+        if resolved:
+            self._ensure_faction_loaded(resolved)
+
         query = _normalise(faction)
 
         # Exact key match first
@@ -850,6 +798,10 @@ class CombatTerminalLoader:
 
         Returns None if the faction is not found in the loaded index.
         """
+        resolved = self._resolve_faction_key(faction)
+        if resolved:
+            self._ensure_faction_loaded(resolved)
+
         query = _normalise(faction)
 
         # Exact key match first
@@ -878,6 +830,15 @@ class CombatTerminalLoader:
                         built-in alias map so --deepstrike matches "deep strike" in unit keyword arrays.
         weapon_filter — "ranged" or "melee": only include units that have at least one weapon of that type.
         """
+        if faction:
+            resolved_key = self._resolve_faction_key(faction)
+            if resolved_key:
+                self._ensure_faction_loaded(resolved_key)
+            else:
+                self._ensure_all_loaded()
+        else:
+            self._ensure_all_loaded()
+
         filter_q = _normalise(filter_text) if filter_text else None
 
         # Resolve faction by fuzzy match so "tau" finds the "tau" key even if stored differently
@@ -1017,6 +978,7 @@ class CombatTerminalLoader:
 
         Returns None if not found (caller decides on stub fallback).
         """
+        self._ensure_all_loaded()
         query = _normalise(name)
         if not query:
             return None
@@ -1048,13 +1010,14 @@ class CombatTerminalLoader:
     def get_ability(self, name: str) -> dict | None:
         """Look up an ability by name (partial match, accent-insensitive).
 
-        Searches the ability index built at load time from all unit abilities.
+        Searches the ability index built from all unit abilities.
         Returns the best match or None (never returns a stub — callers decide on fallback).
 
         Search order:
           1. Exact normalised key match
           2. Substring match (query is a substring of any ability key)
         """
+        self._ensure_all_loaded()
         query = _normalise(name)
         if not query:
             return None
@@ -1080,6 +1043,7 @@ class CombatTerminalLoader:
 
         Returns None if not found (caller decides on stub fallback).
         """
+        self._ensure_all_loaded()
         query = _normalise(name)
         if not query:
             return None

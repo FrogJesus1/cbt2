@@ -398,6 +398,52 @@ def _apply_flags(flags: list, base_mods: "AttackModifiers", target: "TargetProfi
     return base_mods, target
 
 
+# ─── Flag validation ─────────────────────────────────────────────────────────
+
+KNOWN_FLAG_BASES = {
+    "ml", "cover", "lethal", "twin", "sustained", "blast", "rf",
+    "torrent", "lance", "invuln", "ea", "dev", "devastating",
+    "fnp", "dmgplus", "melta",
+}
+
+
+def _levenshtein(a: str, b: str) -> int:
+    """Simple Levenshtein distance."""
+    if len(a) < len(b):
+        return _levenshtein(b, a)
+    if not b:
+        return len(a)
+    prev = list(range(len(b) + 1))
+    for i, ca in enumerate(a):
+        curr = [i + 1]
+        for j, cb in enumerate(b):
+            curr.append(min(prev[j + 1] + 1, curr[j] + 1, prev[j] + (ca != cb)))
+        prev = curr
+    return prev[-1]
+
+
+def validate_flags(flags: list[str]) -> list[dict]:
+    """Check flags against KNOWN_FLAG_BASES.
+    Returns a list of error dicts for unknown flags, each with:
+      {"flag": str, "suggestions": list[str]}
+    Returns [] if all flags are valid.
+    """
+    errors = []
+    for f in flags:
+        key = f.split(":")[0].lower()
+        # Direct match
+        if key in KNOWN_FLAG_BASES:
+            continue
+        # Prefix match (ea1, sustained2, invuln4, fnp5)
+        if any(key.startswith(base) for base in KNOWN_FLAG_BASES):
+            continue
+        # Unknown — find suggestions
+        candidates = sorted(KNOWN_FLAG_BASES, key=lambda k: _levenshtein(key, k))
+        suggestions = [c for c in candidates[:3] if _levenshtein(key, c) <= max(2, len(key) // 2)]
+        errors.append({"flag": key, "suggestions": suggestions})
+    return errors
+
+
 def compute_combat(
     attacker_unit: dict,
     defender_unit: dict,

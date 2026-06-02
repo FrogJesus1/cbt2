@@ -40,16 +40,27 @@ export function SpecBannerCard({ title = "", subtitle = "", onInject, isStarred,
           <span
             onClick={() => onToggleStar(title)}
             style={{
-              color:      isStarred ? C.amber : C.dim,
-              fontSize:   "18px",
+              color:      isStarred ? "#ffd700" : C.label,
+              fontSize:   "22px",
               cursor:     "pointer",
               userSelect: "none",
-              padding:    "2px 6px",
-              transition: "color 0.15s",
+              padding:    "2px 8px",
+              transition: "color 0.15s, text-shadow 0.15s",
               flexShrink: 0,
+              textShadow: isStarred ? "0 0 8px rgba(255,215,0,0.6)" : "none",
             }}
-            onMouseEnter={e => { if (!isStarred) e.currentTarget.style.color = C.label; }}
-            onMouseLeave={e => { if (!isStarred) e.currentTarget.style.color = C.dim; }}
+            onMouseEnter={e => {
+              if (!isStarred) {
+                e.currentTarget.style.color = "#ffd700";
+                e.currentTarget.style.textShadow = "0 0 6px rgba(255,215,0,0.4)";
+              }
+            }}
+            onMouseLeave={e => {
+              if (!isStarred) {
+                e.currentTarget.style.color = C.label;
+                e.currentTarget.style.textShadow = "none";
+              }
+            }}
             title={isStarred ? "Remove from starred" : "Star this unit"}
           >
             {isStarred ? "★" : "☆"}

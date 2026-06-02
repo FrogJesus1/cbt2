@@ -354,6 +354,11 @@ export function Terminal({
     emitError(label, "Upload mode not set. Try 'upload roster' again.");
   }
 
+  // Delete a stream entry by id
+  const handleDeleteEntry = useCallback((entryId) => {
+    setStream(prev => prev.filter(e => e.id !== entryId));
+  }, []);
+
   // Auto-scroll to bottom on new output.
   // Skipped when suppressScrollRef is set (e.g. silent modifier reruns).
   useEffect(() => {
@@ -1205,6 +1210,23 @@ export function Terminal({
       return;
     }
 
+    // clear roster player / clear roster enemy
+    if (tokens[0] === "clear" && tokens[1] === "roster") {
+      const side = (tokens[2] || "").toLowerCase();
+      if (side === "player" || side === "my") {
+        activeRostersRef.current.player = null;
+        emitSystem(trimmed, "Player roster cleared.");
+        onExec?.("faction none");
+      } else if (side === "enemy") {
+        activeRostersRef.current.enemy = null;
+        emitSystem(trimmed, "Enemy roster cleared.");
+        onExec?.("enemy none");
+      } else {
+        emitError(trimmed, "Usage: clear roster player  or  clear roster enemy");
+      }
+      return;
+    }
+
     // ── Priority 8.8: campaign commands ──────────────────────────────────────
 
     // campaigns / list campaign / list campaigns
@@ -1284,7 +1306,9 @@ export function Terminal({
     // or scrolling the terminal, so the user's position is preserved.
     const isRerun = /^rerun(\s|$)/i.test(trimmed);
     if (isRerun && lastCombatIdRef.current !== null) {
-      setLoading(true);
+      // Don't use setLoading here — it triggers the auto-scroll effect via
+      // the [stream, loading] dependency, which would scroll to bottom after
+      // suppressScrollRef is consumed by the setStream render.
       try {
         const result = await onExec(trimmed, rosterContext);
         if (result?.data?._in_place) {
@@ -1297,7 +1321,6 @@ export function Terminal({
           ));
         }
       } catch (_) { /* silent — no error entry */ }
-      finally { setLoading(false); }
       return;
     }
 
@@ -1474,14 +1497,21 @@ export function Terminal({
         </div>
 
         {/* Command + result stream */}
-        <div className="space-y-4">
-          {stream.map(entry => (
+        <div className="space-y-0">
+          {stream.map((entry, idx) => (
             <div
               key={entry.id}
               ref={el => { entryRefs.current[entry.id] = el; }}
               style={{ transition: "background-color 0.3s" }}
             >
-              <TerminalBlock entry={entry} onSubmit={submit} onInject={onInject} onEdit={onEdit} onUpload={processUpload} starredUnits={starredUnits} onToggleStar={onToggleStar} />
+              {idx > 0 && (
+                <div style={{
+                  borderBottom: "1px solid var(--ct-border)",
+                  opacity: 0.4,
+                  margin: "12px 0",
+                }} />
+              )}
+              <TerminalBlock entry={entry} onSubmit={submit} onInject={onInject} onEdit={onEdit} onUpload={processUpload} onDelete={handleDeleteEntry} starredUnits={starredUnits} onToggleStar={onToggleStar} />
             </div>
           ))}
         </div>

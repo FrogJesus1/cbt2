@@ -39,11 +39,11 @@ function buildItems(data, maxDmg) {
       displayValue: `${fmt(expected_dmg)} dmg`,
     },
     expected_kills != null && {
-      label: "Kills", value: expected_kills, max: killsMax, color: C.cyan,
+      label: "Kills", value: expected_kills, max: killsMax, color: C.amber,
       displayValue: fmtKills(expected_kills),
     },
     kill_chance_pct != null && {
-      label: "Kill Chance", value: kill_chance_pct, max: 100, color: C.amber,
+      label: "Kill Chance", value: kill_chance_pct, max: 100, color: C.red,
       displayValue: fmtPct(kill_chance_pct),
     },
     avg_dmg_per_attack != null && {

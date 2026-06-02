@@ -27,7 +27,7 @@ export const fmtKills = (v) => {
 
 // ─── Bar (combat defaults: taller, more segments, glow) ───────────────────
 
-export function Bar({ segments = 12, height = 14, glow = true, ...rest }) {
+export function Bar({ segments = 12, height = 5, glow = true, ...rest }) {
   return <SharedBar segments={segments} height={height} glow={glow} {...rest} />;
 }
 

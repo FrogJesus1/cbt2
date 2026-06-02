@@ -40,6 +40,7 @@ import { RulesContext }     from "@/components/RulesContext";
 import { RostersContext }   from "@/components/RostersContext";
 
 import { DiagnosticsPage }  from "@/components/DiagnosticsPage";
+import { THEME_REGISTRY, ALL_THEME_IDS } from "@/data/themeRegistry";
 
 // ─── Theme persistence helpers ─────────────────────────────────────────────────
 // Active theme is stored in localStorage so it survives page reloads.
@@ -84,9 +85,14 @@ const CommandBar = forwardRef(function CommandBar(
   const [cmdHist,   setCmdHist]   = useState([]);
   const [histIdx,   setHistIdx]   = useState(-1);
   const [animating, setAnimating] = useState(false);
+  // Tab completion state
+  const [tabMatches, setTabMatches] = useState([]);   // visible dropdown items
+  const [tabIdx,     setTabIdx]     = useState(-1);   // highlighted index (-1 = none)
+  const [noMatch,    setNoMatch]    = useState(false); // flash for no matches
   const inputRef    = useRef(null);
   const animTimer   = useRef(null);
   const animActive  = useRef(false);
+  const noMatchTimer = useRef(null);
 
   useEffect(() => { inputRef.current?.focus(); }, []);
   useEffect(() => () => { if (animTimer.current) clearTimeout(animTimer.current); }, []);
@@ -97,6 +103,8 @@ const CommandBar = forwardRef(function CommandBar(
     setCmdHist(prev => [...prev.slice(-49), trimmed]);
     setHistIdx(-1);
     setInput("");
+    setTabMatches([]);
+    setTabIdx(-1);
     onSubmit(trimmed);
     inputRef.current?.focus();
   }
@@ -110,6 +118,8 @@ const CommandBar = forwardRef(function CommandBar(
       animActive.current = true;
       setAnimating(true);
       setInput("");
+      setTabMatches([]);
+      setTabIdx(-1);
 
       const chars = [...cmd];
       let   i     = 0;
@@ -137,9 +147,10 @@ const CommandBar = forwardRef(function CommandBar(
       setAnimating(false);
       setInput(cmd);
       setHistIdx(-1);
+      setTabMatches([]);
+      setTabIdx(-1);
       setTimeout(() => {
         inputRef.current?.focus();
-        // Place cursor at end
         inputRef.current?.setSelectionRange(cmd.length, cmd.length);
       }, 0);
     },
@@ -153,9 +164,38 @@ const CommandBar = forwardRef(function CommandBar(
     }
     setInput(e.target.value);
     setHistIdx(-1);
+    setTabMatches([]);
+    setTabIdx(-1);
   };
 
   const handleKeyDown = (e) => {
+    // When tab dropdown is open, arrow keys and Enter navigate it
+    if (tabMatches.length > 0) {
+      if (e.key === "ArrowDown") {
+        e.preventDefault();
+        setTabIdx(i => (i + 1) % tabMatches.length);
+        return;
+      }
+      if (e.key === "ArrowUp") {
+        e.preventDefault();
+        setTabIdx(i => (i <= 0 ? tabMatches.length - 1 : i - 1));
+        return;
+      }
+      if (e.key === "Enter" && tabIdx >= 0) {
+        e.preventDefault();
+        setInput(tabMatches[tabIdx] + " ");
+        setTabMatches([]);
+        setTabIdx(-1);
+        return;
+      }
+      if (e.key === "Escape") {
+        e.preventDefault();
+        setTabMatches([]);
+        setTabIdx(-1);
+        return;
+      }
+    }
+
     if (e.key === "Enter") {
       if (animActive.current) {
         if (animTimer.current) clearTimeout(animTimer.current);
@@ -180,57 +220,108 @@ const CommandBar = forwardRef(function CommandBar(
       const val = input.trim().toLowerCase();
       if (!val) return;
       const matches = commands.filter(c => c.startsWith(val));
-      if (matches.length === 1) setInput(matches[0] + " ");
+      if (matches.length === 1) {
+        setInput(matches[0] + " ");
+        setTabMatches([]);
+        setTabIdx(-1);
+      } else if (matches.length > 1) {
+        setTabMatches(matches.slice(0, 12));
+        setTabIdx(0);
+      } else {
+        // No matches — brief flash
+        setNoMatch(true);
+        if (noMatchTimer.current) clearTimeout(noMatchTimer.current);
+        noMatchTimer.current = setTimeout(() => setNoMatch(false), 600);
+      }
     }
   };
 
   return (
     <div
-      className="shrink-0 flex items-center gap-3 px-5 font-mono"
+      className="shrink-0 relative font-mono"
       style={{
         borderTop:       "2px solid var(--ct-border-bright)",
         backgroundColor: "var(--ct-bg-dark)",
-        minHeight:       "52px",
         boxShadow:       "0 -4px 20px rgba(var(--ct-glow-rgb), 0.06)",
       }}
-      onClick={() => inputRef.current?.focus()}
     >
-      <span
-        className={`ct-glow-sm select-none shrink-0 ${animating ? "animate-pulse" : ""}`}
-        style={{ color: animating ? "#ffa328" : "var(--ct-primary)", fontSize: "20px", transition: "color 0.15s" }}
+      {/* Tab completion dropdown — anchored above the input */}
+      {tabMatches.length > 0 && (
+        <div
+          className="absolute left-0 right-0 bottom-full z-50"
+          style={{
+            backgroundColor: "var(--ct-bg-dark)",
+            borderTop:       "1px solid var(--ct-border)",
+            borderLeft:      "1px solid var(--ct-border)",
+            borderRight:     "1px solid var(--ct-border)",
+            maxHeight:       "200px",
+            overflowY:       "auto",
+          }}
+        >
+          {tabMatches.map((m, i) => (
+            <div
+              key={m}
+              onClick={() => { setInput(m + " "); setTabMatches([]); setTabIdx(-1); inputRef.current?.focus(); }}
+              style={{
+                padding:         "4px 20px",
+                fontSize:        "13px",
+                cursor:          "pointer",
+                color:           i === tabIdx ? "var(--ct-primary)" : "var(--ct-primary-dim)",
+                backgroundColor: i === tabIdx ? "var(--ct-bg-panel)" : "transparent",
+                borderBottom:    "1px solid var(--ct-bg-panel)",
+                letterSpacing:   "0.04em",
+              }}
+              onMouseEnter={() => setTabIdx(i)}
+            >
+              {m}
+            </div>
+          ))}
+        </div>
+      )}
+
+      {/* Input row */}
+      <div
+        className="flex items-center gap-3 px-5"
+        style={{ minHeight: "52px" }}
+        onClick={() => inputRef.current?.focus()}
       >
-        ›
-      </span>
-      <input
-        ref={inputRef}
-        type="text"
-        value={input}
-        onChange={handleChange}
-        onKeyDown={handleKeyDown}
-        placeholder={animating ? "" : "enter command…"}
-        className="flex-1 bg-transparent outline-none font-mono"
-        style={{
-          color:      animating ? "#ffa32899" : "var(--ct-primary)",
-          fontSize:   "15px",
-          caretColor: animating ? "transparent" : "var(--ct-primary)",
-          transition: "color 0.1s",
-        }}
-        autoComplete="off"
-        autoCapitalize="off"
-        autoCorrect="off"
-        spellCheck={false}
-        disabled={loading}
-      />
-      {loading && !animating && (
-        <span className="shrink-0 font-mono animate-pulse" style={{ color: "var(--ct-primary-dim)", fontSize: "13px", letterSpacing: "0.1em" }}>
-          WAIT
+        <span
+          className={`ct-glow-sm select-none shrink-0 ${animating ? "animate-pulse" : ""}`}
+          style={{ color: animating ? "#ffa328" : noMatch ? "#ff3b3b" : "var(--ct-primary)", fontSize: "20px", transition: "color 0.15s" }}
+        >
+          ›
         </span>
-      )}
-      {animating && (
-        <span className="shrink-0 font-mono" style={{ color: "#ffa32870", fontSize: "11px", letterSpacing: "0.15em" }}>
-          INJECT
-        </span>
-      )}
+        <input
+          ref={inputRef}
+          type="text"
+          value={input}
+          onChange={handleChange}
+          onKeyDown={handleKeyDown}
+          placeholder={animating ? "" : "enter command…"}
+          className="flex-1 bg-transparent outline-none font-mono"
+          style={{
+            color:      animating ? "#ffa32899" : noMatch ? "#ff3b3b" : "var(--ct-primary)",
+            fontSize:   "15px",
+            caretColor: animating ? "transparent" : "var(--ct-primary)",
+            transition: "color 0.15s",
+          }}
+          autoComplete="off"
+          autoCapitalize="off"
+          autoCorrect="off"
+          spellCheck={false}
+          disabled={loading}
+        />
+        {loading && !animating && (
+          <span className="shrink-0 font-mono animate-pulse" style={{ color: "var(--ct-primary-dim)", fontSize: "13px", letterSpacing: "0.1em" }}>
+            WAIT
+          </span>
+        )}
+        {animating && (
+          <span className="shrink-0 font-mono" style={{ color: "#ffa32870", fontSize: "11px", letterSpacing: "0.15em" }}>
+            INJECT
+          </span>
+        )}
+      </div>
     </div>
   );
 });
@@ -268,8 +359,10 @@ export default function App() {
   });
 
   const [buildHash, setBuildHash] = useState(null);  // git short hash from /api/version
+  const [themeOpen, setThemeOpen] = useState(false);
 
   const historyRef = useRef(null);
+  const themeRef   = useRef(null);
   const cmdBarRef  = useRef(null);
 
   // ── Load engines + version ────────────────────────────────────────────────
@@ -304,11 +397,14 @@ export default function App() {
     try { localStorage.setItem(CT_ACTIVE_KEY, theme); } catch {}
   }, [theme]);
 
-  // Close history dropdown on outside click
+  // Close history / theme dropdowns on outside click
   useEffect(() => {
     const handler = (e) => {
       if (historyRef.current && !historyRef.current.contains(e.target)) {
         setHistoryOpen(false);
+      }
+      if (themeRef.current && !themeRef.current.contains(e.target)) {
+        setThemeOpen(false);
       }
     };
     document.addEventListener("mousedown", handler);
@@ -589,7 +685,7 @@ export default function App() {
           <span style={{ letterSpacing: "0.18em", fontSize: "14px", fontWeight: 700 }}>
             ⚡ COMBAT TERMINAL
           </span>
-          {buildHash && (
+          {buildHash && buildHash !== "unknown" && (
             <span
               title={`Build: ${buildHash}`}
               style={{
@@ -645,11 +741,6 @@ export default function App() {
             <span style={{ letterSpacing: "0.1em" }}>
               {isReady ? "ONLINE" : "OFFLINE"}
             </span>
-            {activeEngine?.summary?.total_units > 0 && (
-              <span style={{ color: "var(--ct-border)" }}>
-                · {activeEngine.summary.total_units.toLocaleString()} units
-              </span>
-            )}
           </div>
         )}
 
@@ -682,6 +773,65 @@ export default function App() {
           DIAG
         </button>
 
+        {/* Theme selector dropdown */}
+        <div
+          ref={themeRef}
+          className="relative flex items-stretch"
+          style={{ borderLeft: "1px solid var(--ct-border)" }}
+        >
+          <button
+            onClick={() => setThemeOpen(v => !v)}
+            className="flex items-center gap-2 px-4 transition-colors"
+            style={{
+              color:         themeOpen ? "var(--ct-primary)" : "var(--ct-primary-dim)",
+              letterSpacing: "0.1em",
+              fontSize:      "13px",
+              background:    themeOpen ? "rgba(var(--ct-glow-rgb),0.04)" : "transparent",
+              fontFamily:    "monospace",
+            }}
+            title="Switch theme"
+          >
+            ◐
+          </button>
+
+          {themeOpen && (
+            <div
+              className="absolute right-0 top-full z-50"
+              style={{
+                backgroundColor: "var(--ct-bg-dark)",
+                border:          "1px solid var(--ct-border)",
+                borderTop:       "none",
+                minWidth:        "200px",
+              }}
+            >
+              {ALL_THEME_IDS.map(id => {
+                const t      = THEME_REGISTRY[id];
+                const active = theme === id;
+                return (
+                  <button
+                    key={id}
+                    onClick={() => { setTheme(id); setThemeOpen(false); }}
+                    className="w-full text-left px-3 py-2 transition-colors flex items-center gap-2"
+                    style={{
+                      color:           active ? "var(--ct-primary)" : "var(--ct-primary-dim)",
+                      backgroundColor: active ? "rgba(var(--ct-glow-rgb),0.06)" : "transparent",
+                      borderBottom:    "1px solid var(--ct-bg-panel)",
+                      fontSize:        "12px",
+                      fontFamily:      "monospace",
+                      letterSpacing:   "0.1em",
+                    }}
+                    onMouseEnter={e => { if (!active) e.currentTarget.style.backgroundColor = "var(--ct-bg-panel)"; }}
+                    onMouseLeave={e => { if (!active) e.currentTarget.style.backgroundColor = "transparent"; }}
+                  >
+                    <span style={{ width: "14px", textAlign: "center" }}>{active ? "●" : "○"}</span>
+                    <span>{t.label}</span>
+                  </button>
+                );
+              })}
+            </div>
+          )}
+        </div>
+
         {/* Command History dropdown */}
         <div
           ref={historyRef}
@@ -712,8 +862,7 @@ export default function App() {
                 backgroundColor: "var(--ct-bg-dark)",
                 border:          "1px solid var(--ct-border)",
                 borderTop:       "none",
-                minWidth:        "340px",
-                maxWidth:        "480px",
+                width:           "420px",
                 maxHeight:       "400px",
                 overflowY:       "auto",
               }}
@@ -726,6 +875,10 @@ export default function App() {
                   letterSpacing: "0.15em",
                   borderBottom:  "1px solid var(--ct-border)",
                   textTransform: "uppercase",
+                  position:      "sticky",
+                  top:           0,
+                  backgroundColor: "var(--ct-bg-dark)",
+                  zIndex:        1,
                 }}
               >
                 <span>Combat & Threat History</span>
@@ -740,10 +893,12 @@ export default function App() {
                 cmdHistory.map((entry) => (
                   <div
                     key={entry.key}
-                    className="flex items-center gap-2 px-3 py-1.5 transition-colors"
+                    className="flex items-center gap-2 px-3 transition-colors"
                     style={{
                       borderBottom:    "1px solid var(--ct-bg-panel)",
                       backgroundColor: entry.starred ? "rgba(255,163,40,0.04)" : "transparent",
+                      height:          "32px",
+                      minHeight:       "32px",
                     }}
                     onMouseEnter={e => { if (!entry.starred) e.currentTarget.style.backgroundColor = "var(--ct-bg-panel)"; }}
                     onMouseLeave={e => { if (!entry.starred) e.currentTarget.style.backgroundColor = "transparent"; }}

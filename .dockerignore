@@ -1,0 +1,18 @@
+# Node
+render/web/node_modules/
+render/web/dist/
+
+# Python
+__pycache__/
+*.pyc
+*.pyo
+.venv/
+venv/
+.env
+
+# Dev/docs
+.git/
+.DS_Store
+*.md
+tests/
+Dockerfile.new

@@ -376,9 +376,10 @@ function DisambiguationBlock({ data, onInject }) {
 
 // ─── Root ─────────────────────────────────────────────────────────────────
 
-export function TerminalBlock({ entry, onSubmit, onInject, onEdit, onUpload, starredUnits, onToggleStar }) {
+export function TerminalBlock({ entry, onSubmit, onInject, onEdit, onUpload, onDelete, starredUnits, onToggleStar }) {
   const { input, result, pending } = entry;
   const [hovered, setHovered] = useState(false);
+  const [collapsed, setCollapsed] = useState(false);
 
   const handleEdit = useCallback(() => {
     if (onEdit && input) onEdit(input);
@@ -389,6 +390,9 @@ export function TerminalBlock({ entry, onSubmit, onInject, onEdit, onUpload, sta
     && result?.result_type !== "clear"
     && result?.result_type !== "history";
 
+  // Show controls for real results (not pending, not clear/history)
+  const showControls = !pending && result && result.result_type !== "clear";
+
   return (
     <div className="space-y-2">
       {/* Echoed input line */}
@@ -398,35 +402,85 @@ export function TerminalBlock({ entry, onSubmit, onInject, onEdit, onUpload, sta
         onMouseEnter={() => setHovered(true)}
         onMouseLeave={() => setHovered(false)}
       >
-        <span style={{ color: C.green, userSelect: "none", flexShrink: 0, textShadow: `0 0 4px rgba(var(--ct-glow-rgb),0.4)` }}>›</span>
-        <span style={{ color: "var(--ct-echo)" }}>{input}</span>
-        {showEdit && (
+        {/* Collapse toggle */}
+        {showControls && (
           <span
-            onClick={handleEdit}
-            title="Edit & re-run"
+            onClick={() => setCollapsed(c => !c)}
+            title={collapsed ? "Expand" : "Collapse"}
             style={{
-              color:      hovered ? C.label : "transparent",
+              color:      C.dim,
               cursor:     "pointer",
               userSelect: "none",
-              fontSize:   "12px",
+              fontSize:   "10px",
               flexShrink: 0,
-              padding:    "0 4px",
+              width:      "12px",
+              textAlign:  "center",
               transition: "color 0.15s",
             }}
             onMouseEnter={e => { e.currentTarget.style.color = C.green; }}
-            onMouseLeave={e => { e.currentTarget.style.color = hovered ? C.label : "transparent"; }}
+            onMouseLeave={e => { e.currentTarget.style.color = C.dim; }}
           >
-            ✎
+            {collapsed ? "▸" : "▾"}
           </span>
         )}
+        <span style={{ color: C.green, userSelect: "none", flexShrink: 0, textShadow: `0 0 4px rgba(var(--ct-glow-rgb),0.4)` }}>›</span>
+        <span style={{ color: "var(--ct-echo)", flex: 1 }}>{input}</span>
+
+        {/* Right-side controls */}
+        <div style={{ display: "flex", alignItems: "center", gap: "6px", flexShrink: 0 }}>
+          {showEdit && (
+            <span
+              onClick={handleEdit}
+              title="Edit & re-run"
+              style={{
+                color:         C.dim,
+                cursor:        "pointer",
+                userSelect:    "none",
+                fontSize:      "11px",
+                flexShrink:    0,
+                padding:       "1px 6px",
+                transition:    "color 0.15s, border-color 0.15s",
+                fontFamily:    "monospace",
+                letterSpacing: "0.06em",
+                border:        `1px solid ${C.border}`,
+              }}
+              onMouseEnter={e => { e.currentTarget.style.color = C.green; e.currentTarget.style.borderColor = C.green; }}
+              onMouseLeave={e => { e.currentTarget.style.color = C.dim; e.currentTarget.style.borderColor = C.border; }}
+            >
+              ✎ EDIT
+            </span>
+          )}
+          {showControls && onDelete && (
+            <span
+              onClick={() => onDelete(entry.id)}
+              title="Remove from output"
+              style={{
+                color:      C.dim,
+                cursor:     "pointer",
+                userSelect: "none",
+                fontSize:   "12px",
+                flexShrink: 0,
+                width:      "18px",
+                textAlign:  "center",
+                transition: "color 0.15s",
+              }}
+              onMouseEnter={e => { e.currentTarget.style.color = C.red; }}
+              onMouseLeave={e => { e.currentTarget.style.color = C.dim; }}
+            >
+              ✕
+            </span>
+          )}
+        </div>
       </div>
 
-      {/* Result */}
-      {pending ? (
-        <TerminalPending input={input} />
-      ) : result ? (
-        <TerminalResult result={result} onSubmit={onSubmit} onInject={onInject} onUpload={onUpload} starredUnits={starredUnits} onToggleStar={onToggleStar} />
-      ) : null}
+      {/* Result — hidden when collapsed */}
+      {!collapsed && (
+        pending ? (
+          <TerminalPending input={input} />
+        ) : result ? (
+          <TerminalResult result={result} onSubmit={onSubmit} onInject={onInject} onUpload={onUpload} starredUnits={starredUnits} onToggleStar={onToggleStar} />
+        ) : null
+      )}
     </div>
   );
 }

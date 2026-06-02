@@ -13,6 +13,7 @@ export const C = {
   dim:       "var(--ct-primary-dim)",
   ghost:     "var(--ct-ghost)",
   amber:     "#ffa328",
+  yellow:    "#ffd700",
   cyan:      "var(--ct-bar-alt)",
   red:       "#ff3b3b",
   orange:    "#ff6b2b",

@@ -51,7 +51,7 @@ function OutcomeRow({ w, maxDmg }) {
             value={w.hit_pct}
             max={100}
             display={fmtPct(w.hit_pct)}
-            color={C.cyan}
+            color={C.green}
           />
         )}
 
@@ -61,7 +61,7 @@ function OutcomeRow({ w, maxDmg }) {
             value={w.wound_pct}
             max={100}
             display={fmtPct(w.wound_pct)}
-            color={C.amber}
+            color={C.yellow}
           />
         )}
 
