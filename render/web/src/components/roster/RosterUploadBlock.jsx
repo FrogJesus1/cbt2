@@ -11,15 +11,7 @@
  * data: { message, hint? }
  */
 
-const C = {
-  green:  "var(--ct-primary)",
-  mid:    "var(--ct-primary-mid)",
-  label:  "var(--ct-primary-label)",
-  dim:    "var(--ct-primary-dim)",
-  amber:  "#ffa328",
-  cyan:   "#00e5ff",
-  border: "var(--ct-border)",
-};
+import { C } from "../shared/colors";
 
 /** Shown when a roster is successfully saved to VFS. */
 export function RosterSavedBlock({ data, onInject }) {

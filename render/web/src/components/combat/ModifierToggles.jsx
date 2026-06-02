@@ -22,6 +22,7 @@
  *   inline             bool      true when embedded inside BannerCard
  */
 
+import { Fragment } from "react";
 import { C } from "./shared";
 
 // ─── Flag label map ────────────────────────────────────────────────────────────
@@ -32,6 +33,7 @@ const FLAG_LABELS = {
   dev:      "dev",
   lethal:   "lethal",
   rf:       "rf",
+  melta:    "melta",
   blast:    "blast",
   twin:     "twin",
   sustained:"sustained",
@@ -68,8 +70,6 @@ function flagBase(flag) {
 // ─── Flag semantics ─────────────────────────────────────────────────────────────
 // Beneficial flags improve attacker output (cyan).
 // Penalty flags represent defensive modifiers on the target (red).
-
-const PENALTY_FLAGS = new Set(["cover", "invuln", "invuln4", "invuln5", "invuln6"]);
 
 function flagSemantic(flag) {
   const key = flag.split(":")[0].toLowerCase();
@@ -181,15 +181,14 @@ export function ModifierToggles({
     }}>
       {/* Attacker flags */}
       {hasAtt && allAtt.map((flag, i) => (
-        <>
-          {i > 0 && <Pipe key={`sep-att-${i}`} />}
+        <Fragment key={flag}>
+          {i > 0 && <Pipe />}
           <Token
-            key={flag}
             flag={flag}
             isActive={activeAttSet.has(flagBase(flag))}
             onToggle={handleToggle}
           />
-        </>
+        </Fragment>
       ))}
 
       {/* vs divider — only when both sides have flags */}
@@ -197,15 +196,14 @@ export function ModifierToggles({
 
       {/* Defender flags */}
       {hasDef && allDef.map((flag, i) => (
-        <>
-          {i > 0 && <Pipe key={`sep-def-${i}`} />}
+        <Fragment key={flag}>
+          {i > 0 && <Pipe />}
           <Token
-            key={flag}
             flag={flag}
             isActive={activeDefSet.has(flagBase(flag))}
             onToggle={handleToggle}
           />
-        </>
+        </Fragment>
       ))}
     </div>
   );

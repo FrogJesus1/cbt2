@@ -39,7 +39,7 @@ class EngineBase:
     def query(self, command: str, params: dict = {}) -> dict  # execute a query
 ```
 
-The web server and CLI both call ONLY these five methods. Swap the engine in `config.json` — everything else works identically.
+The web server and CLI call these five methods plus two optional helpers (`aliases()`, `help_groups()`). Swap the engine in `config.json` — everything else works identically.
 
 ---
 
@@ -49,7 +49,7 @@ The web server and CLI both call ONLY these five methods. Swap the engine in `co
 {
   "primary_engine": "combat_terminal",
   "support_engines": [],
-  "web": { "port": 8000, "host": "localhost" },
+  "web": { "port": 8000, "host": "127.0.0.1" },
   "cli": { "default_engine": "combat_terminal" }
 }
 ```

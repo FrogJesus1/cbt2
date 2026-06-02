@@ -30,11 +30,6 @@ function pick(obj, ...keys) {
   return "—";
 }
 
-function isNegative(v) {
-  const n = parseInt(v, 10);
-  return !isNaN(n) && n < 0;
-}
-
 export function normalizeWeapon(w) {
   if (typeof w === "string") {
     return { name: w, range: "—", A: "—", skill: "—", S: "—", AP: "—", D: "—", keywords: [], type: "ranged" };

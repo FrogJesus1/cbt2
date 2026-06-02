@@ -730,25 +730,6 @@ class CombatTerminalLoader:
 
         return results
 
-    # ─── Query: combat math ────────────────────────────────────────────────────
-
-    def get_combat_math(self, attacker: str, defender: str) -> dict:
-        """Calculate hit/wound/kill probabilities.
-
-        STUB — full dice math engine will be wired here.
-        Currently returns placeholder values.
-        """
-        att_unit = self.get_unit(attacker) if attacker else None
-        def_unit = self.get_unit(defender) if defender else None
-
-        return {
-            "Attacker":         att_unit.get("name", attacker) if att_unit else attacker,
-            "Defender":         def_unit.get("name", defender) if def_unit else defender,
-            "Hit probability":  "—",
-            "Wound probability":"—",
-            "Kill probability": "—",
-            "Note":             "Combat math engine not yet wired. Stat sheets loaded.",
-        }
 
     # ─── Query: rules ─────────────────────────────────────────────────────────
 
@@ -885,45 +866,17 @@ class CombatTerminalLoader:
 
     # ─── Query: threats ───────────────────────────────────────────────────────
 
-    def get_threats(self, enemy_faction: str) -> list[dict]:
-        """Return threat list for an enemy faction.
-
-        STUB — full threat scoring will be wired here.
-        """
-        query = _normalise(enemy_faction)
-
-        # Find best matching faction
-        matched_faction = None
-        for faction_name in self._units:
-            if query in _normalise(faction_name):
-                matched_faction = faction_name
-                break
-
-        units = self._units.get(matched_faction, []) if matched_faction else []
-        if not units:
-            return [{
-                "name":         "No data",
-                "threat_level": "—",
-                "reason":       f"Faction '{enemy_faction}' not found in loaded data.",
-            }]
-
-        return [
-            {
-                "name":         unit.get("name", "Unknown"),
-                "threat_level": "—",
-                "reason":       "Threat scoring not yet implemented.",
-            }
-            for unit in units[:15]
-        ]
 
     # ─── Query: list ──────────────────────────────────────────────────────────
 
-    def get_list(self, list_type: str, filter_text: str = "", faction: str | None = None, keywords: list | None = None) -> dict:
+    def get_list(self, list_type: str, filter_text: str = "", faction: str | None = None,
+                 keywords: list | None = None, weapon_filter: str | None = None) -> dict:
         """Return a structured list for the given type and optional filter.
 
-        keywords — list of keyword flag strings extracted from --flags, e.g. ["deepstrike", "blast"].
-                   Each flag is checked against the full unit JSON (normalised lowercase) using a
-                   built-in alias map so --deepstrike matches "deep strike" in unit keyword arrays.
+        keywords      — list of keyword flag strings extracted from --flags, e.g. ["deepstrike", "blast"].
+                        Each flag is checked against the full unit JSON (normalised lowercase) using a
+                        built-in alias map so --deepstrike matches "deep strike" in unit keyword arrays.
+        weapon_filter — "ranged" or "melee": only include units that have at least one weapon of that type.
         """
         filter_q = _normalise(filter_text) if filter_text else None
 
@@ -970,6 +923,14 @@ class CombatTerminalLoader:
                 "scouts":        "scouts",
                 "infiltrators":  "infiltrators",
                 "stealth":       "stealth",
+                # Unit type keywords
+                "character":     "character",
+                "battleline":    "battleline",
+                "vehicle":       "vehicle",
+                "mounted":       "mounted",
+                "infantry":      "infantry",
+                "monster":       "monster",
+                "walker":        "walker",
             }
             expanded_kws = [KW_ALIAS.get(k.lower(), k.lower()) for k in (keywords or [])]
 
@@ -997,6 +958,20 @@ class CombatTerminalLoader:
                     unit_json = _normalise(json.dumps(unit))
                     if expanded_kws and not all(kw in unit_json for kw in expanded_kws):
                         continue
+                    # Weapon type filter: only include units with at least one weapon of the requested type
+                    if weapon_filter:
+                        want_melee = weapon_filter == "melee"
+                        has_match = False
+                        for w in (unit.get("weapons", []) or []):
+                            if isinstance(w, dict):
+                                wt = str(w.get("type", "ranged")).lower()
+                                wk = str(w.get("keywords", w.get("abilities", ""))).lower()
+                                is_melee = "melee" in wt or "melee" in wk
+                                if is_melee == want_melee:
+                                    has_match = True
+                                    break
+                        if not has_match:
+                            continue
                     # Include stats for rich list display
                     stats = unit.get("stats", {}) if isinstance(unit.get("stats"), dict) else {}
                     results.append({
@@ -1207,15 +1182,6 @@ class CombatTerminalLoader:
         }
 
     @staticmethod
-    def _stub_ability(name: str) -> dict:
-        return {
-            "name":        name,
-            "description": f"Ability data for '{name}' not yet loaded. Add ability data to the faction dossiers.",
-            "units":       [],
-            "phase":       "",
-            "source":      "",
-            "_stub":       True,
-        }
 
     @staticmethod
     def _stub_enhancement(name: str, detachment: str | None = None) -> dict:

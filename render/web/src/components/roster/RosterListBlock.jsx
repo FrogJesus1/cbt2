@@ -10,17 +10,7 @@
 
 import { labelify } from "@/lib/vfs";
 
-// ─── Colour palette (mirrors TerminalBlock C constants) ─────────────────────
-const C = {
-  green:  "var(--ct-primary)",
-  mid:    "var(--ct-primary-mid)",
-  label:  "var(--ct-primary-label)",
-  dim:    "var(--ct-primary-dim)",
-  amber:  "#ffa328",
-  cyan:   "#00e5ff",
-  border: "var(--ct-border)",
-  panel:  "var(--ct-bg-panel)",
-};
+import { C } from "../shared/colors";
 
 export function RosterListBlock({ data, onInject }) {
   const { rosters = {}, count = 0, prompt } = data;
@@ -43,9 +33,8 @@ export function RosterListBlock({ data, onInject }) {
     );
   }
 
-  // Build a flat numbered list for selection by number
+  // Build a numbered list for selection by number
   let globalIdx = 0;
-  const flatRosters = [];
 
   return (
     <div className="font-mono" style={{ paddingLeft: "18px", fontSize: "14px" }}>
@@ -85,8 +74,6 @@ export function RosterListBlock({ data, onInject }) {
               globalIdx++;
               const n     = globalIdx;
               const roster = rosters[faction][name];
-
-              flatRosters.push({ faction, name });
 
               return (
                 <div

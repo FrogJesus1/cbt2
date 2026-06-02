@@ -341,16 +341,35 @@ def build_combat_ledger(
             )
 
         # Save roll
+        # Note: this reconstruction is an approximation of the full
+        # compute_save_target() logic.  Invulnerable saves, save bonuses/
+        # penalties, and AP modifiers from flags may change the effective
+        # target used in the actual probability chain.
         if fail_save is not None and def_Sv is not None:
             effective_sv = def_Sv + ap_int
             if "cover" in active_flags:
                 effective_sv = max(2, effective_sv - 1)
+            # Check for invuln override (from combat result if available)
+            invuln_note = ""
+            invuln_val = None
+            for flg in active_flags:
+                if flg.startswith("invuln"):
+                    parts = flg.split(":")
+                    if len(parts) > 1:
+                        try:
+                            invuln_val = int(parts[1])
+                        except ValueError:
+                            pass
+            if invuln_val is not None and invuln_val < effective_sv:
+                invuln_note = f" (invuln {invuln_val}+ used instead)"
+                effective_sv = invuln_val
+            effective_sv = max(2, min(7, effective_sv))
             ledger.log(
                 system="ballistics",
                 label="save_target",
-                formula="save_target = Sv + AP  (cover: −1 to target)",
+                formula="save_target = min(Sv + AP − cover, invuln)",
                 inputs={"Sv": f"{def_Sv}+", "AP": f"−{ap_int}" if ap_int else "0"},
-                result=f"{effective_sv}+",
+                result=f"{effective_sv}+{invuln_note}",
             )
             ledger.log(
                 system="ballistics",
@@ -387,7 +406,7 @@ def build_combat_ledger(
             ledger.log(
                 system="ballistics",
                 label="expected_kills",
-                formula="E[kills] = E[dmg] / W",
+                formula="E[kills] = E[dmg] / W  (approximation — damage does not spill between models in 40K; actual kills may be lower vs multi-wound targets)",
                 inputs={"E[dmg]": _fmt_num(dmg), "W": def_W},
                 result=_fmt_num(kills),
                 importance="high",
@@ -423,8 +442,8 @@ def build_combat_ledger(
             ledger.log(
                 system="simulation",
                 label="simulation_confidence",
-                formula="confidence = 1 − ε / μ",
-                inputs={"error_margin": sim.get("error_margin"), "mean": "E[dmg]"},
+                formula="ε% ≤1→Very High, ≤3→High, ≤7→Medium, else→Low",
+                inputs={"error_margin_pct": sim.get("error_margin")},
                 result=conf_str,
                 importance="high",
             )

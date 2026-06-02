@@ -1,4 +1,0 @@
-# DELET2
-# Saved: 2026-03-19
-
-list units --faction dark angels

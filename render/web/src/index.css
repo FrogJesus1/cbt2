@@ -29,7 +29,7 @@
 /* Applied via data-theme on the root div in App.jsx.                    */
 /* Only primary/accent colours change. Amber, cyan, red stay semantic.  */
 
-[data-theme="default"] {
+[data-theme="dark"] {
   --ct-primary:       #39ff14;
   --ct-primary-mid:   #22bb0e;
   --ct-primary-label: #20a010;
@@ -45,20 +45,20 @@
   --ct-bar-alt:       #00e5ff;
 }
 
-[data-theme="red"] {
-  --ct-primary:       #ff3b3b;
-  --ct-primary-mid:   #cc2020;
-  --ct-primary-label: #a01515;
-  --ct-primary-dim:   #5c0808;
-  --ct-border:        #2a0d0d;
-  --ct-border-bright: #4a1414;
-  --ct-bg:            #080505;
-  --ct-bg-dark:       #070404;
-  --ct-bg-panel:      #0e0808;
-  --ct-echo:          #f5c4c4;
-  --ct-glow-rgb:      255, 59, 59;
-  --ct-ghost:         #240505;
-  --ct-bar-alt:       #ff7a3b;
+[data-theme="light"] {
+  --ct-primary:       #1a5c10;
+  --ct-primary-mid:   #2a7a1e;
+  --ct-primary-label: #3a8a2e;
+  --ct-primary-dim:   #8ab880;
+  --ct-border:        #c0d8bc;
+  --ct-border-bright: #7aaa70;
+  --ct-bg:            #f2f5f0;
+  --ct-bg-dark:       #e8ece6;
+  --ct-bg-panel:      #eaf0e8;
+  --ct-echo:          #1a3010;
+  --ct-glow-rgb:      26, 92, 16;
+  --ct-ghost:         #dce5da;
+  --ct-bar-alt:       #0088aa;
 }
 
 @layer base {
@@ -113,13 +113,11 @@
   ::-webkit-scrollbar-thumb:hover { background: #1a4a14; }
 }
 
-/* ── Mainframe (Total Retro) theme ──────────────────────────────────────
- * Applied via data-theme="mainframe" on the root div in App.jsx.
- * CSS variables replicate the CT var contract with #000/#33ff33 palette.
- * Global overrides below strip all chrome and force monospace everywhere.
+/* ── Console (Retro Terminal) theme ─────────────────────────────────────
+ * Pure retro — monospace only, phosphor green on black, no chrome.
  * ─────────────────────────────────────────────────────────────────────── */
 
-[data-theme="mainframe"] {
+[data-theme="console"] {
   --ct-primary:       #33ff33;
   --ct-primary-mid:   #22cc22;
   --ct-primary-label: #19991a;
@@ -136,8 +134,8 @@
 }
 
 /* Force monospace font and 14px globally — no bold */
-[data-theme="mainframe"],
-[data-theme="mainframe"] * {
+[data-theme="console"],
+[data-theme="console"] * {
   font-family: "Courier New", Courier, monospace !important;
   font-weight: normal !important;
   box-shadow:  none !important;
@@ -146,147 +144,32 @@
 }
 
 /* 14px on all text-bearing elements (skip SVG internals) */
-[data-theme="mainframe"] *:not(svg):not(path):not(circle):not(g):not(line):not(polygon) {
+[data-theme="console"] *:not(svg):not(path):not(circle):not(g):not(line):not(polygon) {
   font-size: 14px !important;
 }
 
 /* Strip background gradients from all layout containers */
-[data-theme="mainframe"] div,
-[data-theme="mainframe"] nav,
-[data-theme="mainframe"] button,
-[data-theme="mainframe"] span,
-[data-theme="mainframe"] section,
-[data-theme="mainframe"] aside {
+[data-theme="console"] div,
+[data-theme="console"] nav,
+[data-theme="console"] button,
+[data-theme="console"] span,
+[data-theme="console"] section,
+[data-theme="console"] aside {
   background-image: none !important;
 }
 
-/* ASCII-style borders: replace decorative glows with plain hairlines.
- * Elements that already reference --ct-border via inline style pick this
- * up automatically through the var() override above.  This rule catches
- * any utility classes that hardcode a border colour. */
-[data-theme="mainframe"] .ct-panel,
-[data-theme="mainframe"] .ct-panel-inner {
+/* ASCII-style borders: plain hairlines, pure black background */
+[data-theme="console"] .ct-panel,
+[data-theme="console"] .ct-panel-inner {
   border: 1px solid #1a3d1a !important;
   background-color: #000000 !important;
 }
 
-/* Disable CRT scanline and vignette overlays in mainframe mode —
+/* Disable CRT scanline and vignette overlays —
  * pure flat phosphor green on black needs no extra layering */
-[data-theme="mainframe"] ~ body::before,
-[data-theme="mainframe"] ~ body::after {
+[data-theme="console"] ~ body::before,
+[data-theme="console"] ~ body::after {
   display: none !important;
-}
-
-/* ── Void Zen theme ──────────────────────────────────────────────────────────
- * Minimalist silence: dark grey on near-black, clean sans-serif, no borders,
- * generous line-height for breathing room.
- * ─────────────────────────────────────────────────────────────────────────── */
-
-[data-theme="void-zen"] {
-  --ct-primary:       #666666;
-  --ct-primary-mid:   #555555;
-  --ct-primary-label: #444444;
-  --ct-primary-dim:   #333333;
-  --ct-border:        transparent;
-  --ct-border-bright: #444444;
-  --ct-bg:            #050505;
-  --ct-bg-dark:       #050505;
-  --ct-bg-panel:      #050505;
-  --ct-echo:          #888888;
-  --ct-glow-rgb:      102, 102, 102;
-  --ct-ghost:         #0a0a0a;
-  --ct-bar-alt:       #555555;
-}
-
-[data-theme="void-zen"],
-[data-theme="void-zen"] * {
-  font-family:   Inter, Arial, "Helvetica Neue", sans-serif !important;
-  font-weight:   normal !important;
-  box-shadow:    none !important;
-  text-shadow:   none !important;
-  border-radius: 0 !important;
-  line-height:   1.6 !important;
-}
-
-[data-theme="void-zen"] *:not(svg):not(path):not(circle):not(g):not(line):not(polygon) {
-  font-size: 14px !important;
-}
-
-/* Strip all borders and background decoration */
-[data-theme="void-zen"] div,
-[data-theme="void-zen"] nav,
-[data-theme="void-zen"] button,
-[data-theme="void-zen"] span,
-[data-theme="void-zen"] section,
-[data-theme="void-zen"] aside {
-  border:           none !important;
-  box-shadow:       none !important;
-  background-image: none !important;
-}
-
-[data-theme="void-zen"] .ct-panel,
-[data-theme="void-zen"] .ct-panel-inner,
-[data-theme="void-zen"] .ct-bar-track {
-  border: none !important;
-}
-
-/* ── Warp Stained theme ───────────────────────────────────────────────────────
- * Ruinous corruption: neon magenta on deep purple, monospace, double-line
- * borders, static 1px offset text-shadow for corrupted-signal bleed.
- * ─────────────────────────────────────────────────────────────────────────── */
-
-[data-theme="warp-stained"] {
-  --ct-primary:       #ff00ff;
-  --ct-primary-mid:   #cc00cc;
-  --ct-primary-label: #aa00aa;
-  --ct-primary-dim:   #660066;
-  --ct-border:        #550055;
-  --ct-border-bright: #ff00ff;
-  --ct-bg:            #100010;
-  --ct-bg-dark:       #100010;
-  --ct-bg-panel:      #100010;
-  --ct-echo:          #ffaaff;
-  --ct-glow-rgb:      255, 0, 255;
-  --ct-ghost:         #0a0010;
-  --ct-bar-alt:       #ff00ff;
-}
-
-[data-theme="warp-stained"],
-[data-theme="warp-stained"] * {
-  font-family:   Consolas, "Courier New", Courier, monospace !important;
-  text-shadow:   1px 1px 0px #880000 !important;
-  box-shadow:    none !important;
-  border-radius: 0 !important;
-}
-
-[data-theme="warp-stained"] *:not(svg):not(path):not(circle):not(g):not(line):not(polygon) {
-  font-size: 14px !important;
-}
-
-/* Replace structural borders with double magenta lines */
-[data-theme="warp-stained"] div,
-[data-theme="warp-stained"] nav,
-[data-theme="warp-stained"] section,
-[data-theme="warp-stained"] aside {
-  border:           1px double #ff00ff !important;
-  background-image: none !important;
-}
-
-[data-theme="warp-stained"] .ct-panel,
-[data-theme="warp-stained"] .ct-panel-inner,
-[data-theme="warp-stained"] .ct-bar-track {
-  border: 1px double #ff00ff !important;
-}
-
-/* Buttons: single solid line keeps them readable and clickable */
-[data-theme="warp-stained"] button {
-  border: 1px solid #ff00ff !important;
-}
-
-/* Inline spans and inputs skip structural borders */
-[data-theme="warp-stained"] span,
-[data-theme="warp-stained"] input {
-  border: none !important;
 }
 
 @layer utilities {

@@ -5,25 +5,13 @@ Handles result_type == "ability_block".
 Displays: name, ability text, compact list of units that carry it.
 """
 
-import shutil
 import textwrap
 
-RESET  = "\033[0m"
-BOLD   = "\033[1m"
-DIM    = "\033[2m"
-CYAN   = "\033[96m"
-WHITE  = "\033[97m"
-
-
-def _tw() -> int:
-    try:
-        return shutil.get_terminal_size(fallback=(110, 24)).columns
-    except Exception:
-        return 110
+from .style import RESET, BOLD, DIM, WHITE, terminal_width
 
 
 def render_ability_block(data: dict, indent: int = 2):
-    tw    = _tw()
+    tw    = terminal_width()
     pad   = " " * indent
     div_w = max(20, tw - indent * 2)
 
@@ -60,9 +48,6 @@ def render_ability_block(data: dict, indent: int = 2):
         remaining = len(units) - MAX_SHOWN
 
         # Lay out units across lines that fit within wrap_w
-        units_line = "  ·  ".join(shown)
-        if remaining > 0:
-            units_line += f"  {DIM}[+{remaining} more]{RESET}"
 
         print(f"{pad}{DIM}Units:{RESET}")
         # Wrap the unit list if it's long

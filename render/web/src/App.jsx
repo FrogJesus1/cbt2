@@ -38,7 +38,7 @@ import { Terminal }         from "@/components/Terminal";
 import { UnitsContext }     from "@/components/UnitsContext";
 import { RulesContext }     from "@/components/RulesContext";
 import { RostersContext }   from "@/components/RostersContext";
-import { DemoView }         from "@/components/DemoView";
+
 import { DiagnosticsPage }  from "@/components/DiagnosticsPage";
 
 // ─── Theme persistence helpers ─────────────────────────────────────────────────
@@ -48,8 +48,8 @@ import { DiagnosticsPage }  from "@/components/DiagnosticsPage";
 const CT_ACTIVE_KEY = "ct_active_theme";
 
 function readStoredTheme() {
-  try { return localStorage.getItem(CT_ACTIVE_KEY) || "default"; }
-  catch { return "default"; }
+  try { return localStorage.getItem(CT_ACTIVE_KEY) || "dark"; }
+  catch { return "dark"; }
 }
 
 // ─── Context config ───────────────────────────────────────────────────────────
@@ -267,10 +267,12 @@ export default function App() {
     diag:     null,
   });
 
+  const [buildHash, setBuildHash] = useState(null);  // git short hash from /api/version
+
   const historyRef = useRef(null);
   const cmdBarRef  = useRef(null);
 
-  // ── Load engines ──────────────────────────────────────────────────────────
+  // ── Load engines + version ────────────────────────────────────────────────
 
   useEffect(() => {
     fetch(`${API}/engines`)
@@ -282,6 +284,11 @@ export default function App() {
         setActiveEngineId(primary);
       })
       .catch(() => setApiError("Cannot reach API — run: python main.py"));
+
+    fetch(`${API}/version`)
+      .then(r => r.json())
+      .then(data => setBuildHash(data.commit ?? null))
+      .catch(() => {});
   }, []);
 
   useEffect(() => {
@@ -446,7 +453,6 @@ export default function App() {
       rosters: "rosters", campaign: "rosters", c: "rosters",
       rules: "rules", r: "rules",
       diag: "diag",
-      demo: "demo",
       settings: "settings",
     };
     if (NAV_CMD_MAP[tokens[0]] !== undefined) {
@@ -480,7 +486,7 @@ export default function App() {
   // Terminal resolves `units`, `rules`, etc. → calls this with the view id.
 
   const handleNavigate = useCallback((view) => {
-    const knownContexts = ["main", "units", "rosters", "rules", "settings", "demo", "diag"];
+    const knownContexts = ["main", "units", "rosters", "rules", "settings", "diag"];
     if (knownContexts.includes(view)) {
       setActiveContext(view);
     }
@@ -575,14 +581,27 @@ export default function App() {
           minHeight:       "42px",
         }}
       >
-        {/* Logo */}
+        {/* Logo + build hash */}
         <div
-          className="flex items-center px-4 shrink-0 ct-glow-sm"
+          className="flex items-center gap-3 px-4 shrink-0 ct-glow-sm"
           style={{ color: "var(--ct-primary)", borderRight: "1px solid var(--ct-border)" }}
         >
           <span style={{ letterSpacing: "0.18em", fontSize: "14px", fontWeight: 700 }}>
             ⚡ COMBAT TERMINAL
           </span>
+          {buildHash && (
+            <span
+              title={`Build: ${buildHash}`}
+              style={{
+                color:         "var(--ct-border)",
+                fontSize:      "10px",
+                letterSpacing: "0.08em",
+                fontFamily:    "monospace",
+              }}
+            >
+              {buildHash}
+            </span>
+          )}
         </div>
 
         {/* Context tabs — clicking injects the nav command */}
@@ -643,14 +662,7 @@ export default function App() {
             SETTINGS
           </div>
         )}
-        {activeContext === "demo" && (
-          <div
-            className="flex items-center px-4 font-mono"
-            style={{ color: "var(--ct-border)", borderLeft: "1px solid var(--ct-border)", fontSize: "11px", letterSpacing: "0.16em" }}
-          >
-            DEMO
-          </div>
-        )}
+
         {/* DIAG tab — visible and clickable when active; navigable via `diag` command */}
         <button
           onClick={() => cmdBarRef.current?.animateAndSubmit("diag")}
@@ -882,9 +894,6 @@ export default function App() {
         </div>
 
         {/* DEMO context (legacy — accessible via `demo` command) */}
-        <div style={panelStyle("demo")}>
-          <DemoView />
-        </div>
 
         {/* DIAG context — Engine Diagnostics dashboard (accessible via `diag` command or DIAG tab) */}
         <div style={panelStyle("diag")}>

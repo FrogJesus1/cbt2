@@ -102,7 +102,7 @@ class WeaponProfile:
     damage_expression: Optional[str] = None
     attacks_is_variable: bool = False
     attacks_expression: Optional[str] = None
-    instance_count: int = 1           # total weapon instances on the unit (set by roster loader)
+
 
 
 @dataclass
@@ -148,7 +148,8 @@ class AttackModifiers:
 
     use_rapid_fire: bool = False   # flag: signals weapon is within half range; RF N applied conditionally
     rf_value: float = 0.0          # RF N parsed from keyword — added to extra_attacks only when use_rapid_fire
-    use_melta: bool = False        # flag: CLI resolves per-weapon Melta N → flat_damage_bonus
+    use_melta: bool = False        # flag: signals weapon is within half range; Melta N applied conditionally
+    melta_value: float = 0.0      # Melta N parsed from keyword — added to flat_damage_bonus only when use_melta
     use_blast: bool = False        # flag: CLI resolves per-weapon Blast → minimum 3 attacks vs 6+ model units
     use_lance: bool = False        # flag: CLI resolves per-weapon Lance → +1 wound_bonus
 
@@ -510,141 +511,3 @@ def monte_carlo_attack(
     }
 
 
-def compare_weapon_into_target(
-    weapon_profiles: List[WeaponProfile],
-    target: TargetProfile,
-    base_mods: Optional[AttackModifiers] = None,
-    extra_effects: Optional[List[Dict[str, Any]]] = None,
-) -> List[Dict[str, Any]]:
-    results = []
-    for wp in weapon_profiles:
-        r = compute_attack_result(wp, target, base_mods=base_mods, extra_effects=extra_effects)
-        results.append(asdict(r))
-    results.sort(key=lambda x: x["expected_damage"], reverse=True)
-    return results
-
-
-def sweep_weapon_vs_toughness(
-    weapon: WeaponProfile,
-    toughness_values: Optional[List[int]] = None,
-    skill_values: Optional[List[int]] = None,
-    save_values: Optional[List[int]] = None,
-    base_mods: Optional[AttackModifiers] = None,
-    extra_effects: Optional[List[Dict[str, Any]]] = None,
-    digits: int = 2,
-) -> Dict[str, Any]:
-    """
-    Sweep a single weapon profile across a matrix of target toughness / skill / save values.
-
-    Returns a dict with:
-      - "rows"   : list of row labels (skill values used, e.g. "BS 3+")
-      - "cols"   : list of column labels (toughness values used, e.g. "T4")
-      - "matrix" : 2-D list [row][col] of expected_damage (rounded to `digits`)
-      - "weapon" : weapon name
-      - "mods"   : active effect names (if any)
-
-    Rows vary by BS (skill), columns vary by toughness, using a fixed save.
-    If multiple save values are supplied a separate table is returned per save.
-    """
-    if toughness_values is None:
-        toughness_values = [3, 4, 5, 6, 8, 10]
-    if skill_values is None:
-        skill_values = [2, 3, 4, 5, 6]
-    if save_values is None:
-        save_values = [3]
-
-    tables = {}
-    for sv in save_values:
-        matrix = []
-        for sk in skill_values:
-            row = []
-            w = WeaponProfile(
-                name=weapon.name,
-                attacks=weapon.attacks,
-                skill=sk,
-                strength=weapon.strength,
-                ap=weapon.ap,
-                damage=weapon.damage,
-                range=weapon.range,
-                keywords=list(weapon.keywords),
-                damage_is_variable=weapon.damage_is_variable,
-                damage_expression=weapon.damage_expression,
-                attacks_is_variable=weapon.attacks_is_variable,
-                attacks_expression=weapon.attacks_expression,
-            )
-            for t in toughness_values:
-                target = TargetProfile(
-                    name=f"T{t} Sv{sv}+",
-                    toughness=t,
-                    save=sv,
-                    invulnerable_save=None,
-                    wounds=1,
-                )
-                result = compute_attack_result(w, target, base_mods=base_mods, extra_effects=extra_effects)
-                row.append(round(result.expected_damage, digits))
-            matrix.append(row)
-
-        resolved_mods = apply_tau_markerlights(apply_effects(base_mods, extra_effects))
-        active = list(resolved_mods.active_effects)
-
-        tables[f"Sv{sv}+"] = {
-            "weapon": weapon.name,
-            "save": sv,
-            "rows": [f"BS {sk}+" for sk in skill_values],
-            "cols": [f"T{t}" for t in toughness_values],
-            "matrix": matrix,
-            "active_effects": active,
-        }
-
-    if len(save_values) == 1:
-        return tables[f"Sv{save_values[0]}+"]
-    return tables
-
-
-def railgun_vs_terminator_example() -> Dict[str, Any]:
-    railgun = WeaponProfile(
-        name="Railgun",
-        attacks=1,
-        skill=4,
-        strength=20,
-        ap=-5,
-        damage=12,
-        keywords=["Heavy", "Devastating Wounds"]
-    )
-    terminator = TargetProfile(
-        name="Terminator",
-        toughness=5,
-        save=2,
-        invulnerable_save=4,
-        wounds=3,
-        models=5,
-        cover=False
-    )
-
-    no_support = compute_attack_result(railgun, terminator)
-
-    with_markerlights = compute_attack_result(
-        railgun,
-        terminator,
-        base_mods=AttackModifiers(use_markerlights=True)
-    )
-
-    guided_plus_strat = compute_attack_result(
-        railgun,
-        terminator,
-        base_mods=AttackModifiers(use_markerlights=True),
-        extra_effects=[
-            make_stratagem("Example wound support", wound_bonus=1)
-        ]
-    )
-
-    return {
-        "no_support": asdict(no_support),
-        "with_markerlights": asdict(with_markerlights),
-        "with_markerlights_and_example_stratagem": asdict(guided_plus_strat),
-    }
-
-
-if __name__ == "__main__":
-    example = railgun_vs_terminator_example()
-    print(json.dumps(example, indent=2))

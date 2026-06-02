@@ -15,15 +15,7 @@
 import { useState } from "react";
 import { Pattern } from "@/components/ui/file-upload";
 
-// ─── Colour palette (matches rest of roster components) ───────────────────────
-const C = {
-  green:  "var(--ct-primary)",
-  mid:    "var(--ct-primary-mid)",
-  label:  "var(--ct-primary-label)",
-  dim:    "var(--ct-primary-dim)",
-  amber:  "#ffa328",
-  border: "var(--ct-border)",
-};
+import { C } from "../shared/colors";
 
 // ─── Label helpers ────────────────────────────────────────────────────────────
 

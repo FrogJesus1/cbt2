@@ -19,21 +19,26 @@
  *   scrollToId, onScrollComplete              scroll jump support
  */
 
-import { useState } from "react";
+import { useState, useRef, useCallback } from "react";
 import { Terminal } from "./Terminal";
+
+// ─── Starred units persistence ──────────────────────────────────────────────
+
+const CT_STARRED_KEY = "ct_starred_units";
+
+function loadStarredUnits() {
+  try { return JSON.parse(localStorage.getItem(CT_STARRED_KEY) || "[]"); }
+  catch { return []; }
+}
+
+function saveStarredUnits(units) {
+  try { localStorage.setItem(CT_STARRED_KEY, JSON.stringify(units)); }
+  catch { /* storage unavailable */ }
+}
 
 // ─── Colour palette ──────────────────────────────────────────────────────────
 
-const C = {
-  green:  "var(--ct-primary)",
-  mid:    "var(--ct-primary-mid)",
-  label:  "var(--ct-primary-label)",
-  dim:    "var(--ct-primary-dim)",
-  border: "var(--ct-border)",
-  panel:  "var(--ct-bg-panel)",
-  amber:  "#ffa328",
-  cyan:   "var(--ct-bar-alt)",
-};
+import { C } from "./shared/colors";
 
 // ─── Filter data ─────────────────────────────────────────────────────────────
 
@@ -68,8 +73,14 @@ const KEYWORDS = [
  *   {keywords:["Blast","Heavy"]}                  →  "list units --blast --heavy"
  *   {searchText:"broadside"}                      →  "list units broadside"
  */
-function buildListUnitsCommand({ searchText = "", factions = [], keywords = [] }) {
+function buildListUnitsCommand({ searchText = "", factions = [], keywords = [], unitTypes = [] }) {
   const parts = ["list units"];
+
+  // Unit type flags — e.g. "Character" → "--character"
+  for (const ut of unitTypes) {
+    const flag = ut.toLowerCase().replace(/[\s-]/g, "");
+    parts.push(`--${flag}`);
+  }
 
   // Keyword flags — normalise to lowercase no-space form
   for (const kw of keywords) {
@@ -164,7 +175,7 @@ function FilterModal({
   onClose,
 }) {
   const builtCmd = buildListUnitsCommand({
-    searchText, factions: selFactions, keywords: selKeywords,
+    searchText, factions: selFactions, keywords: selKeywords, unitTypes: selUnitTypes,
   });
 
   return (
@@ -296,6 +307,7 @@ export function UnitsContext({
   onContextRoute,
   scrollToId,
   onScrollComplete,
+  onEdit,
   onTheme,
   theme,
 }) {
@@ -305,20 +317,49 @@ export function UnitsContext({
   const [selUnitTypes, setSelUnitTypes] = useState([]);
   const [selKeywords,  setSelKeywords]  = useState([]);
 
+  // ── Starred units ───────────────────────────────────────────────────────
+  const [starredUnits, setStarredUnits] = useState(loadStarredUnits);
+  const streamRef = useRef([]);   // track current terminal stream for scroll lookup
+  const [localScrollToId, setLocalScrollToId] = useState(null);
+
+  const toggleStar = useCallback((unitName) => {
+    setStarredUnits(prev => {
+      const next = prev.includes(unitName)
+        ? prev.filter(n => n !== unitName)
+        : [...prev, unitName];
+      saveStarredUnits(next);
+      return next;
+    });
+  }, []);
+
+  const handleStarClick = useCallback((unitName) => {
+    // Find the last stream entry that is a spec_sheet for this unit
+    const entry = [...streamRef.current].reverse().find(e =>
+      e.result?.result_type === "spec_sheet" &&
+      e.result?.data?.title === unitName
+    );
+    if (entry) {
+      setLocalScrollToId(entry.id);
+    } else {
+      // Unit not in stream — inject spec command to load it
+      onInject?.(`spec ${unitName}`);
+    }
+  }, [onInject]);
+
   const activeFilterCount = selFactions.length + selUnitTypes.length + selKeywords.length;
 
   // ── Search actions ─────────────────────────────────────────────────────────
 
-  const runSearch = (text, factions, keywords) => {
-    const cmd = buildListUnitsCommand({ searchText: text, factions, keywords });
+  const runSearch = (text, factions, keywords, unitTypes = []) => {
+    const cmd = buildListUnitsCommand({ searchText: text, factions, keywords, unitTypes });
     onInject?.(cmd);
   };
 
-  const handleBarSearch = () => runSearch(searchText, selFactions, selKeywords);
+  const handleBarSearch = () => runSearch(searchText, selFactions, selKeywords, selUnitTypes);
 
   const handleFilterSearch = () => {
     setFilterOpen(false);
-    runSearch(searchText, selFactions, selKeywords);
+    runSearch(searchText, selFactions, selKeywords, selUnitTypes);
   };
 
   const handleClearAll = () => {
@@ -433,24 +474,110 @@ export function UnitsContext({
         </div>
       </div>
 
-      {/* ── Terminal output ── */}
-      <div style={{ flex: 1, overflow: "hidden", display: "flex", flexDirection: "column" }}>
-        <Terminal
-          engineId={engineId}
-          contextId="units"
-          onExec={onExec}
-          onStreamChange={onStreamChange}
-          pendingCommand={pendingCommand}
-          onPendingCommandConsumed={onPendingCommandConsumed}
-          onInject={onInject}
-          onNavigate={onNavigate}
-          onContextRoute={onContextRoute}
-          scrollToId={scrollToId}
-          onScrollComplete={onScrollComplete}
-          onTheme={onTheme}
-          theme={theme}
-          contextBootLines={UNITS_BOOT_LINES}
-        />
+      {/* ── Terminal output + starred sidebar ── */}
+      <div style={{ flex: 1, overflow: "hidden", display: "flex", flexDirection: "row" }}>
+        <div style={{ flex: 1, overflow: "hidden", display: "flex", flexDirection: "column" }}>
+          <Terminal
+            engineId={engineId}
+            contextId="units"
+            onExec={onExec}
+            onEdit={onEdit}
+            onStreamChange={(stream) => {
+              streamRef.current = stream;
+              onStreamChange?.(stream);
+            }}
+            pendingCommand={pendingCommand}
+            onPendingCommandConsumed={onPendingCommandConsumed}
+            onInject={onInject}
+            onNavigate={onNavigate}
+            onContextRoute={onContextRoute}
+            scrollToId={localScrollToId || scrollToId}
+            onScrollComplete={() => {
+              if (localScrollToId) setLocalScrollToId(null);
+              else onScrollComplete?.();
+            }}
+            onTheme={onTheme}
+            theme={theme}
+            contextBootLines={UNITS_BOOT_LINES}
+            starredUnits={starredUnits}
+            onToggleStar={toggleStar}
+          />
+        </div>
+
+        {/* ── Starred units sidebar ── */}
+        {starredUnits.length > 0 && (
+          <div
+            style={{
+              width:           "44px",
+              flexShrink:      0,
+              borderLeft:      `1px solid ${C.border}`,
+              backgroundColor: "var(--ct-bg-dark)",
+              display:         "flex",
+              flexDirection:   "column",
+              alignItems:      "center",
+              paddingTop:      "8px",
+              gap:             "2px",
+              overflowY:       "auto",
+              scrollbarWidth:  "none",
+            }}
+          >
+            {/* Header */}
+            <div style={{
+              color:         C.amber,
+              fontSize:      "9px",
+              fontWeight:    700,
+              letterSpacing: "0.1em",
+              textTransform: "uppercase",
+              writingMode:   "vertical-rl",
+              textOrientation: "mixed",
+              padding:       "4px 0 8px",
+              userSelect:    "none",
+            }}>
+              ★
+            </div>
+
+            {/* Starred unit tabs */}
+            {starredUnits.map((name) => {
+              // Abbreviate: first 3 chars of each word, max ~6 chars total
+              const abbr = name.split(/\s+/).map(w => w.slice(0, 3)).join("").slice(0, 6).toUpperCase();
+              return (
+                <button
+                  key={name}
+                  onClick={() => handleStarClick(name)}
+                  title={name}
+                  style={{
+                    writingMode:     "vertical-rl",
+                    textOrientation: "mixed",
+                    background:      "transparent",
+                    border:          `1px solid ${C.border}`,
+                    color:           C.mid,
+                    fontSize:        "10px",
+                    fontFamily:      "inherit",
+                    fontWeight:      600,
+                    letterSpacing:   "0.06em",
+                    padding:         "8px 4px",
+                    cursor:          "pointer",
+                    userSelect:      "none",
+                    whiteSpace:      "nowrap",
+                    transition:      "all 0.1s",
+                  }}
+                  onMouseEnter={e => {
+                    e.currentTarget.style.borderColor = C.amber;
+                    e.currentTarget.style.color       = C.amber;
+                    e.currentTarget.style.background  = "rgba(255,163,40,0.06)";
+                  }}
+                  onMouseLeave={e => {
+                    e.currentTarget.style.borderColor = C.border;
+                    e.currentTarget.style.color       = C.mid;
+                    e.currentTarget.style.background  = "transparent";
+                  }}
+                >
+                  {abbr}
+                </button>
+              );
+            })}
+          </div>
+        )}
       </div>
 
       {/* ── Filter modal ── */}

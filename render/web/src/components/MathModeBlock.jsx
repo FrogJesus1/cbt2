@@ -26,18 +26,13 @@ import { useState, useEffect, useRef, useCallback } from "react";
 // ─── Colour palette ─────────────────────────────────────────────────────────
 // Matches the rest of the terminal UI — CSS variables + hardcoded semantics.
 
+import { C as _C } from "./shared/colors";
+
+// Math Mode extends the shared palette with accent colours
 const C = {
-  green:   "var(--ct-primary)",
-  mid:     "var(--ct-primary-mid)",
-  label:   "var(--ct-primary-label)",
-  dim:     "var(--ct-primary-dim)",
-  amber:   "#ffa328",
-  cyan:    "#00e5ff",
-  border:  "var(--ct-border)",
-  panel:   "var(--ct-bg-panel)",
-  // Math Mode accent — a distinct purple/violet so it reads as "different layer"
-  math:    "#b388ff",
-  mathDim: "#7c4dff40",
+  ..._C,
+  math:       "#b388ff",
+  mathDim:    "#7c4dff40",
   mathBorder: "#7c4dff70",
 };
 
@@ -243,7 +238,7 @@ function CtrlButton({ label, title, onClick, disabled }) {
 // ─── Root component ──────────────────────────────────────────────────────────
 
 export function MathModeBlock({ data }) {
-  const { ledger = [], command = "", attacker, defender } = data || {};
+  const { ledger = [], command = "" } = data || {};
 
   // Flatten once on mount
   const flatItems = useRef(flattenLedger(ledger));

@@ -14,16 +14,8 @@ Counter block is hidden when show_counters == False.
 """
 
 import re
-import shutil
 
-RESET   = "\033[0m"
-BOLD    = "\033[1m"
-DIM     = "\033[2m"
-RED     = "\033[91m"
-CYAN    = "\033[96m"
-GREEN   = "\033[92m"
-YELLOW  = "\033[93m"
-WHITE   = "\033[97m"
+from .style import RESET, BOLD, DIM, RED, CYAN, GREEN, YELLOW, WHITE, terminal_width
 
 # 5 threat metrics in display order: (data key, display label, bar color)
 METRICS = [
@@ -41,13 +33,6 @@ THREAT_LEVEL_COLORS = {
 }
 
 _LABEL_W = 7   # fixed width for metric label column (fits "Threat ")
-
-
-def _tw() -> int:
-    try:
-        return shutil.get_terminal_size(fallback=(110, 24)).columns
-    except Exception:
-        return 110
 
 
 def _vis_len(s: str) -> int:
@@ -228,7 +213,7 @@ def _build_counter_lines(data: dict, col_w: int) -> list[str]:
 # ─── Main render ──────────────────────────────────────────────────────────────
 
 def render_threat_card(data: dict, indent: int = 2):
-    tw  = _tw()
+    tw  = terminal_width()
     pad = " " * indent
 
     show_counters = data.get("show_counters", True)

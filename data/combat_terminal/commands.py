@@ -455,41 +455,30 @@ REGISTRY: dict[str, Command] = {
     ),
 
     # ── Theme ─────────────────────────────────────────────────────────────────
-    # theme and unlock theme are handled client-side in Terminal.jsx.
+    # Handled client-side in Terminal.jsx.
     # Registered here so they appear in tab completion and help.
 
     "theme": Command(
         name="theme",
-        description="Apply a UI theme (locked themes require solving their challenge first)",
+        description="Apply a UI theme (dark, light, console)",
         usage="theme [name|reset]",
         group="meta",
         aliases=[],
         params={
-            "name": Param("string", False, "Theme name: default, red, or an unlocked theme", "red"),
+            "name": Param("string", False, "Theme name: dark, light, or console", "dark"),
         },
-        examples=["theme", "theme red", "theme default", "theme reset", "theme mainframe"],
+        examples=["theme", "theme dark", "theme light", "theme console", "theme reset"],
         supports_cli=False,
     ),
 
     "themes": Command(
         name="themes",
-        description="Browse the theme directory — see unlock status and attempt challenges",
+        description="List available themes",
         usage="themes",
         group="meta",
         aliases=["theme list", "theme dir"],
         params={},
         examples=["themes", "theme list"],
-        supports_cli=False,
-    ),
-
-    "unlock_theme": Command(
-        name="unlock_theme",
-        description="Attempt to unlock a hidden theme by solving a logic challenge",
-        usage="unlock theme",
-        group="meta",
-        aliases=["unlock theme"],
-        params={},
-        examples=["unlock theme"],
         supports_cli=False,
     ),
 
@@ -614,25 +603,16 @@ REGISTRY: dict[str, Command] = {
         examples=["rules"],
     ),
 
-    "campaign": Command(
-        name="campaign",
-        description="Navigate to campaign mode",
-        usage="campaign",
+    "rosters_nav": Command(
+        name="rosters_nav",
+        description="Navigate to rosters & campaign dashboard",
+        usage="rosters",
         group="navigation",
-        aliases=["c"],
+        aliases=["campaign", "c"],
         supports_cli=False,
-        examples=["campaign"],
+        examples=["rosters"],
     ),
 
-    "demo": Command(
-        name="demo",
-        description="Navigate to the demo / component showcase",
-        usage="demo",
-        group="navigation",
-        aliases=["d"],
-        supports_cli=False,
-        examples=["demo"],
-    ),
 
     "settings": Command(
         name="settings",

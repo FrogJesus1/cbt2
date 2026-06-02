@@ -37,7 +37,7 @@ import { C }                   from "./spec/shared";
 
 // ─── SpecBlock ─────────────────────────────────────────────────────────────
 
-export function SpecBlock({ data, meta, onSubmit, onInject }) {
+export function SpecBlock({ data, meta, onSubmit, onInject, starredUnits, onToggleStar }) {
   if (!data) return null;
 
   const {
@@ -51,6 +51,8 @@ export function SpecBlock({ data, meta, onSubmit, onInject }) {
     drone_notes = [],
     _stub       = false,
   } = data;
+
+  const isStarred = Array.isArray(starredUnits) && starredUnits.includes(title);
 
   return (
     <div
@@ -77,7 +79,7 @@ export function SpecBlock({ data, meta, onSubmit, onInject }) {
       )}
 
       {/* 1. Banner */}
-      <SpecBannerCard title={title} subtitle={subtitle} onInject={onInject} />
+      <SpecBannerCard title={title} subtitle={subtitle} onInject={onInject} isStarred={isStarred} onToggleStar={onToggleStar} />
 
       {/* 2. Keywords — full width, directly below banner */}
       {/* faction from meta scopes click commands to this unit's faction */}

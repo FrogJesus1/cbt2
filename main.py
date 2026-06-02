@@ -48,9 +48,8 @@ def build_frontend():
     dist_dir = web_dir / "dist"
     (dist_dir / "assets").mkdir(parents=True, exist_ok=True)
 
-    ESBUILD    = web_dir / "node_modules/@esbuild/linux-arm64/bin/esbuild"
+    ESBUILD    = web_dir / "node_modules" / ".bin" / "esbuild"
     TAILWIND   = web_dir / "node_modules/tailwindcss/lib/cli.js"
-    BUILD_SCRIPT = web_dir / "build.mjs"
 
     # ── JS bundle via esbuild ──────────────────────────────────────────────
     print("[build] Bundling JS with esbuild...")

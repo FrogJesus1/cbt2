@@ -271,6 +271,15 @@ class CombatTerminalEngine(EngineBase):
     def schema(self) -> dict:
         return _cmds.to_schema()
 
+    def aliases(self) -> dict[str, str]:
+        return dict(_cmds.ALIAS_MAP)
+
+    def help_groups(self) -> dict:
+        return {
+            "order":  list(_cmds.GROUP_ORDER),
+            "labels": dict(_cmds.GROUP_LABELS),
+        }
+
     # ─── Status ────────────────────────────────────────────────────────────────
 
     def status(self) -> dict:
@@ -393,20 +402,28 @@ class CombatTerminalEngine(EngineBase):
             # e.g. "list chaos daemons" → list units --faction "chaos daemons"
             _VALID_LIST_TYPES = {"units", "unit", "weapons", "weapon", "factions", "faction", "stratagems", "stratagem"}
             if list_type and list_type not in _VALID_LIST_TYPES:
-                remainder, faction = self._extract_flag(rest, "faction")
-                if not faction:
-                    # whole rest is the faction name (no --faction flag given)
-                    faction = rest.strip()
-                    remainder = ""
+                # Whole input is treated as faction + optional flags
+                remainder = rest
                 list_type = "units"
+                remainder, faction = self._extract_flag(remainder, "faction")
             else:
                 remainder, faction = self._extract_flag(remainder, "faction")
-            remainder, _ = self._extract_flag(remainder, "ranged")
-            remainder, _ = self._extract_flag(remainder, "melee")
             # Extract boolean --flags as keyword filters (--blast, --deepstrike, etc.)
             # These are always boolean; we do NOT consume the next word as a value.
             keyword_flags, remainder = self._extract_bool_flags(remainder)
-            return ("list", {"type": list_type, "filter": remainder.strip(), "faction": faction, "keywords": keyword_flags})
+            # Pull --ranged / --melee out of keyword flags (they're weapon type filters, not keyword searches)
+            weapon_filter = None
+            if "ranged" in keyword_flags:
+                keyword_flags.remove("ranged")
+                weapon_filter = "ranged"
+            elif "melee" in keyword_flags:
+                keyword_flags.remove("melee")
+                weapon_filter = "melee"
+            # If no explicit --faction flag, treat remaining text as faction name
+            if not faction and remainder.strip():
+                faction = remainder.strip()
+                remainder = ""
+            return ("list", {"type": list_type, "filter": remainder.strip(), "faction": faction, "keywords": keyword_flags, "weapon_filter": weapon_filter})
 
         elif canonical == "faction":
             return ("faction", {"name": rest})
@@ -554,7 +571,8 @@ class CombatTerminalEngine(EngineBase):
 
     # ─── Query dispatch ────────────────────────────────────────────────────────
 
-    def query(self, command: str, params: dict = {}) -> dict:
+    def query(self, command: str, params: dict | None = None) -> dict:
+        params = params or {}
         dispatch = {
             "_select":     self._query_select,
             "spec":        self._query_spec,
@@ -926,7 +944,7 @@ class CombatTerminalEngine(EngineBase):
 
         # Log lookup failures to the session issue log
         if not att_unit:
-            self._log_issue("unit_lookup", f"Attacker not found: '{attacker_raw}'", f"query={raw if 'raw' in dir() else attacker_raw}")
+            self._log_issue("unit_lookup", f"Attacker not found: '{attacker_raw}'", f"query={attacker_raw}")
         if not def_unit:
             self._log_issue("unit_lookup", f"Defender not found: '{defender_raw}'", f"query={defender_raw}")
 
@@ -1078,6 +1096,11 @@ class CombatTerminalEngine(EngineBase):
             "sustained": {"icon": "star",      "text": "Sustained Hits 1 — critical hits generate +1 extra hit"},
             "blast":     {"icon": "skull",     "text": "Blast — makes minimum 3 attacks against units of 6+ models"},
             "rf":        {"icon": "lightning", "text": "Rapid Fire — +attacks equal to weapon's Rapid Fire value within half range"},
+            "melta":     {"icon": "skull",     "text": "Melta — +damage equal to weapon's Melta value within half range"},
+            "torrent":   {"icon": "target",    "text": "Torrent — weapon auto-hits (no ballistic skill roll needed)"},
+            "lance":     {"icon": "star",      "text": "Lance — +1 to Wound rolls (charged this turn)"},
+            "fnp":       {"icon": "shield",    "text": "Feel No Pain — target ignores wounds on a roll of N+"},
+            "dmgplus":   {"icon": "zap",       "text": "Flat damage bonus — +N damage per unsaved wound"},
         }
         flag_notes = []
         for f in flags:
@@ -1410,8 +1433,41 @@ class CombatTerminalEngine(EngineBase):
         }
 
         strategic_notes   = self._generate_strategic_notes(unit_data, faction_label)
-        detachments       = self._loader.get_stub_detachments(faction_label)
-        stratagems        = self._loader.get_stub_stratagems(faction_label)
+
+        # Real detachment + stratagem data from the faction dossier
+        raw_dets = self._loader.get_detachments(matched_faction) or []
+        detachments = []
+        stratagems  = []
+        for det in raw_dets:
+            det_name = det.get("name", "")
+            # Reshape for DetachmentBlock: { name, rules, description }
+            detachments.append({
+                "name":        det_name,
+                "description": det.get("description", ""),
+                "rules":       [{"name": det.get("rule_name", det_name),
+                                 "description": det.get("description", "")}]
+                               if det.get("rule_name") or det.get("description") else [],
+            })
+            # Flatten stratagems, adding cost + detachment fields for StratagemList
+            for s in det.get("stratagems", []):
+                if not isinstance(s, dict):
+                    continue
+                cp_raw   = s.get("cp", s.get("cost", "?"))
+                cost_str = f"{cp_raw}CP" if str(cp_raw).lstrip("-").isdigit() else str(cp_raw)
+                stratagems.append({
+                    "name":       s.get("name", "?"),
+                    "cost":       cost_str,
+                    "when":       s.get("when", ""),
+                    "target":     s.get("target", ""),
+                    "effect":     s.get("effect", s.get("description", "")),
+                    "phase":      s.get("phase", ""),
+                    "detachment": det_name,
+                })
+        # Fall back to stubs only if no real data found
+        if not detachments:
+            detachments = self._loader.get_stub_detachments(faction_label)
+        if not stratagems:
+            stratagems = self._loader.get_stub_stratagems(faction_label)
         roster_loaded     = bool(self._session.get("roster_my"))
         active_detachment = self._session.get("detachment") or None
 
@@ -1438,15 +1494,17 @@ class CombatTerminalEngine(EngineBase):
         }
 
     def _query_list(self, params: dict) -> dict:
-        list_type   = params.get("type", "").strip().lower()
-        filter_text = (params.get("filter") or "").strip()
-        faction     = (params.get("faction") or None)
-        keywords    = params.get("keywords") or []
+        list_type     = params.get("type", "").strip().lower()
+        filter_text   = (params.get("filter") or "").strip()
+        faction       = (params.get("faction") or None)
+        keywords      = params.get("keywords") or []
+        weapon_filter = params.get("weapon_filter")   # "ranged" | "melee" | None
 
         if not list_type:
             return self._err("list", "Usage: list <units|weapons|factions|stratagems> [keyword]")
 
-        result = self._loader.get_list(list_type, filter_text, faction, keywords=keywords)
+        result = self._loader.get_list(list_type, filter_text, faction, keywords=keywords,
+                                       weapon_filter=weapon_filter)
 
         if result.get("error"):
             return self._err("list", result["error"])
@@ -1564,7 +1622,7 @@ class CombatTerminalEngine(EngineBase):
                 "ok":          True,
                 "command":     "roster",
                 "result_type": "text",
-                "data":        f"No {label.lower()} roster loaded.\nRoster import coming soon.",
+                "data":        f"No {label.lower()} roster loaded.\nUse the ROSTERS tab or type 'load roster' to assign one.",
                 "meta":        {"side": side},
             }
 
@@ -1633,9 +1691,6 @@ class CombatTerminalEngine(EngineBase):
                     "roster_mode":  "ON" if roster_my else "OFF",
                     "faction":      faction or "—",
                     "enemy":        enemy_faction or "—",
-                    "target":       None,
-                    "mods":         None,
-                    "campaign":     None,
                 },
                 "my_roster":    _roster_meta(roster_my),
                 "enemy_roster": _enemy_meta(roster_enemy),
@@ -2399,12 +2454,13 @@ class CombatTerminalEngine(EngineBase):
             {"flag": "--dev",         "display": "[dev]",        "desc": "Devastating Wounds",         "effect": "Critical wounds (6+ on wound roll) bypass all saves (mortal wound equivalent)"},
             {"flag": "--blast",       "display": "[blast]",      "desc": "Blast",                      "effect": "Minimum 3 attacks when targeting 6+ model units — defender model count required for full resolution"},
             {"flag": "--rf",          "display": "[rf]",         "desc": "Rapid Fire (in range)",      "effect": "Rapid Fire N already baked into A count; flag signals in-half-range condition"},
+            {"flag": "--melta",       "display": "[melta]",      "desc": "Melta (in range)",           "effect": "Melta N already parsed from weapon keyword; flag signals within-half-range for +N flat damage"},
             {"flag": "--ea1",         "display": "[ea1]",        "desc": "Extra Attacks +1",           "effect": "+1 extra attack per model before squad scaling (also: --ea:2, --ea:3 etc.)"},
             {"flag": "--invuln:4",    "display": "[invuln:4]",   "desc": "Invulnerable Save Override", "effect": "Forces target invulnerable save to the specified value (e.g. 4+)"},
             {"flag": "--lance",       "display": "[lance]",      "desc": "Lance",                      "effect": "+1 to wound rolls (approximation — full rule applies vs VEHICLES/MONSTERS only)"},
             {"flag": "--torrent",     "display": "[torrent]",    "desc": "Torrent",                    "effect": "Weapon auto-hits (no BS roll required); natural 6s on separate die still trigger crits"},
             {"flag": "--fnp:6",       "display": "[fnp:6]",      "desc": "Feel No Pain Override",      "effect": "Target gains/overrides Feel No Pain save to specified value (e.g. 6+)"},
-            {"flag": "--dmgplus:1",   "display": "[dmgplus:1]",  "desc": "Flat Damage Bonus",          "effect": "+N flat damage per unsaved wound (e.g. Melta half-range bonus)"},
+            {"flag": "--dmgplus:1",   "display": "[dmgplus:1]",  "desc": "Flat Damage Bonus",          "effect": "+N flat damage per unsaved wound (stacks with other damage modifiers)"},
         ]
 
         swinginess_labels = [
@@ -2464,145 +2520,76 @@ class CombatTerminalEngine(EngineBase):
             }
         return {"name": str(ab), "description": ""}
 
+    # ── Shared stat-parsing helper (used by _compute_unit_scores) ──────────────
+
     @staticmethod
-    def _compute_ratings(unit: dict) -> dict:
-        """Derive normalized (0.0–1.0) combat ratings from a unit dict.
-
-        Returns a dict keyed by rating name, each with:
-            score (float 0–1), label (display string)
-        """
-        def _num(val, default=0.0) -> float:
-            if val is None:
-                return default
-            s = str(val).replace('"', '').replace("'", '').replace('+', '').strip()
-            # Handle "D6", "d6" dice values — use average
-            import re as _re
-            dice_m = _re.match(r'^(\d*)d(\d+)$', s, _re.IGNORECASE)
-            if dice_m:
-                n = int(dice_m.group(1) or 1)
-                d = int(dice_m.group(2))
-                return n * (d + 1) / 2.0
-            try:
-                return float(s)
-            except (ValueError, TypeError):
-                return default
-
-        # Core stats
-        t     = _num(unit.get("T"),  4)
-        sv    = _num(unit.get("Sv"), 4)     # save value e.g. 3 for "3+"
-        w     = _num(unit.get("W"),  1)
-        oc    = _num(unit.get("OC"), 1)
-        m_raw = str(unit.get("M", "6\"")).replace('"', '').replace("'", '').strip()
+    def _stat_num(val, default=0.0) -> float:
+        """Parse a stat value to float, handling dice expressions and suffixes."""
+        if val is None:
+            return default
+        s = str(val).replace('"', '').replace("'", '').replace('+', '').strip()
+        dice_m = re.match(r'^(\d*)d(\d+)$', s, re.IGNORECASE)
+        if dice_m:
+            n = int(dice_m.group(1) or 1)
+            d = int(dice_m.group(2))
+            return n * (d + 1) / 2.0
         try:
-            m = float(m_raw)
+            return float(s)
         except (ValueError, TypeError):
-            m = 6.0
-
-        sv_val = sv if 1 <= sv <= 7 else 4.0
-
-        # ── Durability ─────────────────────────────────────────────────────────
-        t_norm   = min(t  / 14.0,  1.0)
-        sv_norm  = max(0.0, (7.0 - sv_val) / 5.0)   # 2+=1.0, 7+=0.0
-        w_norm   = min(w  / 30.0,  1.0)
-        dur_score = t_norm * 0.40 + sv_norm * 0.35 + w_norm * 0.25
-
-        sv_str = unit.get("Sv", f"{int(sv_val)}+")
-        if "+" not in str(sv_str):
-            sv_str = f"{sv_str}+"
-        dur_label = f"T{int(t)} {sv_str} {int(w)}W"
-
-        # ── Mobility ────────────────────────────────────────────────────────────
-        mob_score = min(m / 16.0, 1.0)
-        m_str     = unit.get("M", f'{int(m)}"')
-        if '"' not in str(m_str):
-            m_str = f'{m_str}"'
-        mob_label = str(m_str)
-
-        # ── Objective Control ───────────────────────────────────────────────────
-        oc_score = min(oc / 10.0, 1.0)
-        oc_label = f"OC {int(oc)}"
-
-        # ── Weapon scoring helpers ───────────────────────────────────────────────
-        def _weapon_score(weapons, want_melee: bool) -> float:
-            score = 0.0
-            for w_item in weapons:
-                if isinstance(w_item, dict):
-                    w_type   = str(w_item.get("type", "ranged")).lower()
-                    kw_str   = str(w_item.get("keywords", w_item.get("abilities", ""))).lower()
-                    is_melee = "melee" in w_type or "melee" in kw_str
-                    if is_melee != want_melee:
-                        continue
-                    # Try varied key names from different data schemas
-                    a   = _num(w_item.get("attacks") or w_item.get("A"), 1)
-                    s_v = _num(w_item.get("strength") or w_item.get("S"), 4)
-                    ap  = abs(_num(w_item.get("ap") or w_item.get("AP"), 0))
-                    d   = _num(w_item.get("damage") or w_item.get("D"), 1)
-                    score += a * (s_v * 0.25 + ap * 1.0 + d * 0.75)
-                elif isinstance(w_item, str):
-                    w_str    = w_item.lower()
-                    is_melee = "melee" in w_str
-                    if is_melee != want_melee:
-                        continue
-                    # Keyword heuristics for string-format weapons
-                    bonus = 1.0
-                    for kw in ["melta", "lascannon", "plasma", "railgun", "heavy rail"]:
-                        if kw in w_str:
-                            bonus = 3.0
-                            break
-                    for kw in ["power", "force", "thunder", "chainsword"]:
-                        if kw in w_str:
-                            bonus = 2.0
-                            break
-                    score += bonus
-            return score
-
-        fp_raw   = _weapon_score(unit.get("weapons", []), want_melee=False)
-        mt_raw   = _weapon_score(unit.get("weapons", []), want_melee=True)
-        fp_score = min(fp_raw / 25.0, 1.0)
-        mt_score = min(mt_raw / 25.0, 1.0)
-
-        fp_label = f"{fp_raw:.1f} est"
-        mt_label = f"{mt_raw:.1f} est"
-
-        return {
-            "durability":    {"score": dur_score, "label": dur_label},
-            "mobility":      {"score": mob_score, "label": mob_label},
-            "obj_control":   {"score": oc_score,  "label": oc_label},
-            "firepower":     {"score": fp_score,  "label": fp_label},
-            "melee_threat":  {"score": mt_score,  "label": mt_label},
-        }
+            return default
 
     @staticmethod
-    def _compute_metrics(unit: dict) -> dict:
-        """Compute 5 threat metrics (0–100 int each) from a unit dict.
+    def _weapon_score(weapons, want_melee: bool, _num_fn=None) -> float:
+        """Score weapons by type (ranged or melee). Uses _stat_num for parsing."""
+        _num = _num_fn or CombatTerminalEngine._stat_num
+        score = 0.0
+        for w_item in weapons:
+            if isinstance(w_item, dict):
+                w_type   = str(w_item.get("type", "ranged")).lower()
+                kw_str   = str(w_item.get("keywords", w_item.get("abilities", ""))).lower()
+                is_melee = "melee" in w_type or "melee" in kw_str
+                if is_melee != want_melee:
+                    continue
+                a   = _num(w_item.get("attacks") or w_item.get("A"), 1)
+                s_v = _num(w_item.get("strength") or w_item.get("S"), 4)
+                ap  = abs(_num(w_item.get("ap") or w_item.get("AP"), 0))
+                d   = _num(w_item.get("damage") or w_item.get("D"), 1)
+                score += a * (s_v * 0.25 + ap * 1.0 + d * 0.75)
+            elif isinstance(w_item, str):
+                w_str    = w_item.lower()
+                is_melee = "melee" in w_str
+                if is_melee != want_melee:
+                    continue
+                bonus = 1.0
+                for kw in ("melta", "lascannon", "plasma", "railgun", "heavy rail"):
+                    if kw in w_str:
+                        bonus = 3.0
+                        break
+                for kw in ("power", "force", "thunder", "chainsword"):
+                    if kw in w_str:
+                        bonus = 2.0
+                        break
+                score += bonus
+        return score
 
-        Returns: {threat, dur, dmg, mob, buff}
-        - threat: overall danger (combines offence + durability)
-        - dur:    survivability
-        - dmg:    damage output (ranged + melee weighted)
-        - mob:    movement speed
-        - buff:   buffing / support potential (heuristic)
+    @staticmethod
+    def _compute_unit_scores(unit: dict) -> dict:
+        """Compute all unit scores in a single pass.
+
+        Returns:
+            {
+                "ratings": { <name>: {"score": 0-1 float, "label": str}, ... },
+                "metrics": { "threat": 0-100, "dur": 0-100, "dmg": 0-100,
+                             "mob": 0-100, "buff": 0-100 },
+            }
         """
-        import re as _re
+        _num = CombatTerminalEngine._stat_num
 
-        def _num(val, default=0.0) -> float:
-            if val is None:
-                return default
-            s = str(val).replace('"', '').replace("'", '').replace('+', '').strip()
-            dice_m = _re.match(r'^(\d*)d(\d+)$', s, _re.IGNORECASE)
-            if dice_m:
-                n = int(dice_m.group(1) or 1)
-                d = int(dice_m.group(2))
-                return n * (d + 1) / 2.0
-            try:
-                return float(s)
-            except (ValueError, TypeError):
-                return default
-
+        # ── Core stats ──────────────────────────────────────────────────────
         t     = _num(unit.get("T"),  4)
         sv    = _num(unit.get("Sv"), 4)
         w     = _num(unit.get("W"),  1)
-        oc    = _num(unit.get("OC"), 1)  # noqa: F841 (kept for future use)
+        oc    = _num(unit.get("OC"), 1)
         m_raw = str(unit.get("M", '6"')).replace('"', '').replace("'", '').strip()
         try:
             m = float(m_raw)
@@ -2612,56 +2599,44 @@ class CombatTerminalEngine(EngineBase):
         sv_val = sv if 1 <= sv <= 7 else 4.0
 
         # ── Durability ──────────────────────────────────────────────────────
-        t_norm  = min(t  / 14.0, 1.0)
-        sv_norm = max(0.0, (7.0 - sv_val) / 5.0)
-        w_norm  = min(w  / 30.0, 1.0)
-        dur_raw = t_norm * 0.40 + sv_norm * 0.35 + w_norm * 0.25
-        dur     = int(round(dur_raw * 100))
+        t_norm    = min(t  / 14.0,  1.0)
+        sv_norm   = max(0.0, (7.0 - sv_val) / 5.0)
+        w_norm    = min(w  / 30.0,  1.0)
+        dur_score = t_norm * 0.40 + sv_norm * 0.35 + w_norm * 0.25
+
+        sv_str = unit.get("Sv", f"{int(sv_val)}+")
+        if "+" not in str(sv_str):
+            sv_str = f"{sv_str}+"
+        dur_label = f"T{int(t)} {sv_str} {int(w)}W"
 
         # ── Mobility ────────────────────────────────────────────────────────
-        mob = int(round(min(m / 16.0, 1.0) * 100))
+        mob_score = min(m / 16.0, 1.0)
+        m_str     = unit.get("M", f'{int(m)}"')
+        if '"' not in str(m_str):
+            m_str = f'{m_str}"'
+        mob_label = str(m_str)
 
-        # ── Weapon scoring ───────────────────────────────────────────────────
-        def _wscore(weapons, want_melee: bool) -> float:
-            score = 0.0
-            for w_item in weapons:
-                if isinstance(w_item, dict):
-                    w_type   = str(w_item.get("type", "ranged")).lower()
-                    kw_str   = str(w_item.get("keywords", w_item.get("abilities", ""))).lower()
-                    is_melee = "melee" in w_type or "melee" in kw_str
-                    if is_melee != want_melee:
-                        continue
-                    a   = _num(w_item.get("attacks") or w_item.get("A"), 1)
-                    s_v = _num(w_item.get("strength") or w_item.get("S"), 4)
-                    ap  = abs(_num(w_item.get("ap") or w_item.get("AP"), 0))
-                    d   = _num(w_item.get("damage") or w_item.get("D"), 1)
-                    score += a * (s_v * 0.25 + ap * 1.0 + d * 0.75)
-                elif isinstance(w_item, str):
-                    w_str    = w_item.lower()
-                    is_melee = "melee" in w_str
-                    if is_melee != want_melee:
-                        continue
-                    bonus = 1.0
-                    for kw in ("melta", "lascannon", "plasma", "railgun", "heavy rail"):
-                        if kw in w_str:
-                            bonus = 3.0
-                            break
-                    for kw in ("power", "force", "thunder", "chainsword"):
-                        if kw in w_str:
-                            bonus = 2.0
-                            break
-                    score += bonus
-            return score
+        # ── Objective Control ───────────────────────────────────────────────
+        oc_score = min(oc / 10.0, 1.0)
+        oc_label = f"OC {int(oc)}"
 
-        fp_raw  = _wscore(unit.get("weapons", []), want_melee=False)
-        mt_raw  = _wscore(unit.get("weapons", []), want_melee=True)
-        dmg_raw = fp_raw * 0.65 + mt_raw * 0.35
-        dmg     = int(round(min(dmg_raw / 20.0, 1.0) * 100))
+        # ── Weapon scoring ──────────────────────────────────────────────────
+        weapons = unit.get("weapons", [])
+        fp_raw   = CombatTerminalEngine._weapon_score(weapons, want_melee=False, _num_fn=_num)
+        mt_raw   = CombatTerminalEngine._weapon_score(weapons, want_melee=True,  _num_fn=_num)
+        fp_score = min(fp_raw / 25.0, 1.0)
+        mt_score = min(mt_raw / 25.0, 1.0)
+        fp_label = f"{fp_raw:.1f} est"
+        mt_label = f"{mt_raw:.1f} est"
 
-        # ── Buff / support heuristic ─────────────────────────────────────────
+        # ── Damage composite (for metrics) ──────────────────────────────────
+        dmg_raw   = fp_raw * 0.65 + mt_raw * 0.35
+        dmg_score = min(dmg_raw / 20.0, 1.0)
+
+        # ── Buff / support heuristic ────────────────────────────────────────
         keywords  = [str(k).lower() for k in unit.get("keywords", [])]
         ab_texts  = " ".join(str(a).lower() for a in unit.get("abilities", []))
-        buff      = 10
+        buff = 10
         for kw in ("psyker", "leader", "priest", "character"):
             if kw in keywords:
                 buff += 20
@@ -2670,11 +2645,36 @@ class CombatTerminalEngine(EngineBase):
                 buff += 5
         buff = min(buff, 100)
 
-        # ── Overall threat (offence × weight + durability × weight) ──────────
-        threat = int(round(dur_raw * 0.45 * 100 + min(dmg_raw / 20.0, 1.0) * 0.55 * 100))
+        # ── Overall threat ──────────────────────────────────────────────────
+        threat = int(round(dur_score * 0.45 * 100 + dmg_score * 0.55 * 100))
         threat = min(threat, 100)
 
-        return {"threat": threat, "dur": dur, "dmg": dmg, "mob": mob, "buff": buff}
+        return {
+            "ratings": {
+                "durability":   {"score": dur_score, "label": dur_label},
+                "mobility":     {"score": mob_score, "label": mob_label},
+                "obj_control":  {"score": oc_score,  "label": oc_label},
+                "firepower":    {"score": fp_score,  "label": fp_label},
+                "melee_threat": {"score": mt_score,  "label": mt_label},
+            },
+            "metrics": {
+                "threat": threat,
+                "dur":    int(round(dur_score * 100)),
+                "dmg":    int(round(dmg_score * 100)),
+                "mob":    int(round(mob_score * 100)),
+                "buff":   buff,
+            },
+        }
+
+    @staticmethod
+    def _compute_ratings(unit: dict) -> dict:
+        """Derive normalized (0.0–1.0) combat ratings from a unit dict."""
+        return CombatTerminalEngine._compute_unit_scores(unit)["ratings"]
+
+    @staticmethod
+    def _compute_metrics(unit: dict) -> dict:
+        """Compute 5 threat metrics (0–100 int each) from a unit dict."""
+        return CombatTerminalEngine._compute_unit_scores(unit)["metrics"]
 
     @staticmethod
     def _compute_threat_level(metrics: dict) -> str:
@@ -2728,28 +2728,6 @@ class CombatTerminalEngine(EngineBase):
         except Exception:
             return 0.0
 
-    def _compute_counters(
-        self, enemy_metrics: dict, enemy_unit: dict, my_roster: list
-    ) -> list[dict]:
-        """Score each unit in my_roster vs the enemy and return the top 3."""
-        scored = []
-        for u in my_roster:
-            if isinstance(u, dict):
-                my_unit = u
-            else:
-                my_unit = self._loader.get_unit(str(u)) or {"name": str(u)}
-
-            my_metrics = self._compute_metrics(my_unit)
-            score      = self._counter_score_vs(my_metrics, enemy_metrics)
-            reason     = self._counter_reason_str(my_metrics, enemy_metrics)
-            scored.append({
-                "name":   my_unit.get("name", str(u)),
-                "score":  int(round(score)),
-                "reason": reason,
-            })
-
-        scored.sort(key=lambda x: x["score"], reverse=True)
-        return scored[:3]
 
     def _compute_counters_math(
         self, enemy_unit: dict, my_roster: list, top_n: int = 5
@@ -2806,28 +2784,6 @@ class CombatTerminalEngine(EngineBase):
 
         return top
 
-    @staticmethod
-    def _counter_score_vs(my_metrics: dict, enemy_metrics: dict) -> float:
-        """0–100 score: how well my unit counters the enemy."""
-        dmg_vs_dur = my_metrics.get("dmg", 0) * (enemy_metrics.get("dur", 50) / 100)
-        dur_vs_dmg = my_metrics.get("dur", 0) * (enemy_metrics.get("dmg", 50) / 100)
-        return min(dmg_vs_dur * 0.60 + dur_vs_dmg * 0.40, 100)
-
-    @staticmethod
-    def _counter_reason_str(my_metrics: dict, enemy_metrics: dict) -> str:
-        """Brief human-readable rationale."""
-        my_dmg = my_metrics.get("dmg", 0)
-        en_dur = enemy_metrics.get("dur", 50)
-        my_dur = my_metrics.get("dur", 0)
-        en_dmg = enemy_metrics.get("dmg", 50)
-        parts  = []
-        if my_dmg >= 60 and en_dur >= 60:
-            parts.append("High dmg vs tough target")
-        elif my_dmg >= 60:
-            parts.append("High damage output")
-        if my_dur >= 60 and en_dmg >= 60:
-            parts.append("Durable vs heavy hitter")
-        return " · ".join(parts) if parts else ""
 
     @staticmethod
     def _suggest_counters(enemy_metrics: dict, enemy_name: str) -> list[dict]:
@@ -3023,20 +2979,3 @@ class CombatTerminalEngine(EngineBase):
             "meta":        {},
         }
 
-    @staticmethod
-    def _unit_to_fields(unit: dict) -> list:
-        fields = []
-
-        stat_keys = ["M", "T", "Sv", "W", "Ld", "OC"]
-        stats = {k: unit[k] for k in stat_keys if k in unit}
-        if stats:
-            fields.append({"label": "Stats", "value": stats})
-
-        for key in ["weapons", "abilities", "keywords"]:
-            if key in unit:
-                fields.append({"label": key.capitalize(), "value": unit[key]})
-
-        if "points" in unit:
-            fields.append({"label": "Points", "value": unit["points"]})
-
-        return fields

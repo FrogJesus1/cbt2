@@ -17,6 +17,7 @@ Routes:
   POST /api/engines/{name}/query      → execute a query
   POST /api/engines/{name}/exec       → execute raw input string (web console)
   GET  /api/engines/{name}/commands   → all command tokens (for autocomplete)
+  GET  /api/version                    → git commit hash + server start time
 """
 
 from __future__ import annotations
@@ -24,7 +25,9 @@ from __future__ import annotations
 import importlib
 import json
 import os
+import subprocess
 import sys
+from datetime import datetime, timezone
 from pathlib import Path
 
 from fastapi import FastAPI, HTTPException
@@ -199,6 +202,35 @@ def create_app(config: dict) -> FastAPI:
     @app.get("/health")
     def health():
         return JSONResponse({"status": "ok"})
+
+    # ── Version ───────────────────────────────────────────────────────────────
+    # Captured once at startup so it's fast and doesn't shell out per request.
+
+    def _get_git_info() -> dict:
+        """Read git short hash + commit timestamp at startup."""
+        try:
+            commit = subprocess.check_output(
+                ["git", "rev-parse", "--short", "HEAD"],
+                cwd=str(Path(__file__).resolve().parent.parent.parent),
+                stderr=subprocess.DEVNULL,
+            ).decode().strip()
+            ts = subprocess.check_output(
+                ["git", "log", "-1", "--format=%cI"],
+                cwd=str(Path(__file__).resolve().parent.parent.parent),
+                stderr=subprocess.DEVNULL,
+            ).decode().strip()
+            return {"commit": commit, "committed": ts}
+        except Exception:
+            return {"commit": "unknown", "committed": "unknown"}
+
+    _version_info = {
+        **_get_git_info(),
+        "started": datetime.now(timezone.utc).isoformat(timespec="seconds"),
+    }
+
+    @app.get("/api/version")
+    def version():
+        return JSONResponse(_version_info)
 
     # ── Static file serving + SPA fallback ────────────────────────────────────
 

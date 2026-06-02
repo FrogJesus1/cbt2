@@ -24,7 +24,7 @@ const CONFIDENCE_LEVELS = { "Very High": 100, "High": 75, "Medium": 50, "Low": 2
 
 // ── Offline banner ─────────────────────────────────────────────────────────────
 
-function OfflineBanner({ message }) {
+function OfflineBanner() {
   return (
     <Card style={{ ...CARD_STYLE, border: `1px solid ${C.amber}40` }}>
       <CardContent style={{ ...CARD_PAD, fontSize: "12px" }}>
@@ -199,7 +199,7 @@ function ActivePanel({ sim }) {
 export function SimulationConfidence({ sim }) {
   if (!sim) return null;
   if (sim.status === "OFFLINE" || sim.mode === "deterministic") {
-    return <OfflineBanner message={sim.message} />;
+    return <OfflineBanner />;
   }
   return <ActivePanel sim={sim} />;
 }

@@ -26,9 +26,8 @@ import {
   listCampaigns, createCampaign, getCampaign, getCampaignCount,
   slugify, labelify,
 } from "@/lib/vfs";
-import { THEME_REGISTRY, BASE_THEME_IDS } from "@/data/themeRegistry";
-import { getNextChallenge } from "@/data/challengeRegistry";
-import { AddCardDialog } from "./AddCardDialog";
+import { THEME_REGISTRY, ALL_THEME_IDS } from "@/data/themeRegistry";
+
 
 // ─── Navigation config ────────────────────────────────────────────────────────
 // Map every recognised token (command name + alias) → canonical view id.
@@ -44,8 +43,6 @@ const NAV_TOKEN_MAP = {
   rosters:     "rosters",
   campaign:    "rosters",
   c:           "rosters",
-  demo:        "demo",
-  d:           "demo",
   settings:    "settings",
   diag:        "diag",
   diagnostics: "diag",
@@ -133,28 +130,7 @@ const BOOT_LINES = [
 // ─── Component ────────────────────────────────────────────────────────────────
 
 // ─── Theme helpers ────────────────────────────────────────────────────────────
-// BASE_THEME_IDS comes from themeRegistry.js — always available without unlock.
-// Unlocked themes are persisted in localStorage under CT_UNLOCKED_KEY.
-
-const CT_UNLOCKED_KEY = "ct_unlocked_themes";
-const CT_ACTIVE_KEY   = "ct_active_theme";
-
-function getUnlockedThemes() {
-  try { return JSON.parse(localStorage.getItem(CT_UNLOCKED_KEY) || "[]"); }
-  catch { return []; }
-}
-
-function addUnlockedTheme(themeId) {
-  const current = getUnlockedThemes();
-  if (!current.includes(themeId)) {
-    try { localStorage.setItem(CT_UNLOCKED_KEY, JSON.stringify([...current, themeId])); }
-    catch { /* storage unavailable */ }
-  }
-}
-
-function getAllThemes() {
-  return [...BASE_THEME_IDS, ...getUnlockedThemes()];
-}
+const CT_ACTIVE_KEY = "ct_active_theme";
 
 export function Terminal({
   engineId,
@@ -172,13 +148,13 @@ export function Terminal({
   theme,           // current theme name (unused in Terminal render, but available for future use)
   contextId,       // which context this terminal belongs to: "main" | "units" | "rosters" | "rules" | "settings"
   contextBootLines, // optional override for the boot splash lines
+  starredUnits,    // string[] — names of starred units (for spec star toggle)
+  onToggleStar,    // (unitName: string) → void — toggle star on a unit
 }) {
   const [stream,         setStream]         = useState([]);
   const [cmdHist,        setCmdHist]        = useState([]);
   const [loading,        setLoading]        = useState(false);
   const [stubLog,        setStubLog]        = useState([]); // session stub log
-  // add card dialog — set to { title, details, skill } when flow reaches step 3
-  const [addCardDialog,  setAddCardDialog]  = useState(null);
 
   const idRef           = useRef(0);
   const outputRef       = useRef(null);
@@ -778,57 +754,7 @@ export function Terminal({
       }
     }
 
-    // ── unlock_theme — single-step answer comparison ──────────────────────────
-    if (flow.type === "unlock_theme") {
-      const { challenge } = flow.data;
-      clientFlowRef.current = null;
 
-      // Accept any answer from the correctAnswers array (case-insensitive trim)
-      const normalised = input.trim().toLowerCase();
-      const accepted   = (challenge.correctAnswers ?? [challenge.correctAnswer ?? ""])
-        .map(a => a.trim().toLowerCase());
-
-      if (accepted.includes(normalised)) {
-        // Persist the unlock
-        addUnlockedTheme(challenge.rewardThemeId);
-        // Apply immediately
-        try { localStorage.setItem(CT_ACTIVE_KEY, challenge.rewardThemeId); } catch {}
-        onTheme?.(challenge.rewardThemeId);
-        emitSystem(
-          input,
-          `[ SUCCESS ] : ${challenge.rewardThemeId.toUpperCase()} is now available.  Type 'theme ${challenge.rewardThemeId}' to activate.`,
-        );
-      } else {
-        emitError(input, "[ ERROR ] : INCORRECT. Challenge failed. Type 'themes' to try again.");
-      }
-      return;
-    }
-
-    // ── add_card — title → details → open dialog ─────────────────────────────
-    if (flow.type === "add_card") {
-      if (flow.step === "title") {
-        if (!input.trim()) {
-          emitError(input, "Card name cannot be empty.");
-          return;
-        }
-        flow.data.title = input.trim();
-        flow.step = "details";
-        emitLocalResult(input, "roster_prompt", {
-          message: "Enter a description (optional — press Enter to skip):",
-          hint:    "e.g. Reggae groove in G  —  or type cancel to abort",
-        });
-        return;
-      }
-
-      if (flow.step === "details") {
-        flow.data.details = input.trim();
-        const { title, details, skill } = flow.data;
-        clientFlowRef.current = null;
-        emitSystem(input, `Opening upload dialog for '${title}'…`);
-        setAddCardDialog({ title, details, skill });
-        return;
-      }
-    }
 
     // Unknown flow type — clear and warn
     clientFlowRef.current = null;
@@ -958,64 +884,44 @@ export function Terminal({
 
     // ── Priority 7: theme command ─────────────────────────────────────────────
     // Handled entirely client-side; never reaches the engine.
-    // theme           → show current theme + quick status
-    // theme <name>    → apply a named/unlocked theme; error if locked
-    // theme reset     → revert to default
+    // theme           → show current theme
+    // theme <name>    → apply a theme (dark, light, console)
+    // theme reset     → revert to dark
     if (lower.split(/\s+/)[0] === "theme" && lower.split(/\s+/)[1] !== "list") {
-      const themeArg  = lower.split(/\s+/)[1] || "";
-      const allThemes = getAllThemes();
-      const unlocked  = getUnlockedThemes();
+      const themeArg = lower.split(/\s+/)[1] || "";
 
       if (themeArg === "reset" || themeArg === "default") {
-        try { localStorage.setItem(CT_ACTIVE_KEY, "default"); } catch {}
-        onTheme?.("default");
-        emitSystem(trimmed, "Reverting to DEFAULT theme…");
+        try { localStorage.setItem(CT_ACTIVE_KEY, "dark"); } catch {}
+        onTheme?.("dark");
+        emitSystem(trimmed, "Reverting to DARK theme…");
 
-      } else if (allThemes.includes(themeArg)) {
-        // Theme is available (base or already unlocked)
+      } else if (ALL_THEME_IDS.includes(themeArg)) {
         try { localStorage.setItem(CT_ACTIVE_KEY, themeArg); } catch {}
         onTheme?.(themeArg);
         emitSystem(trimmed, `Applying theme: ${themeArg.toUpperCase()}…`);
 
-      } else if (THEME_REGISTRY[themeArg]?.unlockable) {
-        // Theme exists but is locked — enforce the gate
-        emitError(
-          trimmed,
-          `[ ERROR ] : Visual override not authorized. Solve the challenge first.  Type 'themes' to view challenges.`,
-        );
-
       } else if (!themeArg) {
-        const unlockedStr = unlocked.length ? unlocked.join(", ") : "none";
         emitSystem(
           trimmed,
-          `Current: ${theme ?? "default"}  ·  Base: ${BASE_THEME_IDS.join(", ")}  ·  Unlocked: ${unlockedStr}  ·  Type 'themes' to see all.`,
+          `Current: ${theme ?? "dark"}  ·  Available: ${ALL_THEME_IDS.join(", ")}  ·  Type 'theme <name>' to switch.`,
         );
 
       } else {
         emitSystem(
           trimmed,
-          `Theme '${themeArg}' not found.  Type 'themes' to view all available themes.`,
+          `Theme '${themeArg}' not found.  Available: ${ALL_THEME_IDS.join(", ")}`,
         );
       }
       return;
     }
 
     // ── Priority 7.1: themes directory ───────────────────────────────────────
-    // Compact list of themes — name + command token, click to activate/unlock.
     if (lower === "themes" || lower === "theme list" || lower === "theme dir") {
-      const unlocked      = getUnlockedThemes();
-      const allThemes     = Object.values(THEME_REGISTRY);
-      const unlockables   = allThemes.filter(t => t.unlockable);
-      const unlockedCount = unlockables.filter(t => unlocked.includes(t.id)).length;
-
-      const themeItems = allThemes.map(t => ({
-        id:         t.id,
-        label:      t.label,
-        unlockable: t.unlockable,
-        locked:     t.unlockable && !unlocked.includes(t.id),
+      const themeItems = Object.values(THEME_REGISTRY).map(t => ({
+        id:    t.id,
+        label: t.label,
       }));
-
-      emitLocalResult(trimmed, "themes_list", themeItems, { count: `${unlockedCount}/${unlockables.length} unlocked` });
+      emitLocalResult(trimmed, "themes_list", themeItems);
       return;
     }
 
@@ -1026,10 +932,10 @@ export function Terminal({
     // split locally here to avoid a temporal dead zone ReferenceError.
     if (lower.split(/\s+/)[0] === "math" || lower.split(/\s+/)[0] === "mathmode") {
       const stateArg = lower.split(/\s+/)[1] || "";
-      console.log("[MathMode] toggle handler hit, stateArg =", stateArg);
+
       if (stateArg === "on") {
         mathModeRef.current = true;
-        console.log("[MathMode] set to ON, ref =", mathModeRef.current);
+
         emitSystem(trimmed,
           "[ MATH MODE ON ]  Post-execution math ledger active. Run a combat query to see the replay.",
         );
@@ -1046,40 +952,6 @@ export function Terminal({
       return;
     }
 
-    // ── Priority 7.5: unlock theme ────────────────────────────────────────────
-    // Initiates the logic-gate challenge flow for unlocking hidden themes.
-    // Picks a challenge whose reward theme has NOT yet been unlocked —
-    // if every challenge is already cleared, reports full completion.
-    // Handled entirely client-side via challengeRegistry.js; never hits engine.
-    if (lower === "unlock theme" || lower === "unlock themes") {
-      const unlocked  = getUnlockedThemes();
-      const challenge = getNextChallenge(unlocked);  // skips already-unlocked
-
-      if (!challenge) {
-        // All challenges completed
-        const count = unlocked.length;
-        emitSystem(
-          trimmed,
-          `[ SYSTEM ] : ALL ${count} HIDDEN THEME${count !== 1 ? "S" : ""} UNLOCKED.  Type 'theme' to view your collection.`,
-        );
-        return;
-      }
-
-      // Arm the answer-capture flow
-      clientFlowRef.current = {
-        type: "unlock_theme",
-        step: "answer",
-        data: { challenge },
-      };
-      // Render the riddle as a single condensed paragraph
-      const condensed = challenge.riddleText
-        .split("\n")
-        .map(l => l.trim())
-        .filter(l => l.length > 0)
-        .join("  ");
-      emitLocalResult(trimmed, "text", condensed);
-      return;
-    }
 
     // ── Priority 8: navigation page commands ─────────────────────────────────
     // Match on the first token only — so "units foo" still navigates to units.
@@ -1400,25 +1272,6 @@ export function Terminal({
       return;
     }
 
-    // ── Priority 8.9: add card ────────────────────────────────────────────────
-    // cliMode: full — core CLI functionality, always available.
-    // `add card --bass`  pre-fills Projects/Skills = "Bass Guitar"
-    // `add card`         generic card with no pre-filled skill
-    if (lower === "add card --bass" || lower === "add card") {
-      const skill = lower.includes("--bass") ? "Bass Guitar" : null;
-      clientFlowRef.current = {
-        type: "add_card",
-        step: "title",
-        data: { skill },
-      };
-      emitLocalResult(trimmed, "roster_prompt", {
-        message: "Enter the card name:",
-        hint:    skill
-          ? `Card will be linked to ${skill}  ·  Type cancel to abort`
-          : "Type cancel to abort",
-      });
-      return;
-    }
 
     // ── Priority 9: engine exec ──────────────────────────────────────────────
 
@@ -1517,9 +1370,7 @@ export function Terminal({
       // When Math Mode is active and the result carries a math_ledger in meta,
       // append a math_replay block immediately after the normal result.
       // This is a post-execution replay — the normal result always renders first.
-      console.log("[MathMode] mathModeRef.current =", mathModeRef.current);
-      console.log("[MathMode] result.meta =", result?.meta);
-      console.log("[MathMode] math_ledger length =", result?.meta?.math_ledger?.length);
+
       if (
         mathModeRef.current &&
         result?.meta?.math_ledger?.length > 0
@@ -1630,7 +1481,7 @@ export function Terminal({
               ref={el => { entryRefs.current[entry.id] = el; }}
               style={{ transition: "background-color 0.3s" }}
             >
-              <TerminalBlock entry={entry} onSubmit={submit} onInject={onInject} onEdit={onEdit} onUpload={processUpload} />
+              <TerminalBlock entry={entry} onSubmit={submit} onInject={onInject} onEdit={onEdit} onUpload={processUpload} starredUnits={starredUnits} onToggleStar={onToggleStar} />
             </div>
           ))}
         </div>
@@ -1646,24 +1497,7 @@ export function Terminal({
         )}
       </div>
 
-      {/* Add Card Dialog — final step of `add card --bass` CLI flow.
-          Renders in a Radix portal so placement here is cosmetic only. */}
-      {addCardDialog && (
-        <AddCardDialog
-          cliMode="full"
-          open={!!addCardDialog}
-          title={addCardDialog.title}
-          details={addCardDialog.details}
-          skill={addCardDialog.skill}
-          onClose={() => setAddCardDialog(null)}
-          onSuccess={() => {
-            emitSystem(
-              "add card --bass",
-              `✓  Card '${addCardDialog.title}' submitted to Airtable.`
-            );
-          }}
-        />
-      )}
+
     </div>
   );
 }

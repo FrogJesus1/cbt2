@@ -41,7 +41,6 @@ import { C, CARD_STYLE, CARD_PAD, SectionTitle, Card, CardContent } from "./thre
 // ─── Profile stat boxes ──────────────────────────────────────────────────────
 
 const STAT_ORDER  = ["T", "Sv", "W", "M", "OC"];
-const STAT_LABELS = { T: "Tough", Sv: "Save", W: "Wounds", M: "Move", OC: "OC" };
 
 function ProfileBox({ statKey, value, isLast }) {
   return (

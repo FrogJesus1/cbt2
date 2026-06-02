@@ -8,15 +8,7 @@
  * data: { campaigns: { "<name>": campaignObj }, count: number }
  */
 
-const C = {
-  green:  "var(--ct-primary)",
-  mid:    "var(--ct-primary-mid)",
-  label:  "var(--ct-primary-label)",
-  dim:    "var(--ct-primary-dim)",
-  amber:  "#ffa328",
-  cyan:   "#00e5ff",
-  border: "var(--ct-border)",
-};
+import { C } from "../shared/colors";
 
 export function CampaignListBlock({ data, onInject }) {
   const { campaigns = {}, count = 0 } = data;

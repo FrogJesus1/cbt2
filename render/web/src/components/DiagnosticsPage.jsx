@@ -16,20 +16,7 @@ import { useState, useEffect, useRef } from "react";
 
 // ─── Color constants (mirrors combat/shared.jsx) ───────────────────────────────
 
-const C = {
-  green:     "var(--ct-primary)",
-  mid:       "var(--ct-primary-mid)",
-  label:     "var(--ct-primary-label)",
-  dim:       "var(--ct-primary-dim)",
-  ghost:     "var(--ct-ghost)",
-  amber:     "#ffa328",
-  cyan:      "var(--ct-bar-alt)",
-  red:       "#ff3b3b",
-  border:    "var(--ct-border)",
-  bordermid: "var(--ct-border-bright)",
-  panel:     "var(--ct-bg-panel)",
-  bg:        "var(--ct-bg)",
-};
+import { C } from "./shared/colors";
 
 // ─── Known faction reference counts (sourced from loaded dossiers, 2026-03-31) ──
 // These reflect the actual unit counts in the parsed dossier files.

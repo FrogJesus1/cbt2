@@ -168,7 +168,9 @@ def _weapon_to_profile(w: dict) -> tuple[WeaponProfile, AttackModifiers]:
                 continue
             m = re.search(r"MELTA\s+(\d+)", kw)
             if m:
-                mods.flat_damage_bonus += float(m.group(1))
+                # Store Melta N in melta_value — only added to flat_damage_bonus
+                # when use_melta=True (i.e. the --melta flag signals within-half-range).
+                mods.melta_value += float(m.group(1))
                 continue
             m = re.search(r"ANTI-\S+\s+(\d+)\+", kw)
             if m:
@@ -273,7 +275,8 @@ def _apply_flags(flags: list, base_mods: "AttackModifiers", target: "TargetProfi
         sustained / sustained1 / sustained:N  — Sustained Hits N: crit hits add N extra hits
         dev / devastating — Devastating Wounds: crit wounds bypass all saves
         blast       — Blast: flag; adapter notes minimum-3-attacks semantic
-        rf          — Rapid Fire: already baked into weapon keyword; flag is informational
+        rf          — Rapid Fire: within half range; adds RF N to extra attacks
+        melta       — Melta: within half range; adds Melta N to flat damage bonus
         torrent     — Torrent: weapon auto-hits (no BS roll)
         lance       — Lance: +1 to wound roll (applied as wound_bonus)
         fnp:N       — Override target Feel No Pain save to N+
@@ -389,6 +392,8 @@ def _apply_flags(flags: list, base_mods: "AttackModifiers", target: "TargetProfi
             base_mods.use_blast = True
         elif key == "rf":
             base_mods.use_rapid_fire = True
+        elif key == "melta":
+            base_mods.use_melta = True
 
     return base_mods, target
 
@@ -446,6 +451,9 @@ def compute_combat(
                 # set by the --rf flag.  Only apply when the flag is active.
                 if merged.use_rapid_fire and merged.rf_value > 0:
                     merged.extra_attacks += merged.rf_value
+                # ── Melta: only add flat damage bonus when within half range ─────
+                if merged.use_melta and merged.melta_value > 0:
+                    merged.flat_damage_bonus += merged.melta_value
                 # ── Blast: minimum 3 per-model attacks vs 6+ model units ─────────
                 if merged.use_blast and def_models >= 6:
                     wp.attacks = max(wp.attacks, 3.0)
@@ -548,9 +556,11 @@ def compute_combat(
             try:
                 wp, weapon_mods = _weapon_to_profile(w)
                 merged = _merge_mods(weapon_mods, base_mods)
-                # Apply same RF and BLAST logic as _run_ev for consistency
+                # Apply same RF, Melta, and BLAST logic as _run_ev for consistency
                 if merged.use_rapid_fire and merged.rf_value > 0:
                     merged.extra_attacks += merged.rf_value
+                if merged.use_melta and merged.melta_value > 0:
+                    merged.flat_damage_bonus += merged.melta_value
                 if merged.use_blast and def_models >= 6:
                     wp.attacks = max(wp.attacks, 3.0)
                 # Scale attacks by squad size — skip for unit-level weapons
@@ -666,9 +676,11 @@ def compute_sensitivity(
             try:
                 wp, weapon_mods = _weapon_to_profile(w)
                 merged = _merge_mods(weapon_mods, mods)
-                # Apply same RF / BLAST rules as compute_combat
+                # Apply same RF / Melta / BLAST rules as compute_combat
                 if merged.use_rapid_fire and merged.rf_value > 0:
                     merged.extra_attacks += merged.rf_value
+                if merged.use_melta and merged.melta_value > 0:
+                    merged.flat_damage_bonus += merged.melta_value
                 if merged.use_blast and def_models >= 6:
                     wp.attacks = max(wp.attacks, 3.0)
                 if att_models > 1 and not w.get("_no_multiply"):

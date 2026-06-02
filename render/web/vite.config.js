@@ -6,7 +6,6 @@ export default defineConfig({
   plugins: [react()],
   resolve: {
     alias: {
-      "recharts": path.resolve(__dirname, "./src/recharts-mock.js"),
       "@": path.resolve(__dirname, "./src"),
     },
   },

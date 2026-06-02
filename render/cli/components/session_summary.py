@@ -6,22 +6,7 @@ Full-width two-column display: left = my roster, right = enemy roster.
 Session state header at top.
 """
 
-import shutil
-
-RESET   = "\033[0m"
-BOLD    = "\033[1m"
-DIM     = "\033[2m"
-CYAN    = "\033[96m"
-GREEN   = "\033[92m"
-YELLOW  = "\033[93m"
-WHITE   = "\033[97m"
-
-
-def _tw() -> int:
-    try:
-        return shutil.get_terminal_size(fallback=(110, 24)).columns
-    except Exception:
-        return 110
+from .style import RESET, BOLD, DIM, CYAN, GREEN, WHITE, terminal_width
 
 
 def _parse_unit(unit) -> tuple:
@@ -51,7 +36,7 @@ def _parse_unit(unit) -> tuple:
 
 
 def render_session_summary(data: dict, indent: int = 2):
-    tw  = _tw()
+    tw  = terminal_width()
     pad = " " * indent
 
     state        = data.get("state", {})

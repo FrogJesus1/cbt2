@@ -18,7 +18,7 @@ const KW_MAP = {
   "heavy":                { abbr: "Hvy",  name: "Heavy",                desc: "Add +1 to hit rolls if the bearer's unit remained stationary this turn." },
   "ignores cover":        { abbr: "IC",   name: "Ignores Cover",        desc: "Target unit cannot benefit from cover bonuses against attacks from this weapon." },
   "indirect fire":        { abbr: "IF",   name: "Indirect Fire",        desc: "Can target units not visible to the bearer; -1 to hit when used this way." },
-  "lance":                { abbr: "Lnc",  name: "Lance",                desc: "Unmodified wound rolls of 6 improve the AP characteristic by 1." },
+  "lance":                { abbr: "Lnc",  name: "Lance",                desc: "Each time an attack is made with this weapon, if the bearer made a Charge move this turn, add 1 to that attack's Wound roll." },
   "lethal hits":          { abbr: "LH",   name: "Lethal Hits",          desc: "Unmodified hit rolls of 6 automatically wound the target; no wound roll is made." },
   "one-shot":             { abbr: "OS",   name: "One Shot",             desc: "This weapon can only be used once per battle." },
   "one shot":             { abbr: "OS",   name: "One Shot",             desc: "This weapon can only be used once per battle." },

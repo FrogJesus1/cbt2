@@ -8,16 +8,7 @@
 import { useState } from "react";
 import { Terminal } from "./Terminal";
 
-const C = {
-  green:  "var(--ct-primary)",
-  mid:    "var(--ct-primary-mid)",
-  label:  "var(--ct-primary-label)",
-  dim:    "var(--ct-primary-dim)",
-  border: "var(--ct-border)",
-  panel:  "var(--ct-bg-panel)",
-  amber:  "#ffa328",
-  cyan:   "#00e5ff",
-};
+import { C } from "./shared/colors";
 
 const RULES_BOOT_LINES = [
   "╔══════════════════════════════════════════════════════════════╗",
@@ -46,6 +37,7 @@ export function RulesContext({
   onContextRoute,
   scrollToId,
   onScrollComplete,
+  onEdit,
   onTheme,
   theme,
 }) {
@@ -162,6 +154,7 @@ export function RulesContext({
           engineId={engineId}
           contextId="rules"
           onExec={onExec}
+          onEdit={onEdit}
           onStreamChange={onStreamChange}
           pendingCommand={pendingCommand}
           onPendingCommandConsumed={onPendingCommandConsumed}

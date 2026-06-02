@@ -15,13 +15,16 @@ Loads engines from config.json, exposes a REST API, serves the built React app.
 | `tailwind.config.js` | Tailwind config — CSS variable-based color system |
 | `postcss.config.js` | PostCSS — required by Tailwind |
 | `package.json` | React 18 + shadcn deps (Radix UI, class-variance-authority, etc.) |
-| `src/index.css` | Tailwind base + CSS variable definitions |
+| `src/index.css` | Tailwind base + CSS variable definitions + theme blocks |
 | `src/lib/utils.js` | `cn()` helper (clsx + tailwind-merge) |
+| `src/lib/vfs.js` | Virtual filesystem (localStorage) for rosters |
 | `src/components/ui/` | shadcn/ui components (Button, Card, Badge, etc.) |
-| `src/components/` | App-level components (EngineStatus, QueryPanel, ResultView) |
-| `src/App.jsx` | Root shell — fetches engines, manages state, renders layout |
+| `src/components/shared/` | `colors.js` (unified palette), `constants.jsx` (shared layout primitives) |
+| `src/components/` | App-level components — Terminal, TerminalBlock, and all block renderers |
+| `src/data/` | `themeRegistry.js` — theme definitions |
+| `src/App.jsx` | Root shell — view routing, engine fetching, theme management |
 | `src/main.jsx` | React entry point |
-| `dist/` | Built output (created by `npm run build`) — gitignore this |
+| `dist/` | Built output (created by `python main.py --build`) |
 
 ## API Routes (server.py)
 
@@ -30,7 +33,12 @@ Loads engines from config.json, exposes a REST API, serves the built React app.
 | GET | `/api/engines` | All loaded engines + primary ID |
 | GET | `/api/engines/{name}` | Single engine status |
 | GET | `/api/engines/{name}/schema` | Engine query schema |
-| POST | `/api/engines/{name}/query` | Query result |
+| POST | `/api/engines/{name}/query` | Query result (structured params) |
+| POST | `/api/engines/{name}/exec` | Execute raw command string (primary endpoint for terminal) |
+| GET | `/api/engines/{name}/commands` | All command tokens for autocomplete |
+| GET | `/health` | Health check |
+| GET | `/api/version` | App version |
+| GET | `/{path}` | Static file serving (SPA fallback to index.html) |
 
 ## Development
 
@@ -47,7 +55,7 @@ App runs at `http://localhost:5173`. API calls proxy to `http://localhost:8000`.
 ## Production
 
 ```bash
-python main.py --build    # runs npm run build
+python main.py --build    # esbuild + Tailwind CLI
 python main.py            # serves dist/ as static files from FastAPI
 ```
 
@@ -61,5 +69,5 @@ App runs at `http://localhost:8000`.
 
 ## Adding a Result Type
 
-If an engine returns a new `result_type`, add a renderer branch to `src/components/ResultView.jsx`.
-The engine contract defines the shape; ResultView renders it. Nothing else needs to change.
+Add a renderer branch to `TerminalBlock.jsx`'s result type switch.
+Create a dedicated block component if the rendering logic is complex.

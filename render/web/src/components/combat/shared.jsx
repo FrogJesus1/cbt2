@@ -1,47 +1,22 @@
 /**
- * combat/shared.js
+ * combat/shared.jsx
  *
- * Colour palette, card shell constants, formatting helpers,
- * and low-level primitives (Bar, SectionTitle) shared by all
- * combat panel components.
- *
- * Primary colours reference CSS variables so they respond to data-theme changes.
- * Semantic colours (amber, red) are hardcoded — they never theme-shift.
+ * Combat-panel design tokens and primitives.
+ * Re-exports shared constants; overrides SectionTitle with combat-specific
+ * styling (larger text, glow, bottom border) and wraps Bar with combat
+ * defaults (12 segments, 14px, glow).
  */
 
-// ─── Colour constants ──────────────────────────────────────────────────────
+import { C } from "../shared/colors";
+import { CARD_STYLE, CARD_PAD, Bar as SharedBar } from "../shared/constants";
 
-export const C = {
-  green:     "var(--ct-primary)",
-  mid:       "var(--ct-primary-mid)",
-  label:     "var(--ct-primary-label)",
-  dim:       "var(--ct-primary-dim)",
-  ghost:     "var(--ct-ghost)",          // unfilled bar-segment background
-  amber:     "#ffa328",
-  cyan:      "var(--ct-bar-alt)",        // themes: cyan (default) → orange-red (red)
-  red:       "#ff3b3b",
-  border:    "var(--ct-border)",
-  bordermid: "var(--ct-border-bright)",
-  panel:     "var(--ct-bg-panel)",
-  bg:        "var(--ct-bg)",
-};
-
-// ─── Shared card shell ─────────────────────────────────────────────────────
-
-export const CARD_STYLE = {
-  background:   C.panel,
-  border:       `1px solid ${C.border}`,
-  borderRadius: "0",
-};
-
-export const CARD_PAD = { padding: "14px 16px" };
+export { C, CARD_STYLE, CARD_PAD };
 
 // ─── Formatters ────────────────────────────────────────────────────────────
 
 export const fmt    = (v, dec = 2) => v === null || v === undefined ? "—" : Number(v).toFixed(dec);
 export const fmtPct = (v)          => v === null || v === undefined ? "—" : `${Number(v).toFixed(0)}%`;
 
-// Rounds kills to nearest 0.5; shows "<1 kill" for fractional values below 1
 export const fmtKills = (v) => {
   if (v === null || v === undefined) return "—";
   if (v < 1) return "<1 kill";
@@ -50,44 +25,15 @@ export const fmtKills = (v) => {
   return `${rounded % 1 === 0 ? String(rounded) : rounded.toFixed(1)} ${label}`;
 };
 
-// ─── Bar ───────────────────────────────────────────────────────────────────
-// Note: boxShadow glow uses the shared glow-rgb variable so it always matches
-// the active theme, regardless of which colour is passed as `color`.
+// ─── Bar (combat defaults: taller, more segments, glow) ───────────────────
 
-export function Bar({ value, max, width, color = C.green, dimColor = C.ghost, segments = 12 }) {
-  const pct = (value !== null && value !== undefined && max > 0)
-    ? Math.min(100, Math.max(0, (value / max) * 100))
-    : 0;
-  // Always show at least 1 filled segment when there is a nonzero value,
-  // so no bar ever appears completely empty.
-  const rawFilled = Math.round((pct / 100) * segments);
-  const filled    = (value > 0 && rawFilled === 0) ? 1 : rawFilled;
-
-  return (
-    <div
-      style={{
-        display:    "flex",
-        gap:        "2px",
-        flexShrink: 0,
-        flexGrow:   width ? 0 : 1,
-        ...(width ? { width: typeof width === "number" ? `${width}px` : width } : {}),
-      }}
-    >
-      {Array.from({ length: segments }, (_, i) => (
-        <div key={i} style={{
-          flex:       1,
-          height:     "14px",
-          background: i < filled ? color : dimColor,
-          boxShadow:  i < filled && value ? `0 0 3px rgba(var(--ct-glow-rgb), 0.4)` : "none",
-        }} />
-      ))}
-    </div>
-  );
+export function Bar({ segments = 12, height = 14, glow = true, ...rest }) {
+  return <SharedBar segments={segments} height={height} glow={glow} {...rest} />;
 }
 
-// ─── SectionTitle ──────────────────────────────────────────────────────────
+// ─── SectionTitle (combat-specific: larger, glow, bottom border) ──────────
 
-export function SectionTitle({ children }) {
+export function SectionTitle({ children, style }) {
   return (
     <div
       style={{
@@ -99,6 +45,7 @@ export function SectionTitle({ children }) {
         paddingBottom: "8px",
         borderBottom:  `1px solid ${C.border}`,
         marginBottom:  "12px",
+        ...style,
       }}
     >
       {children}
@@ -107,8 +54,6 @@ export function SectionTitle({ children }) {
 }
 
 // ─── SwingScore ────────────────────────────────────────────────────────────
-// Swinginess rendered as a compact score strip — visually separate from the
-// bar-chart rows above it. Sits below a thin divider inside the output card.
 
 export function SwingScore({ value, label }) {
   if (value === null || value === undefined) return null;

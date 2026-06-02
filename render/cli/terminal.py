@@ -12,7 +12,10 @@ from __future__ import annotations
 
 import importlib
 import json
-import readline
+try:
+    import readline
+except ImportError:
+    readline = None
 import shutil
 import sys
 from pathlib import Path
@@ -72,6 +75,10 @@ class Terminal:
     def _repl(self):
         schema = self._engine.schema()
 
+        # Cache alias map and help group info from the engine contract
+        self._aliases = self._engine.aliases()
+        self._help_groups = self._engine.help_groups()
+
         # Only expose CLI-compatible commands for tab completion
         queries = schema.get("queries") or {}
         cli_commands = [
@@ -79,12 +86,13 @@ class Terminal:
             if defn.get("supports_cli", True)
         ]
 
-        # Autocomplete — only CLI-visible commands
-        def completer(text, state):
-            matches = [c for c in cli_commands if c.startswith(text)]
-            return matches[state] if state < len(matches) else None
-        readline.set_completer(completer)
-        readline.parse_and_bind("tab: complete")
+        # Autocomplete — only CLI-visible commands (requires readline)
+        if readline:
+            def completer(text, state):
+                matches = [c for c in cli_commands if c.startswith(text)]
+                return matches[state] if state < len(matches) else None
+            readline.set_completer(completer)
+            readline.parse_and_bind("tab: complete")
 
         print("\nType a command, 'help' for commands, or 'quit' to exit.\n")
         print("  Tip: prefix any command with  math   to see the full math ledger.\n")
@@ -137,11 +145,7 @@ class Terminal:
             param_str = parts[1] if len(parts) > 1 else ""
 
             # Resolve aliases → canonical command name so `roll`, `vs`, etc. work
-            try:
-                from data.combat_terminal import commands as _cmds_mod
-                canonical = _cmds_mod.resolve(command) or command
-            except Exception:
-                canonical = command
+            canonical = self._aliases.get(command.lower(), command)
 
             params = self._parse_params(canonical, param_str, schema)
             result = self._engine.query(canonical, params)
@@ -315,17 +319,16 @@ class Terminal:
         print()
 
     def _print_help(self, schema: dict):
-        from data.combat_terminal import commands as _cmds
         queries = schema.get("queries", {})
-        # Filter to CLI-visible commands only; group by GROUP_ORDER
+        # Filter to CLI-visible commands only
         cli_queries = {
             name: defn for name, defn in queries.items()
             if defn.get("supports_cli", True)
         }
 
-        # Organise by group using the registry's GROUP_ORDER / GROUP_LABELS
-        group_order  = _cmds.GROUP_ORDER
-        group_labels = _cmds.GROUP_LABELS
+        # Organise by group using the engine's help_groups()
+        group_order  = self._help_groups.get("order", ["commands"])
+        group_labels = self._help_groups.get("labels", {})
 
         grouped: dict[str, list] = {g: [] for g in group_order}
         for name, defn in cli_queries.items():

@@ -4,55 +4,29 @@
  * Single source of truth for all available UI themes.
  * Each theme maps to a data-theme attribute value on the root div (App.jsx).
  *
- * Adding a new theme:
- *   1. Add an entry here with the theme metadata.
- *   2. Add a [data-theme="<id>"] CSS block in index.css with the CT vars.
- *   3. If unlockable, add a matching challenge in challengeRegistry.js.
- *   4. That's it — the theme command and unlock flow pick it up automatically.
- *
- * unlockable: false  → available immediately via `theme <id>`
- * unlockable: true   → only available after completing the matching challenge
+ * Three themes — all always available, no unlock system.
+ *   dark    — phosphor green on near-black (default)
+ *   light   — light background variant
+ *   console — pure monospace retro terminal
  */
 
 export const THEME_REGISTRY = {
-  default: {
-    id:          "default",
-    label:       "DEFAULT",
+  dark: {
+    id:          "dark",
+    label:       "DARK",
     description: "Phosphor green on near-black — standard CRT terminal",
-    unlockable:  false,
   },
-  red: {
-    id:          "red",
-    label:       "RED ALERT",
-    description: "Crimson CRT variant — high-threat mode",
-    unlockable:  false,
+  light: {
+    id:          "light",
+    label:       "LIGHT",
+    description: "Light background — high contrast for bright environments",
   },
-  mainframe: {
-    id:          "mainframe",
-    label:       "MAINFRAME",
-    description: "Total retro — monospace only, pure phosphor green, no chrome",
-    unlockable:  true,
-  },
-  "void-zen": {
-    id:          "void-zen",
-    label:       "VOID ZEN",
-    description: "Minimal silence — dark grey text on near-black, no borders, breathable spacing",
-    unlockable:  true,
-  },
-  "warp-stained": {
-    id:          "warp-stained",
-    label:       "WARP STAINED",
-    description: "Ruinous corruption — neon magenta on deep purple, double borders, offset shadow",
-    unlockable:  true,
+  console: {
+    id:          "console",
+    label:       "CONSOLE",
+    description: "Pure retro — monospace only, phosphor green, no chrome",
   },
 };
 
-/** IDs of themes that are always available (no unlock required). */
-export const BASE_THEME_IDS = Object.values(THEME_REGISTRY)
-  .filter(t => !t.unlockable)
-  .map(t => t.id);
-
-/** IDs of all themes that CAN be unlocked. */
-export const UNLOCKABLE_THEME_IDS = Object.values(THEME_REGISTRY)
-  .filter(t => t.unlockable)
-  .map(t => t.id);
+/** All available theme IDs. */
+export const ALL_THEME_IDS = Object.keys(THEME_REGISTRY);

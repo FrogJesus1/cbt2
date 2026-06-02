@@ -10,16 +10,7 @@
 
 import { labelify } from "@/lib/vfs";
 
-const C = {
-  green:  "var(--ct-primary)",
-  mid:    "var(--ct-primary-mid)",
-  label:  "var(--ct-primary-label)",
-  dim:    "var(--ct-primary-dim)",
-  amber:  "#ffa328",
-  cyan:   "#00e5ff",
-  red:    "#ff3b3b",
-  border: "var(--ct-border)",
-};
+import { C } from "../shared/colors";
 
 const ACTIONS = [
   {

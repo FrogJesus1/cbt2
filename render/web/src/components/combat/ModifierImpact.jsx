@@ -32,7 +32,7 @@ export function ModifierImpact({ modifiers }) {
           </>
         ) : (
           <div style={{ color: C.label, fontSize: "12px", fontStyle: "italic" }}>
-            Modifier data requires combat math engine (coming soon).
+            No modifier impact data available for this matchup.
           </div>
         )}
       </CardContent>

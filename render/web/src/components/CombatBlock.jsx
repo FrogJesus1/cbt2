@@ -25,8 +25,7 @@ export { BannerCard }              from "./combat/BannerCard";
 export { WarningBlock }            from "./combat/WarningBlock";
 export { TotalUnitOutputRanged }   from "./combat/TotalUnitOutputRanged";
 export { TotalUnitOutputMelee }    from "./combat/TotalUnitOutputMelee";
-export { TotalUnitOutput }         from "./combat/TotalUnitOutput";  // legacy
-export { WeaponPlatformTotals }    from "./combat/WeaponPlatformTotals";  // kept for compat
+
 export { ModifierImpact }          from "./combat/ModifierImpact";
 export { SimulationConfidence }    from "./combat/SimulationConfidence";
 export { AbilitiesBlock }          from "./combat/AbilitiesBlock";

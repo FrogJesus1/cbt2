@@ -10,11 +10,8 @@
     "preview": "vite preview"
   },
   "dependencies": {
-    "@radix-ui/react-aspect-ratio": "^1.1.8",
     "@radix-ui/react-dialog": "^1.1.2",
-    "@radix-ui/react-hover-card": "^1.1.15",
     "@radix-ui/react-label": "^2.1.0",
-    "@radix-ui/react-navigation-menu": "^1.2.14",
     "@radix-ui/react-progress": "^1.1.8",
     "@radix-ui/react-scroll-area": "^1.2.0",
     "@radix-ui/react-select": "^2.1.2",
@@ -29,12 +26,11 @@
     "lucide-react": "^0.460.0",
     "react": "^18.3.1",
     "react-dom": "^18.3.1",
-    "recharts": "^3.8.0",
+
     "tailwind-merge": "^2.5.4"
   },
   "devDependencies": {
-    "@types/react": "^18.3.12",
-    "@types/react-dom": "^18.3.1",
+
     "@vitejs/plugin-react": "^4.3.3",
     "autoprefixer": "^10.4.20",
     "postcss": "^8.4.47",

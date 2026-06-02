@@ -37,17 +37,7 @@ import { UploadBlock } from "./roster/UploadBlock";
 // Primary colours reference CSS variables so they respond to theme changes.
 // Semantic colours (amber, cyan, red) are hardcoded — they never theme-shift.
 
-const C = {
-  green:  "var(--ct-primary)",
-  mid:    "var(--ct-primary-mid)",
-  label:  "var(--ct-primary-label)",
-  dim:    "var(--ct-primary-dim)",
-  amber:  "#ffa328",
-  cyan:   "#00e5ff",
-  red:    "#ff3b3b",
-  border: "var(--ct-border)",
-  panel:  "var(--ct-bg-panel)",
-};
+import { C } from "./shared/colors";
 
 // ─── Loading animation ────────────────────────────────────────────────────
 
@@ -386,7 +376,7 @@ function DisambiguationBlock({ data, onInject }) {
 
 // ─── Root ─────────────────────────────────────────────────────────────────
 
-export function TerminalBlock({ entry, onSubmit, onInject, onEdit, onUpload }) {
+export function TerminalBlock({ entry, onSubmit, onInject, onEdit, onUpload, starredUnits, onToggleStar }) {
   const { input, result, pending } = entry;
   const [hovered, setHovered] = useState(false);
 
@@ -435,7 +425,7 @@ export function TerminalBlock({ entry, onSubmit, onInject, onEdit, onUpload }) {
       {pending ? (
         <TerminalPending input={input} />
       ) : result ? (
-        <TerminalResult result={result} onSubmit={onSubmit} onInject={onInject} onUpload={onUpload} />
+        <TerminalResult result={result} onSubmit={onSubmit} onInject={onInject} onUpload={onUpload} starredUnits={starredUnits} onToggleStar={onToggleStar} />
       ) : null}
     </div>
   );
@@ -443,7 +433,7 @@ export function TerminalBlock({ entry, onSubmit, onInject, onEdit, onUpload }) {
 
 // ─── Result dispatcher ────────────────────────────────────────────────────
 
-function TerminalResult({ result, onSubmit, onInject, onUpload }) {
+function TerminalResult({ result, onSubmit, onInject, onUpload, starredUnits, onToggleStar }) {
   if (!result) return null;
   const { ok, result_type, data, meta } = result;
 
@@ -465,7 +455,7 @@ function TerminalResult({ result, onSubmit, onInject, onUpload }) {
       const combatKey = `${data?.attacker_name ?? ""}||${data?.defender_name ?? ""}`;
       return <div style={{ paddingLeft: "18px" }}><CombatBlock key={combatKey} data={data} onSubmit={onSubmit} /></div>;
     }
-    case "spec_sheet":      return <div style={{ paddingLeft: "18px" }}><SpecBlock   data={data} meta={meta} onSubmit={onSubmit} onInject={onInject} /></div>;
+    case "spec_sheet":      return <div style={{ paddingLeft: "18px" }}><SpecBlock   data={data} meta={meta} onSubmit={onSubmit} onInject={onInject} starredUnits={starredUnits} onToggleStar={onToggleStar} /></div>;
     case "threat_card":     return <div style={{ paddingLeft: "18px" }}><ThreatCard  data={data} meta={meta} onSubmit={onSubmit} onInject={onInject} /></div>;
     case "threat_view":     return <div style={{ paddingLeft: "18px" }}><ThreatBlock data={data} meta={meta} onSubmit={onSubmit} onInject={onInject} /></div>;
     case "math_replay":     return <MathModeBlock data={data} />;
@@ -1198,7 +1188,6 @@ function TerminalTable({ data, meta }) {
 
 function CardWeaponTable({ label, table }) {
   const { columns = [], rows = [] } = table;
-  const isRanged = label.toLowerCase().includes("ranged");
   // First col (weapon name) wider; stat cols fixed narrow
   const colWidths = columns.map((_, i) => i === 0 ? "22ch" : "5ch");
 

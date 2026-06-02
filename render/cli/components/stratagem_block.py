@@ -5,22 +5,9 @@ Handles result_type == "stratagem_block".
 Displays: name, cost, detachment, when / target / effect sections.
 """
 
-import shutil
 import textwrap
 
-RESET   = "\033[0m"
-BOLD    = "\033[1m"
-DIM     = "\033[2m"
-CYAN    = "\033[96m"
-YELLOW  = "\033[93m"
-WHITE   = "\033[97m"
-
-
-def _tw() -> int:
-    try:
-        return shutil.get_terminal_size(fallback=(110, 24)).columns
-    except Exception:
-        return 110
+from .style import RESET, BOLD, DIM, CYAN, YELLOW, WHITE, terminal_width
 
 
 def _box_top(title: str, box_w: int, title_color: str = "") -> str:
@@ -68,7 +55,7 @@ def _wrapped_section(label: str, text: str, box_w: int, pad: str) -> None:
 
 
 def render_stratagem_block(data: dict, indent: int = 2):
-    tw     = _tw()
+    tw     = terminal_width()
     pad    = " " * indent
     box_w  = max(40, tw - indent * 2)
 

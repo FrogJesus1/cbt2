@@ -428,13 +428,14 @@ class TestWeaponKeywordParsing:
     def test_rapid_fire_adds_attacks(self):
         w = _make_weapon(attacks="2", keywords=["RAPID FIRE 2"])
         wp, mods = _weapon_to_profile(w)
-        # Rapid Fire bakes extra_attacks into the weapon-level mods
-        assert mods.extra_attacks >= 2.0
+        # Rapid Fire stores to rf_value — only applied when use_rapid_fire=True
+        assert mods.rf_value >= 2.0
 
-    def test_melta_adds_flat_damage(self):
+    def test_melta_stores_value(self):
         w = _make_weapon(keywords=["MELTA 2"])
         _, mods = _weapon_to_profile(w)
-        assert mods.flat_damage_bonus >= 2.0
+        # Melta stores to melta_value — only applied when use_melta=True
+        assert mods.melta_value >= 2.0
 
     def test_anti_keyword(self):
         w = _make_weapon(keywords=["ANTI-INFANTRY 4+"])

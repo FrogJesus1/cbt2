@@ -1,12 +1,12 @@
 """
 EngineBase — the contract every data engine must implement.
 
-The rendering layer (web + CLI) calls ONLY these five methods.
+The rendering layer (web + CLI) calls ONLY these five methods plus two
+optional helpers (aliases, help_groups).
 Engines never import from render/. Renderers never import from data/.
 """
 
 from abc import ABC, abstractmethod
-from typing import Any
 
 
 class EngineBase(ABC):
@@ -74,7 +74,7 @@ class EngineBase(ABC):
         ...
 
     @abstractmethod
-    def query(self, command: str, params: dict = {}) -> dict:
+    def query(self, command: str, params: dict | None = None) -> dict:
         """
         Execute a query and return structured results.
 
@@ -99,3 +99,26 @@ class EngineBase(ABC):
           "error"  → data: str (error message)
         """
         ...
+
+    # ── Optional helpers (override for richer CLI experience) ──────────────
+
+    def aliases(self) -> dict[str, str]:
+        """Return a mapping of alias → canonical command name.
+
+        Default: empty dict (no aliases). Override in engine subclass.
+        """
+        return {}
+
+    def help_groups(self) -> dict:
+        """Return command grouping for help display.
+
+        Default: derive from schema() with a single flat group.
+        Override for custom grouping.
+
+        Returns:
+            {
+                "order":  [group_name, ...],
+                "labels": {group_name: display_label, ...}
+            }
+        """
+        return {"order": ["commands"], "labels": {"commands": "Commands"}}

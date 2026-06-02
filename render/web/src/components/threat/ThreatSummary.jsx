@@ -175,7 +175,7 @@ function RosterStatus({ rosterLoaded = false, detachment = null, unitCount = 0 }
   );
 }
 
-// ─── Bottom: threat distribution chart (placeholder) ─────────────────────
+// ─── Bottom: threat distribution chart ────────────────────────────────────
 
 function ThreatDistChart({ threatDist = {}, unitCount = 0 }) {
   const total = unitCount || 1;
@@ -195,7 +195,7 @@ function ThreatDistChart({ threatDist = {}, unitCount = 0 }) {
         <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "10px" }}>
           <SectionTitle>Threat Distribution</SectionTitle>
           <span style={{ color: C.dim, fontSize: "10px", letterSpacing: "0.1em" }}>
-            THREAT SCORING PLACEHOLDER
+            BY UNIT COUNT
           </span>
         </div>
 
@@ -214,7 +214,7 @@ function ThreatDistChart({ threatDist = {}, unitCount = 0 }) {
         </div>
 
         <div style={{ marginTop: "10px", borderTop: `1px solid ${C.border}`, paddingTop: "8px", color: C.dim, fontSize: "10px", letterSpacing: "0.06em" }}>
-          ⚡ Full probability scoring pending — connect threat math engine for accurate distribution
+          ⚡ Threat distribution based on unit analysis — use 'combat' for detailed probability math
         </div>
       </CardContent>
     </Card>

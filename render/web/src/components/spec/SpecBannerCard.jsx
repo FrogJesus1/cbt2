@@ -12,26 +12,47 @@
 
 import { Card, CardContent, C, CARD_STYLE, CARD_PAD } from "./shared";
 
-export function SpecBannerCard({ title = "", subtitle = "", onInject }) {
+export function SpecBannerCard({ title = "", subtitle = "", onInject, isStarred, onToggleStar }) {
   return (
     <Card style={{ ...CARD_STYLE, border: `1px solid ${C.bordermid}`, boxShadow: `inset 0 0 0 1px ${C.border}` }}>
-      <CardContent style={{ ...CARD_PAD, fontSize: "20px", lineHeight: "1.3" }}>
-        <span
-          onClick={() => onInject?.(`spec ${title}`)}
-          style={{
-            color:      C.amber,
-            textShadow: `0 0 10px ${C.amber}60`,
-            fontWeight: 600,
-            cursor:     onInject ? "pointer" : "default",
-            userSelect: "none",
-          }}
-          title={onInject ? `Re-run: spec ${title}` : undefined}
-        >
-          {(title || "—").toUpperCase()}
-        </span>
-        {subtitle && (
-          <span style={{ color: C.label, fontSize: "13px", marginLeft: "14px", fontWeight: 400 }}>
-            {subtitle}
+      <CardContent style={{ ...CARD_PAD, fontSize: "20px", lineHeight: "1.3", display: "flex", alignItems: "center", justifyContent: "space-between" }}>
+        <div>
+          <span
+            onClick={() => onInject?.(`spec ${title}`)}
+            style={{
+              color:      C.amber,
+              textShadow: `0 0 10px ${C.amber}60`,
+              fontWeight: 600,
+              cursor:     onInject ? "pointer" : "default",
+              userSelect: "none",
+            }}
+            title={onInject ? `Re-run: spec ${title}` : undefined}
+          >
+            {(title || "—").toUpperCase()}
+          </span>
+          {subtitle && (
+            <span style={{ color: C.label, fontSize: "13px", marginLeft: "14px", fontWeight: 400 }}>
+              {subtitle}
+            </span>
+          )}
+        </div>
+        {onToggleStar && (
+          <span
+            onClick={() => onToggleStar(title)}
+            style={{
+              color:      isStarred ? C.amber : C.dim,
+              fontSize:   "18px",
+              cursor:     "pointer",
+              userSelect: "none",
+              padding:    "2px 6px",
+              transition: "color 0.15s",
+              flexShrink: 0,
+            }}
+            onMouseEnter={e => { if (!isStarred) e.currentTarget.style.color = C.label; }}
+            onMouseLeave={e => { if (!isStarred) e.currentTarget.style.color = C.dim; }}
+            title={isStarred ? "Remove from starred" : "Star this unit"}
+          >
+            {isStarred ? "★" : "☆"}
           </span>
         )}
       </CardContent>

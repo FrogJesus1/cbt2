@@ -4,19 +4,9 @@ Spec Sheet renderer — combined stat block + combat ratings block.
 Handles result_type == "spec_sheet".
 """
 
-import shutil
 import textwrap
 
-# ── ANSI codes ──────────────────────────────────────────────────────────────────
-RESET   = "\033[0m"
-BOLD    = "\033[1m"
-DIM     = "\033[2m"
-CYAN    = "\033[96m"
-GREEN   = "\033[92m"
-YELLOW  = "\033[93m"
-RED     = "\033[91m"
-MAGENTA = "\033[95m"
-WHITE   = "\033[97m"
+from .style import RESET, BOLD, DIM, CYAN, GREEN, YELLOW, RED, MAGENTA, WHITE, terminal_width
 
 # ── Rating config ───────────────────────────────────────────────────────────────
 RATING_ORDER = ["durability", "mobility", "obj_control", "firepower", "melee_threat"]
@@ -38,13 +28,6 @@ RATING_COLORS = {
 }
 
 
-def _tw() -> int:
-    try:
-        return shutil.get_terminal_size(fallback=(110, 24)).columns
-    except Exception:
-        return 110
-
-
 def _bar(score: float, width: int, color: str) -> str:
     """Render a progress bar using Unicode block characters."""
     score   = max(0.0, min(1.0, score))
@@ -54,7 +37,7 @@ def _bar(score: float, width: int, color: str) -> str:
 
 
 def render_spec_sheet(data: dict, indent: int = 2):
-    tw      = _tw()
+    tw      = terminal_width()
     pad     = " " * indent
     div_w   = max(20, tw - indent * 2)
     wrap_w  = max(40, min(div_w - 4, 100))
