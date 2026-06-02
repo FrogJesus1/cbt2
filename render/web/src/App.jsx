@@ -10,7 +10,7 @@
  * Contexts:
  *   main     — default terminal (command hub, combat math, analysis)
  *   units    — unit database browser (search + filter + list units results)
- *   campaign — campaign mode
+ *   rosters  — roster management + campaign dashboard (dedicated panel, no terminal)
  *   rules    — rules & keyword lookup
  *   settings — hidden settings terminal (no visible tab)
  *
@@ -23,7 +23,7 @@
  *
  * Layout:
  *   ┌─────────────────────────────────────────────────────────┐
- *   │  ⚡ COMBAT TERMINAL  MAIN | UNITS | CAMPAIGN | RULES   │  ← nav bar
+ *   │  ⚡ COMBAT TERMINAL  MAIN | UNITS | ROSTERS | RULES    │  ← nav bar
  *   ├─────────────────────────────────────────────────────────┤
  *   │                                                         │
  *   │   active context (terminal + optional UI strip)         │
@@ -37,6 +37,7 @@ import { useState, useEffect, useCallback, useRef, forwardRef, useImperativeHand
 import { Terminal }         from "@/components/Terminal";
 import { UnitsContext }     from "@/components/UnitsContext";
 import { RulesContext }     from "@/components/RulesContext";
+import { RostersContext }   from "@/components/RostersContext";
 import { DemoView }         from "@/components/DemoView";
 import { DiagnosticsPage }  from "@/components/DiagnosticsPage";
 
@@ -53,21 +54,11 @@ function readStoredTheme() {
 
 // ─── Context config ───────────────────────────────────────────────────────────
 
-const VISIBLE_CONTEXTS = ["main", "units", "campaign", "rules"];  // settings hidden
-const CONTEXT_LABELS   = { main: "MAIN", units: "UNITS", campaign: "CAMPAIGN", rules: "RULES" };
-const CONTEXT_NAV_CMD  = { main: "home",  units: "units",  campaign: "campaign",  rules: "rules" };
+const VISIBLE_CONTEXTS = ["main", "units", "rosters", "rules"];  // settings hidden
+const CONTEXT_LABELS   = { main: "MAIN", units: "UNITS", rosters: "ROSTERS", rules: "RULES" };
+const CONTEXT_NAV_CMD  = { main: "home",  units: "units",  rosters: "rosters",  rules: "rules" };
 
 // ─── Boot lines ───────────────────────────────────────────────────────────────
-
-const CAMPAIGN_BOOT_LINES = [
-  "╔══════════════════════════════════════════════════════════════╗",
-  "║  CAMPAIGN CONTEXT  ·  Campaign Mode                          ║",
-  "╚══════════════════════════════════════════════════════════════╝",
-  "",
-  "  Campaign tracking is coming, Commander.",
-  "  Type  help  to see available commands.",
-  "",
-];
 
 const SETTINGS_BOOT_LINES = [
   "╔══════════════════════════════════════════════════════════════╗",
@@ -81,8 +72,9 @@ const SETTINGS_BOOT_LINES = [
 
 // ─── Global command bar ───────────────────────────────────────────────────────
 //
-// Always rendered at the bottom.  Exposes animateAndSubmit(cmd) via forwardRef
-// for command injection with a typing animation.
+// Always rendered at the bottom.  Exposes animateAndSubmit(cmd) and
+// populateInput(cmd) via forwardRef.  populateInput fills the bar without
+// submitting — used by the "edit & re-run" button on past commands.
 
 const CommandBar = forwardRef(function CommandBar(
   { onSubmit, commands = [], loading = false },
@@ -137,6 +129,19 @@ const CommandBar = forwardRef(function CommandBar(
       }
 
       animTimer.current = setTimeout(tick, 55);
+    },
+    /** Fill the input bar without submitting — lets the user edit before Enter. */
+    populateInput(cmd) {
+      if (animTimer.current) clearTimeout(animTimer.current);
+      animActive.current = false;
+      setAnimating(false);
+      setInput(cmd);
+      setHistIdx(-1);
+      setTimeout(() => {
+        inputRef.current?.focus();
+        // Place cursor at end
+        inputRef.current?.setSelectionRange(cmd.length, cmd.length);
+      }, 0);
     },
   }));
 
@@ -234,6 +239,10 @@ const CommandBar = forwardRef(function CommandBar(
 
 const API = "/api";
 
+// ─── History constants ───────────────────────────────────────────────────────
+const CT_HISTORY_KEY = "ct_cmd_history";
+const HISTORY_TYPES  = new Set(["combat", "threat_card", "threat_view"]);
+
 // ─── App ──────────────────────────────────────────────────────────────────────
 
 export default function App() {
@@ -242,7 +251,6 @@ export default function App() {
   const [commands,       setCommands]       = useState([]);
   const [apiError,       setApiError]       = useState(null);
   const [activeContext,  setActiveContext]  = useState("main");
-  const [cmdHistory,     setCmdHistory]     = useState([]);   // [{id, input}] — main terminal only
   const [historyOpen,    setHistoryOpen]    = useState(false);
   const [scrollToId,     setScrollToId]     = useState(null);
   const [cmdBarLoading,  setCmdBarLoading]  = useState(false);
@@ -253,7 +261,7 @@ export default function App() {
   const [pendingCommands, setPendingCommands] = useState({
     main:     null,
     units:    null,
-    campaign: null,
+    rosters:  null,
     rules:    null,
     settings: null,
     diag:     null,
@@ -338,14 +346,87 @@ export default function App() {
     return res.json();
   }, [activeEngineId]);
 
-  // ── Stream change — tracks main terminal history for the dropdown ─────────
+  // ── Command history — filtered, deduped, starred ─────────────────────────
+  //
+  // Shape: [{ key, input, starred, streamId }]
+  //   key      = normalised lowercase input (dedup key)
+  //   input    = original-cased command text
+  //   starred  = boolean — pinned to top
+  //   streamId = most recent stream entry id (for scroll-to-jump)
+  //
+  // Only combat (contains " vs ") and threat commands are tracked.
+  // Errors, edits, and duplicate runs move existing entries to the top.
+
+  // Hydrate once from localStorage
+  const [cmdHistory, setCmdHistory] = useState(() => {
+    try { return JSON.parse(localStorage.getItem(CT_HISTORY_KEY) || "[]"); }
+    catch { return []; }
+  });
+
+  // Persist whenever history changes
+  useEffect(() => {
+    try { localStorage.setItem(CT_HISTORY_KEY, JSON.stringify(cmdHistory)); }
+    catch { /* storage unavailable */ }
+  }, [cmdHistory]);
+
+  // Track which stream entry ids we've already processed into history
+  const processedHistoryIds = useRef(new Set());
 
   const handleStreamChange = useCallback((stream) => {
-    const entries = stream
-      .filter(e => !e.pending && e.input)
-      .map(e => ({ id: e.id, input: e.input }))
-      .slice(-15);
-    setCmdHistory(entries);
+    // Only process new, finished, successful combat/threat entries
+    const fresh = stream.filter(e =>
+      !e.pending && e.input && e.result?.ok
+      && HISTORY_TYPES.has(e.result?.result_type)
+      && !processedHistoryIds.current.has(e.id)
+    );
+    if (!fresh.length) return;
+
+    // Mark as processed
+    for (const e of fresh) processedHistoryIds.current.add(e.id);
+
+    setCmdHistory(prev => {
+      let next = [...prev];
+      for (const e of fresh) {
+        const key = e.input.trim().toLowerCase();
+        const idx = next.findIndex(h => h.key === key);
+        if (idx !== -1) {
+          // Already exists — update streamId, move to front of its group (keep star state)
+          const existing = next.splice(idx, 1)[0];
+          if (existing.starred) {
+            // Insert at front of starred group
+            next.unshift({ ...existing, streamId: e.id });
+          } else {
+            // Insert after last starred item
+            const firstUnstarred = next.findIndex(h => !h.starred);
+            const insertAt = firstUnstarred === -1 ? next.length : firstUnstarred;
+            next.splice(insertAt, 0, { ...existing, streamId: e.id });
+          }
+        } else {
+          // New entry — insert after starred items
+          const firstUnstarred = next.findIndex(h => !h.starred);
+          const insertAt = firstUnstarred === -1 ? next.length : firstUnstarred;
+          next.splice(insertAt, 0, { key, input: e.input.trim(), starred: false, streamId: e.id });
+        }
+      }
+      // Cap at 30
+      return next.slice(0, 30);
+    });
+  }, []);
+
+  const handleHistoryDelete = useCallback((key) => {
+    setCmdHistory(prev => prev.filter(h => h.key !== key));
+  }, []);
+
+  const handleHistoryStar = useCallback((key) => {
+    setCmdHistory(prev => {
+      const updated = prev.map(h =>
+        h.key === key ? { ...h, starred: !h.starred } : h
+      );
+      // Sort: starred first (preserve relative order within each group)
+      const starred   = updated.filter(h => h.starred);
+      const unstarred = updated.filter(h => !h.starred);
+      return [...starred, ...unstarred];
+    });
   }, []);
 
   // ── Global command bar submit ─────────────────────────────────────────────
@@ -362,7 +443,7 @@ export default function App() {
     const NAV_CMD_MAP = {
       home: "main", h: "main",
       units: "units", u: "units",
-      campaign: "campaign",
+      rosters: "rosters", campaign: "rosters", c: "rosters",
       rules: "rules", r: "rules",
       diag: "diag",
       demo: "demo",
@@ -399,7 +480,7 @@ export default function App() {
   // Terminal resolves `units`, `rules`, etc. → calls this with the view id.
 
   const handleNavigate = useCallback((view) => {
-    const knownContexts = ["main", "units", "campaign", "rules", "settings", "demo", "diag"];
+    const knownContexts = ["main", "units", "rosters", "rules", "settings", "demo", "diag"];
     if (knownContexts.includes(view)) {
       setActiveContext(view);
     }
@@ -414,13 +495,19 @@ export default function App() {
     }, 40);
   }, []);
 
+  // ── Edit command — fill bar without submitting ──────────────────────────
+  const handleEditCommand = useCallback((cmd) => {
+    cmdBarRef.current?.populateInput(cmd);
+  }, []);
+
   // ── History jump ─────────────────────────────────────────────────────────
 
-  const handleHistoryJump = useCallback((id) => {
-    setHistoryOpen(false);
-    setActiveContext("main");
-    setTimeout(() => setScrollToId(id), 50);
-  }, []);
+  // handleHistoryJump kept for potential future use (scroll to a stream entry)
+  // const handleHistoryJump = useCallback((streamId) => {
+  //   setHistoryOpen(false);
+  //   setActiveContext("main");
+  //   setTimeout(() => setScrollToId(streamId), 50);
+  // }, []);
 
   // ── Consumed callback factory ─────────────────────────────────────────────
   // Returns an `onPendingCommandConsumed` callback for a specific context.
@@ -441,6 +528,7 @@ export default function App() {
     engineId:  activeEngineId,
     onExec:    handleExec,
     onInject:  handleAnimatedInject,
+    onEdit:    handleEditCommand,
     onNavigate: handleNavigate,
     onContextRoute: handleContextRoute,
     onTheme:   setTheme,
@@ -599,20 +687,27 @@ export default function App() {
             }}
           >
             HISTORY
+            {cmdHistory.length > 0 && (
+              <span style={{ color: "var(--ct-primary-dim)", fontSize: "10px" }}>{cmdHistory.length}</span>
+            )}
             <span style={{ fontSize: "8px" }}>{historyOpen ? "▲" : "▼"}</span>
           </button>
 
           {historyOpen && (
             <div
-              className="absolute right-0 top-full w-80 z-50"
+              className="absolute right-0 top-full z-50"
               style={{
                 backgroundColor: "var(--ct-bg-dark)",
                 border:          "1px solid var(--ct-border)",
                 borderTop:       "none",
+                minWidth:        "340px",
+                maxWidth:        "480px",
+                maxHeight:       "400px",
+                overflowY:       "auto",
               }}
             >
               <div
-                className="px-3 py-1.5"
+                className="px-3 py-1.5 flex items-center justify-between"
                 style={{
                   color:         "var(--ct-border)",
                   fontSize:      "10px",
@@ -621,28 +716,86 @@ export default function App() {
                   textTransform: "uppercase",
                 }}
               >
-                Recent — click to jump
+                <span>Combat & Threat History</span>
+                <span style={{ letterSpacing: "0.05em" }}>★ pin · ✕ remove · click to edit</span>
               </div>
 
               {cmdHistory.length === 0 ? (
-                <div className="px-3 py-2" style={{ color: "var(--ct-border)", fontSize: "12px" }}>
-                  (no commands yet)
+                <div className="px-3 py-3" style={{ color: "var(--ct-border)", fontSize: "12px" }}>
+                  No combat or threat commands yet.
                 </div>
               ) : (
-                [...cmdHistory].reverse().map((entry, i) => (
-                  <button
-                    key={entry.id}
-                    onClick={() => handleHistoryJump(entry.id)}
-                    className="w-full text-left flex items-center gap-3 px-3 py-1.5 transition-colors"
-                    style={{ color: "var(--ct-primary-mid)", fontSize: "12px", borderBottom: "1px solid var(--ct-bg-panel)" }}
-                    onMouseEnter={e => e.currentTarget.style.backgroundColor = "var(--ct-bg-panel)"}
-                    onMouseLeave={e => e.currentTarget.style.backgroundColor = "transparent"}
+                cmdHistory.map((entry) => (
+                  <div
+                    key={entry.key}
+                    className="flex items-center gap-2 px-3 py-1.5 transition-colors"
+                    style={{
+                      borderBottom:    "1px solid var(--ct-bg-panel)",
+                      backgroundColor: entry.starred ? "rgba(255,163,40,0.04)" : "transparent",
+                    }}
+                    onMouseEnter={e => { if (!entry.starred) e.currentTarget.style.backgroundColor = "var(--ct-bg-panel)"; }}
+                    onMouseLeave={e => { if (!entry.starred) e.currentTarget.style.backgroundColor = "transparent"; }}
                   >
-                    <span style={{ color: "var(--ct-border)", minWidth: "14px" }}>{i + 1}</span>
-                    <span style={{ whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }}>
+                    {/* Star toggle */}
+                    <span
+                      onClick={(e) => { e.stopPropagation(); handleHistoryStar(entry.key); }}
+                      title={entry.starred ? "Unpin" : "Pin to top"}
+                      style={{
+                        color:      entry.starred ? "#ffa328" : "var(--ct-border)",
+                        cursor:     "pointer",
+                        userSelect: "none",
+                        fontSize:   "13px",
+                        flexShrink: 0,
+                        width:      "18px",
+                        textAlign:  "center",
+                        transition: "color 0.15s",
+                      }}
+                      onMouseEnter={e => { e.currentTarget.style.color = "#ffa328"; }}
+                      onMouseLeave={e => { e.currentTarget.style.color = entry.starred ? "#ffa328" : "var(--ct-border)"; }}
+                    >
+                      {entry.starred ? "★" : "☆"}
+                    </span>
+
+                    {/* Command text — click to edit */}
+                    <span
+                      onClick={() => { handleEditCommand(entry.input); setHistoryOpen(false); }}
+                      title="Load into command bar for editing"
+                      style={{
+                        color:        entry.starred ? "#ffa328" : "var(--ct-primary-mid)",
+                        fontSize:     "12px",
+                        cursor:       "pointer",
+                        flex:         1,
+                        whiteSpace:   "nowrap",
+                        overflow:     "hidden",
+                        textOverflow: "ellipsis",
+                        fontFamily:   "monospace",
+                      }}
+                      onMouseEnter={e => { e.currentTarget.style.color = "var(--ct-primary)"; }}
+                      onMouseLeave={e => { e.currentTarget.style.color = entry.starred ? "#ffa328" : "var(--ct-primary-mid)"; }}
+                    >
                       {entry.input}
                     </span>
-                  </button>
+
+                    {/* Delete button */}
+                    <span
+                      onClick={(e) => { e.stopPropagation(); handleHistoryDelete(entry.key); }}
+                      title="Remove from history"
+                      style={{
+                        color:      "var(--ct-border)",
+                        cursor:     "pointer",
+                        userSelect: "none",
+                        fontSize:   "11px",
+                        flexShrink: 0,
+                        width:      "18px",
+                        textAlign:  "center",
+                        transition: "color 0.15s",
+                      }}
+                      onMouseEnter={e => { e.currentTarget.style.color = "#ff3b3b"; }}
+                      onMouseLeave={e => { e.currentTarget.style.color = "var(--ct-border)"; }}
+                    >
+                      ✕
+                    </span>
+                  </div>
                 ))
               )}
             </div>
@@ -698,14 +851,13 @@ export default function App() {
           />
         </div>
 
-        {/* CAMPAIGN context */}
-        <div style={panelStyle("campaign")}>
-          <Terminal
-            {...sharedTerminalProps}
-            contextId="campaign"
-            pendingCommand={pendingCommands.campaign}
-            onPendingCommandConsumed={makeConsumed("campaign")}
-            contextBootLines={CAMPAIGN_BOOT_LINES}
+        {/* ROSTERS context */}
+        <div style={panelStyle("rosters")}>
+          <RostersContext
+            engineId={activeEngineId}
+            onExec={handleExec}
+            onInject={handleAnimatedInject}
+            theme={theme}
           />
         </div>
 

@@ -13,6 +13,7 @@
  *   pendingCommand            string | null    — command injected from global bar
  *   onPendingCommandConsumed  () → void        — fires after pendingCommand is consumed
  *   onInject                  (cmd) → void     — animate-type cmd into global CommandBar
+ *   onEdit                    (cmd) → void     — fill CommandBar without submitting (edit & re-run)
  *   onNavigate                (view) → void    — trigger App-level view switch
  */
 
@@ -40,8 +41,9 @@ const NAV_TOKEN_MAP = {
   u:           "units",
   rules:       "rules",
   r:           "rules",
-  campaign:    "campaign",
-  c:           "campaign",
+  rosters:     "rosters",
+  campaign:    "rosters",
+  c:           "rosters",
   demo:        "demo",
   d:           "demo",
   settings:    "settings",
@@ -56,7 +58,8 @@ const NAV_LABELS = {
   home:     "HOME",   // kept for back-compat with any stored history entries
   units:    "UNITS",
   rules:    "RULES",
-  campaign: "CAMPAIGN",
+  rosters:  "ROSTERS",
+  campaign: "ROSTERS",  // legacy alias
   demo:     "DEMO",
   settings: "SETTINGS",
   diag:     "DIAGNOSTICS",
@@ -162,11 +165,12 @@ export function Terminal({
   pendingCommand,
   onPendingCommandConsumed,
   onInject,
+  onEdit,          // (cmd: string) → void — populate command bar without submitting (edit & re-run)
   onNavigate,
   onContextRoute,  // (targetContext, cmd) → route command to a different context terminal
   onTheme,         // (themeName: string) → void — update App-level theme state
   theme,           // current theme name (unused in Terminal render, but available for future use)
-  contextId,       // which context this terminal belongs to: "main" | "units" | "campaign" | "rules" | "settings"
+  contextId,       // which context this terminal belongs to: "main" | "units" | "rosters" | "rules" | "settings"
   contextBootLines, // optional override for the boot splash lines
 }) {
   const [stream,         setStream]         = useState([]);
@@ -842,7 +846,7 @@ export function Terminal({
   //   5. history/hist — show command history list
   //   6. issues/stubs — show session stub log
   //   7. theme        — apply/reset a UI colour theme (client-side, no engine call)
-  //   8. NAV_TOKEN    — navigate to a named view (home, units, rules, campaign, demo)
+  //   8. NAV_TOKEN    — navigate to a named view (home, units, rules, rosters, demo)
   //                     plus single-letter aliases (h, u, r, c, d)
   //   9. engine exec  — send to backend (spec, combat, threat, rule, etc.)
   //
@@ -1626,7 +1630,7 @@ export function Terminal({
               ref={el => { entryRefs.current[entry.id] = el; }}
               style={{ transition: "background-color 0.3s" }}
             >
-              <TerminalBlock entry={entry} onSubmit={submit} onInject={onInject} onUpload={processUpload} />
+              <TerminalBlock entry={entry} onSubmit={submit} onInject={onInject} onEdit={onEdit} onUpload={processUpload} />
             </div>
           ))}
         </div>

@@ -20,7 +20,7 @@
  *   error          → red error message with numbered suggestions
  */
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useCallback } from "react";
 import { CombatBlock }      from "./CombatBlock";
 import { SpecBlock }         from "./SpecBlock";
 import { ThreatCard }        from "./ThreatCard";
@@ -386,15 +386,49 @@ function DisambiguationBlock({ data, onInject }) {
 
 // ─── Root ─────────────────────────────────────────────────────────────────
 
-export function TerminalBlock({ entry, onSubmit, onInject, onUpload }) {
+export function TerminalBlock({ entry, onSubmit, onInject, onEdit, onUpload }) {
   const { input, result, pending } = entry;
+  const [hovered, setHovered] = useState(false);
+
+  const handleEdit = useCallback(() => {
+    if (onEdit && input) onEdit(input);
+  }, [onEdit, input]);
+
+  // Don't show edit icon for purely client-side results (clear, history, system nav)
+  const showEdit = onEdit && input && !pending
+    && result?.result_type !== "clear"
+    && result?.result_type !== "history";
 
   return (
     <div className="space-y-2">
       {/* Echoed input line */}
-      <div className="flex items-center gap-2 font-mono" style={{ fontSize: "15px" }}>
+      <div
+        className="flex items-center gap-2 font-mono group"
+        style={{ fontSize: "15px" }}
+        onMouseEnter={() => setHovered(true)}
+        onMouseLeave={() => setHovered(false)}
+      >
         <span style={{ color: C.green, userSelect: "none", flexShrink: 0, textShadow: `0 0 4px rgba(var(--ct-glow-rgb),0.4)` }}>›</span>
         <span style={{ color: "var(--ct-echo)" }}>{input}</span>
+        {showEdit && (
+          <span
+            onClick={handleEdit}
+            title="Edit & re-run"
+            style={{
+              color:      hovered ? C.label : "transparent",
+              cursor:     "pointer",
+              userSelect: "none",
+              fontSize:   "12px",
+              flexShrink: 0,
+              padding:    "0 4px",
+              transition: "color 0.15s",
+            }}
+            onMouseEnter={e => { e.currentTarget.style.color = C.green; }}
+            onMouseLeave={e => { e.currentTarget.style.color = hovered ? C.label : "transparent"; }}
+          >
+            ✎
+          </span>
+        )}
       </div>
 
       {/* Result */}
@@ -2236,8 +2270,6 @@ function TerminalSessionBlock({ data, onInject }) {
         <ROW label="Enemy Faction" value={state.enemy !== "—" ? state.enemy?.toUpperCase() : "—"}
           color={state.enemy !== "—" ? C.amber : C.dim}
           clickCmd={state.enemy !== "—" ? `list units ${state.enemy}` : null} />
-        <ROW label="Active Mods" value={state.mods ?? "none"} color={C.dim} />
-        <ROW label="Campaign" value={state.campaign ?? "—"} color={C.dim} />
       </div>
 
       {/* Roster panels */}
