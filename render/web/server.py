@@ -293,6 +293,15 @@ def create_app(config: dict) -> FastAPI:
             raise HTTPException(status_code=404, detail="Roster not found")
         return {"ok": True}
 
+    @app.get("/api/factions")
+    def api_list_factions():
+        """Return all known faction names from the primary engine."""
+        engine = registry.get(registry.primary)
+        if not engine or not hasattr(engine, "_loader"):
+            return {"factions": []}
+        factions = sorted(engine._loader._units.keys())
+        return {"factions": factions}
+
     @app.post("/api/rosters/detect-faction")
     def api_detect_faction(body: dict):
         """Extract unit names from roster text and match against loaded faction data."""

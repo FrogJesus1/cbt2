@@ -1,35 +1,40 @@
 """
-Shared roster store — server-side roster library visible to all users.
+Shared roster store — Airtable-backed roster library visible to all users.
 
-Each roster is stored as a JSON file in data/shared_rosters/<id>.json.
-Rosters are tagged with the uploader's profile name and upload timestamp.
+Each roster is a row in the SharedRosters table of the Combat Terminal
+Airtable base. Rosters are tagged with the uploader's profile name and
+upload timestamp.
 
-Structure per file:
-  {
-    "id":          "tau-retaliation-cadre-1717430000",
-    "name":        "Retaliation Cadre",
-    "faction":     "tau",
-    "content":     "... raw roster text ...",
-    "uploaded_by": "Juzzie",
-    "uploaded_at": "2026-06-03T12:00:00+00:00",
-    "updated_at":  "2026-06-03T12:00:00+00:00"
-  }
+Required env vars:
+  AIRTABLE_TOKEN   — Airtable Personal Access Token
+  AIRTABLE_BASE_ID — Base ID (e.g. appfOqXB5mLMgXFKp)
 """
 
 from __future__ import annotations
 
-import json
+import os
 import re
 import time
 from datetime import datetime, timezone
-from pathlib import Path
 
-ROSTERS_DIR = Path(__file__).parent.parent.parent / "data" / "shared_rosters"
+from pyairtable import Api
 
 
-def _ensure_dir():
-    ROSTERS_DIR.mkdir(parents=True, exist_ok=True)
+# ─── Airtable connection ─────────────────────────────────────────────────────
 
+def _get_table():
+    token = os.environ.get("AIRTABLE_TOKEN", "")
+    base_id = os.environ.get("AIRTABLE_BASE_ID", "")
+    if not token or not base_id:
+        raise RuntimeError(
+            "AIRTABLE_TOKEN and AIRTABLE_BASE_ID must be set. "
+            "Rosters cannot be stored without an Airtable connection."
+        )
+    api = Api(token)
+    return api.table(base_id, "SharedRosters")
+
+
+# ─── Helpers ──────────────────────────────────────────────────────────────────
 
 def _slugify(s: str) -> str:
     return re.sub(r"[^a-z0-9-]", "", s.lower().strip().replace(" ", "-"))
@@ -40,19 +45,38 @@ def _make_id(faction: str, name: str) -> str:
     return f"{slug}-{int(time.time())}"
 
 
-def _read(roster_id: str) -> dict | None:
-    p = ROSTERS_DIR / f"{roster_id}.json"
-    if not p.exists():
-        return None
-    try:
-        return json.loads(p.read_text())
-    except (json.JSONDecodeError, OSError):
-        return None
+def _find_by_roster_id(table, roster_id: str) -> dict | None:
+    """Find a roster record by RosterId. Returns raw Airtable record or None."""
+    records = table.all(formula=f"{{RosterId}} = '{roster_id}'")
+    return records[0] if records else None
 
 
-def _write(roster_id: str, data: dict):
-    _ensure_dir()
-    (ROSTERS_DIR / f"{roster_id}.json").write_text(json.dumps(data, indent=2))
+def _record_to_roster(record: dict) -> dict:
+    """Convert Airtable record to internal roster dict."""
+    f = record["fields"]
+    return {
+        "id":          f.get("RosterId", ""),
+        "name":        f.get("Name", ""),
+        "faction":     f.get("Faction", ""),
+        "content":     f.get("Content", ""),
+        "uploaded_by": f.get("UploadedBy", "unknown"),
+        "uploaded_at": f.get("UploadedAt"),
+        "updated_at":  f.get("UpdatedAt"),
+        "_record_id":  record["id"],
+    }
+
+
+def _roster_summary(record: dict) -> dict:
+    """Convert Airtable record to listing summary (no content)."""
+    f = record["fields"]
+    return {
+        "id":          f.get("RosterId", ""),
+        "name":        f.get("Name", ""),
+        "faction":     f.get("Faction", ""),
+        "uploaded_by": f.get("UploadedBy", "unknown"),
+        "uploaded_at": f.get("UploadedAt"),
+        "updated_at":  f.get("UpdatedAt"),
+    }
 
 
 # ─── Public API ───────────────────────────────────────────────────────────────
@@ -61,21 +85,9 @@ def list_all_rosters() -> list[dict]:
     """Return all shared rosters sorted by faction then name.
     Each entry includes everything except the raw content (for listing).
     """
-    _ensure_dir()
-    rosters = []
-    for f in ROSTERS_DIR.glob("*.json"):
-        try:
-            d = json.loads(f.read_text())
-            rosters.append({
-                "id":          d["id"],
-                "name":        d["name"],
-                "faction":     d["faction"],
-                "uploaded_by": d.get("uploaded_by", "unknown"),
-                "uploaded_at": d.get("uploaded_at"),
-                "updated_at":  d.get("updated_at"),
-            })
-        except (json.JSONDecodeError, KeyError):
-            continue
+    table = _get_table()
+    records = table.all()
+    rosters = [_roster_summary(r) for r in records]
     rosters.sort(key=lambda r: (r["faction"], r["name"].lower()))
     return rosters
 
@@ -96,20 +108,22 @@ def list_rosters_grouped() -> dict:
 
 def get_roster(roster_id: str) -> dict | None:
     """Return full roster including content."""
-    return _read(roster_id)
+    table = _get_table()
+    record = _find_by_roster_id(table, roster_id)
+    if not record:
+        return None
+    return _record_to_roster(record)
 
 
 def find_roster_by_name(name: str) -> dict | None:
     """Find a roster by name (case-insensitive partial match). Returns full roster with content."""
-    _ensure_dir()
+    table = _get_table()
+    records = table.all()
     lower = name.lower().strip()
-    for f in ROSTERS_DIR.glob("*.json"):
-        try:
-            d = json.loads(f.read_text())
-            if lower in d.get("name", "").lower():
-                return d
-        except (json.JSONDecodeError, KeyError):
-            continue
+    for r in records:
+        rname = r["fields"].get("Name", "")
+        if lower in rname.lower():
+            return _record_to_roster(r)
     return None
 
 
@@ -119,7 +133,19 @@ def save_roster(name: str, faction: str, content: str, uploaded_by: str) -> dict
     roster_id = _make_id(faction_slug, name)
     now = datetime.now(timezone.utc).isoformat(timespec="seconds")
 
-    roster = {
+    table = _get_table()
+    fields = {
+        "Name":       name,
+        "RosterId":   roster_id,
+        "Faction":    faction_slug,
+        "Content":    content,
+        "UploadedBy": uploaded_by,
+        "UploadedAt": now,
+        "UpdatedAt":  now,
+    }
+    table.create(fields)
+
+    return {
         "id":          roster_id,
         "name":        name,
         "faction":     faction_slug,
@@ -128,25 +154,32 @@ def save_roster(name: str, faction: str, content: str, uploaded_by: str) -> dict
         "uploaded_at": now,
         "updated_at":  now,
     }
-    _write(roster_id, roster)
-    return roster
 
 
 def delete_roster(roster_id: str, requester: str | None = None) -> bool:
     """Delete a roster by id. Returns True if deleted."""
-    p = ROSTERS_DIR / f"{roster_id}.json"
-    if not p.exists():
+    table = _get_table()
+    record = _find_by_roster_id(table, roster_id)
+    if not record:
         return False
-    p.unlink()
+    table.delete(record["id"])
     return True
 
 
 def update_roster_content(roster_id: str, content: str) -> dict | None:
     """Update a roster's content. Returns updated roster or None."""
-    roster = _read(roster_id)
-    if not roster:
+    table = _get_table()
+    record = _find_by_roster_id(table, roster_id)
+    if not record:
         return None
+
+    now = datetime.now(timezone.utc).isoformat(timespec="seconds")
+    table.update(record["id"], {
+        "Content":   content,
+        "UpdatedAt": now,
+    })
+
+    roster = _record_to_roster(record)
     roster["content"] = content
-    roster["updated_at"] = datetime.now(timezone.utc).isoformat(timespec="seconds")
-    _write(roster_id, roster)
+    roster["updated_at"] = now
     return roster

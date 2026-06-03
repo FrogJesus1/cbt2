@@ -250,6 +250,12 @@ export function ProfileGate({ onLogin }) {
         <button onClick={() => { setView("create"); setError(null); }} style={styles.btn}>
           + NEW PROFILE
         </button>
+        <button
+          onClick={() => onLogin({ name: null, slug: null, has_pin: false, state: {} })}
+          style={styles.skipLink}
+        >
+          skip — use without a profile
+        </button>
       </div>
     </div>
   );
@@ -375,5 +381,15 @@ const styles = {
     alignItems:  "center",
     cursor:      "pointer",
     fontSize:    "12px",
+  },
+  skipLink: {
+    background:     "none",
+    border:         "none",
+    color:          "#2a4a2a",
+    fontSize:       "11px",
+    cursor:         "pointer",
+    marginTop:      "16px",
+    fontFamily:     "inherit",
+    letterSpacing:  "0.06em",
   },
 };

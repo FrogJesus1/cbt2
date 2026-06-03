@@ -383,6 +383,7 @@ function AppInner({ profile, onLogout }) {
 
   const [buildHash, setBuildHash] = useState(null);  // git short hash from /api/version
   const [themeOpen, setThemeOpen] = useState(false);
+  const [rosterUploadMode, setRosterUploadMode] = useState(null); // null | "player" | "enemy"
 
   const historyRef = useRef(null);
   const themeRef   = useRef(null);
@@ -636,6 +637,14 @@ function AppInner({ profile, onLogout }) {
     // One-shot commands that need no visible output — route to main terminal
     // but keep the user on the current page (RostersContext refreshes via poll).
     const ONE_SHOT = /^(set roster |clear roster )/i;
+
+    // Upload roster commands → switch to rosters context + trigger inline upload
+    if (tokens[0] === "upload" && (tokens[1] === "roster" || tokens[1] === "enemy")) {
+      const isEnemy = tokens[1] === "enemy" || (tokens[2] === "enemy");
+      setActiveContext("rosters");
+      setRosterUploadMode(isEnemy ? "enemy" : "player");
+      return;
+    }
 
     if (tokens[0] === "list" && tokens[1] === "units") {
       // Always send list-units commands to the units context
@@ -1134,6 +1143,8 @@ function AppInner({ profile, onLogout }) {
             onInject={handleAnimatedInject}
             theme={theme}
             profileName={profile?.name}
+            triggerUpload={rosterUploadMode}
+            onUploadConsumed={() => setRosterUploadMode(null)}
           />
         </div>
 

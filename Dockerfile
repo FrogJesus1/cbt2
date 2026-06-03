@@ -34,6 +34,10 @@ ARG GIT_TIMESTAMP=unknown
 ENV GIT_COMMIT=${GIT_COMMIT}
 ENV GIT_TIMESTAMP=${GIT_TIMESTAMP}
 ENV PYTHONUNBUFFERED=1
+
+# Airtable config — pass via docker-compose environment, NOT build args
+# ENV AIRTABLE_TOKEN=   (set in docker-compose.yml or .env)
+# ENV AIRTABLE_BASE_ID= (set in docker-compose.yml or .env)
 EXPOSE 8001
 
 HEALTHCHECK --interval=30s --timeout=5s --retries=3 \

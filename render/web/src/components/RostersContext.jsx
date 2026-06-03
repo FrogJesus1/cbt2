@@ -2,16 +2,14 @@
  * RostersContext
  *
  * Roster management dashboard with inline upload/delete flows.
- * All roster operations happen directly via API — no terminal injection.
+ * All roster operations happen directly via API — no terminal.
  *
- * Upload flow (inline, no terminal trail):
- *   1. User clicks "upload player/enemy roster"
- *   2. Paste area + file upload shown inline
- *   3. User pastes/uploads → auto-detect faction → ask for name
- *   4. User enters name → save to server → auto-assign → back to dashboard
- *
- * Delete: inline confirm — no terminal.
- * Set as player/enemy: inject via onInject (ONE_SHOT, stays on roster tab).
+ * Upload flow (user's spec):
+ *   1. Paste or upload roster
+ *   2. Auto-detect faction (or numbered list if unsure)
+ *   3. Name it
+ *   4. Choose: load as player / load as enemy / just save
+ *   → Back to dashboard
  */
 
 import { useState, useEffect, useCallback, useRef } from "react";
@@ -29,24 +27,25 @@ import { C } from "./shared/colors";
 
 // ─── Clickable chip ──────────────────────────────────────────────────────────
 
-function ActionChip({ label, onClick, color = C.cyan, hoverColor = C.green }) {
+function ActionChip({ label, onClick, color = C.cyan, hoverColor = C.green, disabled = false }) {
   return (
     <span
-      onClick={onClick}
+      onClick={disabled ? undefined : onClick}
       style={{
-        color,
+        color: disabled ? C.border : color,
         fontSize:      "11px",
         border:        `1px solid ${C.border}`,
         padding:       "2px 8px",
-        cursor:        "pointer",
+        cursor:        disabled ? "default" : "pointer",
         letterSpacing: "0.08em",
         textTransform: "uppercase",
         userSelect:    "none",
         fontFamily:    "monospace",
         transition:    "color 0.1s, border-color 0.1s",
+        opacity:       disabled ? 0.4 : 1,
       }}
-      onMouseEnter={e => { e.currentTarget.style.color = hoverColor; e.currentTarget.style.borderColor = hoverColor; }}
-      onMouseLeave={e => { e.currentTarget.style.color = color; e.currentTarget.style.borderColor = C.border; }}
+      onMouseEnter={e => { if (!disabled) { e.currentTarget.style.color = hoverColor; e.currentTarget.style.borderColor = hoverColor; } }}
+      onMouseLeave={e => { if (!disabled) { e.currentTarget.style.color = color; e.currentTarget.style.borderColor = C.border; } }}
     >
       {label}
     </span>
@@ -58,23 +57,20 @@ function ActionChip({ label, onClick, color = C.cyan, hoverColor = C.green }) {
 function SectionHeader({ title, subtitle }) {
   return (
     <div style={{
-      display: "flex", alignItems: "center", justifyContent: "space-between",
-      marginBottom: "8px",
+      display: "flex", alignItems: "baseline", gap: "10px", marginBottom: "8px",
     }}>
-      <div style={{ display: "flex", alignItems: "baseline", gap: "10px" }}>
-        <span style={{
-          color: C.amber, fontWeight: 700, fontSize: "13px",
-          textTransform: "uppercase", letterSpacing: "0.1em",
-          fontFamily: "monospace",
-        }}>
-          {title}
+      <span style={{
+        color: C.amber, fontWeight: 700, fontSize: "13px",
+        textTransform: "uppercase", letterSpacing: "0.1em",
+        fontFamily: "monospace",
+      }}>
+        {title}
+      </span>
+      {subtitle && (
+        <span style={{ color: C.dim, fontSize: "11px", fontFamily: "monospace" }}>
+          {subtitle}
         </span>
-        {subtitle && (
-          <span style={{ color: C.dim, fontSize: "11px", fontFamily: "monospace" }}>
-            {subtitle}
-          </span>
-        )}
-      </div>
+      )}
     </div>
   );
 }
@@ -85,14 +81,12 @@ function ArmyPanel({ roster, side, onUpload, onInject }) {
   const { name, unit_count = 0, total_points, units = [] } = roster || {};
   const hasUnits = units.length > 0;
   const sideColor = side === "PLAYER" ? C.cyan : C.amber;
-  const isEmpty = !hasUnits;
 
   return (
     <div style={{
       flex: 1, padding: "10px 14px", background: C.panel,
       border: `1px solid ${C.border}`, minWidth: "200px",
     }}>
-      {/* Header */}
       <div style={{
         display: "flex", justifyContent: "space-between", alignItems: "baseline",
         marginBottom: "8px", paddingBottom: "6px", borderBottom: `1px solid ${C.border}`,
@@ -120,7 +114,6 @@ function ArmyPanel({ roster, side, onUpload, onInject }) {
         )}
       </div>
 
-      {/* Unit list */}
       {hasUnits ? (
         <div style={{ display: "flex", flexDirection: "column", gap: "2px" }}>
           {units.slice(0, 12).map((u, i) => {
@@ -128,10 +121,8 @@ function ArmyPanel({ roster, side, onUpload, onInject }) {
             const upts  = typeof u === "object" ? u.points : null;
             return (
               <div key={i} style={{ display: "flex", justifyContent: "space-between", alignItems: "center", padding: "2px 0" }}>
-                <span
-                  style={{ color: C.mid, fontSize: "12px", cursor: "pointer", fontFamily: "monospace" }}
-                  onClick={() => onInject?.(`spec ${uname}`)}
-                >
+                <span style={{ color: C.mid, fontSize: "12px", cursor: "pointer", fontFamily: "monospace" }}
+                  onClick={() => onInject?.(`spec ${uname}`)}>
                   {uname}
                 </span>
                 {upts ? <span style={{ color: C.dim, fontSize: "11px", fontFamily: "monospace" }}>{upts}</span> : null}
@@ -150,20 +141,13 @@ function ArmyPanel({ roster, side, onUpload, onInject }) {
         </div>
       )}
 
-      {/* Actions */}
       <div style={{ display: "flex", gap: "8px", marginTop: "10px", flexWrap: "wrap" }}>
         <ActionChip
-          label={isEmpty ? `upload ${side.toLowerCase()}` : "upload new"}
+          label={hasUnits ? "upload new" : `upload ${side.toLowerCase()}`}
           onClick={() => onUpload?.(side === "PLAYER" ? "player" : "enemy")}
         />
-        {!isEmpty && (
-          <>
-            <ActionChip
-              label="clear"
-              onClick={() => onInject?.(`clear roster ${side.toLowerCase()}`)}
-              color={C.red}
-            />
-          </>
+        {hasUnits && (
+          <ActionChip label="clear" onClick={() => onInject?.(`clear roster ${side.toLowerCase()}`)} color={C.red} />
         )}
       </div>
     </div>
@@ -171,163 +155,240 @@ function ArmyPanel({ roster, side, onUpload, onInject }) {
 }
 
 // ─── Inline upload flow ─────────────────────────────────────────────────────
+//
+// Steps: paste → faction (if unsure) → name → role (player/enemy/save)
 
 function UploadFlow({ mode, engineId, profileName, onComplete, onCancel }) {
-  // Steps: "paste" → "name" → "saving"
-  const [step, setStep]                 = useState("paste");
-  const [content, setContent]           = useState(null);
-  const [detectedFaction, setDetectedFaction] = useState(null);
-  const [rosterName, setRosterName]     = useState("");
-  const [error, setError]               = useState(null);
-  const [saving, setSaving]             = useState(false);
-  const nameRef = useRef(null);
-  const pasteRef = useRef(null);
+  const [step, setStep]             = useState("paste");   // paste | faction | name | role
+  const [content, setContent]       = useState(null);
+  const [faction, setFaction]       = useState(null);
+  const [allFactions, setAllFactions] = useState([]);
+  const [rosterName, setRosterName] = useState("");
+  const [error, setError]           = useState(null);
+  const [saving, setSaving]         = useState(false);
+  const pasteRef  = useRef(null);
+  const nameRef   = useRef(null);
 
-  const roleLabel = mode === "enemy" ? "ENEMY" : "PLAYER";
-
-  // Auto-focus paste area
+  // Auto-focus
   useEffect(() => {
-    if (step === "paste") setTimeout(() => pasteRef.current?.focus(), 50);
-    if (step === "name")  setTimeout(() => nameRef.current?.focus(), 50);
+    if (step === "paste")   setTimeout(() => pasteRef.current?.focus(), 50);
+    if (step === "name")    setTimeout(() => nameRef.current?.focus(), 50);
   }, [step]);
 
   // Detect faction from content
-  async function detectFaction(text) {
+  async function processContent(text) {
+    setError(null);
     try {
-      const res = await fetch(`/api/rosters/detect-faction`, {
+      const res = await fetch("/api/rosters/detect-faction", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ content: text }),
       });
       if (res.ok) {
         const data = await res.json();
-        return data.faction || null;
+        if (data.faction) {
+          setContent(text);
+          setFaction(data.faction);
+          setStep("name");
+          return;
+        }
       }
     } catch {}
-    return null;
+    // Detection failed — load faction list for manual pick
+    try {
+      const res = await fetch("/api/factions");
+      if (res.ok) {
+        const data = await res.json();
+        setAllFactions(data.factions || []);
+      }
+    } catch {}
+    setContent(text);
+    setStep("faction");
   }
 
-  // Handle pasted text
-  async function handlePaste() {
+  // Handle pasted text submit
+  function handlePasteSubmit(e) {
+    e?.preventDefault();
     const text = pasteRef.current?.value?.trim();
     if (!text) { setError("Paste your roster text first."); return; }
-    setError(null);
-    const faction = await detectFaction(text);
-    setContent(text);
-    setDetectedFaction(faction);
-    setStep("name");
+    processContent(text);
   }
 
   // Handle file upload
   function handleFiles(files) {
     if (!files.length) return;
     const reader = new FileReader();
-    reader.onload = async (e) => {
+    reader.onload = (e) => {
       const text = e.target?.result;
-      if (typeof text !== "string" || !text.trim()) {
-        setError("File was empty.");
-        return;
-      }
-      setError(null);
-      const faction = await detectFaction(text.trim());
-      setContent(text.trim());
-      setDetectedFaction(faction);
-      setStep("name");
+      if (typeof text !== "string" || !text.trim()) { setError("File was empty."); return; }
+      processContent(text.trim());
     };
     reader.readAsText(files[0].file);
   }
 
-  // Save
-  async function handleSave(e) {
-    e.preventDefault();
+  // Handle faction pick
+  function handleFactionPick(e) {
+    e?.preventDefault();
+    const val = e.target?.elements?.faction?.value?.trim();
+    if (!val) { setError("Select a faction."); return; }
+    // Check if it's a number (index into list)
+    const num = parseInt(val, 10);
+    if (!isNaN(num) && num >= 1 && num <= allFactions.length) {
+      setFaction(allFactions[num - 1]);
+    } else {
+      // Try to match by name
+      const lower = val.toLowerCase();
+      const match = allFactions.find(f => f.toLowerCase().includes(lower));
+      if (match) {
+        setFaction(match);
+      } else {
+        setError(`Faction "${val}" not found.`);
+        return;
+      }
+    }
+    setError(null);
+    setStep("name");
+  }
+
+  // Handle name submit → save
+  async function handleNameSubmit(e) {
+    e?.preventDefault();
     const name = rosterName.trim();
-    if (!name) { setError("Enter a name for this roster."); return; }
-    if (!detectedFaction) { setError("Could not detect faction. Try a different roster."); return; }
+    if (!name) { setError("Enter a name."); return; }
     setSaving(true);
     setError(null);
     try {
-      await uploadRoster(name, detectedFaction, content, profileName || "unknown");
-      onComplete?.(name, detectedFaction, mode);
+      await uploadRoster(name, faction, content, profileName || "unknown");
+      setStep("role");
+      setSaving(false);
     } catch (err) {
       setError(err.message);
       setSaving(false);
     }
   }
 
-  // ── Paste step ──────────────────────────────────────────────────────────
+  // Handle role selection
+  function handleRole(role) {
+    onComplete?.(rosterName.trim(), faction, role); // role: "player" | "enemy" | "save"
+  }
+
+  const F = { fontFamily: "monospace" };
+  const boxStyle = {
+    border: `1px solid ${C.border}`, background: C.panel,
+    padding: "16px 20px", ...F,
+  };
+  const headerStyle = {
+    display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "12px",
+  };
+  const titleStyle = { color: C.amber, fontWeight: 700, fontSize: "13px", letterSpacing: "0.1em" };
+
+  // ── Step 1: Paste / Upload ──────────────────────────────────────────────
 
   if (step === "paste") {
     return (
-      <div style={{
-        border: `1px solid ${C.border}`, background: C.panel,
-        padding: "16px 20px", fontFamily: "monospace",
-      }}>
-        <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "12px" }}>
-          <span style={{ color: C.amber, fontWeight: 700, fontSize: "13px", letterSpacing: "0.1em" }}>
-            UPLOAD {roleLabel} ROSTER
-          </span>
+      <div style={boxStyle}>
+        <div style={headerStyle}>
+          <span style={titleStyle}>UPLOAD ROSTER</span>
           <ActionChip label="cancel" onClick={onCancel} color={C.dim} />
         </div>
 
         <div style={{ marginBottom: "12px" }}>
-          <Pattern
-            accept=".roz,.rozs,.json"
-            multiple={false}
-            maxFiles={1}
-            onFilesChange={handleFiles}
-          />
+          <Pattern accept=".roz,.rozs,.json" multiple={false} maxFiles={1} onFilesChange={handleFiles} />
         </div>
 
         <div style={{ color: C.dim, fontSize: "11px", margin: "10px 0 8px", letterSpacing: "0.08em" }}>
           — OR PASTE BELOW —
         </div>
 
-        <textarea
-          ref={pasteRef}
-          rows={6}
-          placeholder="Paste roster text here…"
-          style={{
-            width: "100%", boxSizing: "border-box",
-            backgroundColor: C.bgDark, border: `1px solid ${C.border}`,
-            color: C.green, padding: "10px", fontSize: "12px",
-            fontFamily: "monospace", resize: "vertical", outline: "none",
-          }}
-        />
-        <div style={{ display: "flex", gap: "8px", marginTop: "10px" }}>
-          <ActionChip label="next →" onClick={handlePaste} color={C.green} />
-        </div>
+        <form onSubmit={handlePasteSubmit}>
+          <textarea
+            ref={pasteRef}
+            rows={6}
+            placeholder="Paste roster text here…"
+            style={{
+              width: "100%", boxSizing: "border-box",
+              backgroundColor: C.bgDark, border: `1px solid ${C.border}`,
+              color: C.green, padding: "10px", fontSize: "12px",
+              ...F, resize: "vertical", outline: "none",
+            }}
+          />
+          <div style={{ display: "flex", gap: "8px", marginTop: "10px" }}>
+            <ActionChip label="next →" onClick={handlePasteSubmit} color={C.green} />
+          </div>
+        </form>
         {error && <div style={{ color: C.red, fontSize: "12px", marginTop: "8px" }}>{error}</div>}
       </div>
     );
   }
 
-  // ── Name step ───────────────────────────────────────────────────────────
+  // ── Step 2: Faction pick (only if auto-detect failed) ───────────────────
+
+  if (step === "faction") {
+    return (
+      <div style={boxStyle}>
+        <div style={headerStyle}>
+          <span style={titleStyle}>SELECT FACTION</span>
+          <ActionChip label="cancel" onClick={onCancel} color={C.dim} />
+        </div>
+        <div style={{ color: C.dim, fontSize: "11px", marginBottom: "10px" }}>
+          Could not auto-detect faction. Select from the list:
+        </div>
+        <div style={{
+          maxHeight: "200px", overflowY: "auto", marginBottom: "10px",
+          border: `1px solid ${C.border}`, background: C.bgDark, padding: "6px 0",
+        }}>
+          {allFactions.map((f, i) => (
+            <div
+              key={f}
+              onClick={() => { setFaction(f); setError(null); setStep("name"); }}
+              style={{
+                padding: "3px 12px", cursor: "pointer", fontSize: "12px",
+                display: "flex", gap: "8px", ...F,
+              }}
+              onMouseEnter={e => { e.currentTarget.style.background = C.panel; }}
+              onMouseLeave={e => { e.currentTarget.style.background = "transparent"; }}
+            >
+              <span style={{ color: C.dim, minWidth: "24px", textAlign: "right" }}>{i + 1}.</span>
+              <span style={{ color: C.mid }}>{labelify(f)}</span>
+            </div>
+          ))}
+        </div>
+        <form onSubmit={handleFactionPick} style={{ display: "flex", gap: "8px" }}>
+          <input
+            name="faction"
+            type="text"
+            placeholder="Type number or name"
+            autoFocus
+            style={{
+              flex: 1, backgroundColor: C.bgDark, border: `1px solid ${C.border}`,
+              color: C.green, padding: "8px 10px", fontSize: "13px",
+              ...F, outline: "none",
+            }}
+          />
+          <button type="submit" style={{
+            backgroundColor: "transparent", border: `1px solid ${C.green}`,
+            color: C.green, padding: "8px 14px", fontSize: "12px",
+            ...F, letterSpacing: "0.1em", cursor: "pointer",
+          }}>OK</button>
+        </form>
+        {error && <div style={{ color: C.red, fontSize: "12px", marginTop: "8px" }}>{error}</div>}
+      </div>
+    );
+  }
+
+  // ── Step 3: Name ────────────────────────────────────────────────────────
 
   if (step === "name") {
     return (
-      <div style={{
-        border: `1px solid ${C.border}`, background: C.panel,
-        padding: "16px 20px", fontFamily: "monospace",
-      }}>
-        <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "12px" }}>
-          <span style={{ color: C.amber, fontWeight: 700, fontSize: "13px", letterSpacing: "0.1em" }}>
-            NAME THIS ROSTER
-          </span>
+      <div style={boxStyle}>
+        <div style={headerStyle}>
+          <span style={titleStyle}>NAME THIS ROSTER</span>
           <ActionChip label="cancel" onClick={onCancel} color={C.dim} />
         </div>
-
-        {detectedFaction && (
-          <div style={{ color: C.dim, fontSize: "11px", marginBottom: "10px" }}>
-            Faction detected: <span style={{ color: C.amber }}>{labelify(detectedFaction)}</span>
-          </div>
-        )}
-        {!detectedFaction && (
-          <div style={{ color: C.red, fontSize: "11px", marginBottom: "10px" }}>
-            Could not auto-detect faction — no matching units found.
-          </div>
-        )}
-
-        <form onSubmit={handleSave} style={{ display: "flex", gap: "8px", alignItems: "center" }}>
+        <div style={{ color: C.dim, fontSize: "11px", marginBottom: "10px" }}>
+          Faction: <span style={{ color: C.amber }}>{labelify(faction)}</span>
+        </div>
+        <form onSubmit={handleNameSubmit} style={{ display: "flex", gap: "8px" }}>
           <input
             ref={nameRef}
             type="text"
@@ -339,23 +400,40 @@ function UploadFlow({ mode, engineId, profileName, onComplete, onCancel }) {
             style={{
               flex: 1, backgroundColor: C.bgDark, border: `1px solid ${C.border}`,
               color: C.green, padding: "8px 10px", fontSize: "13px",
-              fontFamily: "monospace", outline: "none",
+              ...F, outline: "none",
             }}
           />
-          <button
-            type="submit"
-            disabled={saving || !detectedFaction}
-            style={{
-              backgroundColor: "transparent", border: `1px solid ${C.green}`,
-              color: C.green, padding: "8px 14px", fontSize: "12px",
-              fontFamily: "monospace", letterSpacing: "0.1em", cursor: saving ? "wait" : "pointer",
-              opacity: saving || !detectedFaction ? 0.4 : 1,
-            }}
-          >
-            {saving ? "SAVING…" : "SAVE"}
-          </button>
+          <button type="submit" disabled={saving} style={{
+            backgroundColor: "transparent", border: `1px solid ${C.green}`,
+            color: C.green, padding: "8px 14px", fontSize: "12px",
+            ...F, letterSpacing: "0.1em", cursor: saving ? "wait" : "pointer",
+            opacity: saving ? 0.4 : 1,
+          }}>{saving ? "…" : "SAVE"}</button>
         </form>
         {error && <div style={{ color: C.red, fontSize: "12px", marginTop: "8px" }}>{error}</div>}
+      </div>
+    );
+  }
+
+  // ── Step 4: Choose role ─────────────────────────────────────────────────
+
+  if (step === "role") {
+    return (
+      <div style={boxStyle}>
+        <div style={headerStyle}>
+          <span style={titleStyle}>ROSTER SAVED</span>
+        </div>
+        <div style={{ color: C.green, fontSize: "12px", marginBottom: "4px" }}>
+          ✓ {rosterName} ({labelify(faction)}) uploaded
+        </div>
+        <div style={{ color: C.dim, fontSize: "11px", marginBottom: "14px" }}>
+          Load this roster now?
+        </div>
+        <div style={{ display: "flex", gap: "8px" }}>
+          <ActionChip label="load as player" onClick={() => handleRole("player")} color={C.cyan} />
+          <ActionChip label="load as enemy" onClick={() => handleRole("enemy")} color={C.amber} />
+          <ActionChip label="just save" onClick={() => handleRole("save")} color={C.dim} />
+        </div>
       </div>
     );
   }
@@ -363,7 +441,7 @@ function UploadFlow({ mode, engineId, profileName, onComplete, onCancel }) {
   return null;
 }
 
-// ─── Saved rosters section (shared, server-side) ────────────────────────────
+// ─── Saved rosters section ──────────────────────────────────────────────────
 
 function formatDate(isoStr) {
   if (!isoStr) return "";
@@ -379,28 +457,29 @@ function SavedRostersSection({ onInject, onRefresh, refreshKey }) {
   const [loading, setLoading]           = useState(true);
   const [expanded, setExpanded]         = useState(null);
   const [activeRoster, setActiveRoster] = useState(null);
-  const [deleteConfirm, setDeleteConfirm] = useState(null); // { id, name } or null
+  const [deleteConfirm, setDeleteConfirm] = useState(null);
+  const [deleteError, setDeleteError]   = useState(null);
 
   useEffect(() => {
     setLoading(true);
     fetchRostersGrouped()
       .then(data => {
         setGrouped(data);
-        const total = Object.values(data).reduce((n, arr) => n + arr.length, 0);
-        setRosterCount(total);
+        setRosterCount(Object.values(data).reduce((n, arr) => n + arr.length, 0));
       })
       .catch(() => { setGrouped({}); setRosterCount(0); })
       .finally(() => setLoading(false));
   }, [refreshKey]);
 
-  async function handleDelete(id, name) {
+  async function handleDelete(id) {
+    setDeleteError(null);
     try {
       await deleteSharedRoster(id);
       setDeleteConfirm(null);
       setActiveRoster(null);
       onRefresh?.();
-    } catch {
-      // silent — will show stale until next refresh
+    } catch (e) {
+      setDeleteError(e.message || "Delete failed");
     }
   }
 
@@ -408,10 +487,7 @@ function SavedRostersSection({ onInject, onRefresh, refreshKey }) {
 
   return (
     <div>
-      <SectionHeader
-        title="Shared Rosters"
-        subtitle={loading ? "loading…" : `${rosterCount} saved`}
-      />
+      <SectionHeader title="Shared Rosters" subtitle={loading ? "loading…" : `${rosterCount} saved`} />
 
       {!loading && rosterCount === 0 && (
         <div style={{ color: C.dim, fontSize: "13px", fontFamily: "monospace", marginBottom: "8px" }}>
@@ -426,9 +502,8 @@ function SavedRostersSection({ onInject, onRefresh, refreshKey }) {
             const isOpen = expanded === faction;
             return (
               <div key={faction}>
-                {/* Faction row — click to expand */}
                 <div
-                  onClick={() => { setExpanded(isOpen ? null : faction); setActiveRoster(null); setDeleteConfirm(null); }}
+                  onClick={() => { setExpanded(isOpen ? null : faction); setActiveRoster(null); setDeleteConfirm(null); setDeleteError(null); }}
                   style={{
                     display: "flex", alignItems: "center", gap: "8px",
                     padding: "5px 8px", cursor: "pointer", userSelect: "none",
@@ -447,19 +522,17 @@ function SavedRostersSection({ onInject, onRefresh, refreshKey }) {
                     {labelify(faction)}
                   </span>
                   <span style={{
-                    color: C.dim, fontSize: "11px",
-                    background: C.bgDark, padding: "0 6px",
-                    border: `1px solid ${C.border}`,
+                    color: C.dim, fontSize: "11px", background: C.bgDark,
+                    padding: "0 6px", border: `1px solid ${C.border}`,
                   }}>
                     {factionRosters.length}
                   </span>
                 </div>
 
-                {/* Expanded roster list */}
                 {isOpen && factionRosters.map(r => (
                   <div key={r.id} style={{ paddingLeft: "22px" }}>
                     <div
-                      onClick={() => { setActiveRoster(activeRoster === r.id ? null : r.id); setDeleteConfirm(null); }}
+                      onClick={() => { setActiveRoster(activeRoster === r.id ? null : r.id); setDeleteConfirm(null); setDeleteError(null); }}
                       style={{
                         display: "flex", alignItems: "center", gap: "8px",
                         padding: "4px 8px", cursor: "pointer", userSelect: "none",
@@ -469,22 +542,18 @@ function SavedRostersSection({ onInject, onRefresh, refreshKey }) {
                       onMouseLeave={e => { e.currentTarget.querySelector(".r-name").style.color = C.mid; }}
                     >
                       <span className="r-name" style={{ color: C.mid, flex: 1 }}>{r.name}</span>
-                      <span style={{ color: C.dim, fontSize: "10px", letterSpacing: "0.05em" }}>
-                        {r.uploaded_by}
-                      </span>
-                      <span style={{ color: C.border, fontSize: "10px" }}>
-                        {formatDate(r.uploaded_at)}
-                      </span>
+                      <span style={{ color: C.dim, fontSize: "10px", letterSpacing: "0.05em" }}>{r.uploaded_by}</span>
+                      <span style={{ color: C.border, fontSize: "10px" }}>{formatDate(r.uploaded_at)}</span>
                     </div>
 
-                    {/* Action row */}
                     {activeRoster === r.id && (
                       <div style={{ padding: "2px 8px 6px" }}>
                         {deleteConfirm?.id === r.id ? (
                           <div style={{ display: "flex", gap: "8px", alignItems: "center", fontFamily: "monospace", fontSize: "11px" }}>
                             <span style={{ color: C.red }}>Delete '{r.name}'?</span>
-                            <ActionChip label="yes" onClick={() => handleDelete(r.id, r.name)} color={C.red} />
-                            <ActionChip label="no" onClick={() => setDeleteConfirm(null)} color={C.dim} />
+                            <ActionChip label="yes" onClick={() => handleDelete(r.id)} color={C.red} />
+                            <ActionChip label="no" onClick={() => { setDeleteConfirm(null); setDeleteError(null); }} color={C.dim} />
+                            {deleteError && <span style={{ color: C.red, fontSize: "10px" }}>{deleteError}</span>}
                           </div>
                         ) : (
                           <div style={{ display: "flex", gap: "6px", fontFamily: "monospace", fontSize: "11px" }}>
@@ -509,33 +578,23 @@ function SavedRostersSection({ onInject, onRefresh, refreshKey }) {
 // ─── Campaigns section ───────────────────────────────────────────────────────
 
 function CampaignsSection({ onInject }) {
-  const campaigns    = listCampaigns();
+  const campaigns     = listCampaigns();
   const campaignCount = getCampaignCount();
-  const names        = Object.keys(campaigns).sort();
+  const names         = Object.keys(campaigns).sort();
 
   return (
     <div>
-      <SectionHeader
-        title="Campaigns"
-        subtitle={`${campaignCount} saved`}
-      />
-
+      <SectionHeader title="Campaigns" subtitle={`${campaignCount} saved`} />
       {campaignCount === 0 ? (
         <div style={{ color: C.dim, fontSize: "13px", fontFamily: "monospace", marginBottom: "8px" }}>
           No campaigns yet.
         </div>
       ) : (
         names.map((name, i) => {
-          const camp  = campaigns[name];
+          const camp = campaigns[name];
           const state = camp?.state || {};
-          const turn  = state.turn ?? 1;
-          const pw    = state.player_wins ?? 0;
-          const ew    = state.enemy_wins ?? 0;
-
           return (
-            <div
-              key={name}
-              onClick={() => onInject?.(`load campaign ${name}`)}
+            <div key={name} onClick={() => onInject?.(`load campaign ${name}`)}
               style={{
                 display: "flex", gap: "10px", alignItems: "baseline",
                 lineHeight: "2.0", cursor: "pointer", userSelect: "none",
@@ -544,23 +603,14 @@ function CampaignsSection({ onInject }) {
               onMouseEnter={e => e.currentTarget.querySelector(".camp-name").style.color = C.green}
               onMouseLeave={e => e.currentTarget.querySelector(".camp-name").style.color = C.mid}
             >
-              <span style={{ color: C.dim, minWidth: "18px", textAlign: "right", flexShrink: 0 }}>
-                {i + 1}.
-              </span>
-              <span className="camp-name" style={{ color: C.mid, flex: 1, fontWeight: 700 }}>
-                {name}
-              </span>
-              <span style={{ color: C.amber, fontSize: "12px", minWidth: "10ch" }}>
-                Turn {turn}
-              </span>
-              <span style={{ color: C.dim, fontSize: "11px" }}>
-                {pw}W – {ew}L
-              </span>
+              <span style={{ color: C.dim, minWidth: "18px", textAlign: "right", flexShrink: 0 }}>{i + 1}.</span>
+              <span className="camp-name" style={{ color: C.mid, flex: 1, fontWeight: 700 }}>{name}</span>
+              <span style={{ color: C.amber, fontSize: "12px", minWidth: "10ch" }}>Turn {state.turn ?? 1}</span>
+              <span style={{ color: C.dim, fontSize: "11px" }}>{state.player_wins ?? 0}W – {state.enemy_wins ?? 0}L</span>
             </div>
           );
         })
       )}
-
       <div style={{ display: "flex", gap: "8px", marginTop: "6px" }}>
         <ActionChip label="new campaign" onClick={() => onInject?.("new campaign")} />
       </div>
@@ -570,14 +620,21 @@ function CampaignsSection({ onInject }) {
 
 // ─── Main component ──────────────────────────────────────────────────────────
 
-export function RostersContext({ engineId, onExec, onInject, theme, profileName }) {
-  const [session, setSession]     = useState(null);
-  const [loading, setLoading]     = useState(false);
-  const [tick, setTick]           = useState(0);
+export function RostersContext({ engineId, onExec, onInject, theme, profileName, triggerUpload, onUploadConsumed }) {
+  const [session, setSession]       = useState(null);
+  const [loading, setLoading]       = useState(false);
+  const [tick, setTick]             = useState(0);
   const [uploadMode, setUploadMode] = useState(null); // null | "player" | "enemy"
-  const pollRef                   = useRef(null);
+  const pollRef                     = useRef(null);
 
-  // Fetch session state from engine
+  // External trigger from command bar (App.jsx routes "upload roster" here)
+  useEffect(() => {
+    if (triggerUpload) {
+      setUploadMode(triggerUpload);
+      onUploadConsumed?.();
+    }
+  }, [triggerUpload, onUploadConsumed]);
+
   const fetchSession = useCallback(async () => {
     if (!engineId) return;
     try {
@@ -591,92 +648,66 @@ export function RostersContext({ engineId, onExec, onInject, theme, profileName 
         const result = await res.json();
         if (result?.data) setSession(result.data);
       }
-    } catch {
-      // silent
-    } finally {
-      setLoading(false);
-    }
+    } catch {} finally { setLoading(false); }
   }, [engineId]);
 
-  // Poll session
   useEffect(() => {
     fetchSession();
     const startPolling = () => {
       if (pollRef.current) clearInterval(pollRef.current);
-      pollRef.current = setInterval(() => {
-        fetchSession();
-        setTick(t => t + 1);
-      }, 3000);
+      pollRef.current = setInterval(() => { fetchSession(); setTick(t => t + 1); }, 3000);
     };
-    const stopPolling = () => {
-      if (pollRef.current) { clearInterval(pollRef.current); pollRef.current = null; }
-    };
+    const stopPolling = () => { if (pollRef.current) { clearInterval(pollRef.current); pollRef.current = null; } };
     startPolling();
-    const onVisibility = () => {
-      if (document.hidden) { stopPolling(); }
-      else { fetchSession(); setTick(t => t + 1); startPolling(); }
-    };
-    document.addEventListener("visibilitychange", onVisibility);
-    return () => { stopPolling(); document.removeEventListener("visibilitychange", onVisibility); };
+    const onVis = () => { if (document.hidden) stopPolling(); else { fetchSession(); setTick(t => t + 1); startPolling(); } };
+    document.addEventListener("visibilitychange", onVis);
+    return () => { stopPolling(); document.removeEventListener("visibilitychange", onVis); };
   }, [fetchSession]);
 
-  // Inject wrapper — refreshes session after command
   const handleInject = useCallback((cmd) => {
     onInject?.(cmd);
     setTimeout(() => { fetchSession(); setTick(t => t + 1); }, 600);
   }, [onInject, fetchSession]);
 
-  // Upload complete — assign roster and refresh
-  const handleUploadComplete = useCallback((name, faction, mode) => {
+  // Upload complete — handle role choice
+  const handleUploadComplete = useCallback((name, faction, role) => {
     setUploadMode(null);
     setTick(t => t + 1);
-    // Auto-assign the uploaded roster
-    const role = mode === "enemy" ? "enemy" : "player";
-    handleInject(`set roster ${role} ${name}`);
+    if (role === "player" || role === "enemy") {
+      handleInject(`set roster ${role} ${name}`);
+    }
+    // "save" → just close, roster is already saved server-side
   }, [handleInject]);
 
-  const handleRefresh = useCallback(() => {
-    setTick(t => t + 1);
-  }, []);
+  const handleRefresh = useCallback(() => { setTick(t => t + 1); }, []);
 
   const myRoster    = session?.my_roster || {};
   const enemyRoster = session?.enemy_roster || {};
 
   return (
-    <div
-      style={{
-        display: "flex", flexDirection: "column", height: "100%",
-        backgroundColor: C.bg, overflow: "auto",
-      }}
-    >
+    <div style={{
+      display: "flex", flexDirection: "column", height: "100%",
+      backgroundColor: C.bg, overflow: "auto",
+    }}>
       <div style={{ flex: 1, overflow: "auto", padding: "16px 24px 24px" }}>
 
-        {/* Under construction notice */}
-        <div
-          style={{
-            border:       "1px solid var(--ct-border)",
-            borderRadius: "6px",
-            padding:      "12px 16px",
-            marginBottom: "16px",
-            background:   "var(--ct-bg-dark)",
-            fontSize:     "12px",
-            fontFamily:   "var(--ct-font-mono, monospace)",
-            color:        "var(--ct-primary-dim)",
-            lineHeight:   "1.7",
-          }}
-        >
+        <div style={{
+          border: "1px solid var(--ct-border)", borderRadius: "6px",
+          padding: "12px 16px", marginBottom: "16px",
+          background: "var(--ct-bg-dark)", fontSize: "12px",
+          fontFamily: "var(--ct-font-mono, monospace)",
+          color: "var(--ct-primary-dim)", lineHeight: "1.7",
+        }}>
           <div style={{ color: "var(--ct-primary-mid)", fontWeight: 600, marginBottom: "6px", fontSize: "12px" }}>
             ⚠ UNDER CONSTRUCTION — BUGS LIKELY
           </div>
           <div style={{ marginBottom: "4px" }}>
-            When a roster is loaded (player or enemy), all combat commands use only the weapons and profiles in that roster. For example, a Hammerhead with an ion cannon will only show ion cannon results — not railgun.
+            When a roster is loaded (player or enemy), all combat commands use only the weapons and profiles in that roster.
           </div>
-          <div>
-            Remove a roster to see all possible weapon profiles and matchups.
-          </div>
+          <div>Remove a roster to see all possible weapon profiles and matchups.</div>
         </div>
 
-        {/* ── Upload flow (replaces dashboard content when active) ── */}
+        {/* Upload flow (replaces dashboard) */}
         {uploadMode && (
           <div style={{ marginBottom: "24px" }}>
             <UploadFlow
@@ -689,22 +720,19 @@ export function RostersContext({ engineId, onExec, onInject, theme, profileName 
           </div>
         )}
 
-        {/* ── Dashboard (hidden during upload) ── */}
+        {/* Dashboard (hidden during upload) */}
         {!uploadMode && (
           <>
-            {/* Army panels */}
             <SectionHeader title="Active Armies" />
             <div style={{ display: "flex", gap: "10px", flexWrap: "wrap", marginBottom: "24px" }}>
               <ArmyPanel roster={myRoster}    side="PLAYER" onUpload={setUploadMode} onInject={handleInject} />
               <ArmyPanel roster={enemyRoster} side="ENEMY"  onUpload={setUploadMode} onInject={handleInject} />
             </div>
 
-            {/* Saved rosters */}
             <div style={{ marginBottom: "24px" }}>
               <SavedRostersSection refreshKey={tick} onInject={handleInject} onRefresh={handleRefresh} />
             </div>
 
-            {/* Campaigns */}
             <div style={{ marginBottom: "24px" }}>
               <CampaignsSection key={`campaigns-${tick}`} onInject={handleInject} />
             </div>
