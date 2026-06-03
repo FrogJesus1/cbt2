@@ -231,13 +231,34 @@ def _unit_to_target(unit: dict) -> TargetProfile:
 
 # ─── Modifier merge ────────────────────────────────────────────────────────────
 
+    # Fields that carry a non-zero default and represent a threshold or multiplier,
+    # not a stacking bonus.  These should take the more aggressive (non-default) value
+    # rather than summing — e.g. crit_hits_on defaults to 6 and should NOT become 12.
+_NON_ADDITIVE_FIELDS = {"crit_hits_on", "crit_wounds_on", "damage_multiplier", "markerlight_hit_bonus"}
+
 def _merge_mods(weapon: AttackModifiers, base: AttackModifiers) -> AttackModifiers:
     """Layer session-level (flag) mods on top of weapon-level mods."""
-    merged = AttackModifiers()
+    defaults = AttackModifiers()
+    merged   = AttackModifiers()
     for f in dc_fields(AttackModifiers):
         wv = getattr(weapon, f.name)
         bv = getattr(base, f.name)
-        if isinstance(wv, bool):
+        dv = getattr(defaults, f.name)
+
+        if f.name in _NON_ADDITIVE_FIELDS:
+            # Threshold/config fields: take whichever side changed from default,
+            # preferring the more aggressive (lower for thresholds, different for multipliers).
+            w_changed = wv != dv
+            b_changed = bv != dv
+            if w_changed and b_changed:
+                setattr(merged, f.name, min(wv, bv) if isinstance(wv, (int, float)) else wv)
+            elif w_changed:
+                setattr(merged, f.name, wv)
+            elif b_changed:
+                setattr(merged, f.name, bv)
+            else:
+                setattr(merged, f.name, dv)
+        elif isinstance(wv, bool):
             setattr(merged, f.name, wv or bv)
         elif isinstance(wv, (int, float)):
             setattr(merged, f.name, wv + bv)
@@ -631,7 +652,7 @@ def compute_combat(
         total_dmg   = sum(r.expected_damage for _, r in valid)
         total_kills = sum(r.expected_kills  for _, r in valid)
         n_weapons   = len(valid)
-        kill_chance = min(100.0, total_kills / max(1, target.wounds) * 100)
+        kill_chance = None  # computed from MC below if available
 
         # Pull swinginess / overkill from MC if available
         mc_valid = [mc_per_weapon[w.get("name", "?")] for w, _ in valid if w.get("name", "?") in mc_per_weapon]
@@ -654,12 +675,18 @@ def compute_combat(
                 overkill_pct = round(
                     sum(r.get("overkill_waste_pct", 0) * r["mean_damage"] for r in mc_valid) / total_mc_dmg, 1
                 )
-            # Kill-bucket P(≥1 kill) proxy for squad wipe probability
-            # bucket "1" or higher = at least one kill
-            def _kill_chance_mc(r):
+            # P(≥1 kill from ANY weapon) = 1 - product(P(0 kills per weapon))
+            def _p_zero_kills(r):
                 b = r.get("kill_bucket_probabilities", {})
-                return 1.0 - float(b.get("0", 1.0))
-            squad_wipe_pct = round(sum(_kill_chance_mc(r) for r in mc_valid) / len(mc_valid) * 100, 1)
+                return float(b.get("0", 1.0))
+            p_all_zero = 1.0
+            for r in mc_valid:
+                p_all_zero *= _p_zero_kills(r)
+            kill_chance = round((1.0 - p_all_zero) * 100, 1)
+            # Squad wipe: average per-weapon P(≥1 kill) — rough proxy
+            squad_wipe_pct = round(
+                sum(1.0 - _p_zero_kills(r) for r in mc_valid) / len(mc_valid) * 100, 1
+            )
 
         summary = {
             "expected_dmg":       round(total_dmg,   2),
