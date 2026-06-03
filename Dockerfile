@@ -20,6 +20,8 @@ COPY main.py .
 COPY config.json .
 COPY data/ data/
 COPY render/web/server.py render/web/server.py
+COPY render/web/profiles.py render/web/profiles.py
+COPY render/web/shared_rosters.py render/web/shared_rosters.py
 COPY render/cli/ render/cli/
 
 # Copy built frontend into render/web/dist/
