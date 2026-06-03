@@ -204,6 +204,14 @@ export function CombatBlock({ data, onSubmit }) {
   // and expected_kills from enabled weapons; other MC fields stay from the server.
   function adjustedData(serverData, enabledSet) {
     if (!serverData || !disabledWeapons.size) return serverData;
+    if (!enabledSet.length) {
+      // All weapons hidden — zero everything
+      return {
+        ...serverData,
+        expected_dmg: 0, expected_kills: 0, kill_chance_pct: 0,
+        avg_dmg_per_attack: 0, overkill_waste_pct: 0, squad_wipe_pct: 0,
+      };
+    }
     const adjustedDmg   = enabledSet.reduce((sum, w) => sum + (w.dmg ?? 0), 0);
     const adjustedKills = enabledSet.reduce((sum, w) => sum + (w.kills ?? 0), 0);
     return { ...serverData, expected_dmg: adjustedDmg, expected_kills: adjustedKills };

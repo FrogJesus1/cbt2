@@ -681,9 +681,6 @@ export default function App() {
         width:      "100%",
         maxWidth:   "960px",
         background: "var(--ct-bg)",
-        borderLeft:  "1px solid var(--ct-border)",
-        borderRight: "1px solid var(--ct-border)",
-        boxShadow:   "-20px 0 60px rgba(0,0,0,0.8), 20px 0 60px rgba(0,0,0,0.8), 0 0 80px rgba(var(--ct-glow-rgb),0.03)",
       }}
     >
 
@@ -704,19 +701,18 @@ export default function App() {
           <span style={{ letterSpacing: "0.18em", fontSize: "14px", fontWeight: 700 }}>
             ⚡ COMBAT TERMINAL
           </span>
-          {buildHash && buildHash !== "unknown" && (
-            <span
-              title={`Build: ${buildHash}`}
-              style={{
-                color:         "var(--ct-border)",
-                fontSize:      "10px",
-                letterSpacing: "0.08em",
-                fontFamily:    "monospace",
-              }}
-            >
-              {buildHash}
-            </span>
-          )}
+          <span
+            title={buildHash && buildHash !== "unknown" ? `Build: ${buildHash}` : ""}
+            style={{
+              color:         "var(--ct-primary-dim)",
+              fontSize:      "10px",
+              letterSpacing: "0.08em",
+              fontFamily:    "monospace",
+              opacity:       0.7,
+            }}
+          >
+            v2.0{buildHash && buildHash !== "unknown" ? ` · ${buildHash}` : ""}
+          </span>
         </div>
 
         {/* Context tabs — clicking injects the nav command */}

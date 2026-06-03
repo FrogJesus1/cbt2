@@ -95,6 +95,16 @@ function OutcomeRow({ w, maxDmg }) {
           />
         )}
 
+        {w.overkill_pct != null && w.overkill_pct > 0 && (
+          <MetricRow
+            label="Overkill"
+            value={w.overkill_pct}
+            max={100}
+            display={fmtPct(w.overkill_pct)}
+            color={C.red}
+          />
+        )}
+
       </div>
     </div>
   );

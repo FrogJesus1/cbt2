@@ -24,7 +24,7 @@ export const THEME_REGISTRY = {
   console: {
     id:          "console",
     label:       "CONSOLE",
-    description: "Pure retro — monospace only, phosphor green, no chrome",
+    description: "Pure retro — amber phosphor on black, monospace only, no chrome",
   },
 };
 

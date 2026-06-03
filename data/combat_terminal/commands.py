@@ -543,7 +543,7 @@ REGISTRY: dict[str, Command] = {
         description="Show the abbreviation key for all stat columns, probability chain fields, and modifier flags",
         usage="legend",
         group="meta",
-        aliases=["key", "abbrev", "glossary"],
+        aliases=["key", "abbrev", "glossary", "modifiers"],
         params={},
         examples=["legend"],
     ),

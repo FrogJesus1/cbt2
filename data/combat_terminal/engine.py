@@ -1103,7 +1103,7 @@ class CombatTerminalEngine(EngineBase):
             "cover":     {"icon": "shield",    "text": "Target in cover — +1 to armour saves"},
             "dev":       {"icon": "skull",     "text": "Devastating Wounds — critical wounds bypass saves"},
             "lethal":    {"icon": "lightning", "text": "Lethal Hits — unmodified 6s to Hit auto-wound"},
-            "twin":      {"icon": "star",      "text": "Twin-linked — re-roll all wound rolls"},
+            "twin":      {"icon": "star",      "text": "Twin-linked — re-roll all failed wound rolls"},
             "sustained": {"icon": "star",      "text": "Sustained Hits 1 — critical hits generate +1 extra hit"},
             "blast":     {"icon": "skull",     "text": "Blast — makes minimum 3 attacks against units of 6+ models"},
             "rf":        {"icon": "lightning", "text": "Rapid Fire — +attacks equal to weapon's Rapid Fire value within half range"},
@@ -1111,8 +1111,18 @@ class CombatTerminalEngine(EngineBase):
             "torrent":   {"icon": "target",    "text": "Torrent — weapon auto-hits (no ballistic skill roll needed)"},
             "lance":     {"icon": "star",      "text": "Lance — +1 to Wound rolls (charged this turn)"},
             "heavy":     {"icon": "target",    "text": "Heavy — Remained Stationary: Heavy weapons get +1 to Hit rolls"},
-            "fnp":       {"icon": "shield",    "text": "Feel No Pain — target ignores wounds on a roll of N+"},
-            "dmgplus":   {"icon": "zap",       "text": "Flat damage bonus — +N damage per unsaved wound"},
+            "stealth":   {"icon": "shield",    "text": "Stealth — -1 to Hit rolls against this target"},
+            "indirect":  {"icon": "shield",    "text": "Indirect Fire — -1 to Hit rolls, target benefits from cover"},
+            "halfdmg":   {"icon": "shield",    "text": "Half Damage — damage output halved (e.g. Duty Eternal)"},
+            "igncover":  {"icon": "target",    "text": "Ignore Cover — attacker ignores benefit of cover"},
+            "nocover":   {"icon": "target",    "text": "Ignore Cover — attacker ignores benefit of cover"},
+            "rrhit":     {"icon": "star",      "text": "Re-roll Hits — re-roll all failed Hit rolls"},
+            "rrhits":    {"icon": "star",      "text": "Re-roll Hits — re-roll all failed Hit rolls"},
+            "rrhit1":    {"icon": "star",      "text": "Re-roll Hit 1s — re-roll Hit rolls of 1"},
+            "rrhits1":   {"icon": "star",      "text": "Re-roll Hit 1s — re-roll Hit rolls of 1"},
+            "rrwound1":  {"icon": "star",      "text": "Re-roll Wound 1s — re-roll Wound rolls of 1"},
+            "rrwounds1": {"icon": "star",      "text": "Re-roll Wound 1s — re-roll Wound rolls of 1"},
+            "oath":      {"icon": "star",      "text": "Oath of Moment — re-roll all failed Hit and Wound rolls"},
         }
         flag_notes = []
         for f in flags:
@@ -1120,11 +1130,23 @@ class CombatTerminalEngine(EngineBase):
             if key in FLAG_NOTE_MAP:
                 flag_notes.append(FLAG_NOTE_MAP[key])
             elif key.startswith("invuln"):
-                val = f.split(":")[1] if ":" in f else "?"
+                val = f.split(":")[1] if ":" in f else re.sub(r'^invuln', '', key) or "?"
                 flag_notes.append({"icon": "diamond", "text": f"Invulnerable save active — {val}+ invuln overrides armour save"})
             elif key == "ea" or re.match(r'^ea\d+$', key):
                 val = f.split(":")[1] if ":" in f else re.sub(r'^ea', '', key)
                 flag_notes.append({"icon": "zap", "text": f"+{val} extra attack(s) per model"})
+            elif key in ("ed", "dmgplus") or re.match(r'^ed\d+$', key):
+                val = f.split(":")[1] if ":" in f else re.sub(r'^(ed|dmgplus)', '', key) or "1"
+                flag_notes.append({"icon": "zap", "text": f"+{val} extra damage per unsaved wound"})
+            elif key.startswith("fnp"):
+                val = f.split(":")[1] if ":" in f else re.sub(r'^fnp', '', key) or "?"
+                flag_notes.append({"icon": "shield", "text": f"Feel No Pain {val}+ — target ignores wounds on {val}+"})
+            elif key.startswith("criton"):
+                val = f.split(":")[1] if ":" in f else re.sub(r'^criton', '', key) or "?"
+                flag_notes.append({"icon": "lightning", "text": f"Critical hits on {val}+ instead of 6+"})
+            elif key.startswith("critwound"):
+                val = f.split(":")[1] if ":" in f else re.sub(r'^critwound', '', key) or "?"
+                flag_notes.append({"icon": "lightning", "text": f"Critical wounds on {val}+ instead of 6+"})
 
         n_ranged = len([w for w in weapons if w["type"] != "melee"])
         n_melee  = len([w for w in weapons if w["type"] == "melee"])
@@ -1176,6 +1198,7 @@ class CombatTerminalEngine(EngineBase):
             w["fail_save_pct"] = pw.get("fail_save_pct")   # prob of unsaved wound — kept for completeness
             w["hit_target"]   = pw.get("hit_target")
             w["wound_target"] = pw.get("wound_target")
+            w["overkill_pct"] = pw.get("overkill_waste_pct")
 
             # BS delta: compare effective hit roll vs the weapon's baseline BS/WS
             try:
@@ -2457,22 +2480,39 @@ class CombatTerminalEngine(EngineBase):
             },
         ]
 
-        modifier_flags = [
-            {"flag": "--ml",          "display": "[ml]",         "desc": "Markerlights / Guided",      "effect": "+1 to all Hit rolls, Ignores Cover"},
-            {"flag": "--cover",       "display": "[cover]",      "desc": "Target in cover",            "effect": "+1 to target armour saves (e.g. Sv3+ → Sv2+)"},
+        offensive_modifier_flags = [
             {"flag": "--lethal",      "display": "[lethal]",     "desc": "Lethal Hits",                "effect": "Unmodified 6s to Hit auto-wound (skip wound roll, proceed to saves)"},
             {"flag": "--twin",        "display": "[twin]",       "desc": "Twin-linked",                "effect": "Re-roll all failed wound rolls"},
             {"flag": "--sustained1",  "display": "[sustained]",  "desc": "Sustained Hits 1",           "effect": "Critical hit (6+) generates 1 additional hit. Use --sustained:2 for Sustained Hits 2"},
             {"flag": "--dev",         "display": "[dev]",        "desc": "Devastating Wounds",         "effect": "Critical wounds (6+ on wound roll) bypass all saves (mortal wound equivalent)"},
             {"flag": "--blast",       "display": "[blast]",      "desc": "Blast",                      "effect": "Minimum 3 attacks when targeting 6+ model units — defender model count required for full resolution"},
             {"flag": "--rf",          "display": "[rf]",         "desc": "Rapid Fire (in range)",      "effect": "Rapid Fire N already baked into A count; flag signals in-half-range condition"},
-            {"flag": "--melta",       "display": "[melta]",      "desc": "Melta (in range)",           "effect": "Melta N already parsed from weapon keyword; flag signals within-half-range for +N flat damage"},
-            {"flag": "--ea1",         "display": "[ea1]",        "desc": "Extra Attacks +1",           "effect": "+1 extra attack per model before squad scaling (also: --ea:2, --ea:3 etc.)"},
-            {"flag": "--invuln:4",    "display": "[invuln:4]",   "desc": "Invulnerable Save Override", "effect": "Forces target invulnerable save to the specified value (e.g. 4+)"},
+            {"flag": "--melta",       "display": "[melta]",      "desc": "Melta (in range)",           "effect": "Uses weapon's Melta N for +N flat damage. Override with --melta2, --melta:4 etc."},
             {"flag": "--lance",       "display": "[lance]",      "desc": "Lance",                      "effect": "+1 to wound rolls (approximation — full rule applies vs VEHICLES/MONSTERS only)"},
             {"flag": "--torrent",     "display": "[torrent]",    "desc": "Torrent",                    "effect": "Weapon auto-hits (no BS roll required); natural 6s on separate die still trigger crits"},
-            {"flag": "--fnp:6",       "display": "[fnp:6]",      "desc": "Feel No Pain Override",      "effect": "Target gains/overrides Feel No Pain save to specified value (e.g. 6+)"},
-            {"flag": "--dmgplus:1",   "display": "[dmgplus:1]",  "desc": "Flat Damage Bonus",          "effect": "+N flat damage per unsaved wound (stacks with other damage modifiers)"},
+            {"flag": "--heavy",       "display": "[heavy]",      "desc": "Heavy (Remained Stationary)","effect": "+1 to Hit rolls on weapons with the Heavy keyword"},
+            {"flag": "--igncover",    "display": "[igncover]",   "desc": "Ignore Cover",               "effect": "Attacker ignores benefit of cover (standalone — --ml also includes this)"},
+            {"flag": "--ea1",         "display": "[ea1]",        "desc": "Extra Attacks +1",           "effect": "+1 extra attack per model before squad scaling (also: --ea2, --ea:3 etc.)"},
+            {"flag": "--ed1",         "display": "[ed1]",        "desc": "Extra Damage +1",            "effect": "+N flat damage per unsaved wound. Also: --ed2, --ed:3 etc."},
+            {"flag": "--rrhit",       "display": "[rrhit]",      "desc": "Re-roll Hits (all failed)",  "effect": "Re-roll all failed Hit rolls"},
+            {"flag": "--rrhit1",      "display": "[rrhit1]",     "desc": "Re-roll Hits (1s only)",     "effect": "Re-roll Hit rolls of 1"},
+            {"flag": "--rrwound1",    "display": "[rrwound1]",   "desc": "Re-roll Wounds (1s only)",   "effect": "Re-roll Wound rolls of 1 (--twin re-rolls ALL failed wounds)"},
+            {"flag": "--criton5",     "display": "[criton:5]",   "desc": "Crit Hits on 5+",            "effect": "Critical hits trigger on 5+ instead of 6+. Also: --criton4 etc."},
+            {"flag": "--critwound5",  "display": "[critwound:5]","desc": "Crit Wounds on 5+",          "effect": "Critical wounds trigger on 5+ instead of 6+. Also: --critwound4 etc."},
+        ]
+
+        defensive_modifier_flags = [
+            {"flag": "--cover",       "display": "[cover]",      "desc": "Target in cover",            "effect": "+1 to target armour saves (e.g. Sv3+ → Sv2+)"},
+            {"flag": "--stealth",     "display": "[stealth]",    "desc": "Stealth",                    "effect": "-1 to Hit rolls against this target (many faction abilities grant this)"},
+            {"flag": "--indirect",    "display": "[indirect]",   "desc": "Indirect Fire",              "effect": "-1 to Hit rolls AND target gets benefit of cover (+1 save)"},
+            {"flag": "--invuln4",     "display": "[invuln:4]",   "desc": "Invulnerable Save Override", "effect": "Forces target invulnerable save to 4+. Also: --invuln5, --invuln:6 etc."},
+            {"flag": "--fnp6",        "display": "[fnp:6]",      "desc": "Feel No Pain Override",      "effect": "Target gains/overrides Feel No Pain save to 6+. Also: --fnp5, --fnp:4 etc."},
+            {"flag": "--halfdmg",     "display": "[halfdmg]",    "desc": "Half Damage",                "effect": "Halves damage inflicted (e.g. Duty Eternal, damage reduction abilities)"},
+        ]
+
+        faction_modifier_flags = [
+            {"flag": "--oath",   "display": "[oath]",   "faction": "Space Marines",  "desc": "Oath of Moment",             "effect": "Re-roll ALL failed Hit and Wound rolls against the sworn target"},
+            {"flag": "--ml",     "display": "[ml]",     "faction": "T'au Empire",    "desc": "Markerlights / Guided",      "effect": "+1 to Hit rolls, Ignore Cover"},
         ]
 
         swinginess_labels = [
@@ -2496,11 +2536,13 @@ class CombatTerminalEngine(EngineBase):
             "command":     "legend",
             "result_type": "legend",
             "data": {
-                "stat_columns":       stat_columns,
-                "probability_chain":  probability_chain,
-                "modifier_flags":     modifier_flags,
-                "swinginess_labels":  swinginess_labels,
-                "notes":              notes,
+                "stat_columns":              stat_columns,
+                "probability_chain":         probability_chain,
+                "offensive_modifier_flags":  offensive_modifier_flags,
+                "defensive_modifier_flags":  defensive_modifier_flags,
+                "faction_modifier_flags":    faction_modifier_flags,
+                "swinginess_labels":         swinginess_labels,
+                "notes":                     notes,
             },
             "meta": {},
         }

@@ -563,14 +563,14 @@ const LEGEND_TABS = [
 function TerminalLegendBlock({ data }) {
   const [activeTab, setActiveTab] = useState("stat_columns");
   const {
-    stat_columns      = [],
-    probability_chain = [],
-    modifier_flags    = [],
-    swinginess_labels = [],
-    notes             = [],
+    stat_columns              = [],
+    probability_chain         = [],
+    offensive_modifier_flags  = [],
+    defensive_modifier_flags  = [],
+    faction_modifier_flags    = [],
+    swinginess_labels         = [],
+    notes                     = [],
   } = data || {};
-
-  const panels = { stat_columns, probability_chain, modifier_flags, swinginess_labels };
 
   const rowStyle = {
     display: "grid",
@@ -617,16 +617,35 @@ function TerminalLegendBlock({ data }) {
     );
   }
 
-  function ModFlagsPanel() {
+  function ModFlagSection({ title, items, color }) {
     return (
-      <div>
-        {modifier_flags.map((r, i) => (
-          <div key={i} style={{ ...rowStyle, gridTemplateColumns: "110px 130px 1fr" }}>
+      <>
+        <div style={{
+          color: C.dim, fontSize: "11px", marginTop: "10px", marginBottom: "6px",
+          letterSpacing: "0.08em", textTransform: "uppercase",
+          borderBottom: `1px solid ${C.border}`, paddingBottom: "4px",
+        }}>
+          {title}
+        </div>
+        {items.map((r, i) => (
+          <div key={i} style={{ ...rowStyle, gridTemplateColumns: "120px 140px 1fr" }}>
             <span style={{ color: C.green, fontFamily: "monospace", fontSize: "12px" }}>{r.flag}</span>
-            <span style={{ color: C.cyan }}>{r.desc}</span>
+            <span style={{ color: color || C.cyan }}>{r.faction ? `${r.faction}: ${r.desc}` : r.desc}</span>
             <span style={{ color: C.label }}>{r.effect}</span>
           </div>
         ))}
+      </>
+    );
+  }
+
+  function ModFlagsPanel() {
+    return (
+      <div>
+        <ModFlagSection title="Offensive" items={offensive_modifier_flags} color={C.cyan} />
+        <ModFlagSection title="Defensive" items={defensive_modifier_flags} color={C.red || "#ff6b6b"} />
+        {faction_modifier_flags.length > 0 && (
+          <ModFlagSection title="Faction-Specific" items={faction_modifier_flags} color={C.amber} />
+        )}
       </div>
     );
   }

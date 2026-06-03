@@ -123,7 +123,7 @@ const BOOT_LINES = [
   "║  COMBAT TERMINAL  v2.0  ·  Warhammer 40,000 10th Edition     ║",
   "╚══════════════════════════════════════════════════════════════╝",
   "",
-  "  Type  help  to list commands.   Tab to autocomplete.   ↑↓ for history.",
+  "  Type  help  to list commands.   ↑↓ for history.",
   "",
 ];
 
@@ -1518,6 +1518,87 @@ export function Terminal({
             </div>
           ))}
         </div>
+
+        {/* Quick-start guide \u2014 main context only, hidden once commands are entered */}
+        {contextId === "main" && stream.length === 0 && (
+          <div
+            style={{
+              border:       "1px solid var(--ct-border)",
+              borderRadius: "6px",
+              padding:      "14px 18px",
+              marginBottom: "16px",
+              background:   "var(--ct-bg-dark)",
+              fontSize:     "13px",
+              fontFamily:   "var(--ct-font-mono, monospace)",
+              color:        "var(--ct-primary-dim)",
+              lineHeight:   "1.7",
+            }}
+          >
+            <div style={{ color: "var(--ct-primary-mid)", fontWeight: 600, marginBottom: "10px", fontSize: "13px" }}>
+              QUICK START
+            </div>
+
+            {/* Compare units */}
+            <div style={{ marginBottom: "8px" }}>
+              <span style={{ color: "var(--ct-primary-dim)" }}>Compare units \u2192 </span>
+              <span
+                onClick={() => onInject?.("crisis suits vs terminators")}
+                style={{ color: "var(--ct-accent, var(--ct-primary-bright))", cursor: "pointer", textDecoration: "underline", textDecorationStyle: "dotted", textUnderlineOffset: "3px" }}
+              >
+                crisis suits vs terminators
+              </span>
+            </div>
+
+            {/* Spec lookup */}
+            <div style={{ marginBottom: "8px" }}>
+              <span style={{ color: "var(--ct-primary-dim)" }}>Look up a datasheet \u2192 </span>
+              <span
+                onClick={() => onInject?.("spec riptide")}
+                style={{ color: "var(--ct-accent, var(--ct-primary-bright))", cursor: "pointer", textDecoration: "underline", textDecorationStyle: "dotted", textUnderlineOffset: "3px" }}
+              >
+                spec [unit]
+              </span>
+            </div>
+
+            {/* Modifiers */}
+            <div style={{ marginBottom: "8px" }}>
+              <span style={{ color: "var(--ct-primary-dim)" }}>Add modifiers to combat \u2192 </span>
+              <span style={{ color: "var(--ct-primary-bright)" }}>
+                crisis suits vs terminators --cover --lethal
+              </span>
+            </div>
+
+            {/* Modifiers list */}
+            <div style={{ marginBottom: "8px" }}>
+              <span style={{ color: "var(--ct-primary-dim)" }}>See all modifiers \u2192 </span>
+              <span
+                onClick={() => onInject?.("modifiers")}
+                style={{ color: "var(--ct-accent, var(--ct-primary-bright))", cursor: "pointer", textDecoration: "underline", textDecorationStyle: "dotted", textUnderlineOffset: "3px" }}
+              >
+                modifiers
+              </span>
+            </div>
+
+            {/* Divider */}
+            <div style={{ borderBottom: "1px solid var(--ct-border)", opacity: 0.3, margin: "10px 0" }} />
+
+            {/* Tips */}
+            <div style={{ color: "var(--ct-primary-dim)", opacity: 0.8 }}>
+              <div style={{ marginBottom: "3px" }}>
+                After a result, click on <span style={{ color: "var(--ct-primary-bright)" }}>modifiers</span> or <span style={{ color: "var(--ct-primary-bright)" }}>weapon profiles</span> to hide them from output.
+              </div>
+              <div style={{ marginBottom: "3px" }}>
+                Click the <span style={{ color: "var(--ct-primary-bright)" }}>edit icon</span> on any past command to tweak and re-run it.
+              </div>
+              <div>
+                Type <span
+                  onClick={() => onInject?.("clear")}
+                  style={{ color: "var(--ct-accent, var(--ct-primary-bright))", cursor: "pointer", textDecoration: "underline", textDecorationStyle: "dotted", textUnderlineOffset: "3px" }}
+                >clear</span> to reset the terminal.
+              </div>
+            </div>
+          </div>
+        )}
 
         {/* Command + result stream */}
         <div className="space-y-0">

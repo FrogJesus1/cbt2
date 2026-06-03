@@ -325,7 +325,21 @@ def compute_attack_result(
         fnp_success = success_probability(target.feel_no_pain, reroll="none")
         expected_damage *= (1 - fnp_success)
 
-    expected_kills = expected_damage / max(1, target.wounds)
+    # Kill calculation with overkill correction.
+    # In 40K, excess damage on a model is wasted — it doesn't spill to the next model.
+    # Each unsaved wound can kill at most 1 model.  When effective_damage > target.wounds,
+    # the useful fraction of each wound's damage is (wounds / effective_damage).
+    wounds_per_model = max(1, target.wounds)
+    if effective_damage <= wounds_per_model:
+        # Low-damage weapons: multiple wounds needed per kill, no overkill waste
+        expected_kills = expected_damage / wounds_per_model
+    else:
+        # High-damage weapons: each unsaved wound kills exactly 1 model (excess wasted)
+        # Apply FNP-adjusted unsaved wound count directly
+        expected_kills = expected_unsaved
+        if target.feel_no_pain is not None:
+            fnp_success_rate = success_probability(target.feel_no_pain, reroll="none")
+            expected_kills *= (1 - fnp_success_rate)
 
     notes = []
     if mods.use_markerlights:
@@ -407,9 +421,15 @@ def monte_carlo_attack(
 
     total_damage = []
     total_kills = []
+    wounds_per_model = max(1, target.wounds)
 
     for _ in range(trials):
         damage_this_trial = 0.0
+        # Track wound allocation per-model: in 40K, each unsaved wound's damage
+        # is allocated to one model.  Excess damage on a model is WASTED — it does
+        # not spill to the next model.  We track remaining HP on the current model.
+        current_model_hp = wounds_per_model
+        kills_this_trial = 0
 
         for _ in range(attacks):
             # Torrent: auto-hits — roll a d6 only to check for crit
@@ -441,7 +461,7 @@ def monte_carlo_attack(
                     else:
                         wounds += 1
 
-            # Normal wounds — roll saves
+            # Normal wounds — roll saves, allocate damage per-wound
             for _ in range(wounds):
                 failed = True
                 if save_t is not None:
@@ -455,6 +475,11 @@ def monte_carlo_attack(
                                 prevented += 1
                         dmg = max(0, dmg - prevented)
                     damage_this_trial += dmg
+                    # Allocate to current model — excess is wasted
+                    current_model_hp -= dmg
+                    if current_model_hp <= 0:
+                        kills_this_trial += 1
+                        current_model_hp = wounds_per_model  # next model at full HP
 
             # Devastating wounds — bypass saves, FNP still applies
             for _ in range(wounds_dev):
@@ -466,14 +491,19 @@ def monte_carlo_attack(
                             prevented += 1
                     dmg = max(0, dmg - prevented)
                 damage_this_trial += dmg
+                # Allocate to current model — excess is wasted
+                current_model_hp -= dmg
+                if current_model_hp <= 0:
+                    kills_this_trial += 1
+                    current_model_hp = wounds_per_model
 
         total_damage.append(damage_this_trial)
-        total_kills.append(damage_this_trial / max(1, target.wounds))
+        total_kills.append(kills_this_trial)
 
     kill_probs = {}
     max_bucket = min(10, max(1, target.models))
     for bucket in range(0, max_bucket + 1):
-        kill_probs[str(bucket)] = sum(1 for k in total_kills if int(k) == bucket) / trials
+        kill_probs[str(bucket)] = sum(1 for k in total_kills if k == bucket) / trials
 
     mean_dmg   = statistics.mean(total_damage)
     std_dmg    = statistics.stdev(total_damage) if len(total_damage) > 1 else 0.0
@@ -493,6 +523,13 @@ def monte_carlo_attack(
     elif swinginess_cv < 0.50:  swinginess_label = "Variable"
     else:                        swinginess_label = "Swingy"
 
+    # Overkill: % of total damage wasted on excess per-model damage.
+    # Useful damage = kills * wounds_per_model; wasted = total - useful.
+    useful_damage = [k * wounds_per_model for k, d in zip(total_kills, total_damage)]
+    wasted_damage = [d - u for d, u in zip(total_damage, useful_damage)]
+    mean_wasted   = statistics.mean(wasted_damage) if wasted_damage else 0.0
+    overkill_waste_pct = round((mean_wasted / mean_dmg * 100), 1) if mean_dmg > 0 else 0.0
+
     return {
         "weapon_name":            weapon.name,
         "trials":                 trials,
@@ -504,6 +541,7 @@ def monte_carlo_attack(
         "margin_of_error_95ci_pct": margin_95ci_pct,
         "swinginess_cv":          swinginess_cv,
         "swinginess_label":       swinginess_label,
+        "overkill_waste_pct":     overkill_waste_pct,
         "max_damage_observed":    max(total_damage) if total_damage else 0,
         "kill_bucket_probabilities": kill_probs,
         "notes": [

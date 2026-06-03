@@ -272,6 +272,7 @@ def _apply_flags(flags: list, base_mods: "AttackModifiers", target: "TargetProfi
         cover       — Target in cover: +1 armour save
         invuln:N    — Override target invulnerable save to N+
         ea / ea1    — Extra attacks per model (ea:1 or ea1 form)
+        ed / ed1    — Extra damage per unsaved wound (ed:2 or ed2 form). Also: dmgplus
         lethal      — Lethal Hits: unmodified 6s to Hit auto-wound
         twin        — Twin-linked: re-roll all failed wound rolls
         sustained / sustained1 / sustained:N  — Sustained Hits N: crit hits add N extra hits
@@ -282,7 +283,17 @@ def _apply_flags(flags: list, base_mods: "AttackModifiers", target: "TargetProfi
         torrent     — Torrent: weapon auto-hits (no BS roll)
         lance       — Lance: +1 to wound roll (applied as wound_bonus)
         fnp:N       — Override target Feel No Pain save to N+
-        dmgplus:N   — Flat +N damage modifier per unsaved wound
+        heavy       — Heavy: +1 to hit when stationary (on Heavy-keyword weapons)
+        stealth     — Stealth: -1 to hit rolls against target
+        indirect    — Indirect Fire: -1 to hit, target benefits from cover
+        halfdmg     — Half Damage: damage multiplier 0.5
+        igncover    — Ignore Cover: standalone (also nocover)
+        rrhit       — Re-roll all failed hit rolls
+        rrhit1      — Re-roll hit rolls of 1
+        rrwound1    — Re-roll wound rolls of 1
+        criton:N    — Critical hits on N+ instead of 6+
+        critwound:N — Critical wounds on N+ instead of 6+
+        oath        — Oath of Moment: re-roll all failed hits and wounds
     """
     for f in flags:
         key = f.split(":")[0].lower()
@@ -335,18 +346,21 @@ def _apply_flags(flags: list, base_mods: "AttackModifiers", target: "TargetProfi
             )
 
         elif key.startswith("invuln"):
-            parts = f.split(":")
-            if len(parts) > 1:
-                try:
-                    iv = int(parts[1])
-                    target = TargetProfile(
-                        name=target.name, toughness=target.toughness, save=target.save,
-                        invulnerable_save=iv, wounds=target.wounds,
-                        models=target.models, feel_no_pain=target.feel_no_pain,
-                        damage_reduction=target.damage_reduction, cover=target.cover,
-                    )
-                except ValueError:
-                    pass
+            # Accepts: --invuln:4, --invuln 4, --invuln4
+            iv = None
+            if ":" in f:
+                try: iv = int(f.split(":")[1])
+                except (ValueError, IndexError): pass
+            elif len(key) > len("invuln"):
+                try: iv = int(key[len("invuln"):])
+                except ValueError: pass
+            if iv is not None:
+                target = TargetProfile(
+                    name=target.name, toughness=target.toughness, save=target.save,
+                    invulnerable_save=iv, wounds=target.wounds,
+                    models=target.models, feel_no_pain=target.feel_no_pain,
+                    damage_reduction=target.damage_reduction, cover=target.cover,
+                )
 
         # ── Damage modifiers ──────────────────────────────────────────────────
         elif key == "ea" or re.match(r'^ea\d+$', key):
@@ -361,26 +375,35 @@ def _apply_flags(flags: list, base_mods: "AttackModifiers", target: "TargetProfi
             except (ValueError, TypeError):
                 pass
 
-        elif key == "dmgplus":
+        elif key in ("ed", "dmgplus") or re.match(r'^ed\d+$', key):
+            # Extra Damage: --ed1, --ed:2, --ed 3 (also legacy --dmgplus:N)
             try:
-                n = float(f.split(":")[1]) if ":" in f else 1.0
+                if ":" in f:
+                    n = float(f.split(":")[1])
+                elif len(key) > 2 and key.startswith("ed"):
+                    n = float(key[2:])
+                else:
+                    n = 1.0
                 base_mods.flat_damage_bonus += n
             except (ValueError, TypeError, IndexError):
                 pass
 
         elif key.startswith("fnp"):
-            parts = f.split(":")
-            if len(parts) > 1:
-                try:
-                    fnp_val = int(parts[1])
-                    target = TargetProfile(
-                        name=target.name, toughness=target.toughness, save=target.save,
-                        invulnerable_save=target.invulnerable_save, wounds=target.wounds,
-                        models=target.models, feel_no_pain=fnp_val,
-                        damage_reduction=target.damage_reduction, cover=target.cover,
-                    )
-                except ValueError:
-                    pass
+            # Accepts: --fnp:5, --fnp 5, --fnp5
+            fnp_val = None
+            if ":" in f:
+                try: fnp_val = int(f.split(":")[1])
+                except (ValueError, IndexError): pass
+            elif len(key) > len("fnp"):
+                try: fnp_val = int(key[len("fnp"):])
+                except ValueError: pass
+            if fnp_val is not None:
+                target = TargetProfile(
+                    name=target.name, toughness=target.toughness, save=target.save,
+                    invulnerable_save=target.invulnerable_save, wounds=target.wounds,
+                    models=target.models, feel_no_pain=fnp_val,
+                    damage_reduction=target.damage_reduction, cover=target.cover,
+                )
 
         # ── Blast / Rapid Fire ────────────────────────────────────────────────
         # Blast:  use_blast is set here (flag side) and also auto-detected in
@@ -394,10 +417,86 @@ def _apply_flags(flags: list, base_mods: "AttackModifiers", target: "TargetProfi
             base_mods.use_blast = True
         elif key == "rf":
             base_mods.use_rapid_fire = True
-        elif key == "melta":
+        elif key == "melta" or re.match(r'^melta\d+$', key):
+            # Accepts: --melta (boolean toggle, uses weapon keyword value),
+            #          --melta:2, --melta 2, --melta2 (overrides melta damage to N)
             base_mods.use_melta = True
+            melta_override = None
+            if ":" in f:
+                try: melta_override = float(f.split(":")[1])
+                except (ValueError, IndexError): pass
+            elif len(key) > len("melta"):
+                try: melta_override = float(key[len("melta"):])
+                except ValueError: pass
+            if melta_override is not None:
+                base_mods.melta_value = melta_override
         elif key == "heavy":
             base_mods.use_heavy = True
+
+        # ── Defensive / situational modifiers ────────────────────────────────
+        elif key == "stealth":
+            # Stealth: -1 to hit rolls against this target
+            base_mods.hit_penalty = max(base_mods.hit_penalty, 1)
+
+        elif key == "indirect":
+            # Indirect Fire: -1 to hit, benefit of cover (+1 save)
+            base_mods.hit_penalty = max(base_mods.hit_penalty, 1)
+            target = TargetProfile(
+                name=target.name, toughness=target.toughness, save=target.save,
+                invulnerable_save=target.invulnerable_save, wounds=target.wounds,
+                models=target.models, feel_no_pain=target.feel_no_pain,
+                damage_reduction=target.damage_reduction, cover=True,
+            )
+
+        elif key == "halfdmg":
+            base_mods.damage_multiplier = 0.5
+
+        elif key in ("igncover", "nocover"):
+            base_mods.ignore_cover = True
+
+        # ── Reroll flags ─────────────────────────────────────────────────────
+        elif key in ("rrhit", "rrhits"):
+            # Reroll all failed hit rolls
+            base_mods.reroll_hits = "failed"
+
+        elif key in ("rrhit1", "rrhits1"):
+            # Reroll hit rolls of 1
+            base_mods.reroll_hits = "ones"
+
+        elif key in ("rrwound1", "rrwounds1"):
+            # Reroll wound rolls of 1
+            base_mods.reroll_wounds = "ones"
+
+        # ── Critical threshold overrides ─────────────────────────────────────
+        elif key.startswith("criton"):
+            # Change crit hit threshold: --criton5, --criton:5
+            cv = None
+            if ":" in f:
+                try: cv = int(f.split(":")[1])
+                except (ValueError, IndexError): pass
+            elif len(key) > len("criton"):
+                try: cv = int(key[len("criton"):])
+                except ValueError: pass
+            if cv is not None:
+                base_mods.crit_hits_on = cv
+
+        elif key.startswith("critwound"):
+            # Change crit wound threshold: --critwound5, --critwound:5
+            cv = None
+            if ":" in f:
+                try: cv = int(f.split(":")[1])
+                except (ValueError, IndexError): pass
+            elif len(key) > len("critwound"):
+                try: cv = int(key[len("critwound"):])
+                except ValueError: pass
+            if cv is not None:
+                base_mods.crit_wounds_on = cv
+
+        # ── Faction-specific compound modifiers ──────────────────────────────
+        elif key == "oath":
+            # Oath of Moment (Space Marines): reroll all hits and wounds vs target
+            base_mods.reroll_hits = "failed"
+            base_mods.reroll_wounds = "failed"
 
     return base_mods, target
 
@@ -407,7 +506,12 @@ def _apply_flags(flags: list, base_mods: "AttackModifiers", target: "TargetProfi
 KNOWN_FLAG_BASES = {
     "ml", "cover", "lethal", "twin", "sustained", "blast", "rf",
     "torrent", "lance", "invuln", "ea", "dev", "devastating",
-    "fnp", "dmgplus", "melta", "heavy",
+    "fnp", "dmgplus", "ed", "melta", "heavy",
+    "stealth", "indirect", "halfdmg", "igncover", "nocover",
+    "rrhit", "rrhits", "rrhit1", "rrhits1",
+    "rrwound1", "rrwounds1",
+    "criton", "critwound",
+    "oath",
 }
 
 
@@ -546,6 +650,10 @@ def compute_combat(
                 elif swinginess_cv < 0.30:  swinginess_label = "Moderate"
                 elif swinginess_cv < 0.50:  swinginess_label = "Variable"
                 else:                        swinginess_label = "Swingy"
+                # Weighted average overkill across weapons
+                overkill_pct = round(
+                    sum(r.get("overkill_waste_pct", 0) * r["mean_damage"] for r in mc_valid) / total_mc_dmg, 1
+                )
             # Kill-bucket P(≥1 kill) proxy for squad wipe probability
             # bucket "1" or higher = at least one kill
             def _kill_chance_mc(r):
@@ -583,6 +691,7 @@ def compute_combat(
                 # kill_chance_pct: P(≥1 model killed) from Monte Carlo — semantically correct
                 # kill probability for the full weapon output. Falls back to None if MC offline.
                 "kill_chance_pct": _kill_chance_from_mc(mc_per_weapon.get(w.get("name", "?"))),
+                "overkill_waste_pct": (mc_per_weapon.get(w.get("name", "?")) or {}).get("overkill_waste_pct"),
                 # Raw roll targets — used for modifier delta colour-coding
                 "hit_target":    r.hit_target,
                 "wound_target":  r.wound_target,

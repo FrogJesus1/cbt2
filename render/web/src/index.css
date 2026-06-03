@@ -80,8 +80,8 @@
     -webkit-font-smoothing: antialiased;
   }
 
-  /* Scanline overlay — subtle CRT effect (dark theme only) */
-  body::before {
+  /* Scanline overlay — disabled, kept for reference */
+  /* body::before {
     content: '';
     position: fixed;
     inset: 0;
@@ -94,17 +94,17 @@
       rgba(0, 0, 0, 0.08) 3px,
       rgba(0, 0, 0, 0.08) 4px
     );
-  }
+  } */
 
-  /* Vignette (dark theme only) */
-  body::after {
+  /* Vignette — disabled, kept for reference */
+  /* body::after {
     content: '';
     position: fixed;
     inset: 0;
     pointer-events: none;
     z-index: 9998;
     background: radial-gradient(ellipse at center, transparent 60%, rgba(0,0,0,0.4) 100%);
-  }
+  } */
 
   /* Scrollbars */
   ::-webkit-scrollbar { width: 4px; height: 4px; }
@@ -113,13 +113,7 @@
   ::-webkit-scrollbar-thumb:hover { background: #1a4a14; }
 }
 
-/* ── Light theme — disable CRT effects & clean up ─────────────────────── */
-/* Scanlines and vignette look terrible on light backgrounds */
-body[data-theme="light"]::before,
-body[data-theme="light"]::after {
-  display: none !important;
-}
-
+/* ── Light theme — clean up ────────────────────────────────────────────── */
 /* Remove glow effects in light mode — they muddy light backgrounds */
 [data-theme="light"] .ct-glow,
 [data-theme="light"] .ct-glow-sm {
@@ -131,30 +125,30 @@ body[data-theme="light"]::after {
 [data-theme="light"] ::-webkit-scrollbar-thumb:hover { background: #7aaa70; }
 
 /* ── Console (Retro Terminal) theme ─────────────────────────────────────
- * Pure retro — monospace only, phosphor green on black, no chrome.
+ * Pure retro — monospace only, amber phosphor on black, no chrome.
  * ─────────────────────────────────────────────────────────────────────── */
 
 [data-theme="console"] {
-  --ct-primary:       #33ff33;
-  --ct-primary-mid:   #22cc22;
-  --ct-primary-label: #19991a;
-  --ct-primary-dim:   #0d660d;
-  --ct-border:        #1a3d1a;
-  --ct-border-bright: #33ff33;
+  --ct-primary:       #ffb000;
+  --ct-primary-mid:   #cc8d00;
+  --ct-primary-label: #997a00;
+  --ct-primary-dim:   #664d00;
+  --ct-border:        #3d2e00;
+  --ct-border-bright: #ffb000;
   --ct-bg:            #000000;
   --ct-bg-dark:       #000000;
-  --ct-bg-panel:      #000000;
-  --ct-echo:          #ccffcc;
-  --ct-glow-rgb:      51, 255, 51;
-  --ct-ghost:         #001100;
-  --ct-bar-alt:       #33ff33;
+  --ct-bg-panel:      #0a0700;
+  --ct-echo:          #ffe0a0;
+  --ct-glow-rgb:      255, 176, 0;
+  --ct-ghost:         #110a00;
+  --ct-bar-alt:       #ffb000;
 }
 
-/* Force monospace font and 14px globally — no bold */
+/* Force monospace font and 14px globally — medium weight for readability */
 [data-theme="console"],
 [data-theme="console"] * {
   font-family: "Courier New", Courier, monospace !important;
-  font-weight: normal !important;
+  font-weight: 500 !important;
   box-shadow:  none !important;
   text-shadow: none !important;
   border-radius: 0 !important;
@@ -178,16 +172,10 @@ body[data-theme="light"]::after {
 /* ASCII-style borders: plain hairlines, pure black background */
 [data-theme="console"] .ct-panel,
 [data-theme="console"] .ct-panel-inner {
-  border: 1px solid #1a3d1a !important;
+  border: 1px solid #3d2e00 !important;
   background-color: #000000 !important;
 }
 
-/* Disable CRT scanline and vignette overlays —
- * pure flat phosphor green on black needs no extra layering */
-[data-theme="console"] ~ body::before,
-[data-theme="console"] ~ body::after {
-  display: none !important;
-}
 
 @layer utilities {
   /* Phosphor glow on bright text */

@@ -450,6 +450,31 @@ export function RostersContext({ engineId, onExec, onInject, theme }) {
       {/* ── Scrollable content ── */}
       <div style={{ flex: 1, overflow: "auto", padding: "16px 24px 24px" }}>
 
+        {/* Under construction notice */}
+        <div
+          style={{
+            border:       "1px solid var(--ct-border)",
+            borderRadius: "6px",
+            padding:      "12px 16px",
+            marginBottom: "16px",
+            background:   "var(--ct-bg-dark)",
+            fontSize:     "12px",
+            fontFamily:   "var(--ct-font-mono, monospace)",
+            color:        "var(--ct-primary-dim)",
+            lineHeight:   "1.7",
+          }}
+        >
+          <div style={{ color: "var(--ct-primary-mid)", fontWeight: 600, marginBottom: "6px", fontSize: "12px" }}>
+            ⚠ UNDER CONSTRUCTION — BUGS LIKELY
+          </div>
+          <div style={{ marginBottom: "4px" }}>
+            When a roster is loaded (player or enemy), all combat commands use only the weapons and profiles in that roster. For example, a Hammerhead with an ion cannon will only show ion cannon results — not railgun.
+          </div>
+          <div>
+            Remove a roster to see all possible weapon profiles and matchups.
+          </div>
+        </div>
+
         {/* Quick actions row */}
         <div style={{ display: "flex", gap: "8px", marginBottom: "20px", flexWrap: "wrap" }}>
           <ActionChip label="session" onClick={() => handleInject("session")} />
