@@ -97,6 +97,16 @@ const CommandBar = forwardRef(function CommandBar(
   useEffect(() => { inputRef.current?.focus(); }, []);
   useEffect(() => () => { if (animTimer.current) clearTimeout(animTimer.current); }, []);
 
+  // Re-focus input when loading finishes (disabled=true → false loses focus)
+  const prevLoadingRef = useRef(loading);
+  useEffect(() => {
+    if (prevLoadingRef.current && !loading) {
+      // Small delay to let React re-enable the input first
+      setTimeout(() => inputRef.current?.focus(), 0);
+    }
+    prevLoadingRef.current = loading;
+  }, [loading]);
+
   function submit(raw) {
     const trimmed = raw.trim();
     if (!trimmed || loading) return;
