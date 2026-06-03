@@ -26,9 +26,11 @@
 
 import { useState, useEffect, useCallback, useRef } from "react";
 import {
-  listRosters, listCampaigns, getCampaignCount, getRosterCount,
-  labelify,
+  listCampaigns, getCampaignCount,
 } from "@/lib/vfs";
+import {
+  fetchRostersGrouped, labelify,
+} from "@/lib/shared-rosters";
 
 // ─── Colour palette ──────────────────────────────────────────────────────────
 
@@ -204,27 +206,54 @@ function ArmyPanel({ roster, side, onInject }) {
   );
 }
 
-// ─── Saved rosters section ───────────────────────────────────────────────────
+// ─── Saved rosters section (shared, server-side) ────────────────────────────
 
-function SavedRostersSection({ onInject }) {
-  const rosters      = listRosters();
-  const rosterCount  = getRosterCount();
-  const factions     = Object.keys(rosters).sort();
-  const [expanded, setExpanded] = useState(null);   // faction slug or null
-  const [activeRoster, setActiveRoster] = useState(null); // roster name showing actions
+function formatDate(isoStr) {
+  if (!isoStr) return "";
+  try {
+    const d = new Date(isoStr);
+    return d.toLocaleDateString("en-AU", { day: "numeric", month: "short", year: "2-digit" });
+  } catch { return ""; }
+}
+
+function SavedRostersSection({ onInject, refreshKey }) {
+  const [grouped, setGrouped]           = useState({});
+  const [rosterCount, setRosterCount]   = useState(0);
+  const [loading, setLoading]           = useState(true);
+  const [expanded, setExpanded]         = useState(null);
+  const [activeRoster, setActiveRoster] = useState(null);
+
+  useEffect(() => {
+    setLoading(true);
+    fetchRostersGrouped()
+      .then(data => {
+        setGrouped(data);
+        const total = Object.values(data).reduce((n, arr) => n + arr.length, 0);
+        setRosterCount(total);
+      })
+      .catch(() => { setGrouped({}); setRosterCount(0); })
+      .finally(() => setLoading(false));
+  }, [refreshKey]);
+
+  const factions = Object.keys(grouped).sort();
 
   return (
     <div>
-      <SectionHeader title="Saved Rosters" subtitle={`${rosterCount} saved`} />
+      <SectionHeader
+        title="Shared Rosters"
+        subtitle={loading ? "loading…" : `${rosterCount} saved`}
+      />
 
-      {rosterCount === 0 ? (
+      {!loading && rosterCount === 0 && (
         <div style={{ color: C.dim, fontSize: "13px", fontFamily: "monospace", marginBottom: "8px" }}>
-          No rosters saved yet.
+          No rosters uploaded yet.
         </div>
-      ) : (
+      )}
+
+      {rosterCount > 0 && (
         <div style={{ display: "flex", flexDirection: "column", gap: "1px", marginBottom: "8px" }}>
           {factions.map(faction => {
-            const factionRosters = Object.keys(rosters[faction] || {}).sort();
+            const factionRosters = grouped[faction] || [];
             const isOpen = expanded === faction;
             return (
               <div key={faction}>
@@ -258,31 +287,35 @@ function SavedRostersSection({ onInject }) {
                 </div>
 
                 {/* Expanded roster list */}
-                {isOpen && factionRosters.map(name => (
-                  <div key={name} style={{ paddingLeft: "22px" }}>
+                {isOpen && factionRosters.map(r => (
+                  <div key={r.id} style={{ paddingLeft: "22px" }}>
                     <div
-                      onClick={() => setActiveRoster(activeRoster === name ? null : name)}
+                      onClick={() => setActiveRoster(activeRoster === r.id ? null : r.id)}
                       style={{
                         display: "flex", alignItems: "center", gap: "8px",
-                        padding: "3px 8px", cursor: "pointer", userSelect: "none",
+                        padding: "4px 8px", cursor: "pointer", userSelect: "none",
                         fontFamily: "monospace", fontSize: "12px",
                       }}
-                      onMouseEnter={e => { e.currentTarget.style.color = C.green; }}
-                      onMouseLeave={e => { e.currentTarget.style.color = "inherit"; }}
+                      onMouseEnter={e => { e.currentTarget.querySelector(".r-name").style.color = C.green; }}
+                      onMouseLeave={e => { e.currentTarget.querySelector(".r-name").style.color = C.mid; }}
                     >
-                      <span style={{ color: C.mid, flex: 1 }}>{name}</span>
+                      <span className="r-name" style={{ color: C.mid, flex: 1 }}>{r.name}</span>
+                      <span style={{ color: C.dim, fontSize: "10px", letterSpacing: "0.05em" }}>
+                        {r.uploaded_by}
+                      </span>
+                      <span style={{ color: C.border, fontSize: "10px" }}>
+                        {formatDate(r.uploaded_at)}
+                      </span>
                     </div>
                     {/* Action row for selected roster */}
-                    {activeRoster === name && (
+                    {activeRoster === r.id && (
                       <div style={{
                         display: "flex", gap: "6px", padding: "2px 8px 6px",
                         fontFamily: "monospace", fontSize: "11px",
                       }}>
-                        <ActionChip label="load" onClick={() => onInject?.(`load roster ${name}`)} color={C.green} />
-                        <ActionChip label="player" onClick={() => onInject?.(`set roster player ${name}`)} color={C.cyan} />
-                        <ActionChip label="enemy" onClick={() => onInject?.(`set roster enemy ${name}`)} color={C.amber} />
-                        <ActionChip label="edit" onClick={() => onInject?.(`edit roster ${name}`)} color={C.mid} />
-                        <ActionChip label="delete" onClick={() => onInject?.(`delete roster ${name}`)} color={C.red} />
+                        <ActionChip label="player" onClick={() => onInject?.(`set roster player ${r.name}`)} color={C.cyan} />
+                        <ActionChip label="enemy" onClick={() => onInject?.(`set roster enemy ${r.name}`)} color={C.amber} />
+                        <ActionChip label="delete" onClick={() => onInject?.(`delete roster ${r.name}`)} color={C.red} />
                       </div>
                     )}
                   </div>
@@ -366,7 +399,7 @@ function CampaignsSection({ onInject }) {
 
 // ─── Main component ──────────────────────────────────────────────────────────
 
-export function RostersContext({ engineId, onExec, onInject, theme }) {
+export function RostersContext({ engineId, onExec, onInject, theme, profileName }) {
   const [session, setSession]   = useState(null);
   const [loading, setLoading]   = useState(false);
   const [tick, setTick]         = useState(0);    // triggers VFS re-reads
@@ -489,7 +522,7 @@ export function RostersContext({ engineId, onExec, onInject, theme }) {
 
         {/* ── Saved rosters ── */}
         <div style={{ marginBottom: "24px" }}>
-          <SavedRostersSection key={`rosters-${tick}`} onInject={handleInject} />
+          <SavedRostersSection refreshKey={tick} onInject={handleInject} />
         </div>
 
         {/* ── Campaigns ── */}

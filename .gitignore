@@ -10,5 +10,9 @@ venv/
 render/web/node_modules/
 render/web/dist/
 
+# User data (created at runtime)
+data/profiles/*.json
+data/shared_rosters/*.json
+
 # OS
 .DS_Store

@@ -124,6 +124,66 @@
 [data-theme="light"] ::-webkit-scrollbar-thumb { background: #c0d8bc; }
 [data-theme="light"] ::-webkit-scrollbar-thumb:hover { background: #7aaa70; }
 
+/* ── Chaos Daemons theme ───────────────────────────────────────────────
+ * Blood-red and warp-purple on void black — daemonic corruption.
+ * ─────────────────────────────────────────────────────────────────────── */
+
+[data-theme="chaos-daemons"] {
+  --ct-primary:       #ff2020;
+  --ct-primary-mid:   #cc1a1a;
+  --ct-primary-label: #aa1414;
+  --ct-primary-dim:   #661010;
+  --ct-border:        #3a0a0a;
+  --ct-border-bright: #8b1a1a;
+  --ct-bg:            #080004;
+  --ct-bg-dark:       #060003;
+  --ct-bg-panel:      #0e0308;
+  --ct-echo:          #ffb0b0;
+  --ct-glow-rgb:      255, 32, 32;
+  --ct-ghost:         #1a0508;
+  --ct-bar-alt:       #bf40ff;
+}
+
+/* ── Dark Angels theme ─────────────────────────────────────────────────
+ * Deep forest green and bone-white — the Unforgiven.
+ * ─────────────────────────────────────────────────────────────────────── */
+
+[data-theme="dark-angels"] {
+  --ct-primary:       #2aaa4a;
+  --ct-primary-mid:   #1e7a36;
+  --ct-primary-label: #186a2e;
+  --ct-primary-dim:   #0e4a1e;
+  --ct-border:        #0c3014;
+  --ct-border-bright: #1e6030;
+  --ct-bg:            #020804;
+  --ct-bg-dark:       #010603;
+  --ct-bg-panel:      #040e06;
+  --ct-echo:          #d4e8cc;
+  --ct-glow-rgb:      42, 170, 74;
+  --ct-ghost:         #061a0a;
+  --ct-bar-alt:       #e8d4a0;
+}
+
+/* ── Orks theme ────────────────────────────────────────────────────────
+ * Grimy yellow-green and rust — brutal, loud, orky.
+ * ─────────────────────────────────────────────────────────────────────── */
+
+[data-theme="orks"] {
+  --ct-primary:       #a0e020;
+  --ct-primary-mid:   #7ab018;
+  --ct-primary-label: #608a14;
+  --ct-primary-dim:   #3a5a0c;
+  --ct-border:        #2a3a08;
+  --ct-border-bright: #506010;
+  --ct-bg:            #0a0800;
+  --ct-bg-dark:       #080600;
+  --ct-bg-panel:      #0e0c02;
+  --ct-echo:          #e0f0a0;
+  --ct-glow-rgb:      160, 224, 32;
+  --ct-ghost:         #141000;
+  --ct-bar-alt:       #c85020;
+}
+
 /* ── Console (Retro Terminal) theme ─────────────────────────────────────
  * Pure retro — monospace only, amber phosphor on black, no chrome.
  * ─────────────────────────────────────────────────────────────────────── */

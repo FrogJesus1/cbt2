@@ -537,6 +537,7 @@ function TerminalResult({ result, onSubmit, onInject, onUpload, starredUnits, on
     case "table":      return <TerminalTable    data={data} meta={meta} />;
     case "card":       return <TerminalCard     data={data} meta={meta} onInject={onInject} />;
     case "list":       return <TerminalList     data={data} meta={meta} onInject={onInject} />;
+    case "aliases_list": return <AliasesListBlock data={data} meta={meta} onInject={onInject} />;
     case "themes_list": return <ThemesListBlock data={data} meta={meta} onInject={onInject} />;
     case "text":       return <TerminalText     data={data} />;
     case "help":       return <TerminalHelp     data={data} />;
@@ -1753,6 +1754,63 @@ function TerminalSystemMsg({ data }) {
 // ─── Themes List ─────────────────────────────────────────────────────────
 // Compact list: theme name + command token.
 // Clicking an unlocked theme activates it; clicking a locked theme starts the challenge.
+
+// ─── Aliases List ────────────────────────────────────────────────────────
+// Renders learned term aliases with ✕ delete buttons that send `unlearn`.
+
+function AliasesListBlock({ data, meta, onInject }) {
+  const aliases = data?.aliases || [];
+  const [hovered, setHovered] = useState(null);
+
+  return (
+    <div className="font-mono" style={{ paddingLeft: "18px", fontSize: "14px" }}>
+      <div style={{ color: C.dim, fontSize: "11px", marginBottom: "6px", textTransform: "uppercase", letterSpacing: "0.08em" }}>
+        {meta?.count || aliases.length} term {aliases.length === 1 ? "alias" : "aliases"}
+      </div>
+      {aliases.map((a, i) => {
+        const isHov = hovered === i;
+        return (
+          <div
+            key={a.shorthand}
+            onMouseEnter={() => setHovered(i)}
+            onMouseLeave={() => setHovered(null)}
+            style={{
+              display:    "flex",
+              gap:        "8px",
+              alignItems: "baseline",
+              lineHeight: "1.8",
+            }}
+          >
+            <span style={{ color: isHov ? C.green : C.mid, fontWeight: 600, minWidth: "120px" }}>
+              {a.shorthand}
+            </span>
+            <span style={{ color: C.dim }}>→</span>
+            <span style={{ color: isHov ? C.label : C.dim, flex: 1 }}>
+              {a.full_term}
+            </span>
+            <span
+              onClick={() => onInject?.(`unlearn ${a.shorthand}`)}
+              style={{
+                color:      isHov ? C.red : "transparent",
+                cursor:     "pointer",
+                fontWeight: 700,
+                fontSize:   "13px",
+                padding:    "0 4px",
+                userSelect: "none",
+              }}
+              title={`Remove alias "${a.shorthand}"`}
+            >
+              ✕
+            </span>
+          </div>
+        );
+      })}
+      <div style={{ color: C.dim, fontSize: "12px", marginTop: "8px" }}>
+        add:  <span style={{ color: C.mid, cursor: "pointer" }} onClick={() => onInject?.("learn ")}>learn &lt;shorthand&gt; = &lt;full term&gt;</span>
+      </div>
+    </div>
+  );
+}
 
 function ThemesListBlock({ data = [], meta, onInject }) {
   const [hovered, setHovered] = useState(null);

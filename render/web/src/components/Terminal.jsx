@@ -20,12 +20,14 @@
 import { useState, useEffect, useRef, useCallback } from "react";
 import { TerminalBlock } from "./TerminalBlock";
 import {
-  listRosters, listAllRosters, getRoster, findRosterByName, saveRoster,
-  deleteRoster, renameRoster, getRosterCount,
-  listFactionsWithRosters, listRostersByFaction,
   listCampaigns, createCampaign, getCampaign, getCampaignCount,
-  slugify, labelify,
+  slugify,
 } from "@/lib/vfs";
+import {
+  uploadRoster, findRosterByName, deleteSharedRoster,
+  fetchRosters, fetchRostersGrouped, fetchRoster,
+  labelify,
+} from "@/lib/shared-rosters";
 import { THEME_REGISTRY, ALL_THEME_IDS } from "@/data/themeRegistry";
 
 
@@ -150,6 +152,7 @@ export function Terminal({
   contextBootLines, // optional override for the boot splash lines
   starredUnits,    // string[] — names of starred units (for spec star toggle)
   onToggleStar,    // (unitName: string) → void — toggle star on a unit
+  profileName,     // string — logged-in user's name (for shared roster uploads)
 }) {
   const [stream,         setStream]         = useState([]);
   const [cmdHist,        setCmdHist]        = useState([]);
@@ -399,7 +402,7 @@ export function Terminal({
   //
   // Cancellation: typing "cancel" or "esc" from anywhere exits the active flow.
 
-  function handleFlowStep(input) {
+  async function handleFlowStep(input) {
     const flow  = clientFlowRef.current;
     if (!flow) return;
 
@@ -558,7 +561,8 @@ export function Terminal({
           return;
         }
 
-        const factionRosters = listRostersByFaction(chosenFaction);
+        const grouped = await fetchRostersGrouped();
+        const factionRosters = (grouped[chosenFaction] || []);
         if (factionRosters.length === 0) {
           emitError(input, `No rosters found for ${labelify(chosenFaction)}.`);
           return;
@@ -640,7 +644,7 @@ export function Terminal({
         }
         const { faction, content, isEnemy } = flow.data;
         const name    = input.trim();
-        const saved   = saveRoster(faction, name, content);
+        const saved   = await uploadRoster(name, faction, content, profileName || "unknown");
         clientFlowRef.current = null;
         emitLocalResult(input, "roster_saved", {
           name:    saved.name,
@@ -650,7 +654,7 @@ export function Terminal({
         });
         // Enemy auto-assignment
         if (isEnemy) {
-          activeRostersRef.current.enemy = { name: saved.name, faction: saved.faction };
+          activeRostersRef.current.enemy = { name: saved.name, faction: saved.faction, id: saved.id, content: saved.content };
           emitSystem(input, `Enemy roster loaded: ${saved.name} (${labelify(saved.faction)})`);
         }
         return;
@@ -665,7 +669,7 @@ export function Terminal({
           return;
         }
         const { name, faction } = flow.data;
-        const saved = saveRoster(faction, name, input.trim());
+        const saved = await uploadRoster(name, faction, input.trim(), profileName || "unknown");
         clientFlowRef.current = null;
         emitLocalResult(input, "roster_saved", {
           name:    saved.name,
@@ -679,30 +683,17 @@ export function Terminal({
 
     // ── rename_roster ─────────────────────────────────────────────────────────
     if (flow.type === "rename_roster") {
-      if (flow.step === "new_name") {
-        if (!input.trim()) {
-          emitError(input, "New name cannot be empty.");
-          return;
-        }
-        const { oldName, faction } = flow.data;
-        const newName = input.trim();
-        const ok = renameRoster(faction, oldName, newName);
-        clientFlowRef.current = null;
-        if (ok) {
-          emitSystem(input, `Roster renamed: ${oldName} → ${newName}  [/rosters/${faction}/${newName}]`);
-        } else {
-          emitError(input, `Could not rename '${oldName}' — roster not found.`);
-        }
-        return;
-      }
+      clientFlowRef.current = null;
+      emitError(input, "Rename not available for shared rosters. Upload a new copy instead.");
+      return;
     }
 
     // ── delete_roster — confirm step ─────────────────────────────────────────
     if (flow.type === "delete_roster") {
       if (flow.step === "confirm") {
-        const { name, faction } = flow.data;
+        const { name, faction, id } = flow.data;
         if (lower === "yes" || lower === "y") {
-          const ok = deleteRoster(faction, name);
+          const ok = await deleteSharedRoster(id);
           clientFlowRef.current = null;
           if (ok) {
             emitSystem(input, `Roster deleted: /rosters/${faction}/${name}`);
@@ -989,6 +980,11 @@ export function Terminal({
       onContextRoute?.("units", trimmed);
       return;
     }
+    if ((tokens[0] === "spec" || tokens[0] === "unit" || tokens[0] === "datasheet") && contextId !== "units") {
+      emitSystem(trimmed, `→ UNITS  routing spec to units context…`);
+      onContextRoute?.("units", trimmed);
+      return;
+    }
 
     // ── Priority 8.55: paste intercept — upload mode ─────────────────────────
     // When uploadModeRef is set the user chose to paste text instead of using
@@ -1008,12 +1004,12 @@ export function Terminal({
     // When a multi-step flow is running, route input to the flow handler before
     // anything else (so numbers resolve against the flow, not the engine).
     if (clientFlowRef.current) {
-      handleFlowStep(trimmed);
+      await handleFlowStep(trimmed);
       return;
     }
 
     // ── Priority 8.7: roster commands ────────────────────────────────────────
-    // All roster commands are handled client-side via localStorage VFS.
+    // All roster commands are handled client-side via shared roster API.
 
     // rosters / list roster / list rosters
     if (
@@ -1023,12 +1019,15 @@ export function Terminal({
       (tokens[0] === "roster" && !tokens[1]) ||
       (tokens[0] === "roster" && tokens[1] === "list")
     ) {
-      const rosters = listRosters();
-      const count   = getRosterCount();
-      // Only start a selection flow if there are rosters to select from
+      const allRosters = await fetchRosters();
+      const rosters = {};
+      for (const r of allRosters) {
+        if (!rosters[r.faction]) rosters[r.faction] = {};
+        rosters[r.faction][r.name] = r;
+      }
+      const count = allRosters.length;
       if (count > 0) {
-        const flat = listAllRosters();
-        clientFlowRef.current = { type: "roster_select", step: "pick", data: { flat } };
+        clientFlowRef.current = { type: "roster_select", step: "pick", data: { flat: allRosters } };
       }
       emitLocalResult(trimmed, "roster_list", { rosters, count });
       return;
@@ -1047,7 +1046,8 @@ export function Terminal({
       // ── Path: load roster my / load roster enemy ──────────────────────────
       if (arg === "my" || arg === "enemy") {
         const role     = arg === "my" ? "player" : "enemy";
-        const factions = listFactionsWithRosters();
+        const grouped = await fetchRostersGrouped();
+        const factions = Object.keys(grouped).sort();
         if (factions.length === 0) {
           emitError(trimmed, "No rosters saved. Type 'upload roster' to save your first roster.");
           return;
@@ -1066,7 +1066,7 @@ export function Terminal({
 
       // ── Path: load roster <name> — direct lookup, skip action menu ────────
       if (arg) {
-        const roster = findRosterByName(arg);
+        const roster = await findRosterByName(arg);
         if (!roster) {
           emitError(trimmed, `Roster '${arg}' not found. Type 'rosters' to list saved rosters.`);
           return;
@@ -1085,13 +1085,18 @@ export function Terminal({
       }
 
       // ── Path: load roster (no arg) — show all rosters, then pick role ─────
-      const rosters = listRosters();
-      const count   = getRosterCount();
+      const allRosters = await fetchRosters();
+      const rosters = {};
+      for (const r of allRosters) {
+        if (!rosters[r.faction]) rosters[r.faction] = {};
+        rosters[r.faction][r.name] = r;
+      }
+      const count = allRosters.length;
       if (count === 0) {
         emitLocalResult(trimmed, "roster_list", { rosters, count });
         return;
       }
-      const flat = listAllRosters();
+      const flat = allRosters;
       clientFlowRef.current = { type: "load_roster_pick", step: "pick", data: { flat } };
       emitLocalResult(trimmed, "roster_list", {
         rosters, count,
@@ -1108,7 +1113,7 @@ export function Terminal({
         emitError(trimmed, `Usage: set roster ${role} <roster name>`);
         return;
       }
-      const roster = findRosterByName(name);
+      const roster = await findRosterByName(name);
       if (!roster) {
         emitError(trimmed, `Roster '${name}' not found.`);
         return;
@@ -1156,27 +1161,14 @@ export function Terminal({
 
     // rename roster <name>
     if (tokens[0] === "rename" && tokens[1] === "roster") {
-      const name = tokens.slice(2).join(" ").trim();
-      const roster = name ? findRosterByName(name) : null;
-      if (!roster) {
-        emitError(trimmed, `Usage: rename roster <name>   (roster not found: '${name || ""}')`);
-        return;
-      }
-      clientFlowRef.current = {
-        type: "rename_roster", step: "new_name",
-        data: { oldName: roster.name, faction: roster.faction },
-      };
-      emitLocalResult(trimmed, "roster_prompt", {
-        message: `Enter new name for roster '${roster.name}':`,
-        hint:    "Use lowercase with hyphens, e.g. retaliation-cadre-v2",
-      });
+      emitError(trimmed, "Rename not available for shared rosters. Upload a new copy and delete the old one.");
       return;
     }
 
     // edit roster <name>
     if (tokens[0] === "edit" && tokens[1] === "roster") {
       const name = tokens.slice(2).join(" ").trim();
-      const roster = name ? findRosterByName(name) : null;
+      const roster = name ? await findRosterByName(name) : null;
       if (!roster) {
         emitError(trimmed, `Usage: edit roster <name>   (roster not found: '${name || ""}')`);
         return;
@@ -1195,14 +1187,14 @@ export function Terminal({
     // delete roster <name>
     if (tokens[0] === "delete" && tokens[1] === "roster") {
       const name = tokens.slice(2).join(" ").trim();
-      const roster = name ? findRosterByName(name) : null;
+      const roster = name ? await findRosterByName(name) : null;
       if (!roster) {
         emitError(trimmed, `Usage: delete roster <name>   (roster not found: '${name || ""}')`);
         return;
       }
       clientFlowRef.current = {
         type: "delete_roster", step: "confirm",
-        data: { name: roster.name, faction: roster.faction },
+        data: { name: roster.name, faction: roster.faction, id: roster.id },
       };
       emitLocalResult(trimmed, "roster_prompt", {
         message: `Delete '${roster.name}' (${labelify(roster.faction)})? Type yes to confirm or no to cancel.`,

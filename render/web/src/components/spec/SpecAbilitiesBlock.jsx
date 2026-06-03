@@ -36,15 +36,16 @@ function AbilityRow({ ab, onSubmit, isLast }) {
     ? `${rawName} ${rawSummary}`
     : rawName;
 
-  // Body text: only for regular (non-category) abilities.
-  // Category tags have their full info in displayName already.
+  // Body text: for regular abilities use description; for category-tag abilities
+  // use rule_text (looked up from the faction ability descriptions table).
+  const ruleText = typeof ab === "string" ? null : (ab.rule_text || null);
   const bodyText = isStub ? null
-    : isCategoryTag ? null
+    : isCategoryTag ? ruleText
     : rawSummary;
 
-  // Long descriptions collapse by default; short ones are always open.
-  const isLong      = bodyText && bodyText.length > LONG_TEXT_THRESHOLD;
-  const [open, setOpen] = useState(!isLong);  // short = open; long = collapsed
+  // All abilities start collapsed; click to expand.
+  const [open, setOpen] = useState(false);
+  const hasBody = !!bodyText;
 
   if (isStub) {
     return (
@@ -90,30 +91,35 @@ function AbilityRow({ ab, onSubmit, isLast }) {
 
   return (
     <div style={{ borderBottom: isLast ? "none" : `1px solid ${C.border}` }}>
-      {/* Header row — always visible */}
+      {/* Header row — clickable to toggle expand/collapse */}
       <div
+        onClick={hasBody ? () => setOpen(o => !o) : undefined}
         style={{
           display:    "flex",
           alignItems: "flex-start",
           gap:        "8px",
           padding:    "9px 0 6px",
+          cursor:     hasBody ? "pointer" : "default",
+          userSelect: "none",
         }}
       >
-        <span style={{ color: C.amber, fontSize: "12px", flexShrink: 0, marginTop: "2px" }}>◆</span>
+        {/* Toggle arrow for abilities with body text; diamond for name-only */}
+        <span style={{ color: C.amber, fontSize: "12px", flexShrink: 0, marginTop: "2px", width: "12px", textAlign: "center" }}>
+          {hasBody ? (open ? "▼" : "▶") : "◆"}
+        </span>
         <span style={{
           color:      isCategoryTag ? C.label : C.mid,
           fontWeight: 600,
           fontSize:   "13px",
           flex:       1,
           lineHeight: "1.4",
-          // Allow the name to wrap — no truncation
           whiteSpace: "normal",
         }}>
           {displayName}
         </span>
       </div>
 
-      {/* Description — shown by default for short abilities */}
+      {/* Description — shown only when expanded */}
       {bodyText && open && (
         <div style={{
           color:      C.label,
@@ -124,29 +130,6 @@ function AbilityRow({ ab, onSubmit, isLast }) {
         }}>
           {bodyText}
         </div>
-      )}
-
-      {/* Expand / collapse toggle — only rendered for long descriptions */}
-      {isLong && (
-        <button
-          onClick={() => setOpen(o => !o)}
-          style={{
-            display:        "block",
-            background:     "none",
-            border:         "none",
-            padding:        "0 0 9px 20px",
-            cursor:         "pointer",
-            fontFamily:     "inherit",
-            color:          C.dim,
-            fontSize:       "11px",
-            letterSpacing:  "0.08em",
-            textTransform:  "uppercase",
-          }}
-          onMouseEnter={e => { e.currentTarget.style.color = C.label; }}
-          onMouseLeave={e => { e.currentTarget.style.color = C.dim; }}
-        >
-          {open ? "▲ show less" : "▼ show more"}
-        </button>
       )}
     </div>
   );

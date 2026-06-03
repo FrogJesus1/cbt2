@@ -23,8 +23,9 @@ sys.path.insert(0, str(Path(__file__).parent.parent.parent))
 from data._base import EngineBase
 from data.combat_terminal.loader import CombatTerminalLoader
 from data.combat_terminal import commands as _cmds
-from data.combat_terminal.math_adapter import compute_combat, compute_sensitivity, validate_flags
+from data.combat_terminal.math_adapter import compute_combat, compute_sensitivity, validate_flags, get_mc_config, set_mc_trials
 from data.combat_terminal.math_ledger import build_combat_ledger
+from data.combat_terminal import term_aliases
 
 
 # ─── Combat helpers ────────────────────────────────────────────────────────────
@@ -289,12 +290,12 @@ class CombatTerminalEngine(EngineBase):
             "ready":           loader_status["loaded"],
             "summary":         loader_status["summary"],
             "errors":          loader_status["errors"],
-            # Simulation layer — always reports current mode
-            "simulation_mode": "monte_carlo",   # math_adapter runs MC on every combat query
+            # Simulation layer — reports live MC config
+            "simulation_mode": "monte_carlo" if get_mc_config()["enabled"] else "deterministic",
             "simulation_config": {
-                "trials":      5000,
-                "seed":        42,
-                "status":      "ACTIVE",        # healthy if loader is ready; OFFLINE otherwise
+                "trials":      get_mc_config()["trials"],
+                "seed":        get_mc_config()["seed"],
+                "status":      "ACTIVE" if get_mc_config()["enabled"] else "OFFLINE",
             },
             # Per-faction unit breakdown — powers the Data Integrity grid
             "per_faction":     loader_status.get("per_faction", {}),
@@ -350,6 +351,14 @@ class CombatTerminalEngine(EngineBase):
                 suffix = raw[len(prefix):].strip()
                 raw = f"{canonical_cmd} {suffix}".strip()
                 break
+
+        # ── Term alias expansion ──────────────────────────────────────────────
+        # Expand user-defined term aliases (e.g. "deepstrike" → "deep strike")
+        # before any command parsing.  Skip for learn/unlearn/aliases commands.
+        _first = raw.split(None, 1)[0].lower() if raw else ""
+        _first_cmd = _cmds.resolve(_first) or _first
+        if _first_cmd not in ("learn", "unlearn", "aliases"):
+            raw, _matched = term_aliases.expand(raw)
 
         # ── Numeric selection — resolves active disambiguation ─────────────────
         # A bare integer (e.g. "2") routes to the select handler when
@@ -488,6 +497,16 @@ class CombatTerminalEngine(EngineBase):
         elif canonical == "army_rules":
             return ("army_rules", {"faction": rest})
 
+        elif canonical == "learn":
+            # "learn deepstrike = deep strike"
+            return ("learn", {"args": rest})
+
+        elif canonical == "unlearn":
+            return ("unlearn", {"args": rest})
+
+        elif canonical == "aliases":
+            return ("aliases", {})
+
         elif canonical == "combat":
             # "combat" without "vs" — try to split on "vs" or return error
             inner_vs = re.search(r'\s+vs\s+', rest, re.IGNORECASE)
@@ -599,6 +618,10 @@ class CombatTerminalEngine(EngineBase):
             "issues":      self._query_issues,
             "legend":      self._query_legend,
             "unknown":     self._query_unknown,
+            "mc":          self._query_mc,
+            "learn":       self._query_learn,
+            "unlearn":     self._query_unlearn,
+            "aliases":     self._query_aliases,
             "mathmode":    self._query_mathmode,
             "detachment":  self._query_detachment,
             "army_rules":  self._query_army_rules,
@@ -2288,6 +2311,141 @@ class CombatTerminalEngine(EngineBase):
             "meta": {"threat_level": threat_level},
         }
 
+    # ── Term Aliases ───────────────────────────────────────────────────────────
+
+    def _query_learn(self, params: dict) -> dict:
+        """learn deepstrike = deep strike"""
+        raw = params.get("args", "").strip()
+        if "=" not in raw:
+            return self._err("learn", "Usage:  learn <shorthand> = <full term>    e.g.  learn deepstrike = deep strike")
+
+        left, right = raw.split("=", 1)
+        shorthand = left.strip()
+        full_term = right.strip()
+
+        if not shorthand or not full_term:
+            return self._err("learn", "Usage:  learn <shorthand> = <full term>    e.g.  learn deepstrike = deep strike")
+
+        term_aliases.add(shorthand, full_term)
+        return {
+            "ok":          True,
+            "command":     "learn",
+            "result_type": "text",
+            "data":        f"Learned: \"{shorthand}\" → \"{full_term}\"",
+            "meta":        {},
+        }
+
+    def _query_unlearn(self, params: dict) -> dict:
+        """Remove a term alias."""
+        shorthand = params.get("args", "").strip()
+        if not shorthand:
+            return self._err("unlearn", "Usage:  unlearn <shorthand>    e.g.  unlearn deepstrike")
+
+        if term_aliases.remove(shorthand):
+            return {
+                "ok":          True,
+                "command":     "unlearn",
+                "result_type": "text",
+                "data":        f"Removed alias \"{shorthand}\".",
+                "meta":        {},
+            }
+        return self._err("unlearn", f"No alias found for \"{shorthand}\".")
+
+    def _query_aliases(self, params: dict) -> dict:
+        """Show all term aliases."""
+        all_aliases = term_aliases.get_all()
+        if not all_aliases:
+            return {
+                "ok":          True,
+                "command":     "aliases",
+                "result_type": "text",
+                "data":        "No term aliases defined. Use  learn <shorthand> = <full term>  to add one.",
+                "meta":        {},
+            }
+        return {
+            "ok":          True,
+            "command":     "aliases",
+            "result_type": "aliases_list",
+            "data": {
+                "aliases": [
+                    {"shorthand": k, "full_term": v}
+                    for k, v in sorted(all_aliases.items())
+                ],
+            },
+            "meta":        {"count": len(all_aliases)},
+        }
+
+    def _query_mc(self, params: dict) -> dict:
+        """Toggle Monte Carlo simulation on/off or set trial count."""
+        arg = params.get("args", "").strip().lower()
+
+        if not arg:
+            # No argument — show current status
+            cfg = get_mc_config()
+            state = "ON" if cfg["enabled"] else "OFF"
+            return {
+                "ok":          True,
+                "command":     "mc",
+                "result_type": "text",
+                "data":        f"Monte Carlo: {state}  ·  {cfg['trials']} trials  ·  seed {cfg['seed']}",
+                "meta":        {},
+            }
+
+        if arg == "off":
+            set_mc_trials(0)
+            return {
+                "ok":          True,
+                "command":     "mc",
+                "result_type": "text",
+                "data":        "Monte Carlo OFF — showing deterministic averages only.",
+                "meta":        {},
+            }
+
+        if arg == "on":
+            cfg = get_mc_config()
+            # If already enabled, keep current count; otherwise restore default
+            if cfg["trials"] == 0:
+                set_mc_trials(5000)
+            cfg = get_mc_config()
+            return {
+                "ok":          True,
+                "command":     "mc",
+                "result_type": "text",
+                "data":        f"Monte Carlo ON — {cfg['trials']} trials per weapon.",
+                "meta":        {},
+            }
+
+        # Numeric argument — set trial count
+        try:
+            n = int(arg)
+        except ValueError:
+            return {
+                "ok":          False,
+                "command":     "mc",
+                "result_type": "error",
+                "data":        f"Invalid argument '{arg}'. Usage:  mc [on|off|<number>]",
+                "meta":        {},
+            }
+
+        if n < 0:
+            return {
+                "ok":          False,
+                "command":     "mc",
+                "result_type": "error",
+                "data":        "Trial count must be 0 or higher.",
+                "meta":        {},
+            }
+
+        set_mc_trials(n)
+        state = "ON" if n > 0 else "OFF"
+        return {
+            "ok":          True,
+            "command":     "mc",
+            "result_type": "text",
+            "data":        f"Monte Carlo {state} — {n} trials per weapon.",
+            "meta":        {},
+        }
+
     def _query_mathmode(self, params: dict) -> dict:
         """Math Mode toggle — handled client-side; this handler exists so the
         engine gracefully acknowledges the command when routed to the backend.
@@ -2560,17 +2718,36 @@ class CombatTerminalEngine(EngineBase):
         Dossier format uses 'summary' as the text field; older or alternate
         schemas may use 'description', 'text', or 'effect'.  Strings are
         treated as name-only entries with no body text.
+
+        For CATEGORY tag abilities (CORE/FACTION/CHARACTER), the 'summary'
+        field IS the ability name and there's no description in the dossier.
+        We look up the rule text from the loader's built-in descriptions table.
         """
+        _CATEGORY_TAGS = {"CORE", "FACTION", "CHARACTER"}
         if isinstance(ab, dict):
+            raw_name = (ab.get("name") or "").strip()
+            raw_summary = (
+                ab.get("summary")
+                or ab.get("description")
+                or ab.get("text")
+                or ab.get("effect")
+                or ""
+            )
+            # For category tags, summary is the ability name — look up rule text
+            if raw_name.upper() in _CATEGORY_TAGS and raw_summary:
+                from data.combat_terminal.loader import CombatTerminalLoader
+                descs = CombatTerminalLoader._FACTION_ABILITY_DESCRIPTIONS
+                key = raw_summary.lower().strip()
+                base_key = key.rstrip("* 0123456789").strip()
+                rule_text = descs.get(key) or descs.get(base_key) or ""
+                return {
+                    "name": raw_name,
+                    "description": raw_summary,
+                    "rule_text": rule_text,
+                }
             return {
-                "name": ab.get("name", ""),
-                "description": (
-                    ab.get("summary")
-                    or ab.get("description")
-                    or ab.get("text")
-                    or ab.get("effect")
-                    or ""
-                ),
+                "name": raw_name,
+                "description": raw_summary,
             }
         return {"name": str(ab), "description": ""}
 

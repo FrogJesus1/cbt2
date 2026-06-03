@@ -40,6 +40,18 @@ _MC_TRIALS = 5000
 _MC_SEED   = 42
 
 
+def get_mc_config() -> dict:
+    """Return the current Monte Carlo configuration."""
+    return {"trials": _MC_TRIALS, "seed": _MC_SEED, "enabled": _MC_TRIALS > 0}
+
+
+def set_mc_trials(n: int) -> dict:
+    """Set Monte Carlo trial count.  0 = disabled."""
+    global _MC_TRIALS
+    _MC_TRIALS = max(0, n)
+    return get_mc_config()
+
+
 # ─── Dice expression parser ────────────────────────────────────────────────────
 
 _DICE_RE = re.compile(r"(\d*)D(\d+)\s*([+-]\s*\d+)?", re.IGNORECASE)

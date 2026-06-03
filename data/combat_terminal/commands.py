@@ -482,6 +482,70 @@ REGISTRY: dict[str, Command] = {
         supports_cli=False,
     ),
 
+    # ── Term Aliases ──────────────────────────────────────────────────────────
+
+    "learn": Command(
+        name="learn",
+        description="Teach a shorthand alias for a game term — expands automatically in all commands",
+        usage="learn <shorthand> = <full term>",
+        group="meta",
+        aliases=[],
+        params={
+            "args": Param("string", True, "shorthand = full term", "deepstrike = deep strike"),
+        },
+        examples=[
+            "learn deepstrike = deep strike",
+            "learn fnp = feel no pain",
+            "learn lh = lethal hits",
+            "learn dw = devastating wounds",
+        ],
+    ),
+
+    "unlearn": Command(
+        name="unlearn",
+        description="Remove a term alias",
+        usage="unlearn <shorthand>",
+        group="meta",
+        aliases=["forget"],
+        params={
+            "args": Param("string", True, "Shorthand to remove", "deepstrike"),
+        },
+        examples=[
+            "unlearn deepstrike",
+            "unlearn fnp",
+        ],
+    ),
+
+    "aliases": Command(
+        name="aliases",
+        description="Show all learned term aliases",
+        usage="aliases",
+        group="meta",
+        aliases=["learned"],
+        params={},
+        examples=["aliases"],
+    ),
+
+    # ── Monte Carlo ───────────────────────────────────────────────────────────
+
+    "mc": Command(
+        name="mc",
+        description="Toggle Monte Carlo simulation on/off or set trial count",
+        usage="mc [on|off|<number>]",
+        group="math",
+        aliases=["montecarlo", "monte"],
+        params={
+            "args": Param("string", False, "on | off | trial count (e.g. 1000)", "1000"),
+        },
+        examples=[
+            "mc",
+            "mc off",
+            "mc on",
+            "mc 1000",
+            "mc 10000",
+        ],
+    ),
+
     # ── Math Mode ─────────────────────────────────────────────────────────────
     # Handled client-side in Terminal.jsx (Priority 7.2).  Registered here for
     # tab completion and help.  The backend also accepts this command and returns

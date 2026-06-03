@@ -121,9 +121,8 @@ function CollapsedHeader({ unitData, index, open, onToggle, onInject }) {
 // ─── ThreatCardRow ────────────────────────────────────────────────────────
 
 export function ThreatCardRow({ unitData, index, onSubmit, onInject }) {
-  // HIGH threat starts open; MEDIUM and LOW start collapsed
-  const defaultOpen = unitData?.threat_level === "high";
-  const [open, setOpen] = useState(defaultOpen);
+  // All units start collapsed; click to expand for details
+  const [open, setOpen] = useState(false);
 
   const lvlColor = THREAT_COLORS[unitData?.threat_level ?? "low"] ?? C.dim;
 

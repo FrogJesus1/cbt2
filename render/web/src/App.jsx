@@ -40,7 +40,9 @@ import { RulesContext }     from "@/components/RulesContext";
 import { RostersContext }   from "@/components/RostersContext";
 
 import { DiagnosticsPage }  from "@/components/DiagnosticsPage";
+import { ProfileGate }      from "@/components/ProfileGate";
 import { THEME_REGISTRY, ALL_THEME_IDS } from "@/data/themeRegistry";
+import { saveProfileState, collectCurrentState, clearLastProfile } from "@/lib/profile";
 
 // ─── Theme persistence helpers ─────────────────────────────────────────────────
 // Active theme is stored in localStorage so it survives page reloads.
@@ -347,6 +349,17 @@ const HISTORY_TYPES  = new Set(["combat", "threat_card", "threat_view"]);
 // ─── App ──────────────────────────────────────────────────────────────────────
 
 export default function App() {
+  // ── Profile gate ─────────────────────────────────────────────────────────
+  const [profile, setProfile] = useState(null);
+
+  if (!profile) {
+    return <ProfileGate onLogin={setProfile} />;
+  }
+
+  return <AppInner profile={profile} onLogout={() => { clearLastProfile(); setProfile(null); }} />;
+}
+
+function AppInner({ profile, onLogout }) {
   const [engines,        setEngines]        = useState([]);
   const [activeEngineId, setActiveEngineId] = useState(null);
   const [commands,       setCommands]       = useState([]);
@@ -408,6 +421,50 @@ export default function App() {
     try { localStorage.setItem(CT_ACTIVE_KEY, theme); } catch {}
     document.body.setAttribute("data-theme", theme);
   }, [theme]);
+
+  // ── Auto-save profile state to server (debounced) ───────────────────────
+  // Fires 5s after the last state change (theme, starred, history, vfs).
+  const saveTimer = useRef(null);
+  const triggerSave = useCallback(() => {
+    if (!profile?.name) return;
+    clearTimeout(saveTimer.current);
+    saveTimer.current = setTimeout(() => {
+      saveProfileState(profile.name, collectCurrentState()).catch(() => {});
+    }, 5000);
+  }, [profile?.name]);
+
+  // Watch localStorage changes (covers VFS writes from any component)
+  useEffect(() => {
+    const storageHandler = (e) => {
+      if (["ct_active_theme", "ct_cmd_history", "ct_starred_units", "ct_vfs_v1"].includes(e.key)) {
+        triggerSave();
+      }
+    };
+    // Custom event fired by vfs.js and starred-units for same-tab writes
+    const customHandler = () => triggerSave();
+    window.addEventListener("storage", storageHandler);
+    window.addEventListener("ct-state-changed", customHandler);
+    return () => {
+      window.removeEventListener("storage", storageHandler);
+      window.removeEventListener("ct-state-changed", customHandler);
+    };
+  }, [triggerSave]);
+
+  // Also trigger save when theme changes (same-tab, not caught by storage event)
+  useEffect(() => { triggerSave(); }, [theme, triggerSave]);
+
+  // Save on unmount / tab close
+  useEffect(() => {
+    const handler = () => {
+      if (profile?.name) {
+        // Synchronous best-effort save via sendBeacon
+        const payload = JSON.stringify({ name: profile.name, state: collectCurrentState() });
+        navigator.sendBeacon("/api/profiles/state", new Blob([payload], { type: "application/json" }));
+      }
+    };
+    window.addEventListener("beforeunload", handler);
+    return () => window.removeEventListener("beforeunload", handler);
+  }, [profile?.name]);
 
   // Close history / theme dropdowns on outside click
   useEffect(() => {
@@ -480,8 +537,10 @@ export default function App() {
 
   // Persist whenever history changes
   useEffect(() => {
-    try { localStorage.setItem(CT_HISTORY_KEY, JSON.stringify(cmdHistory)); }
-    catch { /* storage unavailable */ }
+    try {
+      localStorage.setItem(CT_HISTORY_KEY, JSON.stringify(cmdHistory));
+      window.dispatchEvent(new CustomEvent("ct-state-changed", { detail: { key: CT_HISTORY_KEY } }));
+    } catch { /* storage unavailable */ }
   }, [cmdHistory]);
 
   // Track which stream entry ids we've already processed into history
@@ -582,6 +641,10 @@ export default function App() {
       // Always send list-units commands to the units context
       setActiveContext("units");
       setPendingCommands(prev => ({ ...prev, units: cmd }));
+    } else if (tokens[0] === "spec" || tokens[0] === "unit" || tokens[0] === "datasheet") {
+      // Always send spec commands to the units context so the user can star them
+      setActiveContext("units");
+      setPendingCommands(prev => ({ ...prev, units: cmd }));
     } else if (isNonTerminal) {
       // Route to main terminal since this context can't process commands
       setPendingCommands(prev => ({ ...prev, main: cmd }));
@@ -664,6 +727,7 @@ export default function App() {
     onContextRoute: handleContextRoute,
     onTheme:   setTheme,
     theme,
+    profileName: profile?.name,
   };
 
   // ── Context panel visibility helper ──────────────────────────────────────
@@ -723,6 +787,25 @@ export default function App() {
           >
             v2.0{buildHash && buildHash !== "unknown" ? ` · ${buildHash}` : ""}
           </span>
+          {profile?.name && (
+            <span
+              title={`Logged in as ${profile.name} — click to switch profile`}
+              onClick={onLogout}
+              style={{
+                color:         "var(--ct-primary-dim)",
+                fontSize:      "10px",
+                letterSpacing: "0.08em",
+                fontFamily:    "monospace",
+                opacity:       0.6,
+                cursor:        "pointer",
+                borderLeft:    "1px solid var(--ct-border)",
+                paddingLeft:   "8px",
+                marginLeft:    "4px",
+              }}
+            >
+              {profile.name} ⏏
+            </span>
+          )}
         </div>
 
         {/* Context tabs — clicking injects the nav command */}
@@ -1050,6 +1133,7 @@ export default function App() {
             onExec={handleExec}
             onInject={handleAnimatedInject}
             theme={theme}
+            profileName={profile?.name}
           />
         </div>
 

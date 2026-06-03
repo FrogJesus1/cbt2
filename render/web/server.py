@@ -40,6 +40,12 @@ ROOT = Path(__file__).parent.parent.parent
 sys.path.insert(0, str(ROOT))
 
 from data._base import EngineBase
+from render.web.profiles import list_profiles, create_profile, login as profile_login, save_state, delete_profile
+from render.web.shared_rosters import (
+    list_all_rosters, list_rosters_grouped, get_roster as get_shared_roster,
+    find_roster_by_name as find_shared_roster, save_roster as save_shared_roster,
+    delete_roster as delete_shared_roster,
+)
 
 
 # ─── Engine registry ───────────────────────────────────────────────────────────
@@ -122,6 +128,24 @@ class ExecBody(BaseModel):
     input: str = ""
     roster_context: dict | None = None
 
+class ProfileCreateBody(BaseModel):
+    name: str
+    pin:  str | None = None
+
+class ProfileLoginBody(BaseModel):
+    name: str
+    pin:  str | None = None
+
+class ProfileStateBody(BaseModel):
+    name:  str
+    state: dict
+
+class RosterUploadBody(BaseModel):
+    name:        str
+    faction:     str
+    content:     str
+    uploaded_by: str
+
 
 # ─── App factory ──────────────────────────────────────────────────────────────
 
@@ -135,7 +159,7 @@ def create_app(config: dict) -> FastAPI:
     app.add_middleware(
         CORSMiddleware,
         allow_origins=origins,
-        allow_methods=["GET", "POST", "OPTIONS"],
+        allow_methods=["GET", "POST", "PUT", "DELETE", "OPTIONS"],
         allow_headers=["Content-Type", "Accept"],
     )
 
@@ -196,6 +220,78 @@ def create_app(config: dict) -> FastAPI:
         if not engine:
             raise HTTPException(status_code=404, detail=f"Engine '{name}' not loaded")
         return engine.status()
+
+    # ── Profile routes ─────────────────────────────────────────────────────────
+
+    @app.get("/api/profiles")
+    def api_list_profiles():
+        return {"profiles": list_profiles()}
+
+    @app.post("/api/profiles")
+    def api_create_profile(body: ProfileCreateBody):
+        try:
+            profile = create_profile(body.name, body.pin)
+            return profile
+        except ValueError as e:
+            raise HTTPException(status_code=400, detail=str(e))
+
+    @app.post("/api/profiles/login")
+    def api_login(body: ProfileLoginBody):
+        try:
+            profile = profile_login(body.name, body.pin)
+            return profile
+        except ValueError as e:
+            raise HTTPException(status_code=401, detail=str(e))
+
+    @app.post("/api/profiles/state")
+    def api_save_state(body: ProfileStateBody):
+        try:
+            profile = save_state(body.name, body.state)
+            return profile
+        except ValueError as e:
+            raise HTTPException(status_code=404, detail=str(e))
+
+    @app.delete("/api/profiles/{name}")
+    def api_delete_profile(name: str, pin: str | None = None):
+        try:
+            delete_profile(name, pin)
+            return {"ok": True}
+        except ValueError as e:
+            raise HTTPException(status_code=400, detail=str(e))
+
+    # ── Shared roster routes ─────────────────────────────────────────────────
+
+    @app.get("/api/rosters")
+    def api_list_rosters(grouped: bool = False):
+        if grouped:
+            return {"rosters": list_rosters_grouped()}
+        return {"rosters": list_all_rosters()}
+
+    @app.get("/api/rosters/{roster_id}")
+    def api_get_roster(roster_id: str):
+        roster = get_shared_roster(roster_id)
+        if not roster:
+            raise HTTPException(status_code=404, detail="Roster not found")
+        return roster
+
+    @app.post("/api/rosters/find")
+    def api_find_roster(body: dict):
+        name = body.get("name", "")
+        roster = find_shared_roster(name)
+        if not roster:
+            raise HTTPException(status_code=404, detail=f"Roster '{name}' not found")
+        return roster
+
+    @app.post("/api/rosters")
+    def api_upload_roster(body: RosterUploadBody):
+        roster = save_shared_roster(body.name, body.faction, body.content, body.uploaded_by)
+        return roster
+
+    @app.delete("/api/rosters/{roster_id}")
+    def api_delete_roster(roster_id: str):
+        if not delete_shared_roster(roster_id):
+            raise HTTPException(status_code=404, detail="Roster not found")
+        return {"ok": True}
 
     # ── Health check ─────────────────────────────────────────────────────────
 

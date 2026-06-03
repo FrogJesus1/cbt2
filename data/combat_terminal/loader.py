@@ -52,6 +52,140 @@ class CombatTerminalLoader:
     # Category tags whose `name` field is the tag type and `summary` is the ability name.
     _CATEGORY_TAGS = frozenset({"CORE", "FACTION", "CHARACTER"})
 
+    # ── Faction ability rule descriptions ─────────────────────────────────────
+    # The dossier JSONs store FACTION abilities as {name:"FACTION", summary:"<ability name>"}
+    # with no description text.  This table provides the 10th-edition rule text.
+    _FACTION_ABILITY_DESCRIPTIONS: dict[str, str] = {
+        "for the greater good": (
+            "At the start of your Shooting phase, units with this ability can be selected as Observer units. "
+            "Each Observer (that hasn't shot and is eligible to shoot) marks one visible enemy unit as its Spotted unit. "
+            "Units with this ability (excluding Observers) are Guided while targeting Spotted units — "
+            "improve BS by 1, and if the Observer has MARKERLIGHT, attacks gain [IGNORES COVER]."
+        ),
+        "oath of moment": (
+            "At the start of your Command phase, select one enemy unit as your Oath of Moment target. "
+            "Until your next Command phase, each time a model with this ability attacks that target, "
+            "you can re-roll the Hit roll."
+        ),
+        "synapse": (
+            "While a TYRANIDS unit is within 6\" of a friendly SYNAPSE model, it is within Synapse Range. "
+            "Battle-shock tests are taken on 3D6 instead of 2D6, and melee attacks add 1 to Strength."
+        ),
+        "shadow in the warp": (
+            "Once per battle, in either player's Command phase, if one or more units with this ability "
+            "are on the battlefield, each enemy unit must take a Battle-shock test. "
+            "Subtract 1 from the test if the enemy is within 6\" of a SYNAPSE unit."
+        ),
+        "strands of fate": (
+            "At the start of the battle, roll 6D6 to create your Fate dice pool (may re-roll all, rolling "
+            "one fewer each time). Once per phase, before rolling for a unit with this ability, substitute "
+            "one Fate die for one die in that roll (Advance, Battle-shock, Charge, Damage, Hit, Save, or Wound)."
+        ),
+        "acts of faith": (
+            "Gain 1 Miracle die at the start of each battle round and each time an ADEPTA SORORITAS unit "
+            "is destroyed. Before making a dice roll for a unit with this ability, substitute one Miracle die "
+            "for one die in that roll (Advance, Battle-shock, Charge, Damage, Hit, Save, or Wound)."
+        ),
+        "reanimation protocols": (
+            "At the end of your Command phase, each unit with this ability reanimates D3 wounds — "
+            "restoring lost wounds to damaged models, or returning destroyed models at 1 wound remaining "
+            "if all models are at full wounds."
+        ),
+        "waaagh!": (
+            "Once per battle, at the start of your Command phase, call a Waaagh! Until your next Command phase: "
+            "units with this ability are eligible to charge after Advancing, melee weapons gain +1 Strength and "
+            "+1 Attacks, and models gain a 5+ invulnerable save."
+        ),
+        "voice of command": (
+            "OFFICER models can issue Orders to friendly units within 6\" during the Command phase. "
+            "Orders include: Move! Move! Move! (+3\" M), Fix Bayonets! (+1 WS), Take Aim! (+1 BS), "
+            "First Rank Fire! (+1 A on Rapid Fire), Take Cover! (+1 Sv, max 3+), Duty and Honour! (+1 LD, +1 OC)."
+        ),
+        "dark pacts": (
+            "When selected to shoot or fight, a unit with this ability can make a Dark Pact — take a Leadership "
+            "test (fail = D3 mortal wounds), then select [LETHAL HITS] or [SUSTAINED HITS 1] for its weapons "
+            "until end of phase."
+        ),
+        "doctrina imperatives": (
+            "At the start of each battle round, select one Doctrina Imperative. Protector Imperative: ranged "
+            "weapons gain [HEAVY], improve BS by 1. Conqueror Imperative: ranged weapons gain [ASSAULT], "
+            "improve WS by 1, improve AP by 1."
+        ),
+        "power from pain": (
+            "Gain Pain tokens (1 at start of Command phase, 1 when enemy unit destroyed, 1 when enemy fails "
+            "Battle-shock). Spend tokens to Empower units — while Empowered, all Pain abilities on the unit "
+            "take effect until end of phase."
+        ),
+        "cult ambush": (
+            "When a unit with this ability is destroyed, spend Resurgence points to add an identical replacement "
+            "unit in Cult Ambush (Strategic Reserves) at Starting Strength. Units in Cult Ambush can be set up "
+            "touching a Cult Ambush marker more than 9\" from enemies."
+        ),
+        "blessings of khorne": (
+            "At the start of each battle round, roll 8D6. Use doubles to activate up to two Blessings "
+            "(e.g. re-roll Charges, +6\" Pile-in, melee [SUSTAINED HITS 1], melee [LETHAL HITS], "
+            "melee [DEVASTATING WOUNDS] vs INFANTRY, or fight on death on 4+)."
+        ),
+        "cabal of sorcerers": (
+            "At the start of your Shooting phase, models with this ability can attempt Rituals by taking "
+            "a Psychic test (2D6, optionally +D6 but doubles/triples cause D3 mortal wounds). "
+            "Rituals: re-roll Hits, D6\" move, D3 mortal wounds, or improve AP."
+        ),
+        "nurgle's gift (aura)": (
+            "Enemy units within Contagion Range (3\" rounds 1-2, 6\" rounds 3-4, 9\" round 5) are Afflicted: "
+            "subtract 1 from Toughness and apply your chosen Plague (subtract 1 from Hit rolls, worsen Save by 1, "
+            "or worsen Move/LD/OC by 1)."
+        ),
+        "the shadow of chaos": (
+            "Your deployment zone is always in your Shadow of Chaos; No Man's Land and enemy zones join when you "
+            "control enough objectives. Daemonic Manifestation: in your Shadow, add 1 to Battle-shock tests, "
+            "pass = regain D3 wounds. Daemonic Terror: enemies in your Shadow subtract 1 from Battle-shock, "
+            "fail = D3 mortal wounds."
+        ),
+        "harbingers of dread": (
+            "Deathly Terror (Aura): enemies within 9\" worsen Leadership by 1. At the start of battle rounds "
+            "1, 3, and 5, select one Dread ability or randomly select two. Options include: worsen Leadership "
+            "further, +1 to Wound vs Battle-shocked, -1 to Hit from 18\"+, and more."
+        ),
+        "code chivalric": (
+            "At deployment, determine your Oath (one Deed + one Quality). Quality applies immediately "
+            "(e.g. re-roll one Hit and Wound, +2\" Move, or +2 OC). When your Deed is completed, "
+            "your army becomes Honoured and you gain 2-3 CP."
+        ),
+        "eye of the ancestors": (
+            "Units alternate between two modes based on Yield Points. Below 7 YP: Hostile Acquisition — "
+            "+1 to Hit vs enemies near objectives, re-roll Advance/Charge. 7+ YP: Fortify Takeover — "
+            "+1 to Hit if near controlled objectives, -1 from Wound rolls vs non-VEHICLE units."
+        ),
+        "teleport assault": (
+            "At the end of your opponent's Fight phase, select units with this ability on the battlefield "
+            "(not in Engagement Range). Remove them and place into Strategic Reserves."
+        ),
+        "martial ka'tah": (
+            "Each time a unit with this ability is selected to fight, choose a Ka'tah Stance: "
+            "Dacatarai — melee weapons gain [SUSTAINED HITS 1]; or Rendax — melee weapons gain [LETHAL HITS]."
+        ),
+        "assigned agents": (
+            "If your Army Faction is not Agents of the Imperium but every model has IMPERIUM, you can include "
+            "AGENTS OF THE IMPERIUM units up to limits by battle size (e.g. Strike Force: 2 Retinue, "
+            "2 CHARACTER, 1 Requisitioned)."
+        ),
+        "mission tactics": (
+            "At the start of your Command phase, select one Mission Tactic (each once per battle), "
+            "active until your next Command phase: Furor Tactics — [SUSTAINED HITS 1]; "
+            "Malleus Tactics — [LETHAL HITS]; Purgatus Tactics — Critical Hits gain [PRECISION]."
+        ),
+        "leader": (
+            "This model can be attached to a compatible unit as its Leader. While leading, "
+            "the Leader's abilities apply to the unit. The Leader cannot be targeted separately "
+            "unless it is the last model remaining."
+        ),
+        "kill team": (
+            "This unit can include models from different datasheets as specified on its datasheet. "
+            "Models retain their individual weapons and abilities."
+        ),
+    }
+
     def __init__(self):
         self._units:        dict[str, list]  = {}   # faction_name → [unit, ...]
         self._rules:        dict[str, dict]  = {}   # keyword_lower → rule dict
@@ -260,8 +394,16 @@ class CombatTerminalLoader:
                     ).strip()
                     if raw_name.upper() in self._CATEGORY_TAGS:
                         ab_name = raw_summary
-                        ab_desc = ""
                         ab_type = raw_name.upper()
+                        # Look up rule text for FACTION abilities from the built-in table.
+                        # Also check base name for numbered variants like "Cabal of Sorcerers 3".
+                        ab_key_lower = _normalise(ab_name)
+                        base_key = ab_key_lower.rstrip("* 0123456789").strip()
+                        ab_desc = (
+                            self._FACTION_ABILITY_DESCRIPTIONS.get(ab_key_lower)
+                            or self._FACTION_ABILITY_DESCRIPTIONS.get(base_key)
+                            or ""
+                        )
                     else:
                         ab_name = raw_name
                         ab_desc = raw_summary

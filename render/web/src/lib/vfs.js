@@ -48,6 +48,8 @@ function _load() {
 function _save(vfs) {
   try {
     localStorage.setItem(VFS_KEY, JSON.stringify(vfs));
+    // Notify profile auto-save (storage event only fires cross-tab)
+    window.dispatchEvent(new CustomEvent("ct-state-changed", { detail: { key: VFS_KEY } }));
   } catch (e) {
     console.error("[vfs] failed to write localStorage:", e);
   }

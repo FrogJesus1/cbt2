@@ -18,8 +18,10 @@ function loadStarredUnits() {
 }
 
 function saveStarredUnits(units) {
-  try { localStorage.setItem(CT_STARRED_KEY, JSON.stringify(units)); }
-  catch { /* storage unavailable */ }
+  try {
+    localStorage.setItem(CT_STARRED_KEY, JSON.stringify(units));
+    window.dispatchEvent(new CustomEvent("ct-state-changed", { detail: { key: CT_STARRED_KEY } }));
+  } catch { /* storage unavailable */ }
 }
 
 // ─── Colour palette ──────────────────────────────────────────────────────────
