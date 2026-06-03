@@ -1124,14 +1124,14 @@ export function Terminal({
         trimmed,
         `${role.toUpperCase()} roster set → ${roster.name}  [/rosters/${roster.faction}/${roster.name}]`
       );
-      // Sync faction to engine session so unit lookups can auto-prefer this faction.
-      // "faction <name>" sets _session["faction"] (player side);
-      // "enemy <name>"   sets _session["enemy_faction"] (already-existing command).
+      // Sync faction + roster units to engine session so unit lookups
+      // can auto-prefer this faction and roster-aware views work.
       if (roster.faction) {
+        const rosterCtx = buildRosterContext(activeRostersRef.current);
         if (role === "player") {
-          onExec?.(`faction ${roster.faction}`);
+          onExec?.(`faction ${roster.faction}`, rosterCtx);
         } else {
-          onExec?.(`enemy ${roster.faction}`);
+          onExec?.(`enemy ${roster.faction}`, rosterCtx);
         }
       }
       return;
