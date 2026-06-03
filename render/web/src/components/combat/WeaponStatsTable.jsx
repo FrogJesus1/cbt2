@@ -190,9 +190,9 @@ function WeaponRow({ w, disabled, onToggle }) {
         {attacksDisplay}
       </td>
 
-      {/* BS — coloured by bs_delta */}
+      {/* BS — show effective hit target when modifiers change it */}
       <StatCell
-        value={w.bs_ws ?? "—"}
+        value={w.hit_target != null ? `${w.hit_target}+` : (w.bs_ws ?? "—")}
         delta={w.bs_delta}
       />
 

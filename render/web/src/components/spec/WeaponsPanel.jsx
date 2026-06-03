@@ -43,7 +43,7 @@ export function normalizeWeapon(w) {
     name:     pick(w, "name", "Name"),
     range:    rawRange,
     A:        pick(w, "attacks", "A", "a"),
-    skill:    pick(w, "skill", "BS", "WS", "bs", "ws"),
+    skill:    pick(w, "skill", "bs_ws", "BS", "WS", "bs", "ws"),
     S:        pick(w, "strength", "S", "s"),
     AP:       pick(w, "ap", "AP"),
     D:        pick(w, "damage", "D", "d"),
