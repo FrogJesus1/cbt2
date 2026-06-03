@@ -33,18 +33,24 @@ export const THEME_REGISTRY = {
     id:          "chaos-daemons",
     label:       "CHAOS DAEMONS",
     description: "Blood-red and warp-purple on void black — daemonic corruption",
+    hidden:      true,
   },
   "dark-angels": {
     id:          "dark-angels",
     label:       "DARK ANGELS",
     description: "Deep forest green and bone-white — the Unforgiven",
+    hidden:      true,
   },
   "orks": {
     id:          "orks",
     label:       "ORKS",
     description: "Grimy yellow-green and rust — brutal, loud, orky",
+    hidden:      true,
   },
 };
 
-/** All available theme IDs. */
+/** All available theme IDs (includes hidden — used by terminal command validation). */
 export const ALL_THEME_IDS = Object.keys(THEME_REGISTRY);
+
+/** Theme IDs shown in the top-bar dropdown (excludes hidden faction themes). */
+export const MENU_THEME_IDS = ALL_THEME_IDS.filter(id => !THEME_REGISTRY[id].hidden);

@@ -293,6 +293,48 @@ def create_app(config: dict) -> FastAPI:
             raise HTTPException(status_code=404, detail="Roster not found")
         return {"ok": True}
 
+    @app.post("/api/rosters/detect-faction")
+    def api_detect_faction(body: dict):
+        """Extract unit names from roster text and match against loaded faction data."""
+        import re
+        content = body.get("content", "")
+        if not content.strip():
+            return {"faction": None}
+
+        # Parse unit names from roster text (same logic as frontend parseRosterUnits)
+        unit_names = []
+        for line in content.split("\n"):
+            line = line.strip()
+            if not line or line.startswith(("#", "+", "•", "-")):
+                continue
+            if line.lower().startswith("enhancement:"):
+                continue
+            stripped = re.sub(r"^Char\d+:\s*", "", line, flags=re.IGNORECASE)
+            m = re.match(r"(\d+)[xX×]\s+([^(:\n]+)", stripped)
+            if m:
+                unit_names.append(m.group(2).strip().lower())
+
+        if not unit_names:
+            return {"faction": None}
+
+        # Match against engine's unit index
+        engine = registry.get(registry.primary)
+        if not engine or not hasattr(engine, "_loader"):
+            return {"faction": None}
+
+        faction_scores = {}
+        for faction, units in engine._loader._units.items():
+            known_names = {u.get("name", "").lower() for u in units}
+            hits = sum(1 for name in unit_names if name in known_names)
+            if hits > 0:
+                faction_scores[faction] = hits
+
+        if not faction_scores:
+            return {"faction": None}
+
+        best = max(faction_scores, key=faction_scores.get)
+        return {"faction": best}
+
     # ── Health check ─────────────────────────────────────────────────────────
 
     @app.get("/health")

@@ -41,7 +41,7 @@ import { RostersContext }   from "@/components/RostersContext";
 
 import { DiagnosticsPage }  from "@/components/DiagnosticsPage";
 import { ProfileGate }      from "@/components/ProfileGate";
-import { THEME_REGISTRY, ALL_THEME_IDS } from "@/data/themeRegistry";
+import { THEME_REGISTRY, ALL_THEME_IDS, MENU_THEME_IDS } from "@/data/themeRegistry";
 import { saveProfileState, collectCurrentState, clearLastProfile } from "@/lib/profile";
 
 // ─── Theme persistence helpers ─────────────────────────────────────────────────
@@ -912,7 +912,7 @@ function AppInner({ profile, onLogout }) {
                 minWidth:        "200px",
               }}
             >
-              {ALL_THEME_IDS.map(id => {
+              {MENU_THEME_IDS.map(id => {
                 const t      = THEME_REGISTRY[id];
                 const active = theme === id;
                 return (
