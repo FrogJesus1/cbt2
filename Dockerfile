@@ -25,6 +25,12 @@ COPY render/cli/ render/cli/
 # Copy built frontend into render/web/dist/
 COPY --from=frontend-build /build/dist render/web/dist/
 
+# Bake git info — .git isn't copied into the image, so the deploy script
+# passes these as build args (see deploy-war.sh).
+ARG GIT_COMMIT=unknown
+ARG GIT_TIMESTAMP=unknown
+ENV GIT_COMMIT=${GIT_COMMIT}
+ENV GIT_TIMESTAMP=${GIT_TIMESTAMP}
 ENV PYTHONUNBUFFERED=1
 EXPOSE 8001
 

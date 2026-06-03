@@ -207,7 +207,12 @@ def create_app(config: dict) -> FastAPI:
     # Captured once at startup so it's fast and doesn't shell out per request.
 
     def _get_git_info() -> dict:
-        """Read git short hash + commit timestamp at startup."""
+        """Read git short hash + commit timestamp at startup.
+
+        Inside Docker the .git directory isn't present, so fall back to
+        GIT_COMMIT / GIT_TIMESTAMP env vars baked in at build time.
+        """
+        # Try live git first (works in dev)
         try:
             commit = subprocess.check_output(
                 ["git", "rev-parse", "--short", "HEAD"],
@@ -221,7 +226,12 @@ def create_app(config: dict) -> FastAPI:
             ).decode().strip()
             return {"commit": commit, "committed": ts}
         except Exception:
-            return {"commit": "unknown", "committed": "unknown"}
+            pass
+        # Fall back to build-time env vars (Docker)
+        return {
+            "commit":    os.environ.get("GIT_COMMIT", "unknown"),
+            "committed": os.environ.get("GIT_TIMESTAMP", "unknown"),
+        }
 
     _version_info = {
         **_get_git_info(),
