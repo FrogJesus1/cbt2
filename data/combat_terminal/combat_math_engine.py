@@ -152,6 +152,8 @@ class AttackModifiers:
     melta_value: float = 0.0      # Melta N parsed from keyword — added to flat_damage_bonus only when use_melta
     use_blast: bool = False        # flag: CLI resolves per-weapon Blast → minimum 3 attacks vs 6+ model units
     use_lance: bool = False        # flag: CLI resolves per-weapon Lance → +1 wound_bonus
+    use_heavy: bool = False        # flag: unit Remained Stationary; Heavy weapons get +1 to hit
+    is_heavy: bool = False         # per-weapon: weapon has HEAVY keyword
 
     use_torrent: bool = False      # auto-detected: weapon auto-hits (no BS roll needed)
     anti_wound_target: Optional[int] = None  # Auto/manual: Anti-X N+ overrides wound target

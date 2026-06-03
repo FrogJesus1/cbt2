@@ -155,6 +155,8 @@ def _weapon_to_profile(w: dict) -> tuple[WeaponProfile, AttackModifiers]:
             mods.use_lance = True
         elif kw == "BLAST":
             mods.use_blast = True
+        elif kw == "HEAVY":
+            mods.is_heavy = True
         else:
             m = re.search(r"SUSTAINED HITS\s+(\d+)", kw)
             if m:
@@ -394,6 +396,8 @@ def _apply_flags(flags: list, base_mods: "AttackModifiers", target: "TargetProfi
             base_mods.use_rapid_fire = True
         elif key == "melta":
             base_mods.use_melta = True
+        elif key == "heavy":
+            base_mods.use_heavy = True
 
     return base_mods, target
 
@@ -403,7 +407,7 @@ def _apply_flags(flags: list, base_mods: "AttackModifiers", target: "TargetProfi
 KNOWN_FLAG_BASES = {
     "ml", "cover", "lethal", "twin", "sustained", "blast", "rf",
     "torrent", "lance", "invuln", "ea", "dev", "devastating",
-    "fnp", "dmgplus", "melta",
+    "fnp", "dmgplus", "melta", "heavy",
 }
 
 
@@ -500,6 +504,9 @@ def compute_combat(
                 # ── Melta: only add flat damage bonus when within half range ─────
                 if merged.use_melta and merged.melta_value > 0:
                     merged.flat_damage_bonus += merged.melta_value
+                # ── Heavy: +1 to hit when unit Remained Stationary ──────────
+                if merged.use_heavy and merged.is_heavy:
+                    merged.hit_bonus += 1
                 # ── Blast: minimum 3 per-model attacks vs 6+ model units ─────────
                 if merged.use_blast and def_models >= 6:
                     wp.attacks = max(wp.attacks, 3.0)
@@ -602,11 +609,13 @@ def compute_combat(
             try:
                 wp, weapon_mods = _weapon_to_profile(w)
                 merged = _merge_mods(weapon_mods, base_mods)
-                # Apply same RF, Melta, and BLAST logic as _run_ev for consistency
+                # Apply same RF, Melta, Heavy, and BLAST logic as _run_ev for consistency
                 if merged.use_rapid_fire and merged.rf_value > 0:
                     merged.extra_attacks += merged.rf_value
                 if merged.use_melta and merged.melta_value > 0:
                     merged.flat_damage_bonus += merged.melta_value
+                if merged.use_heavy and merged.is_heavy:
+                    merged.hit_bonus += 1
                 if merged.use_blast and def_models >= 6:
                     wp.attacks = max(wp.attacks, 3.0)
                 # Scale attacks by squad size — skip for unit-level weapons
@@ -722,11 +731,13 @@ def compute_sensitivity(
             try:
                 wp, weapon_mods = _weapon_to_profile(w)
                 merged = _merge_mods(weapon_mods, mods)
-                # Apply same RF / Melta / BLAST rules as compute_combat
+                # Apply same RF / Melta / Heavy / BLAST rules as compute_combat
                 if merged.use_rapid_fire and merged.rf_value > 0:
                     merged.extra_attacks += merged.rf_value
                 if merged.use_melta and merged.melta_value > 0:
                     merged.flat_damage_bonus += merged.melta_value
+                if merged.use_heavy and merged.is_heavy:
+                    merged.hit_bonus += 1
                 if merged.use_blast and def_models >= 6:
                     wp.attacks = max(wp.attacks, 3.0)
                 if att_models > 1 and not w.get("_no_multiply"):

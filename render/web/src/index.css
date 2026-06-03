@@ -80,7 +80,7 @@
     -webkit-font-smoothing: antialiased;
   }
 
-  /* Scanline overlay — subtle CRT effect */
+  /* Scanline overlay — subtle CRT effect (dark theme only) */
   body::before {
     content: '';
     position: fixed;
@@ -96,7 +96,7 @@
     );
   }
 
-  /* Vignette */
+  /* Vignette (dark theme only) */
   body::after {
     content: '';
     position: fixed;
@@ -112,6 +112,23 @@
   ::-webkit-scrollbar-thumb { background: #0d2a0a; border-radius: 0; }
   ::-webkit-scrollbar-thumb:hover { background: #1a4a14; }
 }
+
+/* ── Light theme — disable CRT effects & clean up ─────────────────────── */
+/* Scanlines and vignette look terrible on light backgrounds */
+body[data-theme="light"]::before,
+body[data-theme="light"]::after {
+  display: none !important;
+}
+
+/* Remove glow effects in light mode — they muddy light backgrounds */
+[data-theme="light"] .ct-glow,
+[data-theme="light"] .ct-glow-sm {
+  text-shadow: none !important;
+}
+
+/* Clean light-mode scrollbar */
+[data-theme="light"] ::-webkit-scrollbar-thumb { background: #c0d8bc; }
+[data-theme="light"] ::-webkit-scrollbar-thumb:hover { background: #7aaa70; }
 
 /* ── Console (Retro Terminal) theme ─────────────────────────────────────
  * Pure retro — monospace only, phosphor green on black, no chrome.

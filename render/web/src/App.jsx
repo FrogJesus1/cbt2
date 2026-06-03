@@ -393,8 +393,10 @@ export default function App() {
   }, [activeEngineId]);
 
   // Persist active theme to localStorage whenever it changes
+  // Also sync to <body> so CSS pseudo-element selectors (scanlines, vignette) can react
   useEffect(() => {
     try { localStorage.setItem(CT_ACTIVE_KEY, theme); } catch {}
+    document.body.setAttribute("data-theme", theme);
   }, [theme]);
 
   // Close history / theme dropdowns on outside click
@@ -557,10 +559,27 @@ export default function App() {
       return;
     }
 
+    // Non-terminal contexts (rosters, diag) don't have a Terminal to consume
+    // pending commands — route to main terminal instead to prevent hang.
+    const NON_TERMINAL = new Set(["rosters", "diag"]);
+    const isNonTerminal = NON_TERMINAL.has(activeContext);
+
+    // One-shot commands that need no visible output — route to main terminal
+    // but keep the user on the current page (RostersContext refreshes via poll).
+    const ONE_SHOT = /^(set roster |clear roster )/i;
+
     if (tokens[0] === "list" && tokens[1] === "units") {
       // Always send list-units commands to the units context
       setActiveContext("units");
       setPendingCommands(prev => ({ ...prev, units: cmd }));
+    } else if (isNonTerminal) {
+      // Route to main terminal since this context can't process commands
+      setPendingCommands(prev => ({ ...prev, main: cmd }));
+      // Switch to main for commands that need terminal interaction;
+      // stay on current page for one-shot side-effect commands.
+      if (!ONE_SHOT.test(cmd)) {
+        setActiveContext("main");
+      }
     } else {
       // All other commands go to the currently active context
       setPendingCommands(prev => ({ ...prev, [activeContext]: cmd }));
@@ -654,7 +673,7 @@ export default function App() {
     <div
       data-theme={theme}
       className="flex items-center justify-center h-screen overflow-hidden"
-      style={{ background: "#000000" }}
+      style={{ background: "var(--ct-bg-dark)" }}
     >
     <div
       className="flex flex-col h-full overflow-hidden"

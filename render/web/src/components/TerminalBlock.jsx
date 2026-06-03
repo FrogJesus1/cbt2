@@ -382,8 +382,8 @@ export function TerminalBlock({ entry, onSubmit, onInject, onEdit, onUpload, onD
   const [collapsed, setCollapsed] = useState(false);
 
   const handleEdit = useCallback(() => {
-    if (onEdit && input) onEdit(input);
-  }, [onEdit, input]);
+    if (onEdit && input) onEdit(input, entry.id);
+  }, [onEdit, input, entry.id]);
 
   // Don't show edit icon for purely client-side results (clear, history, system nav)
   const showEdit = onEdit && input && !pending

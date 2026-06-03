@@ -195,17 +195,18 @@ export function CombatBlock({ data, onSubmit }) {
   // ── Adjusted aggregates when weapons are disabled ──────────────────────
   // Sum per-weapon dmg for enabled weapons only and override the server total.
   // Kill% and other MC metrics can't easily be recomputed client-side, so we
-  // leave them unchanged and only adjust the damage line.
+  // leave them unchanged and only adjust the damage and kills lines.
   const enabledWeapons     = weapons.filter(w => !disabledWeapons.has(w.name));
   const enabledRanged      = enabledWeapons.filter(w => w.type !== "melee");
   const enabledMelee       = enabledWeapons.filter(w => w.type === "melee");
 
-  // Build adjusted ranged/melee data objects.  Only touches expected_dmg;
-  // all other fields (swinginess, kill_chance_pct, etc.) stay from the server.
+  // Build adjusted ranged/melee data objects.  Recalculates expected_dmg
+  // and expected_kills from enabled weapons; other MC fields stay from the server.
   function adjustedData(serverData, enabledSet) {
     if (!serverData || !disabledWeapons.size) return serverData;
-    const adjustedDmg = enabledSet.reduce((sum, w) => sum + (w.dmg ?? 0), 0);
-    return { ...serverData, expected_dmg: adjustedDmg };
+    const adjustedDmg   = enabledSet.reduce((sum, w) => sum + (w.dmg ?? 0), 0);
+    const adjustedKills = enabledSet.reduce((sum, w) => sum + (w.kills ?? 0), 0);
+    return { ...serverData, expected_dmg: adjustedDmg, expected_kills: adjustedKills };
   }
 
   const rangedAdj = adjustedData(ranged, enabledRanged);

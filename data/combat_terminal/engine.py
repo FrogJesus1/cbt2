@@ -1110,6 +1110,7 @@ class CombatTerminalEngine(EngineBase):
             "melta":     {"icon": "skull",     "text": "Melta — +damage equal to weapon's Melta value within half range"},
             "torrent":   {"icon": "target",    "text": "Torrent — weapon auto-hits (no ballistic skill roll needed)"},
             "lance":     {"icon": "star",      "text": "Lance — +1 to Wound rolls (charged this turn)"},
+            "heavy":     {"icon": "target",    "text": "Heavy — Remained Stationary: Heavy weapons get +1 to Hit rolls"},
             "fnp":       {"icon": "shield",    "text": "Feel No Pain — target ignores wounds on a roll of N+"},
             "dmgplus":   {"icon": "zap",       "text": "Flat damage bonus — +N damage per unsaved wound"},
         }

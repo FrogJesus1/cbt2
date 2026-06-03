@@ -170,6 +170,9 @@ export function Terminal({
   // Uses a ref (not state) so the submit() closure always reads current value
   // without needing re-registration.
   const mathModeRef = useRef(false);
+  // Tracks the entry being edited — when set, the next submit replaces
+  // this entry in-place instead of appending a new one.
+  const editingEntryRef = useRef(null);
 
   // ── Client-side multi-step flow state ────────────────────────────────────
   // When active, the next non-command input is routed to the flow handler
@@ -784,6 +787,12 @@ export function Terminal({
   // Navigation/theme commands (priority 3-8) are web-only; intercepted here,
   // never reaching the engine.
 
+  // Wrap onEdit to intercept the entry ID for in-place replacement
+  const handleEditEntry = useCallback((cmd, entryId) => {
+    editingEntryRef.current = entryId ?? null;
+    if (onEdit) onEdit(cmd);
+  }, [onEdit]);
+
   const submit = useCallback(async (raw) => {
     const trimmed = raw.trim();
     if (!trimmed || loading) return;
@@ -1324,11 +1333,25 @@ export function Terminal({
       return;
     }
 
-    const entryId = ++idRef.current;
-    setStream(prev => [
-      ...prev,
-      { id: entryId, input: trimmed, result: null, pending: true },
-    ]);
+    // ── Edit-in-place: replace the original entry rather than appending ──
+    const editTarget = editingEntryRef.current;
+    editingEntryRef.current = null;
+
+    const entryId = editTarget ?? ++idRef.current;
+    if (editTarget) {
+      // Replace the original entry's input and set it to pending
+      suppressScrollRef.current = true;
+      setStream(prev => prev.map(e =>
+        e.id === editTarget
+          ? { ...e, input: trimmed, result: null, pending: true }
+          : e
+      ));
+    } else {
+      setStream(prev => [
+        ...prev,
+        { id: entryId, input: trimmed, result: null, pending: true },
+      ]);
+    }
     setLoading(true);
 
     try {
@@ -1511,7 +1534,7 @@ export function Terminal({
                   margin: "12px 0",
                 }} />
               )}
-              <TerminalBlock entry={entry} onSubmit={submit} onInject={onInject} onEdit={onEdit} onUpload={processUpload} onDelete={handleDeleteEntry} starredUnits={starredUnits} onToggleStar={onToggleStar} />
+              <TerminalBlock entry={entry} onSubmit={submit} onInject={onInject} onEdit={handleEditEntry} onUpload={processUpload} onDelete={handleDeleteEntry} starredUnits={starredUnits} onToggleStar={onToggleStar} />
             </div>
           ))}
         </div>
