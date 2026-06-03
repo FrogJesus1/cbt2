@@ -421,10 +421,12 @@ def monte_carlo_attack(
 
     total_damage = []
     total_kills = []
+    total_overkill = []
     wounds_per_model = max(1, target.wounds)
 
     for _ in range(trials):
         damage_this_trial = 0.0
+        overkill_this_trial = 0.0
         # Track wound allocation per-model: in 40K, each unsaved wound's damage
         # is allocated to one model.  Excess damage on a model is WASTED — it does
         # not spill to the next model.  We track remaining HP on the current model.
@@ -475,9 +477,10 @@ def monte_carlo_attack(
                                 prevented += 1
                         dmg = max(0, dmg - prevented)
                     damage_this_trial += dmg
-                    # Allocate to current model — excess is wasted
+                    # Allocate to current model — excess is wasted overkill
                     current_model_hp -= dmg
                     if current_model_hp <= 0:
+                        overkill_this_trial += abs(current_model_hp)  # excess beyond 0 HP
                         kills_this_trial += 1
                         current_model_hp = wounds_per_model  # next model at full HP
 
@@ -491,14 +494,16 @@ def monte_carlo_attack(
                             prevented += 1
                     dmg = max(0, dmg - prevented)
                 damage_this_trial += dmg
-                # Allocate to current model — excess is wasted
+                # Allocate to current model — excess is wasted overkill
                 current_model_hp -= dmg
                 if current_model_hp <= 0:
+                    overkill_this_trial += abs(current_model_hp)
                     kills_this_trial += 1
                     current_model_hp = wounds_per_model
 
         total_damage.append(damage_this_trial)
         total_kills.append(kills_this_trial)
+        total_overkill.append(overkill_this_trial)
 
     kill_probs = {}
     max_bucket = min(10, max(1, target.models))
@@ -523,12 +528,11 @@ def monte_carlo_attack(
     elif swinginess_cv < 0.50:  swinginess_label = "Variable"
     else:                        swinginess_label = "Swingy"
 
-    # Overkill: % of total damage wasted on excess per-model damage.
-    # Useful damage = kills * wounds_per_model; wasted = total - useful.
-    useful_damage = [k * wounds_per_model for k, d in zip(total_kills, total_damage)]
-    wasted_damage = [d - u for d, u in zip(total_damage, useful_damage)]
-    mean_wasted   = statistics.mean(wasted_damage) if wasted_damage else 0.0
-    overkill_waste_pct = round((mean_wasted / mean_dmg * 100), 1) if mean_dmg > 0 else 0.0
+    # Overkill: % of total damage that was excess on killed models.
+    # Only counts damage beyond what was needed to remove a model — NOT
+    # damage that wounded a model without killing it (that's still useful).
+    mean_overkill = statistics.mean(total_overkill) if total_overkill else 0.0
+    overkill_waste_pct = round((mean_overkill / mean_dmg * 100), 1) if mean_dmg > 0 else 0.0
 
     return {
         "weapon_name":            weapon.name,
