@@ -834,23 +834,55 @@ class CombatTerminalEngine(EngineBase):
         return matches
 
     def _find_attached_leader(self, unit_name: str, roster_key: str,
-                              nickname: str | None = None) -> dict | None:
-        """Find a leader attached to the given bodyguard in the roster.
+                              nickname: str | None = None,
+                              bodyguard_idx: int | None = None) -> dict | None:
+        """Find a leader attached to the given bodyguard *instance* in the roster.
 
-        Attachments reference a bodyguard by its nickname when it has one (so
-        one of several identically-named units can be singled out), otherwise
-        by unit name. We match attached_to against the nickname first (exact,
-        to disambiguate identical units), then fall back to the unit name.
+        Identity model: every roster entry carries a stable `_idx` (its position
+        in the roster) stamped by `sync_roster_context`. A leader entry stores
+        `attached_idx` — the index of the specific bodyguard instance it leads.
+        This is what lets two identical, un-nicknamed units (e.g. two
+        "Kroot Carnivores") carry different leaders independently.
+
+        Resolution order:
+          1. Index match — if `bodyguard_idx` is known, return the leader whose
+             `attached_idx` points at exactly that instance. If none does, this
+             instance has no leader, so we return None and DO NOT fall back to a
+             name match (the old name fallback is what made one leader bleed onto
+             every same-named unit).
+          2. Legacy name/nickname match — only for entries that predate the index
+             model (no `attached_idx`), so old rosters keep working.
 
         Returns the leader roster entry if one is attached, else None.
         """
         roster = self._session.get(roster_key, [])
+
+        # 1. Instance-specific index match (preferred, unambiguous).
+        if bodyguard_idx is not None:
+            for entry in roster:
+                if not entry.get("is_leader"):
+                    continue
+                a_idx = entry.get("attached_idx")
+                if a_idx is None:
+                    continue
+                try:
+                    if int(a_idx) == int(bodyguard_idx):
+                        return entry
+                except (TypeError, ValueError):
+                    continue
+            # A specific instance was named and no leader references it — there
+            # is genuinely no leader on THIS unit. Stop here.
+            return None
+
+        # 2. Legacy name/nickname fallback (entries with no attached_idx only).
         name_lower = (unit_name or "").lower()
         nick_lower = (nickname or "").lower()
         target = nick_lower or name_lower
         for entry in roster:
             if not entry.get("is_leader"):
                 continue
+            if entry.get("attached_idx") is not None:
+                continue  # index-keyed entries resolve only via the index path
             attached = (entry.get("attached_to") or "").lower()
             if not attached:
                 continue
@@ -876,6 +908,16 @@ class CombatTerminalEngine(EngineBase):
             if entry.get("is_leader") and entry_name and (
                 entry_name in leader_lower or leader_lower in entry_name
             ):
+                # Prefer the instance-specific index pointer when present.
+                a_idx = entry.get("attached_idx")
+                if a_idx is not None:
+                    try:
+                        bg = roster[int(a_idx)]
+                        if isinstance(bg, dict) and not bg.get("is_leader"):
+                            return bg
+                    except (IndexError, TypeError, ValueError):
+                        pass
+                # Legacy name-based fallback.
                 attached_to = (entry.get("attached_to") or "").lower()
                 if attached_to:
                     # Find the bodyguard unit
@@ -1010,8 +1052,11 @@ class CombatTerminalEngine(EngineBase):
             if pts:
                 parts.append(f"({pts} pts)")
             # Flag which entry has a leader attached so the player can tell the
-            # instances apart (matches by nickname first, then unit name).
-            ldr = self._find_attached_leader(unit_name, roster_key, nickname)
+            # instances apart (matched by this entry's stable roster index).
+            ldr = self._find_attached_leader(
+                unit_name, roster_key, nickname,
+                bodyguard_idx=entry.get("_idx"),
+            )
             if ldr:
                 ldr_name = ldr.get("name") or "leader"
                 parts.append(f"★ led by {ldr_name}")
@@ -1544,7 +1589,9 @@ class CombatTerminalEngine(EngineBase):
 
         if att_unit:
             att_bg_nick = (att_roster_entry or {}).get("nickname")
-            leader_entry = self._find_attached_leader(att_name, "roster_my", att_bg_nick)
+            att_bg_idx  = (att_roster_entry or {}).get("_idx")
+            leader_entry = self._find_attached_leader(
+                att_name, "roster_my", att_bg_nick, bodyguard_idx=att_bg_idx)
             if leader_entry:
                 # A leader is attached to this unit — look up leader dossier
                 leader_name = leader_entry.get("name", "")
@@ -1584,7 +1631,9 @@ class CombatTerminalEngine(EngineBase):
 
         if def_unit:
             def_bg_nick = (def_roster_entry or {}).get("nickname")
-            leader_entry = self._find_attached_leader(def_name, "roster_enemy", def_bg_nick)
+            def_bg_idx  = (def_roster_entry or {}).get("_idx")
+            leader_entry = self._find_attached_leader(
+                def_name, "roster_enemy", def_bg_nick, bodyguard_idx=def_bg_idx)
             if leader_entry:
                 leader_name = leader_entry.get("name", "")
                 def_leader_unit = self._resolve_unit_dossier(leader_name, def_unit.get("faction"))
@@ -2503,10 +2552,27 @@ class CombatTerminalEngine(EngineBase):
           }
         Either key may be absent — only present keys are updated.
         """
+        def _stamp(units):
+            # Stamp each entry with its stable roster position so leader
+            # attachments can target a specific instance (two identical units
+            # are told apart by index, not name). attached_idx is normalised to
+            # an int here so downstream comparisons are type-safe.
+            out = units or []
+            for i, entry in enumerate(out):
+                if isinstance(entry, dict):
+                    entry["_idx"] = i
+                    a_idx = entry.get("attached_idx")
+                    if a_idx is not None:
+                        try:
+                            entry["attached_idx"] = int(a_idx)
+                        except (TypeError, ValueError):
+                            entry["attached_idx"] = None
+            return out
+
         if "my_units" in context:
-            self._session["roster_my"] = context["my_units"] or []
+            self._session["roster_my"] = _stamp(context["my_units"])
         if "opponent_units" in context:
-            self._session["roster_enemy"] = context["opponent_units"] or []
+            self._session["roster_enemy"] = _stamp(context["opponent_units"])
 
     def _query_roster(self, params: dict) -> dict:
         side   = (params.get("side") or "my").strip().lower()

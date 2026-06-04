@@ -110,9 +110,22 @@ function buildRosterContext(activeRosters) {
     const sideNicknames   = (allNicknames[side] || {});
     return units.map((u, i) => {
       const enriched = { ...u };
-      // localStorage wins over embedded metadata
-      if (u.is_leader && sideAttachments[u.name]) {
-        enriched.attached_to = sideAttachments[u.name];
+      // localStorage wins over embedded metadata. Attachments are keyed by the
+      // leader's roster index → bodyguard index so identical units are told
+      // apart. A legacy name-keyed entry is resolved to an index as a fallback.
+      if (u.is_leader) {
+        let bgIdx = null;
+        if (sideAttachments[i] != null && /^\d+$/.test(String(sideAttachments[i]))) {
+          bgIdx = Number(sideAttachments[i]);
+        } else if (sideAttachments[u.name] != null) {
+          const found = units.findIndex(
+            x => (typeof x === "object" ? x.name : x) === sideAttachments[u.name]);
+          if (found !== -1) bgIdx = found;
+        }
+        if (bgIdx != null) {
+          enriched.attached_idx = bgIdx;
+          enriched.attached_to = units[bgIdx]?.name || enriched.attached_to;
+        }
       }
       if (sideNicknames[i]) {
         enriched.nickname = sideNicknames[i];

@@ -75,6 +75,28 @@ function SectionHeader({ title, subtitle }) {
   );
 }
 
+// ─── Attachment migration ─────────────────────────────────────────────────────
+// Leader→bodyguard attachments are keyed by roster INDEX (leaderIdx → bgIdx) so
+// two identical, un-nicknamed units carry leaders independently. Older saves were
+// keyed by NAME (leaderName → bgName), which collapsed all same-named units onto
+// one leader. Convert legacy maps to index form using the current unit list.
+function migrateAttachments(map, units) {
+  const keys = Object.keys(map || {});
+  if (keys.length === 0) return { map: map || {}, changed: false };
+  // Already index-keyed if every key is a plain integer string.
+  if (keys.every(k => /^\d+$/.test(k))) return { map, changed: false };
+  const next = {};
+  for (const [leaderName, bgName] of Object.entries(map)) {
+    if (/^\d+$/.test(leaderName)) { next[leaderName] = bgName; continue; }
+    const leaderIdx = units.findIndex(
+      u => typeof u === "object" && u.is_leader && u.name === leaderName);
+    const bgIdx = units.findIndex(
+      u => (typeof u === "object" ? u.name : u) === bgName);
+    if (leaderIdx !== -1 && bgIdx !== -1) next[leaderIdx] = bgIdx;
+  }
+  return { map: next, changed: true };
+}
+
 // ─── Army panel (player or enemy) ────────────────────────────────────────────
 
 function ArmyPanel({ roster, side, onUpload, onInject }) {
@@ -164,11 +186,17 @@ function ArmyPanel({ roster, side, onUpload, onInject }) {
     if (!hasUnits) return;
     let seedNick = false, seedAttach = false;
     const sNick = { ...nicknames };
-    const sAttach = { ...attachments };
+    // Migrate any legacy name-keyed attachment map to index-keyed first.
+    const migrated = migrateAttachments({ ...attachments }, units);
+    let sAttach = migrated.map;
+    if (migrated.changed) seedAttach = true;
     units.forEach((u, i) => {
       if (typeof u !== "object") return;
       if (u.nickname && !sNick[i]) { sNick[i] = u.nickname; seedNick = true; }
-      if (u.is_leader && u.attached_to && !sAttach[u.name]) { sAttach[u.name] = u.attached_to; seedAttach = true; }
+      // Seed an index-based attachment from embedded roster metadata.
+      if (u.is_leader && u.attached_idx != null && sAttach[i] == null) {
+        sAttach[i] = u.attached_idx; seedAttach = true;
+      }
     });
     if (seedNick) saveNicknames(sNick);
     if (seedAttach) saveAttachments(sAttach);
@@ -184,6 +212,11 @@ function ArmyPanel({ roster, side, onUpload, onInject }) {
     if (typeof u === "string") return true;
     return !u.is_leader;
   });
+
+  // Indices of bodyguard instances that currently have a leader attached —
+  // used to mark them with a "*" so the player can see at a glance which units
+  // are already led (without blocking — some units can take a second leader).
+  const ledIndices = new Set(Object.values(attachments).map(Number));
 
   return (
     <div style={{
@@ -223,7 +256,18 @@ function ArmyPanel({ roster, side, onUpload, onInject }) {
             const uname = typeof u === "string" ? u : u.name;
             const upts  = typeof u === "object" ? u.points : null;
             const isLdr = typeof u === "object" && u.is_leader;
-            const attachedTo = isLdr ? attachments[uname] : null;
+            // Index-based attachment: a leader at this index points at a bodyguard index.
+            const attachedIdx  = isLdr && attachments[i] != null ? Number(attachments[i]) : null;
+            const attachedUnit = attachedIdx != null ? units[attachedIdx] : null;
+            const attachedNick = attachedIdx != null ? nicknames[attachedIdx] : null;
+            const attachedToName = attachedUnit
+              ? (typeof attachedUnit === "object" ? attachedUnit.name : attachedUnit)
+              : null;
+            const attachedTo = attachedToName
+              ? `${attachedToName}${attachedNick ? ` (${attachedNick})` : ""}`
+              : null;
+            // Is this (non-leader) unit being led by someone?
+            const isLed = !isLdr && ledIndices.has(i);
             const nick = nicknames[i] || null;
             return (
               <div key={i}>
@@ -238,6 +282,18 @@ function ArmyPanel({ roster, side, onUpload, onInject }) {
                       onClick={() => onInject?.(`spec ${uname}`)}>
                       {isLdr ? "★ " : ""}{uname}
                     </span>
+                    {/* Marker: this unit already has a leader attached. */}
+                    {isLed && (
+                      <span
+                        title="Has a leader attached"
+                        style={{
+                          color: C.green, fontWeight: 700, fontSize: "13px",
+                          fontFamily: "monospace", flexShrink: 0, lineHeight: 1,
+                        }}
+                      >
+                        *
+                      </span>
+                    )}
                     {/* Nickname display / edit */}
                     {editingNickname === i ? (
                       <input
@@ -273,7 +329,7 @@ function ArmyPanel({ roster, side, onUpload, onInject }) {
                     )}
                     {isLdr && (
                       <span
-                        onClick={() => setAttachingLeader(attachingLeader === uname ? null : uname)}
+                        onClick={() => setAttachingLeader(attachingLeader === i ? null : i)}
                         style={{
                           color: attachedTo ? C.green : C.dim,
                           fontSize: "9px", cursor: "pointer", fontFamily: "monospace",
@@ -291,7 +347,7 @@ function ArmyPanel({ roster, side, onUpload, onInject }) {
                   {upts ? <span style={{ color: C.dim, fontSize: "11px", fontFamily: "monospace", flexShrink: 0 }}>{upts}</span> : null}
                 </div>
                 {/* Attachment picker — inline list of bodyguard units */}
-                {attachingLeader === uname && (
+                {attachingLeader === i && (
                   <div style={{
                     marginLeft: "16px", marginTop: "2px", marginBottom: "4px",
                     padding: "4px 8px", border: `1px solid ${C.border}`,
@@ -302,7 +358,7 @@ function ArmyPanel({ roster, side, onUpload, onInject }) {
                       <div
                         onClick={() => {
                           const next = { ...attachments };
-                          delete next[uname];
+                          delete next[i];
                           saveAttachments(next);
                           setAttachingLeader(null);
                         }}
@@ -320,7 +376,7 @@ function ArmyPanel({ roster, side, onUpload, onInject }) {
                         <div
                           key={bgIdx}
                           onClick={() => {
-                            saveAttachments({ ...attachments, [uname]: bgName });
+                            saveAttachments({ ...attachments, [i]: bgIdx });
                             setAttachingLeader(null);
                           }}
                           style={{

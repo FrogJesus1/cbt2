@@ -21,7 +21,7 @@
  * @returns {Array<{
  *   name: string, faction: string, models: number,
  *   weapons: string[], is_leader: boolean, points: number|null,
- *   attached_to: string|null, nickname: string|null,
+ *   attached_idx: number|null, attached_to: string|null, nickname: string|null,
  * }>}
  */
 export function parseRosterUnits(roster) {
@@ -29,9 +29,12 @@ export function parseRosterUnits(roster) {
   const { faction, content } = roster;
 
   // ── First pass: extract embedded metadata lines ─────────────────────────
-  // Format: # @nickname:idx:value  or  # @attach:leaderName:unitName
-  const embeddedNicknames = {};   // idx → string
-  const embeddedAttach = {};      // leaderName → unitName
+  // Format: # @nickname:idx:value
+  //         # @attach:leaderIdx:bodyguardIdx   (current, instance-specific)
+  //         # @attach:leaderName:bodyguardName (legacy, name-based)
+  const embeddedNicknames = {};      // idx → string
+  const embeddedAttachIdx = {};      // leaderIdx → bodyguardIdx (both ints)
+  const embeddedAttachName = {};     // leaderName → bodyguardName (legacy)
   const lines = content.split("\n");
   for (const rawLine of lines) {
     const line = rawLine.trim();
@@ -42,7 +45,14 @@ export function parseRosterUnits(roster) {
     }
     const attachMatch = line.match(/^#\s*@attach:([^:]+):(.+)/);
     if (attachMatch) {
-      embeddedAttach[attachMatch[1].trim()] = attachMatch[2].trim();
+      const key = attachMatch[1].trim();
+      const val = attachMatch[2].trim();
+      // Numeric both sides → instance-specific index attachment.
+      if (/^\d+$/.test(key) && /^\d+$/.test(val)) {
+        embeddedAttachIdx[parseInt(key, 10)] = parseInt(val, 10);
+      } else {
+        embeddedAttachName[key] = val;   // legacy name-based attachment
+      }
       continue;
     }
   }
@@ -90,14 +100,33 @@ export function parseRosterUnits(roster) {
 
       const idx = units.length;
       const nickname = embeddedNicknames[idx] || null;
-      const attached_to = (isLeader && embeddedAttach[name]) ? embeddedAttach[name] : null;
+      // Instance-specific index attachment wins; fall back to legacy name map.
+      let attached_idx = null;
+      if (isLeader && embeddedAttachIdx[idx] !== undefined) {
+        attached_idx = embeddedAttachIdx[idx];
+      }
+      const attached_to_name =
+        (isLeader && embeddedAttachName[name]) ? embeddedAttachName[name] : null;
 
       units.push({
         name, faction: faction || "", models, weapons,
-        is_leader: isLeader, points, attached_to, nickname,
+        is_leader: isLeader, points,
+        attached_idx,                 // bodyguard's roster index (or null)
+        attached_to: attached_to_name, // legacy name (resolved below for index attaches)
+        nickname,
       });
     }
   }
+
+  // ── Post-pass: resolve attached_to display name from index attachments ──
+  // The engine matches by index, but attached_to is still used for display
+  // (and by the legacy crusade importer), so keep it populated.
+  for (const u of units) {
+    if (u.attached_idx != null && units[u.attached_idx]) {
+      u.attached_to = units[u.attached_idx].name;
+    }
+  }
+
   return units;
 }
 
