@@ -14,6 +14,10 @@ import {
 import { C } from "./shared/colors";
 import { OrderOfBattle } from "./crusade/OrderOfBattle";
 import { MusterPanel } from "./crusade/MusterPanel";
+import { BattleTracker } from "./crusade/BattleTracker";
+import { PostBattleFlow } from "./crusade/PostBattleFlow";
+import { RPActions } from "./crusade/RPActions";
+import { BattleHistory } from "./crusade/BattleHistory";
 
 // ─── Small shared bits ─────────────────────────────────────────────────────────
 
@@ -186,7 +190,21 @@ function StatBlock({ label, value, color = C.green }) {
 
 function CampaignDetail({ campaign, onBack, onReload, onError, engineId, onInject }) {
   const units = campaign.units || [];
+  const activeBattle = campaign.state?.active_battle || null;
   const [muster, setMuster] = useState(false);
+  const [phase, setPhase] = useState("tracking");   // "tracking" | "post" (active battle only)
+  const [tally, setTally] = useState(null);          // tracker → post-battle hand-off
+  const [historyKey, setHistoryKey] = useState(0);   // bump to refresh history
+
+  // Whenever the active battle clears (or changes), reset the in-battle phase.
+  useEffect(() => { setPhase("tracking"); setTally(null); }, [activeBattle?.started_at]);
+
+  const handleEndBattle = (currentTally) => { setTally(currentTally); setPhase("post"); };
+  const handleBattleDone = async () => {
+    setPhase("tracking"); setTally(null);
+    setHistoryKey((k) => k + 1);
+    await onReload?.();
+  };
 
   return (
     <div style={{ display: "flex", flexDirection: "column", gap: "18px" }}>
@@ -202,7 +220,7 @@ function CampaignDetail({ campaign, onBack, onReload, onError, engineId, onInjec
             </div>
           </div>
           <div style={{ display: "flex", gap: "8px" }}>
-            {!muster && units.length > 0 && (
+            {!activeBattle && !muster && units.length > 0 && (
               <ActionChip label="⚔ Muster for Battle" color={C.green} hoverColor={C.green} onClick={() => setMuster(true)} />
             )}
             <ActionChip label="← Campaigns" color={C.dim} hoverColor={C.cyan} onClick={onBack} />
@@ -218,16 +236,36 @@ function CampaignDetail({ campaign, onBack, onReload, onError, engineId, onInjec
         </div>
       </div>
 
-      {/* Muster panel (combat bridge) */}
-      {muster && (
+      {/* In-progress battle: tracker → post-battle resolution */}
+      {activeBattle ? (
+        phase === "post" ? (
+          <PostBattleFlow
+            campaign={campaign} units={units} battleUnits={tally}
+            onDone={handleBattleDone} onCancel={() => setPhase("tracking")} onError={onError}
+          />
+        ) : (
+          <BattleTracker
+            campaign={campaign} units={units} engineId={engineId} onInject={onInject}
+            onReload={onReload} onError={onError} onEnd={handleEndBattle}
+          />
+        )
+      ) : muster ? (
         <MusterPanel
           campaign={campaign} units={units} engineId={engineId}
-          onInject={onInject} onClose={() => setMuster(false)}
+          onInject={onInject} onReload={onReload} onClose={() => setMuster(false)}
         />
-      )}
+      ) : null}
 
       {/* Order of Battle — editable */}
       <OrderOfBattle campaign={campaign} units={units} onReload={onReload} onError={onError} />
+
+      {/* Requisition actions (between battles only) */}
+      {!activeBattle && (
+        <RPActions campaign={campaign} units={units} onReload={onReload} onError={onError} />
+      )}
+
+      {/* Battle history */}
+      <BattleHistory campaign={campaign} refreshKey={historyKey} onError={onError} />
     </div>
   );
 }

@@ -126,6 +126,39 @@ export function xpToNextRank(xp) {
   return next ? { rank: next.name, remaining: next.xp - x, at: next.xp } : null;
 }
 
+/** Index of a rank in the RANKS ladder (0 = Fresh). */
+export function rankIndex(rank) {
+  const i = RANKS.findIndex((r) => r.name === rank);
+  return i < 0 ? 0 : i;
+}
+
+/** True if a unit is Heroic or higher (gating for Crusade Relics, §3.4). */
+export function isHeroicPlus(rank) {
+  return rankIndex(rank) >= rankIndex("Heroic");
+}
+
+/** Rank tiers crossed going old→new XP — i.e. battle-honour slots earned (§3.5). */
+export function promotionSlots(oldXp, newXp) {
+  return Math.max(0, rankIndex(rankForXp(newXp)) - rankIndex(rankForXp(oldXp)));
+}
+
+// ─── Post-battle XP (CRUSADE_SPEC §3.2) ────────────────────────────────────────
+
+/**
+ * Auto-calculated XP for a unit that fought in a battle. Mirrors the server's
+ * compute_auto_xp so the PostBattleFlow preview matches what finalize stores.
+ *   +1 participated · +1 won · +1 killed 1+ · +1 killed 3+ · +1 marked · +agenda
+ */
+export function autoXp({ kills = 0, won = false, marked = false, agenda = 0 }) {
+  let xp = 1;                       // participated
+  if (won) xp += 1;
+  if (kills >= 1) xp += 1;
+  if (kills >= 3) xp += 1;
+  if (marked) xp += 1;
+  xp += agenda || 0;
+  return xp;
+}
+
 // ─── Bulk import from parsed roster units ──────────────────────────────────────
 
 /**
@@ -232,4 +265,58 @@ export async function startBattle(engineId, units, faction) {
     throw new Error(err.detail || "Failed to start battle");
   }
   return res.json();
+}
+
+// ─── In-progress battle state (lives in campaign.state.active_battle) ────────────
+
+/**
+ * Build the active_battle blob that tracks an in-progress battle. Stored in the
+ * campaign's State JSON (NOT a new table) so a mid-battle refresh restores it.
+ */
+export function buildActiveBattle({ mission = "", pointLimit = 0, units, markedId = null }) {
+  return {
+    mission,
+    point_limit: pointLimit,
+    started_at: new Date().toISOString(),
+    units: units.map((u) => ({
+      unit_id: u.id,
+      unit_name: u.nickname || u.unit_name,
+      kills: 0,
+      destroyed: false,
+      marked: u.id === markedId,
+    })),
+  };
+}
+
+/** Persist the active_battle blob into the campaign State (merges, doesn't clobber). */
+export async function persistActiveBattle(campaign, activeBattle) {
+  const state = { ...(campaign.state || {}), active_battle: activeBattle };
+  return updateCampaign(campaign.id, { state });
+}
+
+// ─── Battles (history + post-battle finalize) ───────────────────────────────────
+
+/** List a campaign's resolved battles, newest first. */
+export async function listBattles(campaignId) {
+  const data = await jsonOrThrow(
+    await fetch(`${API}/campaigns/${campaignId}/battles`), "Failed to load battles");
+  return data.battles;
+}
+
+/**
+ * Finalize a battle: server applies per-unit XP/rank/honour/scar updates, writes
+ * one CrusadeBattles row, bumps campaign RP + W/L/D + battle count, and clears
+ * state.active_battle. Returns the refreshed campaign (with units).
+ *
+ * @param {string} campaignId
+ * @param {Object} payload  { result, mission, point_limit, notes, rp_gained,
+ *                            unit_results: [{unit_id, kills, destroyed, xp_gained, scars?, honours?}] }
+ */
+export async function finalizeBattle(campaignId, payload) {
+  const res = await fetch(`${API}/campaigns/${campaignId}/battles`, {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify(payload),
+  });
+  return jsonOrThrow(res, "Failed to finalize battle");
 }

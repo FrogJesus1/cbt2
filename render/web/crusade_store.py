@@ -35,6 +35,7 @@ from pyairtable import Api
 
 CAMPAIGNS_TABLE = "CrusadeCampaigns"
 UNITS_TABLE = "CrusadeUnits"
+BATTLES_TABLE = "CrusadeBattles"
 
 
 # ─── Table specs (used for self-provisioning + manual reference) ───────────────
@@ -78,9 +79,79 @@ TABLE_SPECS = {
          "options": {"icon": "check", "color": "greenBright"}},
         {"name": "UpdatedAt", "type": "singleLineText"},
     ],
+    BATTLES_TABLE: [
+        {"name": "BattleId", "type": "singleLineText"},
+        {"name": "CampaignId", "type": "singleLineText"},
+        {"name": "Mission", "type": "singleLineText"},
+        {"name": "PointLimit", "type": "number", "options": {"precision": 0}},
+        {"name": "Result", "type": "singleLineText"},
+        {"name": "RPGained", "type": "number", "options": {"precision": 0}},
+        {"name": "UnitResults", "type": "multilineText"},
+        {"name": "Notes", "type": "multilineText"},
+        {"name": "PlayedAt", "type": "singleLineText"},
+    ],
 }
 
 RANKS = ["Fresh", "Blooded", "Battle-hardened", "Heroic", "Legendary"]
+
+# XP floor for each rank (CRUSADE_SPEC §3.1). Single source of truth shared by
+# the post-battle promotion logic; the frontend mirrors this in lib/crusade.js.
+RANK_THRESHOLDS = [
+    ("Fresh", 0),
+    ("Blooded", 6),
+    ("Battle-hardened", 16),
+    ("Heroic", 31),
+    ("Legendary", 51),
+]
+
+
+def rank_for_xp(xp: int) -> str:
+    """Highest rank whose XP threshold is met by ``xp`` (CRUSADE_SPEC §3.1)."""
+    x = int(xp or 0)
+    rank = RANK_THRESHOLDS[0][0]
+    for name, floor in RANK_THRESHOLDS:
+        if x >= floor:
+            rank = name
+    return rank
+
+
+def _rank_index(rank: str) -> int:
+    for i, (name, _) in enumerate(RANK_THRESHOLDS):
+        if name == rank:
+            return i
+    return 0
+
+
+def compute_auto_xp(*, kills: int = 0, won: bool = False,
+                    marked: bool = False, agenda: int = 0) -> int:
+    """Auto-calculated XP for a unit that fought in a battle (CRUSADE_SPEC §3.2).
+
+      +1 participated (always — the unit was mustered)
+      +1 on the winning side
+      +1 destroyed 1+ enemy unit
+      +1 destroyed 3+ enemy units (bonus)
+      +1 marked for greatness
+      +agenda (deferred to Session 5; passed through for the manual override)
+    """
+    xp = 1  # participated
+    if won:
+        xp += 1
+    if int(kills or 0) >= 1:
+        xp += 1
+    if int(kills or 0) >= 3:
+        xp += 1
+    if marked:
+        xp += 1
+    xp += int(agenda or 0)
+    return xp
+
+
+def promotion_slots(old_xp: int, new_xp: int) -> int:
+    """Number of rank tiers crossed going from ``old_xp`` to ``new_xp``.
+
+    Each crossed tier grants one battle-honour slot (CRUSADE_SPEC §3.5).
+    """
+    return max(0, _rank_index(rank_for_xp(new_xp)) - _rank_index(rank_for_xp(old_xp)))
 
 
 # ─── Airtable connection + lazy schema provisioning ────────────────────────────
@@ -389,3 +460,137 @@ def delete_unit(unit_id: str) -> bool:
         return False
     table.delete(record["id"])
     return True
+
+
+# ─── Battle (history) API ───────────────────────────────────────────────────────
+
+def _record_to_battle(record: dict) -> dict:
+    f = record["fields"]
+    return {
+        "id":           f.get("BattleId", ""),
+        "campaign_id":  f.get("CampaignId", ""),
+        "mission":      f.get("Mission", ""),
+        "point_limit":  int(f.get("PointLimit", 0) or 0),
+        "result":       f.get("Result", ""),
+        "rp_gained":    int(f.get("RPGained", 0) or 0),
+        "unit_results": _loads(f.get("UnitResults"), []),
+        "notes":        f.get("Notes", ""),
+        "played_at":    f.get("PlayedAt"),
+        "_record_id":   record["id"],
+    }
+
+
+def create_battle(campaign_id: str, *, mission: str = "", point_limit: int = 0,
+                  result: str = "", rp_gained: int = 0,
+                  unit_results: list | None = None, notes: str = "",
+                  played_at: str | None = None) -> dict:
+    table = _table(BATTLES_TABLE)
+    played = played_at or _now()
+    battle_id = f"{campaign_id}:battle:{int(time.time() * 1000)}"
+    table.create({
+        "BattleId":     battle_id,
+        "CampaignId":   campaign_id,
+        "Mission":      mission,
+        "PointLimit":   int(point_limit or 0),
+        "Result":       result,
+        "RPGained":     int(rp_gained or 0),
+        "UnitResults":  json.dumps(unit_results or []),
+        "Notes":        notes or "",
+        "PlayedAt":     played,
+    })
+    record = _find(table, "BattleId", battle_id)
+    return _record_to_battle(record) if record else None
+
+
+def list_battles(campaign_id: str) -> list[dict]:
+    """Return a campaign's battles, newest first."""
+    table = _table(BATTLES_TABLE)
+    records = table.all(formula=f"{{CampaignId}} = '{campaign_id}'")
+    battles = [_record_to_battle(r) for r in records]
+    battles.sort(key=lambda b: b.get("played_at") or "", reverse=True)
+    return battles
+
+
+# ─── Post-battle finalize transaction (CRUSADE_SPEC §5 / Phase 5) ────────────────
+
+def finalize_battle(campaign_id: str, *, result: str, mission: str = "",
+                    point_limit: int = 0, unit_results: list | None = None,
+                    notes: str = "", rp_gained: int = 1) -> dict | None:
+    """Atomically resolve a battle.
+
+    For each entry in ``unit_results`` (``[{unit_id, kills, destroyed,
+    xp_gained, scars?, honours?}]``):
+      • add ``xp_gained`` to the unit's XP and re-derive its rank,
+      • append any newly chosen scars / honours,
+      • bump battles fought (+1), battles survived (+1 unless destroyed),
+        lifetime kills, and clear marked-for-greatness.
+    Then write one CrusadeBattles row, bump the campaign's RP / W-L-D /
+    battle count, and clear ``state.active_battle``. Returns the refreshed
+    campaign (with units), or ``None`` if the campaign is missing.
+    """
+    campaign = get_campaign(campaign_id)
+    if not campaign:
+        return None
+
+    result = (result or "").lower()
+    won = result == "win"
+    summary = []
+
+    for ur in (unit_results or []):
+        unit = get_unit(ur.get("unit_id", ""))
+        if not unit:
+            continue
+        xp_gained = int(ur.get("xp_gained", 0) or 0)
+        old_xp = int(unit.get("xp", 0) or 0)
+        new_xp = old_xp + xp_gained
+        old_rank = rank_for_xp(old_xp)
+        new_rank = rank_for_xp(new_xp)
+        destroyed = bool(ur.get("destroyed"))
+        kills = int(ur.get("kills", 0) or 0)
+        new_honours = ur.get("honours") or []
+        new_scars = ur.get("scars") or []
+
+        update_unit(unit["id"], {
+            "xp":               new_xp,
+            "rank":             new_rank,
+            "honours":          (unit.get("honours") or []) + new_honours,
+            "scars":            (unit.get("scars") or []) + new_scars,
+            "battles_fought":   int(unit.get("battles_fought", 0) or 0) + 1,
+            "battles_survived": int(unit.get("battles_survived", 0) or 0) + (0 if destroyed else 1),
+            "enemy_kills":      int(unit.get("enemy_kills", 0) or 0) + kills,
+            "marked_for_greatness": False,
+        })
+
+        summary.append({
+            "unit_id":    unit["id"],
+            "unit_name":  unit.get("nickname") or unit.get("unit_name", ""),
+            "kills":      kills,
+            "destroyed":  destroyed,
+            "xp_gained":  xp_gained,
+            "new_xp":     new_xp,
+            "new_rank":   new_rank,
+            "promoted":   new_rank != old_rank,
+            "scars":      new_scars,
+            "honours":    new_honours,
+        })
+
+    battle = create_battle(
+        campaign_id, mission=mission, point_limit=point_limit, result=result,
+        rp_gained=rp_gained, unit_results=summary, notes=notes)
+
+    state = dict(campaign.get("state") or {})
+    state.pop("active_battle", None)
+    update_campaign(campaign_id, {
+        "rp":           int(campaign.get("rp", 0) or 0) + int(rp_gained or 0),
+        "battle_count": int(campaign.get("battle_count", 0) or 0) + 1,
+        "wins":         int(campaign.get("wins", 0) or 0) + (1 if result == "win" else 0),
+        "losses":       int(campaign.get("losses", 0) or 0) + (1 if result == "loss" else 0),
+        "draws":        int(campaign.get("draws", 0) or 0) + (1 if result == "draw" else 0),
+        "state":        state,
+    })
+
+    refreshed = get_campaign(campaign_id)
+    if refreshed is not None:
+        refreshed["units"] = list_units(campaign_id)
+        refreshed["last_battle"] = battle
+    return refreshed

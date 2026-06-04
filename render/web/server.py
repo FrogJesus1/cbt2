@@ -168,6 +168,14 @@ class UnitCreateBody(BaseModel):
 class UnitUpdateBody(BaseModel):
     updates: dict = {}
 
+class BattleFinalizeBody(BaseModel):
+    result:       str = "draw"        # win | loss | draw
+    mission:      str = ""
+    point_limit:  int = 0
+    notes:        str = ""
+    rp_gained:    int = 1
+    unit_results: list = []           # [{unit_id, kills, destroyed, xp_gained, scars?, honours?}]
+
 
 # ─── App factory ──────────────────────────────────────────────────────────────
 
@@ -463,6 +471,29 @@ def create_app(config: dict) -> FastAPI:
         if not crusade_store.delete_unit(unit_id):
             raise HTTPException(status_code=404, detail="Unit not found")
         return {"ok": True}
+
+    # ── Battles (history + post-battle finalize) ──
+
+    @app.get("/api/crusade/campaigns/{campaign_id}/battles")
+    def api_list_battles(campaign_id: str):
+        try:
+            return {"battles": crusade_store.list_battles(campaign_id)}
+        except Exception as e:
+            raise HTTPException(status_code=503, detail=str(e))
+
+    @app.post("/api/crusade/campaigns/{campaign_id}/battles")
+    def api_finalize_battle(campaign_id: str, body: BattleFinalizeBody):
+        try:
+            campaign = crusade_store.finalize_battle(
+                campaign_id,
+                result=body.result, mission=body.mission,
+                point_limit=body.point_limit, unit_results=body.unit_results,
+                notes=body.notes, rp_gained=body.rp_gained)
+        except Exception as e:
+            raise HTTPException(status_code=503, detail=str(e))
+        if not campaign:
+            raise HTTPException(status_code=404, detail="Campaign not found")
+        return campaign
 
     # ── Health check ─────────────────────────────────────────────────────────
 

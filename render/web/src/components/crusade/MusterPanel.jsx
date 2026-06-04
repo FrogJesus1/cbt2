@@ -10,7 +10,7 @@
 import { useState } from "react";
 import { C } from "../shared/colors";
 import { ActionChip, SectionHeader, RankBadge, inputStyle, labelStyle } from "./ui";
-import { startBattle } from "@/lib/crusade";
+import { startBattle, buildActiveBattle, persistActiveBattle } from "@/lib/crusade";
 
 function Row({ unit, checked, marked, onToggle, onMark }) {
   return (
@@ -54,8 +54,9 @@ function Row({ unit, checked, marked, onToggle, onMark }) {
   );
 }
 
-export function MusterPanel({ campaign, units, engineId, onInject, onClose }) {
+export function MusterPanel({ campaign, units, engineId, onInject, onClose, onReload }) {
   const [limit, setLimit] = useState(1000);
+  const [mission, setMission] = useState("");
   const [selected, setSelected] = useState(() => new Set());
   const [marked, setMarked] = useState(null);   // unit id marked for greatness
   const [busy, setBusy] = useState(false);
@@ -77,11 +78,21 @@ export function MusterPanel({ campaign, units, engineId, onInject, onClose }) {
 
   const start = async () => {
     if (!selectedUnits.length) { setError("Select at least one unit."); return; }
-    if (!engineId) { setError("No engine connected."); return; }
     setBusy(true); setError(null);
     try {
-      await startBattle(engineId, selectedUnits, campaign.faction);
-      setDone({ count: selectedUnits.length, points: total });
+      // Persist the in-progress battle into campaign.state.active_battle so a
+      // refresh restores the tracker. Engine push is best-effort (in-memory).
+      const activeBattle = buildActiveBattle({
+        mission: mission.trim(), pointLimit: limit, units: selectedUnits, markedId: marked,
+      });
+      await persistActiveBattle(campaign, activeBattle);
+      if (engineId) {
+        try { await startBattle(engineId, selectedUnits, campaign.faction); }
+        catch { /* engine roster is non-durable; tracker still works */ }
+      }
+      // Parent re-fetches the campaign → CampaignDetail swaps to BattleTracker.
+      if (onReload) await onReload();
+      else setDone({ count: selectedUnits.length, points: total });
     } catch (e) {
       setError(e.message || "Failed to start battle");
     } finally {
@@ -118,10 +129,15 @@ export function MusterPanel({ campaign, units, engineId, onInject, onClose }) {
       />
 
       <div style={{ display: "flex", gap: "16px", flexWrap: "wrap", alignItems: "flex-end", marginBottom: "14px" }}>
-        <div style={{ width: "140px" }}>
+        <div style={{ width: "120px" }}>
           <label style={labelStyle}>Point limit</label>
           <input style={inputStyle} type="number" min={0} step={100} value={limit}
             onChange={(e) => setLimit(parseInt(e.target.value || "0", 10))} />
+        </div>
+        <div style={{ width: "180px" }}>
+          <label style={labelStyle}>Mission (opt.)</label>
+          <input style={inputStyle} value={mission} placeholder="Take and Hold"
+            onChange={(e) => setMission(e.target.value)} />
         </div>
         <div style={{ flex: 1, minWidth: "160px" }}>
           <div style={{ display: "flex", justifyContent: "space-between", fontFamily: "monospace", fontSize: "11px", marginBottom: "4px" }}>
