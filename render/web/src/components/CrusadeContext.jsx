@@ -12,6 +12,7 @@ import {
   listCampaigns, getCampaign, createCampaign, deleteCampaign, labelify,
 } from "@/lib/crusade";
 import { C } from "./shared/colors";
+import { OrderOfBattle } from "./crusade/OrderOfBattle";
 
 // ─── Small shared bits ─────────────────────────────────────────────────────────
 
@@ -182,10 +183,8 @@ function StatBlock({ label, value, color = C.green }) {
   );
 }
 
-function CampaignDetail({ campaign, onBack }) {
+function CampaignDetail({ campaign, onBack, onReload, onError }) {
   const units = campaign.units || [];
-  const oobPoints = units.reduce((sum, u) => sum + (u.points || 0), 0);
-  const overLimit = oobPoints > campaign.supply_limit;
 
   return (
     <div style={{ display: "flex", flexDirection: "column", gap: "18px" }}>
@@ -212,51 +211,8 @@ function CampaignDetail({ campaign, onBack }) {
         </div>
       </div>
 
-      {/* Order of Battle */}
-      <div>
-        <SectionHeader
-          title="Order of Battle"
-          subtitle={`${units.length} unit${units.length === 1 ? "" : "s"} · ${oobPoints} / ${campaign.supply_limit} pts`}
-        />
-        {units.length === 0 ? (
-          <div style={{
-            border: `1px dashed ${C.border}`, padding: "22px", textAlign: "center",
-            color: C.dim, fontSize: "12px", fontFamily: "monospace", lineHeight: 1.6,
-          }}>
-            No units yet. Building the Order of Battle — importing rosters, Crusade
-            Cards, and loadout editing — arrives in the next update.
-          </div>
-        ) : (
-          <div style={{ display: "flex", flexDirection: "column", gap: "6px" }}>
-            {units.map((u) => (
-              <div key={u.id} style={{
-                border: `1px solid ${C.border}`, background: C.panel, padding: "8px 12px",
-                display: "flex", justifyContent: "space-between", alignItems: "center",
-              }}>
-                <div>
-                  <span style={{ color: C.green, fontSize: "13px", fontFamily: "monospace" }}>
-                    {u.nickname || u.unit_name}
-                  </span>
-                  {u.nickname && (
-                    <span style={{ color: C.dim, fontSize: "11px", fontFamily: "monospace", marginLeft: "8px" }}>
-                      {u.unit_name}
-                    </span>
-                  )}
-                  <span style={{ color: C.amber, fontSize: "10px", fontFamily: "monospace", marginLeft: "10px" }}>
-                    {u.rank} · {u.xp} XP
-                  </span>
-                </div>
-                <span style={{ color: C.dim, fontSize: "11px", fontFamily: "monospace" }}>{u.points} pts</span>
-              </div>
-            ))}
-            {overLimit && (
-              <div style={{ color: C.red, fontSize: "11px", fontFamily: "monospace", marginTop: "4px" }}>
-                ⚠ Over supply limit by {oobPoints - campaign.supply_limit} pts
-              </div>
-            )}
-          </div>
-        )}
-      </div>
+      {/* Order of Battle — editable */}
+      <OrderOfBattle campaign={campaign} units={units} onReload={onReload} onError={onError} />
     </div>
   );
 }
@@ -333,6 +289,17 @@ export function CrusadeContext({ profileName }) {
     }
   };
 
+  // Re-fetch the active campaign (with its units) after an OOB edit.
+  const reloadActive = useCallback(async () => {
+    if (!active?.id) return;
+    try {
+      const full = await getCampaign(active.id);
+      setActive(full);
+    } catch (e) {
+      setError(e.message || "Failed to reload campaign");
+    }
+  }, [active?.id]);
+
   return (
     <div style={{ height: "100%", overflow: "auto", padding: "20px 22px", fontFamily: "monospace" }}>
       <div style={{ display: "flex", alignItems: "baseline", justifyContent: "space-between", marginBottom: "18px" }}>
@@ -362,7 +329,12 @@ export function CrusadeContext({ profileName }) {
       )}
 
       {view === "detail" && active && (
-        <CampaignDetail campaign={active} onBack={() => { setActive(null); setView("list"); refresh(); }} />
+        <CampaignDetail
+          campaign={active}
+          onBack={() => { setActive(null); setView("list"); refresh(); }}
+          onReload={reloadActive}
+          onError={setError}
+        />
       )}
 
       {view === "list" && (

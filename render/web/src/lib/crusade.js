@@ -95,3 +95,84 @@ export function labelify(slug) {
     .map((w) => w.charAt(0).toUpperCase() + w.slice(1))
     .join(" ");
 }
+
+// ─── Crusade rank progression (CRUSADE_SPEC §3.1) ──────────────────────────────
+
+/** Ordered rank tiers with their XP floor and battle-honour allowance. */
+export const RANKS = [
+  { name: "Fresh",           xp: 0,  honours: 0 },
+  { name: "Blooded",         xp: 6,  honours: 1 },
+  { name: "Battle-hardened", xp: 16, honours: 2 },
+  { name: "Heroic",          xp: 31, honours: 3 },
+  { name: "Legendary",       xp: 51, honours: 4 },
+];
+
+export const RANK_NAMES = RANKS.map((r) => r.name);
+
+/** Highest rank whose XP threshold is met by the given XP total. */
+export function rankForXp(xp) {
+  const x = Number.isFinite(xp) ? xp : 0;
+  let rank = RANKS[0].name;
+  for (const r of RANKS) {
+    if (x >= r.xp) rank = r.name;
+  }
+  return rank;
+}
+
+/** XP needed for the next rank, or null if already Legendary. */
+export function xpToNextRank(xp) {
+  const x = Number.isFinite(xp) ? xp : 0;
+  const next = RANKS.find((r) => r.xp > x);
+  return next ? { rank: next.name, remaining: next.xp - x, at: next.xp } : null;
+}
+
+// ─── Bulk import from parsed roster units ──────────────────────────────────────
+
+/**
+ * Import a list of parsed roster units (see lib/rosterParse) into a campaign's
+ * Order of Battle. Returns { added, skipped } counts.
+ *
+ * @param {string} campaignId
+ * @param {Array} parsedUnits   output of parseRosterUnits()
+ * @param {Object} [opts]
+ * @param {Array}  [opts.existing]   current OOB units (for duplicate detection)
+ * @param {"skip"|"all"|"replace"} [opts.mode="skip"]
+ */
+export async function importUnits(campaignId, parsedUnits, opts = {}) {
+  const { existing = [], mode = "skip" } = opts;
+
+  if (mode === "replace") {
+    await Promise.all(existing.map((u) => deleteUnit(u.id).catch(() => {})));
+  }
+
+  // Build a duplicate-detection set of name|nickname (lowercased).
+  const seen = new Set();
+  if (mode === "skip") {
+    for (const u of existing) {
+      seen.add(`${(u.unit_name || "").toLowerCase()}|${(u.nickname || "").toLowerCase()}`);
+    }
+  }
+
+  let added = 0;
+  let skipped = 0;
+  for (const pu of parsedUnits) {
+    const key = `${(pu.name || "").toLowerCase()}|${(pu.nickname || "").toLowerCase()}`;
+    if (mode === "skip" && seen.has(key)) { skipped += 1; continue; }
+    seen.add(key);
+
+    const created = await createUnit(campaignId, {
+      unit_name: pu.name,
+      nickname: pu.nickname || "",
+      points: pu.points || 0,
+      models: pu.models || 1,
+      is_leader: !!pu.is_leader,
+      loadout: pu.weapons || [],
+    });
+    // attached_to isn't accepted by createUnit — patch it in when present.
+    if (pu.attached_to && created?.id) {
+      await updateUnit(created.id, { attached_to: pu.attached_to }).catch(() => {});
+    }
+    added += 1;
+  }
+  return { added, skipped };
+}

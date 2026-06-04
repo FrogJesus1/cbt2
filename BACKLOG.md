@@ -148,6 +148,30 @@ Data that exists somewhere (old CT project or external sources) but isn't wired 
 
 ---
 
+## Crusade Tracker (render/web — CRUSADE tab)
+
+Server-backed Crusade campaign manager (Airtable `CrusadeCampaigns` + `CrusadeUnits`).
+Not a data engine — lives in the render layer alongside the rosters system.
+
+### Done
+
+| Status | Session | Description | Component |
+|--------|---------|-------------|-----------|
+| ✅ DONE 2026-06-04 | S2 | **Editable Order of Battle** — `OrderOfBattle.jsx`: add unit (manual form), remove unit, live supply gauge (used pts vs supply limit, over-limit highlighted red), click-to-expand unit rows. Wired into `CrusadeContext` `CampaignDetail`, replacing the read-only OOB summary. `reloadActive()` re-fetches the campaign after every edit. | `crusade/OrderOfBattle.jsx`, `CrusadeContext.jsx` |
+| ✅ DONE 2026-06-04 | S2 | **Roster-text import** — `ImportFlow` parses pasted CT roster text with the shared `parseRosterUnits`, previews parsed units (flagging duplicates), then bulk-creates units. Default mode: append + skip duplicates (name|nickname match). `parseRosterUnits` extracted from `Terminal.jsx` into `lib/rosterParse.js` (single source of truth; Terminal now imports it). | `lib/rosterParse.js`, `crusade/OrderOfBattle.jsx`, `lib/crusade.js` `importUnits` |
+| ✅ DONE 2026-06-04 | S2 | **CrusadeCard** — per-unit detail editor: nickname, points, models, leader toggle, attachment (dropdown of other OOB units), XP with auto-derived rank (`rankForXp` per spec §3.1) + manual override, loadout add/remove chips, free-form battle honours + scars ({name, effect}), marked-for-greatness toggle. Read-only counters: battles fought/survived, kills, crusade points. Saves via `updateUnit`. | `crusade/CrusadeCard.jsx`, `crusade/ui.jsx`, `lib/crusade.js` rank helpers |
+
+### Gaps / Deferred
+
+| Priority | Gap | Notes |
+|----------|-----|-------|
+| LOW | `createUnit` body has no `attached_to` field | Import patches attachment via a second `updateUnit` call (extra round-trip). Could add `attached_to` to `UnitCreateBody` + `create_unit`. |
+| LOW | Bulk import is N sequential POSTs | One create per parsed unit. Fine for OOB sizes; a `/units/bulk` endpoint would cut round-trips for large rosters. |
+| MED | Honours/scars are free-form text only | Structured `HonourPicker` with the generic battle-trait/scar tables and combat `flag` values (for the auto-flag combat bridge) is Session 4/5 per spec §3.5 / §5.2. |
+| MED | Muster + combat bridge not built | Session 3: `MusterPanel`, "Start Battle" → enriched roster context, engine-side crusade auto-flags. |
+
+---
+
 ## Engine: _(next engine)_
 
 > Copy this section template when adding a new engine.
