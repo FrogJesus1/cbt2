@@ -124,8 +124,16 @@ function buildRosterContext(activeRosters) {
   const myFinal  = enrichUnits(myUnits, "player");
   const oppFinal = enrichUnits(oppUnits, "enemy");
 
-  if (!myFinal.length && !oppFinal.length) return null;
-  return { my_units: myFinal, opponent_units: oppFinal };
+  // Only include a side we actually have an active roster for. Omitting a
+  // key tells the engine "leave that side untouched", which preserves a
+  // roster pushed by another path (e.g. a Crusade Muster) instead of
+  // clobbering it with an empty list. An empty list is sent ONLY on an
+  // explicit clear (see the "clear roster" handler).
+  const ctx = {};
+  if (activeRosters.player) ctx.my_units = myFinal;
+  if (activeRosters.enemy)  ctx.opponent_units = oppFinal;
+  if (!("my_units" in ctx) && !("opponent_units" in ctx)) return null;
+  return ctx;
 }
 
 // ─── Boot splash ──────────────────────────────────────────────────────────────
@@ -1227,11 +1235,13 @@ export function Terminal({
       if (side === "player" || side === "my") {
         activeRostersRef.current.player = null;
         emitSystem(trimmed, "Player roster cleared.");
-        onExec?.("faction none");
+        // Explicit empty list → engine clears roster_my (vs. omitting the
+        // key, which would leave a previously-mustered roster in place).
+        onExec?.("faction none", { my_units: [] });
       } else if (side === "enemy") {
         activeRostersRef.current.enemy = null;
         emitSystem(trimmed, "Enemy roster cleared.");
-        onExec?.("enemy none");
+        onExec?.("enemy none", { opponent_units: [] });
       } else {
         emitError(trimmed, "Usage: clear roster player  or  clear roster enemy");
       }

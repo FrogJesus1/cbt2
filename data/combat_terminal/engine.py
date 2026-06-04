@@ -703,6 +703,65 @@ class CombatTerminalEngine(EngineBase):
                             return bg
         return None
 
+    def _resolve_unit_dossier(self, name: str, faction: str | None) -> dict | None:
+        """Resolve a datasheet from a roster/crusade entry name, variant-aware.
+
+        Crusade & army-list entries store full datasheet names like
+        'Commander in Coldstar Battlesuit', but parsed dossiers sometimes
+        collapse variant datasheets under a shared base name (e.g. the three
+        Tau 'COMMANDER' variants) and keep the full name only inside
+        `faction_keywords`. A plain get_unit() then returns None and the
+        attached leader is silently dropped.
+
+        Resolution order:
+          1. Direct lookup (exact / substring / token) via the loader.
+          2. Base-name lookup (text before an 'in'/'with' qualifier) plus
+             variant disambiguation against each candidate's faction_keywords.
+
+        Returns the unit dict (with 'faction') or None.
+        """
+        if not name:
+            return None
+
+        # 1. Direct lookup — handles the common case.
+        unit = self._loader.get_unit(name, faction=faction)
+        if unit:
+            return unit
+
+        # 2. Variant disambiguation.
+        norm = lambda s: re.sub(r'[^a-z0-9 ]', '', (s or '').lower()).strip()
+        q_norm = norm(name)
+        base = re.split(r'\b(?:in|with)\b', name, flags=re.IGNORECASE)[0].strip() or name
+
+        candidates = self._loader.get_units_matching(base, faction=faction, limit=9)
+        if not candidates:
+            return None
+        if len(candidates) == 1:
+            return candidates[0]
+
+        # Multiple datasheets share the base name (e.g. Coldstar / Crisis /
+        # Enforcer Commanders). Pick the one whose faction_keywords (or name)
+        # matches the descriptor carried in the full entry name.
+        base_tokens = set(norm(base).split())
+        filler = {"in", "with", "a", "an", "the", "of", "battlesuit", "battlesuits"}
+        variant_tokens = (set(q_norm.split()) - base_tokens) - filler
+
+        for cand in candidates:
+            kw_parts = [
+                k if isinstance(k, str) else str(k)
+                for k in (cand.get("faction_keywords") or [])
+            ]
+            kw_text = norm(" ".join(kw_parts) + " " + (cand.get("name") or ""))
+            kw_token_set = set(kw_text.split())
+            if q_norm and q_norm in kw_text:
+                return cand
+            if variant_tokens and variant_tokens.issubset(kw_token_set):
+                return cand
+
+        # No variant matched — fall back to the first candidate rather than
+        # dropping the leader entirely.
+        return candidates[0]
+
     def _roster_disambiguate(
         self,
         context: str,
@@ -777,18 +836,30 @@ class CombatTerminalEngine(EngineBase):
 
         roster_lower = [w.lower() for w in roster_weapons]
 
+        def _wname(w):
+            return (w.get("name") or "").lower() if isinstance(w, dict) else str(w).lower()
+
+        # All dossier weapon names — used to reject a shorter weapon being
+        # swallowed by a longer roster entry that is itself a distinct weapon
+        # (e.g. roster "High-output burst cannon" must NOT pull in the plain
+        # "Burst cannon" datasheet weapon).
+        dossier_names = {_wname(w) for w in unit_weapons}
+
         filtered = []
         for w in unit_weapons:
-            if isinstance(w, dict):
-                w_name = (w.get("name") or "").lower()
-            else:
-                w_name = str(w).lower()
+            w_name = _wname(w)
 
-            # Check if this weapon matches any roster weapon entry
             for rw in roster_lower:
-                if rw in w_name or w_name in rw:
-                    filtered.append(w)
-                    break
+                if rw == w_name:
+                    filtered.append(w); break
+                # Roster term is part of a more-specific dossier weapon
+                # (e.g. roster "railgun" → dossier "heavy railgun").
+                if rw in w_name:
+                    filtered.append(w); break
+                # Dossier weapon is shorter than the roster entry — only accept
+                # when the roster entry isn't itself a distinct dossier weapon.
+                if w_name in rw and rw not in dossier_names:
+                    filtered.append(w); break
 
         # If filtering removed everything (bad match), fall back to full list
         return filtered if filtered else unit_weapons
@@ -1269,14 +1340,20 @@ class CombatTerminalEngine(EngineBase):
             if leader_entry:
                 # A leader is attached to this unit — look up leader dossier
                 leader_name = leader_entry.get("name", "")
-                att_leader_unit = self._loader.get_unit(leader_name, faction=att_unit.get("faction"))
+                att_leader_unit = self._resolve_unit_dossier(leader_name, att_unit.get("faction"))
+                # Stash the leader's own roster loadout so weapon filtering
+                # uses the exact attached entry (the dossier name may differ,
+                # e.g. 'COMMANDER' vs 'Commander in Coldstar Battlesuit').
+                if att_leader_unit and leader_entry.get("weapons"):
+                    att_leader_unit = {**att_leader_unit,
+                                       "_roster_weapons": leader_entry["weapons"]}
             else:
                 # Maybe WE are the leader — check if we're attached to a bodyguard
                 bg_entry = self._find_bodyguard_for_leader(att_name, "roster_my")
                 if bg_entry:
                     bg_name = bg_entry.get("name", "")
                     att_leader_unit = att_unit  # the "leader" is us
-                    bg_unit = self._loader.get_unit(bg_name, faction=att_unit.get("faction"))
+                    bg_unit = self._resolve_unit_dossier(bg_name, att_unit.get("faction"))
                     if bg_unit:
                         # Swap: bodyguard becomes the base unit, leader augments it
                         att_leader_unit = att_unit
@@ -1292,13 +1369,13 @@ class CombatTerminalEngine(EngineBase):
             leader_entry = self._find_attached_leader(def_name, "roster_enemy")
             if leader_entry:
                 leader_name = leader_entry.get("name", "")
-                def_leader_unit = self._loader.get_unit(leader_name, faction=def_unit.get("faction"))
+                def_leader_unit = self._resolve_unit_dossier(leader_name, def_unit.get("faction"))
             else:
                 bg_entry = self._find_bodyguard_for_leader(def_name, "roster_enemy")
                 if bg_entry:
                     bg_name = bg_entry.get("name", "")
                     def_leader_unit = def_unit
-                    bg_unit = self._loader.get_unit(bg_name, faction=def_unit.get("faction"))
+                    bg_unit = self._resolve_unit_dossier(bg_name, def_unit.get("faction"))
                     if bg_unit:
                         def_leader_unit = def_unit
                         def_unit = bg_unit
@@ -1385,14 +1462,19 @@ class CombatTerminalEngine(EngineBase):
         if att_leader_unit:
             leader_augmented = self._augment_unit_with_supplements(att_leader_unit)
             leader_ws = leader_augmented.get("weapons", [])
-            # If the leader has a roster entry, filter its weapons too
-            leader_name_lower = att_leader_unit.get("name", "").lower()
-            for _ru in self._session.get("roster_my", []):
-                _rn = (_ru.get("name") or "").lower()
-                if _rn and (_rn in leader_name_lower or leader_name_lower in _rn):
-                    if _ru.get("weapons"):
-                        leader_ws = self._filter_weapons_by_roster(leader_ws, _ru["weapons"])
-                    break
+            # Prefer the leader's exact attached roster loadout (stashed at
+            # resolution time); fall back to a name-based roster search.
+            _stashed = att_leader_unit.get("_roster_weapons")
+            if _stashed:
+                leader_ws = self._filter_weapons_by_roster(leader_ws, _stashed)
+            else:
+                leader_name_lower = att_leader_unit.get("name", "").lower()
+                for _ru in self._session.get("roster_my", []):
+                    _rn = (_ru.get("name") or "").lower()
+                    if _rn and (_rn in leader_name_lower or leader_name_lower in _rn):
+                        if _ru.get("weapons"):
+                            leader_ws = self._filter_weapons_by_roster(leader_ws, _ru["weapons"])
+                        break
             att_leader_weapons = leader_ws
 
         # Extra attacks per model from attacker-side flags.

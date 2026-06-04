@@ -65,11 +65,30 @@ def remove(shorthand: str) -> bool:
     return False
 
 
+def _collapse_adjacent_dupes(text: str) -> str:
+    """Collapse consecutive duplicate words (case-insensitive).
+
+    Expanding a shorthand whose full term overlaps words the user already
+    typed produces doubled tokens — e.g. typing "crisis fireknife" with the
+    alias fireknife→"crisis fireknife battlesuits" yields
+    "crisis crisis fireknife battlesuits". Removing adjacent repeats restores
+    the intended "crisis fireknife battlesuits".
+    """
+    out: list[str] = []
+    for tok in text.split():
+        if out and out[-1].lower() == tok.lower():
+            continue
+        out.append(tok)
+    return " ".join(out)
+
+
 def expand(text: str) -> tuple[str, Optional[str]]:
     """Expand aliases in text.  Returns (expanded_text, matched_alias_or_None).
 
     Replaces the first matching alias found (whole-word, case-insensitive).
-    Only one expansion per call to avoid chaining surprises.
+    Only one expansion per call to avoid chaining surprises. Adjacent
+    duplicate words created by the substitution are collapsed so an alias
+    that overlaps already-typed words doesn't double them.
     """
     lower = text.lower()
     for shorthand, full_term in _aliases.items():
@@ -77,6 +96,7 @@ def expand(text: str) -> tuple[str, Optional[str]]:
         pattern = re.compile(r'\b' + re.escape(shorthand) + r'\b', re.IGNORECASE)
         if pattern.search(lower):
             expanded = pattern.sub(full_term, text, count=1)
+            expanded = _collapse_adjacent_dupes(expanded)
             return expanded, shorthand
     return text, None
 
