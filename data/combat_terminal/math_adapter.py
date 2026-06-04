@@ -351,17 +351,19 @@ def _apply_flags(flags: list, base_mods: "AttackModifiers", target: "TargetProfi
         elif key == "twin":
             base_mods.reroll_wounds = "failed"
 
-        elif key.startswith("sustained"):
-            # Accepts: "sustained" (→1), "sustained1", "sustained:2", etc.
+        elif key.startswith("sus"):
+            # Sustained Hits N.  Forms: --sus / --sus1 (→1), --sus2, --sus3
+            # (also legacy --sustained, --sustainedN, --sustained:N).
             n = 1
+            base = "sustained" if key.startswith("sustained") else "sus"
             if ":" in f:
                 try:
                     n = int(f.split(":")[1])
                 except (ValueError, IndexError):
                     n = 1
-            elif len(key) > len("sustained"):
+            elif len(key) > len(base):
                 try:
-                    n = int(key[len("sustained"):])
+                    n = int(key[len(base):])
                 except ValueError:
                     n = 1
             base_mods.sustained_hits = max(base_mods.sustained_hits, n)
@@ -548,6 +550,37 @@ def _apply_flags(flags: list, base_mods: "AttackModifiers", target: "TargetProfi
                 except ValueError: n = 1
             base_mods.wound_bonus += n
 
+        # ── Extra Armour Penetration ─────────────────────────────────────────
+        # eap     — Extra AP +N for the ATTACKER (AP-1 → AP-2; the many "improve
+        #           the Armour Penetration characteristic by 1" abilities /
+        #           stratagems).  Forms: --eap, --eap2, --eap3.
+        # eapdef  — Extra AP for the DEFENDER: worsens incoming AP by N (AP-2 →
+        #           AP-1, e.g. T'au Commander in Enforcer Battlesuit "worsen the
+        #           Armour Penetration characteristic of that attack by 1").
+        #           Forms: --eapdef, --eapdef2.
+        # Convention: effective_ap = weapon.ap - ap_modifier; weapon.ap is the
+        # unsigned magnitude, so more AP means ap_modifier goes NEGATIVE.
+        # NB: check eapdef BEFORE eap ("eapdef" also starts with "eap").
+        elif key.startswith("eapdef"):
+            n = 1
+            if ":" in f:
+                try: n = int(f.split(":")[1])
+                except (ValueError, IndexError): n = 1
+            elif len(key) > len("eapdef"):
+                try: n = int(key[len("eapdef"):])
+                except ValueError: n = 1
+            base_mods.ap_modifier += n
+
+        elif key.startswith("eap"):
+            n = 1
+            if ":" in f:
+                try: n = int(f.split(":")[1])
+                except (ValueError, IndexError): n = 1
+            elif len(key) > len("eap"):
+                try: n = int(key[len("eap"):])
+                except ValueError: n = 1
+            base_mods.ap_modifier -= n
+
         # ── Faction-specific compound modifiers ──────────────────────────────
         elif key == "oath":
             # Oath of Moment (Space Marines): reroll all hits and wounds vs target
@@ -564,6 +597,7 @@ KNOWN_FLAG_BASES = {
     "torrent", "lance", "invuln", "ea", "dev", "devastating",
     "fnp", "dmgplus", "ed", "melta", "heavy",
     "stealth", "indirect", "halfdmg", "igncover", "nocover",
+    "eap", "eapdef", "sus",
     "rrhit", "rrhits", "rrhit1", "rrhits1",
     "rrwound1", "rrwounds1",
     "criton", "critwound",

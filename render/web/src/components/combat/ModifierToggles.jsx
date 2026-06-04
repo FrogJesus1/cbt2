@@ -117,7 +117,8 @@ function flagSemantic(flag) {
   const key = flag.split(":")[0].toLowerCase();
   // Defensive modifiers that help the target (shown in penalty color)
   if (key === "cover" || key.startsWith("invuln") || key.startsWith("fnp")
-      || key === "stealth" || key === "indirect" || key === "halfdmg") return "penalty";
+      || key === "stealth" || key === "indirect" || key === "halfdmg"
+      || key.startsWith("eapdef")) return "penalty";
   return "benefit";
 }
 

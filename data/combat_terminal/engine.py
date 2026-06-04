@@ -63,6 +63,169 @@ def _baseline_wr(strength_str, toughness_str):
     return 6
 
 
+# ─── Modifier-reason attribution ───────────────────────────────────────────────
+# Maps an active modifier flag to the stat it shifts and the signed effect on the
+# dice roll (positive = easier = lower target number = "better" / green).
+# Used to explain *why* a BS / WR cell is coloured in the combat weapon table.
+
+# (signed_effect, human_label).  signed_effect=None means "non-numeric" (e.g. auto-hit).
+_HIT_FLAG_EFFECTS = {
+    "ml":       (+1, "Markerlight"),
+    "heavy":    (+1, "Heavy (stationary)"),   # only when weapon has HEAVY keyword
+    "stealth":  (-1, "Stealth (target)"),
+    "indirect": (-1, "Indirect Fire"),
+    "torrent":  (None, "Torrent (auto-hit)"),
+}
+_WOUND_FLAG_EFFECTS = {
+    "lance":    (+1, "Lance"),
+}
+
+
+def _signed(n):
+    """Format a signed integer: 1 → '+1', -1 → '-1'."""
+    return f"+{n}" if n >= 0 else str(n)
+
+
+def _flag_int(flag, base, default=1):
+    """Pull the integer arg out of a flag like 'hitplus:2' or 'hitplus2'."""
+    key = flag.split(":")[0].lower()
+    if ":" in flag:
+        try:
+            return int(flag.split(":")[1])
+        except (ValueError, IndexError):
+            return default
+    if len(key) > len(base):
+        try:
+            return int(key[len(base):])
+        except ValueError:
+            return default
+    return default
+
+
+def _collect_stat_sources(flags, weapon_keywords):
+    """Return (hit_sources, wound_sources) for the active flags.
+
+    Each source is (signed_amount_or_None, label).  `weapon_keywords` gates
+    conditional flags (HEAVY only applies to HEAVY-keyword weapons).
+    """
+    kw_upper = {str(k).upper() for k in (weapon_keywords or [])}
+    hit, wound = [], []
+    for f in (flags or []):
+        key = f.split(":")[0].lower()
+        if key == "heavy" and not any(k.startswith("HEAVY") for k in kw_upper):
+            continue  # Heavy bonus only on Heavy weapons
+        if key in _HIT_FLAG_EFFECTS:
+            hit.append(_HIT_FLAG_EFFECTS[key])
+        elif key in _WOUND_FLAG_EFFECTS:
+            wound.append(_WOUND_FLAG_EFFECTS[key])
+        elif key.startswith("hitplus"):
+            # Generic to-Hit buff (ability / stratagem / Crusade trait) — the
+            # amount is already shown as the delta, so no redundant source label.
+            hit.append((_flag_int(f, "hitplus"), None))
+        elif key.startswith("wndplus"):
+            wound.append((_flag_int(f, "wndplus"), None))
+    return hit, wound
+
+
+def _build_stat_reason(stat, roll_word, frm_n, to_n, sources, direction):
+    """Build a concise reason object for a coloured stat cell.
+
+    stat       — column label, e.g. "BS" or "WR"
+    roll_word  — "Hit" or "Wound" (used in the "+1 to Hit" phrasing)
+    frm_n/to_n — integer roll targets (baseline → effective)
+    sources    — list of (signed_amount_or_None, label)
+    direction  — "better" | "worse"
+    """
+    frm = f"{frm_n}+"
+    to  = f"{to_n}+"
+    labels = [lbl for _, lbl in sources if lbl]
+    nums   = [a for a, _ in sources if a is not None]
+    net    = sum(nums) if nums else None
+    delta  = f"{_signed(net)} to {roll_word}" if net else None
+    via    = " + ".join(labels) if labels else None
+
+    if delta and via:
+        text = f"{delta} via {via}  ·  {stat} {frm} → {to}"
+    elif delta:
+        text = f"{delta}  ·  {stat} {frm} → {to}"
+    elif via:
+        text = f"{via}  ·  {stat} {frm} → {to}"
+    else:
+        text = f"{stat} {frm} → {to} (modified from baseline)"
+
+    return {
+        "stat":      stat,
+        "roll":      roll_word,
+        "from":      frm,
+        "to":        to,
+        "delta":     delta,
+        "via":       via,
+        "direction": direction,
+        "text":      text,
+    }
+
+
+def _ap_magnitude(ap_val):
+    """Unsigned AP magnitude: '-2' → 2, '0'/'' → 0, '2' → 2."""
+    try:
+        return abs(int(str(ap_val).replace("+", "").strip()))
+    except (ValueError, TypeError):
+        return 0
+
+
+def _collect_ap_sources(flags):
+    """Return AP-modifier sources from active --eap / --eapdef flags.
+
+    Each source is (signed_magnitude_change, label).  Positive = AP improved
+    (more penetration, attacker --eap buff); negative = AP worsened (a target
+    ability such as the Commander in Enforcer Battlesuit, attacker-facing
+    --eapdef).
+    """
+    sources = []
+    for f in (flags or []):
+        key = f.split(":")[0].lower()
+        if key.startswith("eapdef"):         # defender worsens incoming AP
+            sources.append((-_flag_int(f, "eapdef"), "target"))
+        elif key.startswith("eap"):          # attacker improves AP
+            sources.append((+_flag_int(f, "eap"), None))
+    return sources
+
+
+def _build_ap_reason(base_mag, eff_mag, sources, direction):
+    """Concise reason object for a modified AP cell.
+
+    base_mag/eff_mag — unsigned AP magnitudes (1 == AP-1).  AP is displayed
+    signed (AP-1), so the headline reads e.g. "AP -1 → -2".
+    """
+    frm = f"-{base_mag}" if base_mag > 0 else "0"
+    to  = f"-{eff_mag}"  if eff_mag  > 0 else "0"
+    labels = [lbl for _, lbl in sources if lbl]
+    nums   = [a for a, _ in sources if a is not None]
+    net    = sum(nums) if nums else None
+    delta  = f"{_signed(net)} AP" if net else None
+    via    = " + ".join(labels) if labels else None
+
+    if delta and via:
+        text = f"{delta} via {via}  ·  AP {frm} → {to}"
+    elif delta:
+        text = f"{delta}  ·  AP {frm} → {to}"
+    elif via:
+        text = f"{via}  ·  AP {frm} → {to}"
+    else:
+        text = f"AP {frm} → {to} (modified from baseline)"
+
+    return {
+        "stat":      "AP",
+        "roll":      "AP",
+        "from":      frm,
+        "to":        to,
+        "delta":     delta,
+        "via":       via,
+        "direction": direction,
+        "text":      text,
+    }
+
+
 # ─── Drone & attachment catalog ────────────────────────────────────────────────
 # Maps drone type name (lowercase, as it appears in unit_composition text) to:
 #   "weapons"    — list of weapon dicts to inject into the unit's weapon list
@@ -542,11 +705,15 @@ class CombatTerminalEngine(EngineBase):
         Value flags (--invuln 4) → "invuln:4"
         """
         flags   = []
-        pattern = re.compile(r'--(\w+)(?:\s+([^\s-]\S*))?')
+        # Flag name may carry an inline ":value" (e.g. --invuln:4, --eap:-1) OR a
+        # space-separated value (e.g. --invuln 4).  The inline-colon group must be
+        # part of the name capture, otherwise the ":4" is left behind in the text
+        # and corrupts the attacker's unit/loadout resolution.
+        pattern = re.compile(r'--(\w+(?::-?\w+)?)(?:\s+([^\s-]\S*))?')
         for m in pattern.finditer(text):
             flag_name = m.group(1).lower()
             flag_val  = m.group(2)
-            if flag_val and not flag_val.startswith('-'):
+            if ":" not in flag_name and flag_val and not flag_val.startswith('-'):
                 flags.append(f"{flag_name}:{flag_val}")
             else:
                 flags.append(flag_name)
@@ -666,18 +833,33 @@ class CombatTerminalEngine(EngineBase):
                 matches.append(entry)
         return matches
 
-    def _find_attached_leader(self, unit_name: str, roster_key: str) -> dict | None:
-        """Find a leader attached to the given unit in the roster.
+    def _find_attached_leader(self, unit_name: str, roster_key: str,
+                              nickname: str | None = None) -> dict | None:
+        """Find a leader attached to the given bodyguard in the roster.
 
-        Returns the leader roster entry if one is attached_to this unit, else None.
+        Attachments reference a bodyguard by its nickname when it has one (so
+        one of several identically-named units can be singled out), otherwise
+        by unit name. We match attached_to against the nickname first (exact,
+        to disambiguate identical units), then fall back to the unit name.
+
+        Returns the leader roster entry if one is attached, else None.
         """
         roster = self._session.get(roster_key, [])
-        name_lower = unit_name.lower()
+        name_lower = (unit_name or "").lower()
+        nick_lower = (nickname or "").lower()
+        target = nick_lower or name_lower
         for entry in roster:
             if not entry.get("is_leader"):
                 continue
             attached = (entry.get("attached_to") or "").lower()
-            if attached and (attached in name_lower or name_lower in attached):
+            if not attached:
+                continue
+            # Exact match on the entry's identifying label (nickname or name).
+            if target and attached == target:
+                return entry
+            # Lenient name-based match only when the bodyguard has no nickname
+            # (so an attachment saved by unit name still resolves).
+            if not nick_lower and (attached in name_lower or name_lower in attached):
                 return entry
         return None
 
@@ -734,33 +916,51 @@ class CombatTerminalEngine(EngineBase):
         base = re.split(r'\b(?:in|with)\b', name, flags=re.IGNORECASE)[0].strip() or name
 
         candidates = self._loader.get_units_matching(base, faction=faction, limit=9)
-        if not candidates:
-            return None
         if len(candidates) == 1:
             return candidates[0]
 
-        # Multiple datasheets share the base name (e.g. Coldstar / Crisis /
-        # Enforcer Commanders). Pick the one whose faction_keywords (or name)
-        # matches the descriptor carried in the full entry name.
-        base_tokens = set(norm(base).split())
-        filler = {"in", "with", "a", "an", "the", "of", "battlesuit", "battlesuits"}
-        variant_tokens = (set(q_norm.split()) - base_tokens) - filler
+        if len(candidates) > 1:
+            # Multiple datasheets share the base name (e.g. Coldstar / Crisis /
+            # Enforcer Commanders). Pick the one whose faction_keywords (or
+            # name) matches the descriptor carried in the full entry name.
+            base_tokens = set(norm(base).split())
+            filler = {"in", "with", "a", "an", "the", "of", "battlesuit", "battlesuits"}
+            variant_tokens = (set(q_norm.split()) - base_tokens) - filler
 
-        for cand in candidates:
-            kw_parts = [
-                k if isinstance(k, str) else str(k)
-                for k in (cand.get("faction_keywords") or [])
-            ]
-            kw_text = norm(" ".join(kw_parts) + " " + (cand.get("name") or ""))
-            kw_token_set = set(kw_text.split())
-            if q_norm and q_norm in kw_text:
-                return cand
-            if variant_tokens and variant_tokens.issubset(kw_token_set):
-                return cand
+            for cand in candidates:
+                kw_parts = [
+                    k if isinstance(k, str) else str(k)
+                    for k in (cand.get("faction_keywords") or [])
+                ]
+                kw_text = norm(" ".join(kw_parts) + " " + (cand.get("name") or ""))
+                kw_token_set = set(kw_text.split())
+                if q_norm and q_norm in kw_text:
+                    return cand
+                if variant_tokens and variant_tokens.issubset(kw_token_set):
+                    return cand
 
-        # No variant matched — fall back to the first candidate rather than
-        # dropping the leader entirely.
-        return candidates[0]
+            # No variant matched — fall back to the first candidate rather than
+            # dropping the leader entirely.
+            return candidates[0]
+
+        # 3. Space / punctuation-insensitive fallback. Army-list exports often
+        #    run words together or hyphenate ("Kroot Trailshaper",
+        #    "Kroot Trail-Shaper") where the datasheet has spaces
+        #    ("Kroot Trail Shaper"). Broaden the pool via the first meaningful
+        #    token and compare with all non-alphanumerics stripped.
+        squash = lambda s: re.sub(r'[^a-z0-9]', '', (s or '').lower())
+        q_sq = squash(name)
+        if q_sq:
+            first = (q_norm.split() or [""])[0]
+            pool = self._loader.get_units_matching(first, faction=faction, limit=50) if first else []
+            for cand in pool:                       # exact squashed match first
+                if squash(cand.get("name")) == q_sq:
+                    return cand
+            for cand in pool:                       # then squashed containment
+                c_sq = squash(cand.get("name"))
+                if c_sq and (q_sq in c_sq or c_sq in q_sq):
+                    return cand
+        return None
 
     def _roster_disambiguate(
         self,
@@ -809,6 +1009,12 @@ class CombatTerminalEngine(EngineBase):
             parts.append(f"[{weapon_str}]")
             if pts:
                 parts.append(f"({pts} pts)")
+            # Flag which entry has a leader attached so the player can tell the
+            # instances apart (matches by nickname first, then unit name).
+            ldr = self._find_attached_leader(unit_name, roster_key, nickname)
+            if ldr:
+                ldr_name = ldr.get("name") or "leader"
+                parts.append(f"★ led by {ldr_name}")
             labels.append("  ".join(parts))
 
         return {
@@ -1334,9 +1540,11 @@ class CombatTerminalEngine(EngineBase):
         # in the bodyguard's weapons.
         att_leader_unit = None
         def_leader_unit = None
+        att_leader_missing = None   # leader attached in roster but no datasheet found
 
         if att_unit:
-            leader_entry = self._find_attached_leader(att_name, "roster_my")
+            att_bg_nick = (att_roster_entry or {}).get("nickname")
+            leader_entry = self._find_attached_leader(att_name, "roster_my", att_bg_nick)
             if leader_entry:
                 # A leader is attached to this unit — look up leader dossier
                 leader_name = leader_entry.get("name", "")
@@ -1347,6 +1555,15 @@ class CombatTerminalEngine(EngineBase):
                 if att_leader_unit and leader_entry.get("weapons"):
                     att_leader_unit = {**att_leader_unit,
                                        "_roster_weapons": leader_entry["weapons"]}
+                elif not att_leader_unit:
+                    # Leader is attached but we have no datasheet for it — surface
+                    # this instead of silently omitting the leader's firepower.
+                    att_leader_missing = leader_name or "attached leader"
+                    self._log_issue(
+                        "unit_lookup",
+                        f"Attached leader has no datasheet: '{leader_name}'",
+                        f"bodyguard={att_name}",
+                    )
             else:
                 # Maybe WE are the leader — check if we're attached to a bodyguard
                 bg_entry = self._find_bodyguard_for_leader(att_name, "roster_my")
@@ -1366,7 +1583,8 @@ class CombatTerminalEngine(EngineBase):
                                 att_roster_entry = bg_matches[0]
 
         if def_unit:
-            leader_entry = self._find_attached_leader(def_name, "roster_enemy")
+            def_bg_nick = (def_roster_entry or {}).get("nickname")
+            leader_entry = self._find_attached_leader(def_name, "roster_enemy", def_bg_nick)
             if leader_entry:
                 leader_name = leader_entry.get("name", "")
                 def_leader_unit = self._resolve_unit_dossier(leader_name, def_unit.get("faction"))
@@ -1663,6 +1881,13 @@ class CombatTerminalEngine(EngineBase):
             "oath":      {"icon": "star",      "text": "Oath of Moment — re-roll all failed Hit and Wound rolls"},
         }
         flag_notes = []
+        if att_leader_missing:
+            flag_notes.append({
+                "icon": "alert",
+                "text": (f"Attached leader “{att_leader_missing}” has no datasheet in the "
+                         f"dossier — its weapons are NOT included. Add the unit to the "
+                         f"faction dossier to include it."),
+            })
         for f in flags:
             key = f.split(":")[0]
             if key in FLAG_NOTE_MAP:
@@ -1691,6 +1916,22 @@ class CombatTerminalEngine(EngineBase):
             elif key.startswith("wndplus"):
                 val = f.split(":")[1] if ":" in f else (re.sub(r'^wndplus', '', key) or "1")
                 flag_notes.append({"icon": "star", "text": f"+{val} to Wound rolls"})
+            elif key.startswith("sus"):
+                base = "sustained" if key.startswith("sustained") else "sus"
+                raw = f.split(":")[1] if ":" in f else (key[len(base):] or "1")
+                try: n = int(raw)
+                except ValueError: n = 1
+                flag_notes.append({"icon": "star", "text": f"Sustained Hits {n} — critical hits generate +{n} extra hit(s)"})
+            elif key.startswith("eapdef"):
+                raw = f.split(":")[1] if ":" in f else (re.sub(r'^eapdef', '', key) or "1")
+                try: n = int(raw)
+                except ValueError: n = 1
+                flag_notes.append({"icon": "shield", "text": f"-{n} Armour Penetration — target worsens incoming AP (e.g. Commander in Enforcer Battlesuit)"})
+            elif key.startswith("eap"):
+                raw = f.split(":")[1] if ":" in f else (re.sub(r'^eap', '', key) or "1")
+                try: n = int(raw)
+                except ValueError: n = 1
+                flag_notes.append({"icon": "skull", "text": f"+{n} Armour Penetration — improves weapon AP (e.g. AP-1 → AP-{1 + n})"})
 
         # Crusade honour/scar notes — auto-applied, shown with a ◈ marker
         if crusade_notes:
@@ -1775,6 +2016,10 @@ class CombatTerminalEngine(EngineBase):
             w["wound_target"] = pw.get("wound_target")
             w["overkill_pct"] = pw.get("overkill_waste_pct")
 
+            # Active modifier sources for this weapon (gates HEAVY by keyword).
+            hit_sources, wound_sources = _collect_stat_sources(
+                math_flags, w.get("keywords"))
+
             # BS delta: compare effective hit roll vs the weapon's baseline BS/WS
             try:
                 bs_base = int(str(w.get("bs_ws", "")).replace("+", "").strip())
@@ -1782,6 +2027,9 @@ class CombatTerminalEngine(EngineBase):
                 if ht is not None:
                     if   ht < bs_base: w["bs_delta"] = "better"
                     elif ht > bs_base: w["bs_delta"] = "worse"
+                    if w.get("bs_delta"):
+                        w["bs_reason"] = _build_stat_reason(
+                            "BS", "Hit", bs_base, ht, hit_sources, w["bs_delta"])
             except (ValueError, TypeError):
                 pass
 
@@ -1792,6 +2040,23 @@ class CombatTerminalEngine(EngineBase):
                 if base_wr is not None and wt is not None:
                     if   wt < base_wr: w["wr_delta"] = "better"
                     elif wt > base_wr: w["wr_delta"] = "worse"
+                    if w.get("wr_delta"):
+                        w["wr_reason"] = _build_stat_reason(
+                            "WR", "Wound", base_wr, wt, wound_sources, w["wr_delta"])
+
+            # AP delta: --eap (attacker improves AP) / --eapdef (target worsens it).
+            # Recompute the effective AP and overwrite the displayed value so the
+            # cell shows the modified AP, with a popover explaining the shift.
+            ap_sources = _collect_ap_sources(math_flags)
+            ap_net = sum(a for a, _ in ap_sources if a is not None)
+            if ap_net:
+                base_mag = _ap_magnitude(w.get("ap"))
+                eff_mag  = max(0, base_mag + ap_net)
+                if eff_mag != base_mag:
+                    w["ap"] = f"-{eff_mag}" if eff_mag > 0 else "0"
+                    w["ap_delta"]  = "better" if eff_mag > base_mag else "worse"
+                    w["ap_reason"] = _build_ap_reason(
+                        base_mag, eff_mag, ap_sources, w["ap_delta"])
 
         # Sort: ranged by dmg desc, melee by dmg desc
         ranged_ws = sorted([w for w in weapons if w["type"] != "melee"],
@@ -3215,7 +3480,7 @@ class CombatTerminalEngine(EngineBase):
         offensive_modifier_flags = [
             {"flag": "--lethal",      "display": "[lethal]",     "desc": "Lethal Hits",                "effect": "Unmodified 6s to Hit auto-wound (skip wound roll, proceed to saves)"},
             {"flag": "--twin",        "display": "[twin]",       "desc": "Twin-linked",                "effect": "Re-roll all failed wound rolls"},
-            {"flag": "--sustained1",  "display": "[sustained]",  "desc": "Sustained Hits 1",           "effect": "Critical hit (6+) generates 1 additional hit. Use --sustained:2 for Sustained Hits 2"},
+            {"flag": "--sus1",        "display": "[sus]",        "desc": "Sustained Hits 1",           "effect": "Critical hit (6+) generates 1 additional hit. Use --sus2, --sus3 for Sustained Hits 2/3"},
             {"flag": "--dev",         "display": "[dev]",        "desc": "Devastating Wounds",         "effect": "Critical wounds (6+ on wound roll) bypass all saves (mortal wound equivalent)"},
             {"flag": "--blast",       "display": "[blast]",      "desc": "Blast",                      "effect": "Minimum 3 attacks when targeting 6+ model units — defender model count required for full resolution"},
             {"flag": "--rf",          "display": "[rf]",         "desc": "Rapid Fire (in range)",      "effect": "Rapid Fire N already baked into A count; flag signals in-half-range condition"},
@@ -3223,6 +3488,7 @@ class CombatTerminalEngine(EngineBase):
             {"flag": "--lance",       "display": "[lance]",      "desc": "Lance",                      "effect": "+1 to wound rolls (approximation — full rule applies vs VEHICLES/MONSTERS only)"},
             {"flag": "--torrent",     "display": "[torrent]",    "desc": "Torrent",                    "effect": "Weapon auto-hits (no BS roll required); natural 6s on separate die still trigger crits"},
             {"flag": "--heavy",       "display": "[heavy]",      "desc": "Heavy (Remained Stationary)","effect": "+1 to Hit rolls on weapons with the Heavy keyword"},
+            {"flag": "--eap",         "display": "[eap]",        "desc": "Extra AP +N (attacker)",     "effect": "Improves the weapon's Armour Penetration by N (AP-1 → AP-2). Forms: --eap, --eap2, --eap3. The many 'improve the Armour Penetration characteristic by 1' abilities/stratagems."},
             {"flag": "--igncover",    "display": "[igncover]",   "desc": "Ignore Cover",               "effect": "Attacker ignores benefit of cover (standalone — --ml also includes this)"},
             {"flag": "--ea1",         "display": "[ea1]",        "desc": "Extra Attacks +1",           "effect": "+1 extra attack per model before squad scaling (also: --ea2, --ea:3 etc.)"},
             {"flag": "--ed1",         "display": "[ed1]",        "desc": "Extra Damage +1",            "effect": "+N flat damage per unsaved wound. Also: --ed2, --ed:3 etc."},
@@ -3237,7 +3503,8 @@ class CombatTerminalEngine(EngineBase):
             {"flag": "--cover",       "display": "[cover]",      "desc": "Target in cover",            "effect": "+1 to target armour saves (e.g. Sv3+ → Sv2+)"},
             {"flag": "--stealth",     "display": "[stealth]",    "desc": "Stealth",                    "effect": "-1 to Hit rolls against this target (many faction abilities grant this)"},
             {"flag": "--indirect",    "display": "[indirect]",   "desc": "Indirect Fire",              "effect": "-1 to Hit rolls AND target gets benefit of cover (+1 save)"},
-            {"flag": "--invuln4",     "display": "[invuln:4]",   "desc": "Invulnerable Save Override", "effect": "Forces target invulnerable save to 4+. Also: --invuln5, --invuln:6 etc."},
+            {"flag": "--invuln4",     "display": "[invuln4]",    "desc": "Invulnerable Save Override", "effect": "Forces target invulnerable save to 4+. Also: --invuln5, --invuln6"},
+            {"flag": "--eapdef",      "display": "[eapdef]",     "desc": "Extra AP (defender)",        "effect": "Defender worsens the AP of incoming attacks by N (AP-2 → AP-1, e.g. Commander in Enforcer Battlesuit). Forms: --eapdef, --eapdef2. Place after vs on the defender."},
             {"flag": "--fnp6",        "display": "[fnp:6]",      "desc": "Feel No Pain Override",      "effect": "Target gains/overrides Feel No Pain save to 6+. Also: --fnp5, --fnp:4 etc."},
             {"flag": "--halfdmg",     "display": "[halfdmg]",    "desc": "Half Damage",                "effect": "Halves damage inflicted (e.g. Duty Eternal, damage reduction abilities)"},
         ]

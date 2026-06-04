@@ -20,6 +20,12 @@
  */
 
 import { Card, CardContent } from "@/components/ui/card";
+import {
+  Tooltip,
+  TooltipTrigger,
+  TooltipContent,
+  TooltipProvider,
+} from "@/components/ui/tooltip";
 import { C, CARD_STYLE, CARD_PAD, SectionTitle } from "./shared";
 
 // ─── Keyword badge abbreviations ───────────────────────────────────────────
@@ -66,25 +72,102 @@ function resolveApDelta(w) {
   return null;                                        // AP-1/-2 = moderate, leave neutral
 }
 
-// ─── Stat cell — optionally coloured by delta ──────────────────────────────
+// ─── Modifier-reason popover ───────────────────────────────────────────────
+// Rendered on hover over a coloured BS / WR cell.  `reason` is the engine-built
+// object: { stat, from, to, delta, via, direction, text }.
 
-function StatCell({ value, delta, dim = false }) {
+function ReasonPopover({ reason }) {
+  const dirColor = reason.direction === "worse" ? C.red : C.green;
+  return (
+    <TooltipContent
+      side="top"
+      sideOffset={6}
+      className="rounded-none border px-0 py-0"
+      style={{
+        background:    C.bgDark,
+        border:        `1px solid ${dirColor}`,
+        boxShadow:     `0 0 10px ${dirColor}55`,
+        color:         C.mid,
+        fontFamily:    "inherit",
+        maxWidth:      "240px",
+        padding:       0,
+      }}
+    >
+      <div style={{ padding: "7px 10px" }}>
+        {/* Stat change headline */}
+        <div style={{
+          color:         dirColor,
+          fontWeight:    700,
+          fontSize:      "13px",
+          letterSpacing: "0.02em",
+          textShadow:    `0 0 6px ${dirColor}70`,
+          whiteSpace:    "nowrap",
+        }}>
+          {reason.stat} {reason.from} → {reason.to}
+        </div>
+        {/* Modifier attribution */}
+        <div style={{
+          marginTop: "3px",
+          fontSize:  "11px",
+          color:     C.label,
+          lineHeight: 1.35,
+        }}>
+          {reason.delta && (
+            <span style={{ color: C.amber, fontWeight: 600 }}>{reason.delta}</span>
+          )}
+          {reason.delta && reason.via && (
+            <span style={{ color: C.dim }}>{"  ·  "}</span>
+          )}
+          {reason.via
+            ? <span>via {reason.via}</span>
+            : (!reason.delta && <span>modified from baseline</span>)}
+        </div>
+      </div>
+    </TooltipContent>
+  );
+}
+
+// ─── Stat cell — optionally coloured by delta, hoverable when reason present ──
+
+function StatCell({ value, delta, reason, dim = false }) {
   let color = dim ? C.label : C.mid;
   if (delta === "better") color = C.green;
   if (delta === "worse")  color = C.red;
 
+  const cellStyle = {
+    textAlign:  "center",
+    padding:    "4px 8px",
+    color,
+    fontWeight: delta ? 700 : 400,
+    textShadow: delta === "better" ? `0 0 6px ${C.green}80`
+              : delta === "worse"  ? `0 0 6px ${C.red}80`
+              : "none",
+    whiteSpace: "nowrap",
+  };
+
+  // No explanation available → plain cell.
+  if (!reason) {
+    return <td style={cellStyle}>{value ?? "—"}</td>;
+  }
+
+  // Hoverable cell: dotted underline hints the popover, cursor = help.
   return (
-    <td style={{
-      textAlign:  "center",
-      padding:    "4px 8px",
-      color,
-      fontWeight: delta ? 700 : 400,
-      textShadow: delta === "better" ? `0 0 6px ${C.green}80`
-                : delta === "worse"  ? `0 0 6px ${C.red}80`
-                : "none",
-      whiteSpace: "nowrap",
-    }}>
-      {value ?? "—"}
+    <td style={cellStyle}>
+      <Tooltip>
+        <TooltipTrigger asChild>
+          <span
+            onClick={(e) => e.stopPropagation()}
+            style={{
+              cursor:           "help",
+              borderBottom:     `1px dotted ${color}`,
+              paddingBottom:    "1px",
+            }}
+          >
+            {value ?? "—"}
+          </span>
+        </TooltipTrigger>
+        <ReasonPopover reason={reason} />
+      </Tooltip>
     </td>
   );
 }
@@ -194,6 +277,7 @@ function WeaponRow({ w, disabled, onToggle }) {
       <StatCell
         value={w.hit_target != null ? `${w.hit_target}+` : (w.bs_ws ?? "—")}
         delta={w.bs_delta}
+        reason={w.bs_reason}
       />
 
       {/* S */}
@@ -203,10 +287,11 @@ function WeaponRow({ w, disabled, onToggle }) {
       <StatCell
         value={wrDisplay}
         delta={w.wr_delta}
+        reason={w.wr_reason}
       />
 
-      {/* AP — positive/neutral; red only when a modifier degrades it */}
-      <StatCell value={apDisplay} delta={resolveApDelta(w)} />
+      {/* AP — modifier-aware: green when improved, red when worsened, with popover */}
+      <StatCell value={apDisplay} delta={resolveApDelta(w)} reason={w.ap_reason} />
 
       {/* D */}
       <StatCell value={w.damage ?? "—"} />
@@ -278,6 +363,7 @@ export function WeaponStatsTable({ weapons = [], disabledWeapons, onToggleWeapon
   const disabledCount = disabledWeapons ? disabledWeapons.size : 0;
 
   return (
+    <TooltipProvider delayDuration={120} skipDelayDuration={300}>
     <Card style={CARD_STYLE}>
       <CardContent style={CARD_PAD}>
         <div style={{ display: "flex", alignItems: "baseline", gap: "12px", marginBottom: "10px" }}>
@@ -334,5 +420,6 @@ export function WeaponStatsTable({ weapons = [], disabledWeapons, onToggleWeapon
         </table>
       </CardContent>
     </Card>
+    </TooltipProvider>
   );
 }

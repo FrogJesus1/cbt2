@@ -221,7 +221,10 @@ def apply_effects(base_mods: Optional[AttackModifiers], effects: Optional[List[D
 
 
 def compute_save_target(target: TargetProfile, weapon: WeaponProfile, mods: AttackModifiers) -> Optional[int]:
-    effective_ap = weapon.ap - mods.ap_modifier
+    # ap_modifier < 0 improves AP (more penetration); > 0 worsens it.
+    # Floor effective AP at 0 — worsening AP can cancel penetration but never
+    # grants the defender a *bonus* save below their printed armour.
+    effective_ap = max(0, weapon.ap - mods.ap_modifier)
     armor_save = target.save
 
     cover_bonus = 0

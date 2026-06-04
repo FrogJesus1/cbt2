@@ -13,18 +13,18 @@
 // flag === null  → descriptive only (shows in notes/abilities, no math effect)
 
 export const BATTLE_TRAITS_INFANTRY = [
-  { name: "Expert Marksmen",  effect: "+1 to Hit (ranged)",        flag: "hitplus:1" },
-  { name: "Seasoned Warriors", effect: "+1 to Hit (melee)",        flag: "hitplus:1" },
+  { name: "Expert Marksmen",  effect: "+1 to Hit (ranged)",        flag: "hitplus1" },
+  { name: "Seasoned Warriors", effect: "+1 to Hit (melee)",        flag: "hitplus1" },
   { name: "Vengeful",         effect: "Re-roll Wound rolls of 1",  flag: "rrwound1" },
-  { name: "Resilient",        effect: "6+ Feel No Pain",           flag: "fnp:6" },
+  { name: "Resilient",        effect: "6+ Feel No Pain",           flag: "fnp6" },
   { name: "Grizzled",         effect: "+1 Leadership, +1 OC",      flag: null },
   { name: "Swift",            effect: "+1\" Move",                 flag: null },
 ];
 
 export const BATTLE_TRAITS_VEHICLE = [
-  { name: "Expert Gunners",   effect: "+1 to Hit (ranged)",        flag: "hitplus:1" },
-  { name: "Reliable",         effect: "6+ Feel No Pain",           flag: "fnp:6" },
-  { name: "Deadly Payload",   effect: "+1 to Wound (one weapon)",  flag: "wndplus:1" },
+  { name: "Expert Gunners",   effect: "+1 to Hit (ranged)",        flag: "hitplus1" },
+  { name: "Reliable",         effect: "6+ Feel No Pain",           flag: "fnp6" },
+  { name: "Deadly Payload",   effect: "+1 to Wound (one weapon)",  flag: "wndplus1" },
   { name: "Armour Plating",   effect: "-1 Damage suffered (min 1)", flag: null },
   { name: "Mobile",           effect: "+2\" Move",                 flag: null },
   { name: "Reinforced Hull",  effect: "+1 Wound",                  flag: null },
@@ -34,8 +34,8 @@ export const BATTLE_TRAITS_VEHICLE = [
 export const HONOUR_EXTRAS = [
   { name: "Lethal Strikes",   effect: "Lethal Hits",               flag: "lethal" },
   { name: "Devastating Aim",  effect: "Devastating Wounds",        flag: "dev" },
-  { name: "Sustained Fire",   effect: "Sustained Hits 1",          flag: "sustained:1" },
-  { name: "Artificer Armour", effect: "5+ invulnerable save",      flag: "invuln:5" },
+  { name: "Sustained Fire",   effect: "Sustained Hits 1",          flag: "sus1" },
+  { name: "Artificer Armour", effect: "5+ invulnerable save",      flag: "invuln5" },
 ];
 
 // Generic Battle Scars (CRUSADE_SPEC §3.3). Most are stat penalties the combat
@@ -43,7 +43,7 @@ export const HONOUR_EXTRAS = [
 export const BATTLE_SCARS = [
   { name: "Deep Scars",    effect: "-1 Leadership, -1 OC",                flag: null },
   { name: "Battle Weary",  effect: "Cannot use Fire Overwatch",          flag: null },
-  { name: "Disgraced",     effect: "-1 to Hit rolls",                    flag: "hitplus:-1" },
+  { name: "Disgraced",     effect: "-1 to Hit rolls",                    flag: "hitplus-1" },
   { name: "Fatigued",      effect: "-1 to Advance and Charge rolls",     flag: null },
   { name: "Shell Shocked", effect: "-1 to Save vs ranged",               flag: null },
   { name: "Mark of Shame", effect: "Cannot be marked, -1 OC",            flag: null },
