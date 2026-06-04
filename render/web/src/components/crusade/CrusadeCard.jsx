@@ -15,6 +15,7 @@ import { useState, useEffect } from "react";
 import { C } from "../shared/colors";
 import { ActionChip, RankBadge, inputStyle, labelStyle } from "./ui";
 import { RANK_NAMES, rankForXp, xpToNextRank } from "@/lib/crusade";
+import { ALL_HONOUR_PRESETS, BATTLE_SCARS } from "@/lib/crusadeTraits";
 
 function Counter({ label, value, color = C.green }) {
   return (
@@ -36,15 +37,25 @@ function Field({ label, children }) {
 
 // ─── Honour / Scar editor ──────────────────────────────────────────────────────
 
-function EntryList({ title, entries, onAdd, onRemove, accent, placeholderName, placeholderEffect }) {
+function EntryList({ title, entries, onAdd, onRemove, accent, placeholderName, placeholderEffect, presets = [] }) {
   const [name, setName] = useState("");
   const [effect, setEffect] = useState("");
+  const [flag, setFlag] = useState("");
 
   const add = () => {
     const n = name.trim();
     if (!n) return;
-    onAdd({ name: n, effect: effect.trim() });
-    setName(""); setEffect("");
+    const entry = { name: n, effect: effect.trim() };
+    if (flag.trim()) entry.flag = flag.trim();
+    onAdd(entry);
+    setName(""); setEffect(""); setFlag("");
+  };
+
+  const applyPreset = (idx) => {
+    if (idx === "") return;
+    const p = presets[parseInt(idx, 10)];
+    if (!p) return;
+    setName(p.name); setEffect(p.effect); setFlag(p.flag || "");
   };
 
   return (
@@ -59,6 +70,11 @@ function EntryList({ title, entries, onAdd, onRemove, accent, placeholderName, p
               <div style={{ fontFamily: "monospace", fontSize: "12px", flex: 1, minWidth: 0 }}>
                 <span style={{ color: accent }}>{e.name}</span>
                 {e.effect && <span style={{ color: C.dim, marginLeft: "8px" }}>{e.effect}</span>}
+                {e.flag && (
+                  <span style={{ color: C.cyan, marginLeft: "8px", fontSize: "10px" }} title="auto-applies to combat math">
+                    ◈ {e.flag}
+                  </span>
+                )}
               </div>
               <span
                 onClick={() => onRemove(i)}
@@ -70,17 +86,35 @@ function EntryList({ title, entries, onAdd, onRemove, accent, placeholderName, p
           ))}
         </div>
       )}
+      {presets.length > 0 && (
+        <select
+          style={{ ...inputStyle, fontSize: "11px", padding: "4px 8px", marginBottom: "6px", cursor: "pointer" }}
+          value="" onChange={(e) => applyPreset(e.target.value)}
+        >
+          <option value="">— quick-pick from table —</option>
+          {presets.map((p, i) => (
+            <option key={i} value={i}>{p.name} · {p.effect}{p.flag ? "  ◈" : ""}</option>
+          ))}
+        </select>
+      )}
       <div style={{ display: "flex", gap: "6px", flexWrap: "wrap" }}>
         <input
-          style={{ ...inputStyle, flex: "1 1 130px", fontSize: "12px", padding: "4px 8px" }}
+          style={{ ...inputStyle, flex: "1 1 120px", fontSize: "12px", padding: "4px 8px" }}
           value={name} placeholder={placeholderName}
           onChange={(e) => setName(e.target.value)}
           onKeyDown={(e) => { if (e.key === "Enter") add(); }}
         />
         <input
-          style={{ ...inputStyle, flex: "2 1 180px", fontSize: "12px", padding: "4px 8px" }}
+          style={{ ...inputStyle, flex: "2 1 160px", fontSize: "12px", padding: "4px 8px" }}
           value={effect} placeholder={placeholderEffect}
           onChange={(e) => setEffect(e.target.value)}
+          onKeyDown={(e) => { if (e.key === "Enter") add(); }}
+        />
+        <input
+          style={{ ...inputStyle, flex: "1 1 90px", fontSize: "11px", padding: "4px 8px" }}
+          value={flag} placeholder="flag (opt.)"
+          title="Engine combat flag, e.g. hitplus:1, fnp:6, lethal. Leave blank for display-only."
+          onChange={(e) => setFlag(e.target.value)}
           onKeyDown={(e) => { if (e.key === "Enter") add(); }}
         />
         <ActionChip label="+ Add" color={accent} hoverColor={accent} onClick={add} />
@@ -292,6 +326,7 @@ export function CrusadeCard({ unit, otherUnits = [], onSave, onDelete, onClose, 
           <EntryList
             title="Battle Honours" accent={C.amber}
             entries={draft.honours || []}
+            presets={ALL_HONOUR_PRESETS}
             placeholderName="Expert Gunners" placeholderEffect="+1 to Hit (ranged)"
             onAdd={(e) => set({ honours: [...(draft.honours || []), e] })}
             onRemove={(i) => set({ honours: (draft.honours || []).filter((_, j) => j !== i) })}
@@ -301,6 +336,7 @@ export function CrusadeCard({ unit, otherUnits = [], onSave, onDelete, onClose, 
           <EntryList
             title="Battle Scars" accent={C.red}
             entries={draft.scars || []}
+            presets={BATTLE_SCARS}
             placeholderName="Deep Scars" placeholderEffect="-1 Leadership, -1 OC"
             onAdd={(e) => set({ scars: [...(draft.scars || []), e] })}
             onRemove={(i) => set({ scars: (draft.scars || []).filter((_, j) => j !== i) })}

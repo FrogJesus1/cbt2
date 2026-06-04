@@ -525,6 +525,29 @@ def _apply_flags(flags: list, base_mods: "AttackModifiers", target: "TargetProfi
             if cv is not None:
                 base_mods.crit_wounds_on = cv
 
+        # ── Flat to-hit / to-wound bonuses ───────────────────────────────────
+        # Used by Crusade battle traits (e.g. Expert Gunners +1 to Hit) and any
+        # generic stat buff. Accepts: hitplus, hitplus:2, hitplus2 (default 1).
+        elif key.startswith("hitplus"):
+            n = 1
+            if ":" in f:
+                try: n = int(f.split(":")[1])
+                except (ValueError, IndexError): n = 1
+            elif len(key) > len("hitplus"):
+                try: n = int(key[len("hitplus"):])
+                except ValueError: n = 1
+            base_mods.hit_bonus += n
+
+        elif key.startswith("wndplus"):
+            n = 1
+            if ":" in f:
+                try: n = int(f.split(":")[1])
+                except (ValueError, IndexError): n = 1
+            elif len(key) > len("wndplus"):
+                try: n = int(key[len("wndplus"):])
+                except ValueError: n = 1
+            base_mods.wound_bonus += n
+
         # ── Faction-specific compound modifiers ──────────────────────────────
         elif key == "oath":
             # Oath of Moment (Space Marines): reroll all hits and wounds vs target
@@ -544,7 +567,7 @@ KNOWN_FLAG_BASES = {
     "rrhit", "rrhits", "rrhit1", "rrhits1",
     "rrwound1", "rrwounds1",
     "criton", "critwound",
-    "oath",
+    "oath", "hitplus", "wndplus",
 }
 
 

@@ -13,6 +13,7 @@ import {
 } from "@/lib/crusade";
 import { C } from "./shared/colors";
 import { OrderOfBattle } from "./crusade/OrderOfBattle";
+import { MusterPanel } from "./crusade/MusterPanel";
 
 // ─── Small shared bits ─────────────────────────────────────────────────────────
 
@@ -183,8 +184,9 @@ function StatBlock({ label, value, color = C.green }) {
   );
 }
 
-function CampaignDetail({ campaign, onBack, onReload, onError }) {
+function CampaignDetail({ campaign, onBack, onReload, onError, engineId, onInject }) {
   const units = campaign.units || [];
+  const [muster, setMuster] = useState(false);
 
   return (
     <div style={{ display: "flex", flexDirection: "column", gap: "18px" }}>
@@ -199,7 +201,12 @@ function CampaignDetail({ campaign, onBack, onReload, onError }) {
               {labelify(campaign.faction)} · Owner: {campaign.owner}
             </div>
           </div>
-          <ActionChip label="← Campaigns" color={C.dim} hoverColor={C.cyan} onClick={onBack} />
+          <div style={{ display: "flex", gap: "8px" }}>
+            {!muster && units.length > 0 && (
+              <ActionChip label="⚔ Muster for Battle" color={C.green} hoverColor={C.green} onClick={() => setMuster(true)} />
+            )}
+            <ActionChip label="← Campaigns" color={C.dim} hoverColor={C.cyan} onClick={onBack} />
+          </div>
         </div>
         <div style={{ display: "flex", gap: "22px", marginTop: "16px", flexWrap: "wrap" }}>
           <StatBlock label="Req. Points" value={campaign.rp} color={C.cyan} />
@@ -211,6 +218,14 @@ function CampaignDetail({ campaign, onBack, onReload, onError }) {
         </div>
       </div>
 
+      {/* Muster panel (combat bridge) */}
+      {muster && (
+        <MusterPanel
+          campaign={campaign} units={units} engineId={engineId}
+          onInject={onInject} onClose={() => setMuster(false)}
+        />
+      )}
+
       {/* Order of Battle — editable */}
       <OrderOfBattle campaign={campaign} units={units} onReload={onReload} onError={onError} />
     </div>
@@ -219,7 +234,7 @@ function CampaignDetail({ campaign, onBack, onReload, onError }) {
 
 // ─── Main component ───────────────────────────────────────────────────────────
 
-export function CrusadeContext({ profileName }) {
+export function CrusadeContext({ profileName, engineId, onInject }) {
   const [campaigns, setCampaigns] = useState([]);
   const [factions, setFactions] = useState([]);
   const [active, setActive] = useState(null);   // full campaign with units
@@ -334,6 +349,8 @@ export function CrusadeContext({ profileName }) {
           onBack={() => { setActive(null); setView("list"); refresh(); }}
           onReload={reloadActive}
           onError={setError}
+          engineId={engineId}
+          onInject={onInject}
         />
       )}
 

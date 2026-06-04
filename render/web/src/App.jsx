@@ -1152,7 +1152,7 @@ function AppInner({ profile, onLogout }) {
 
         {/* CRUSADE context */}
         <div style={panelStyle("crusade")}>
-          <CrusadeContext profileName={profile?.name} />
+          <CrusadeContext profileName={profile?.name} engineId={activeEngineId} onInject={handleAnimatedInject} />
         </div>
 
         {/* RULES context */}

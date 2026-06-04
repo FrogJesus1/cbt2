@@ -930,6 +930,61 @@ class CombatTerminalEngine(EngineBase):
 
         return self._err("_select", f"Unknown disambiguation context '{ctx}'.")
 
+    # ── Crusade enrichment (Session 3 — combat bridge) ──────────────────────────
+
+    def _crusade_block_for(self, unit_name: str, roster_key: str = "roster_my") -> dict | None:
+        """Return the roster entry carrying a `crusade` block for unit_name.
+
+        Roster entries written by the Crusade muster include a `crusade` dict
+        (rank, xp, honours, scars). Match on unit name (substring either way) so
+        a dossier name like "HAMMERHEAD GUNSHIP" still matches a roster entry
+        named "Hammerhead Gunship". Returns None when no crusade entry matches.
+        """
+        target = (unit_name or "").lower().strip()
+        if not target:
+            return None
+        for ru in self._session.get(roster_key, []):
+            if not isinstance(ru, dict) or not ru.get("crusade"):
+                continue
+            nm = (ru.get("name") or "").lower().strip()
+            if nm and (nm == target or nm in target or target in nm):
+                return ru
+        return None
+
+    @staticmethod
+    def _crusade_combat_mods(entry: dict | None) -> tuple[list, list, list]:
+        """From a roster entry's crusade block, derive auto-applied combat data.
+
+        Returns (auto_flags, notes, abilities):
+          - auto_flags: combat flag strings to merge into the math (only honours/
+            scars that carry a `flag` contribute; descriptive-only ones don't).
+          - notes:      ◈-prefixed flag_note dicts for the combat callout panel.
+          - abilities:  ability dicts (amber honours, red scars) for the panel.
+        """
+        crusade = (entry or {}).get("crusade") or {}
+        auto_flags, notes, abilities = [], [], []
+        for h in crusade.get("honours", []):
+            if not isinstance(h, dict):
+                continue
+            name = h.get("name", "Honour")
+            eff  = h.get("effect", "")
+            flag = h.get("flag")
+            if flag:
+                auto_flags.append(str(flag))
+            notes.append({"icon": "star", "text": f"◈ {name}" + (f" — {eff}" if eff else "")})
+            abilities.append({"name": f"◈ {name}", "description": eff, "color": "amber"})
+        for s in crusade.get("scars", []):
+            if not isinstance(s, dict):
+                continue
+            name = s.get("name", "Scar")
+            eff  = s.get("effect", "")
+            flag = s.get("flag")
+            if flag:
+                auto_flags.append(str(flag))
+            notes.append({"icon": "skull", "text": f"◈ {name} (scar)" + (f" — {eff}" if eff else "")})
+            abilities.append({"name": f"◈ {name} (scar)", "description": eff, "color": "red"})
+        return auto_flags, notes, abilities
+
     def _build_spec_result(self, result: dict) -> dict:
         """Build the spec_sheet response from a resolved unit dict."""
         # Augment with drones / turrets / supplements before extracting fields
@@ -945,6 +1000,22 @@ class CombatTerminalEngine(EngineBase):
         stats     = {k: result[k] for k in stat_keys if k in result}
         ratings   = self._compute_ratings(result)
         abilities = [self._normalize_ability(ab) for ab in result.get("abilities", [])]
+
+        # ── Crusade enrichment ──────────────────────────────────────────────
+        # If this unit is in the player's mustered Crusade roster, surface its
+        # rank in the subtitle and its honours/scars in the abilities list.
+        cr_entry = self._crusade_block_for(unit_name)
+        if cr_entry:
+            cr   = cr_entry.get("crusade") or {}
+            rank = cr.get("rank")
+            xp   = cr.get("xp")
+            if rank:
+                badge = f"{rank} ◈"
+                if xp is not None:
+                    badge += f" {xp}XP"
+                subtitle = "  ·  ".join(p for p in [subtitle, badge] if p)
+            _, _, cr_abilities = self._crusade_combat_mods(cr_entry)
+            abilities.extend(cr_abilities)
 
         return {
             "ok":          True,
@@ -1254,6 +1325,20 @@ class CombatTerminalEngine(EngineBase):
         if not def_unit:
             self._log_issue("unit_lookup", f"Defender not found: '{defender_raw}'", f"query={defender_raw}")
 
+        # ── Crusade combat bridge ────────────────────────────────────────────
+        # If the attacker's roster entry carries a crusade block, its honours /
+        # scars contribute auto-flags to the math (no manual --flags needed) and
+        # ◈-tagged notes + abilities to the display. Defender enrichment is left
+        # to a later session. crusade_flags skip validate_flags (already past) so
+        # descriptive-only traits never raise "unknown modifier".
+        crusade_flags, crusade_notes, crusade_abilities = self._crusade_combat_mods(att_roster_entry)
+        if not crusade_flags and not crusade_notes:
+            # Fall back to a name match in case the roster entry wasn't resolved
+            # (e.g. single-loadout unit auto-matched without _attacker_roster_entry).
+            _cr_entry = self._crusade_block_for(att_name)
+            if _cr_entry:
+                crusade_flags, crusade_notes, crusade_abilities = self._crusade_combat_mods(_cr_entry)
+
         # Augment attacker with drone / turret weapons so they appear in the
         # combat weapon table and are included in combat math.
         if att_unit:
@@ -1464,6 +1549,9 @@ class CombatTerminalEngine(EngineBase):
             for ab in att_leader_unit.get("abilities", []):
                 norm = self._normalize_ability(ab)
                 abilities.append({"name": norm["name"], "description": norm["description"], "color": "amber"})
+        # Crusade honours (amber) + scars (red) from the mustered roster entry
+        if crusade_abilities:
+            abilities.extend(crusade_abilities)
 
         # Flag notes for active modifiers
         FLAG_NOTE_MAP = {
@@ -1515,6 +1603,16 @@ class CombatTerminalEngine(EngineBase):
             elif key.startswith("critwound"):
                 val = f.split(":")[1] if ":" in f else re.sub(r'^critwound', '', key) or "?"
                 flag_notes.append({"icon": "lightning", "text": f"Critical wounds on {val}+ instead of 6+"})
+            elif key.startswith("hitplus"):
+                val = f.split(":")[1] if ":" in f else (re.sub(r'^hitplus', '', key) or "1")
+                flag_notes.append({"icon": "target", "text": f"+{val} to Hit rolls"})
+            elif key.startswith("wndplus"):
+                val = f.split(":")[1] if ":" in f else (re.sub(r'^wndplus', '', key) or "1")
+                flag_notes.append({"icon": "star", "text": f"+{val} to Wound rolls"})
+
+        # Crusade honour/scar notes — auto-applied, shown with a ◈ marker
+        if crusade_notes:
+            flag_notes.extend(crusade_notes)
 
         n_ranged = len([w for w in weapons if w["type"] != "melee"])
         n_melee  = len([w for w in weapons if w["type"] == "melee"])
@@ -1530,6 +1628,10 @@ class CombatTerminalEngine(EngineBase):
         #
         # Pass a copy of att_unit with weapons filtered to the roster loadout
         # (plus leader weapons) so the math engine only computes for equipped weapons.
+        #
+        # math_flags merges the user's command flags with auto-applied Crusade
+        # honour/scar flags so battle traits modify the math with no manual flags.
+        math_flags = list(flags) + list(crusade_flags)
         math_result = {}
         sensitivity = []
         if att_unit and def_unit:
@@ -1555,11 +1657,11 @@ class CombatTerminalEngine(EngineBase):
 
             try:
                 math_result = compute_combat(
-                    att_unit_for_math, def_unit, flags,
+                    att_unit_for_math, def_unit, math_flags,
                     att_models=att_models, def_models=def_models,
                 )
                 sensitivity = compute_sensitivity(
-                    att_unit_for_math, def_unit, flags,
+                    att_unit_for_math, def_unit, math_flags,
                     att_models=att_models, def_models=def_models,
                 )
             except Exception as _ce:
@@ -1684,7 +1786,7 @@ class CombatTerminalEngine(EngineBase):
                 "attacker": attacker_raw,
                 "defender": defender_raw,
                 "math_ledger": (
-                    build_combat_ledger(att_unit, def_unit, flags, math_result, weapons)
+                    build_combat_ledger(att_unit, def_unit, math_flags, math_result, weapons)
                     if att_unit and def_unit else []
                 ),
             },

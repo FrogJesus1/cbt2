@@ -153,6 +153,10 @@ export async function importUnits(campaignId, parsedUnits, opts = {}) {
     }
   }
 
+  return _importLoop(campaignId, parsedUnits, seen, mode);
+}
+
+async function _importLoop(campaignId, parsedUnits, seen, mode) {
   let added = 0;
   let skipped = 0;
   for (const pu of parsedUnits) {
@@ -175,4 +179,57 @@ export async function importUnits(campaignId, parsedUnits, opts = {}) {
     added += 1;
   }
   return { added, skipped };
+}
+
+// ─── Muster → combat bridge (CRUSADE_SPEC §5) ───────────────────────────────────
+
+/**
+ * Convert a stored CrusadeUnit into an enriched roster entry for the engine.
+ * Shape matches engine.sync_roster_context() + the crusade combat bridge:
+ * the `crusade` block carries rank/xp/honours/scars so battle traits with a
+ * combat `flag` auto-apply to the math.
+ */
+export function buildCrusadeUnit(unit, faction) {
+  return {
+    name:        unit.unit_name,
+    faction:     faction || unit.faction || "",
+    models:      unit.models || 1,
+    weapons:     unit.loadout || [],
+    is_leader:   !!unit.is_leader,
+    points:      unit.points || 0,
+    attached_to: unit.attached_to || null,
+    nickname:    unit.nickname || null,
+    crusade: {
+      rank:    unit.rank || "Fresh",
+      xp:      unit.xp || 0,
+      honours: unit.honours || [],
+      scars:   unit.scars || [],
+    },
+  };
+}
+
+/**
+ * Start a battle: push the selected, crusade-enriched units into the engine's
+ * player roster and set the session faction. Subsequent combat/spec commands
+ * in the terminal then use the enriched data automatically.
+ *
+ * @param {string} engineId
+ * @param {Array}  units     stored CrusadeUnits to muster
+ * @param {string} faction   campaign faction slug
+ */
+export async function startBattle(engineId, units, faction) {
+  const myUnits = units.map((u) => buildCrusadeUnit(u, faction));
+  // `faction <name>` sets the session faction; hyphenated slugs → spaces so the
+  // engine's fuzzy faction match resolves multi-word factions.
+  const factionCmd = `faction ${(faction || "").replace(/-/g, " ")}`.trim();
+  const res = await fetch(`/api/engines/${engineId}/exec`, {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ input: factionCmd, roster_context: { my_units: myUnits } }),
+  });
+  if (!res.ok) {
+    const err = await res.json().catch(() => ({}));
+    throw new Error(err.detail || "Failed to start battle");
+  }
+  return res.json();
 }
