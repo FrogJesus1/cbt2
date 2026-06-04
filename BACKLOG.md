@@ -164,6 +164,12 @@ Not a data engine — lives in the render layer alongside the rosters system.
 | ✅ DONE 2026-06-04 | S3 | **hitplus/wndplus math flags** — new `_apply_flags` tokens `hitplus[:N]` / `wndplus[:N]` set `hit_bonus`/`wound_bonus` (supports negatives, e.g. the Disgraced scar `hitplus:-1`); added to `KNOWN_FLAG_BASES` and engine `FLAG_NOTE_MAP`. Gives the most common Crusade battle traits (+1 to Hit/Wound) a real math effect. | `math_adapter.py`, `engine.py` |
 | ✅ DONE 2026-06-04 | S3 | **Starter trait tables + flag picker** — `lib/crusadeTraits.js` (infantry/vehicle battle traits, generic scars, honour extras) mapped to engine flags. CrusadeCard honour/scar editor gains a quick-pick dropdown + optional manual `flag` field; flagged entries show a cyan ◈ token. | `lib/crusadeTraits.js`, `crusade/CrusadeCard.jsx` |
 
+### Bugs
+
+| Status | Priority | Description | Fixed In |
+|--------|----------|-------------|----------|
+| ✅ FIXED 2026-06-04 | **CRITICAL** | **Prod 502 Bad Gateway since the Session 1 deploy** — `Dockerfile` copies backend Python by an explicit allowlist (`server.py`, `profiles.py`, `shared_rosters.py`) but never `crusade_store.py`. Session 1 added `from render.web import crusade_store` at the top of `server.py`, so in the container that import raised `ImportError` at boot → uvicorn never started → Caddy returned 502. Reproduced in an image-like layout (no `__init__.py`; namespace packages) both ways: fails without the file, imports cleanly with it. Fix: added `COPY render/web/crusade_store.py render/web/crusade_store.py`. Lesson: this Dockerfile must be updated whenever a new `render/web/*.py` module is imported by `server.py`. | `Dockerfile` |
+
 ### Gaps / Deferred
 
 | Priority | Gap | Notes |
