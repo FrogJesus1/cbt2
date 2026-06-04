@@ -649,6 +649,147 @@ class CombatTerminalEngine(EngineBase):
 
     # ─── Query handlers ────────────────────────────────────────────────────────
 
+    # ── Roster-aware helpers ───────────────────────────────────────────────────
+
+    def _find_roster_entries(self, unit_name: str, roster_key: str) -> list[dict]:
+        """Find all roster entries matching a resolved unit name.
+
+        Returns list of roster entry dicts (with weapons, models, etc).
+        Matches by substring in either direction (case-insensitive).
+        """
+        roster = self._session.get(roster_key, [])
+        name_lower = unit_name.lower()
+        matches = []
+        for entry in roster:
+            entry_name = (entry.get("name") or "").lower()
+            if entry_name and (entry_name in name_lower or name_lower in entry_name):
+                matches.append(entry)
+        return matches
+
+    def _find_attached_leader(self, unit_name: str, roster_key: str) -> dict | None:
+        """Find a leader attached to the given unit in the roster.
+
+        Returns the leader roster entry if one is attached_to this unit, else None.
+        """
+        roster = self._session.get(roster_key, [])
+        name_lower = unit_name.lower()
+        for entry in roster:
+            if not entry.get("is_leader"):
+                continue
+            attached = (entry.get("attached_to") or "").lower()
+            if attached and (attached in name_lower or name_lower in attached):
+                return entry
+        return None
+
+    def _find_bodyguard_for_leader(self, leader_name: str, roster_key: str) -> dict | None:
+        """Find the bodyguard unit a leader is attached to.
+
+        Returns the bodyguard roster entry if the leader has an attached_to, else None.
+        """
+        roster = self._session.get(roster_key, [])
+        leader_lower = leader_name.lower()
+        # First find the leader entry
+        for entry in roster:
+            entry_name = (entry.get("name") or "").lower()
+            if entry.get("is_leader") and entry_name and (
+                entry_name in leader_lower or leader_lower in entry_name
+            ):
+                attached_to = (entry.get("attached_to") or "").lower()
+                if attached_to:
+                    # Find the bodyguard unit
+                    for bg in roster:
+                        bg_name = (bg.get("name") or "").lower()
+                        if bg_name and (bg_name in attached_to or attached_to in bg_name):
+                            return bg
+        return None
+
+    def _roster_disambiguate(
+        self,
+        context: str,
+        resolved_params: dict,
+        pending_field: str,
+        unit_name: str,
+        roster_entries: list[dict],
+        roster_key: str,
+    ) -> dict:
+        """Disambiguate between multiple roster entries of the same unit.
+
+        Shows a numbered list with concise weapon loadouts per entry so the
+        player can pick which specific instance they mean (e.g. Hammerhead #1
+        with railgun vs Hammerhead #2 with ion cannon).
+        """
+        self._session["disambiguation"] = {
+            "context":         context,
+            "resolved_params": resolved_params,
+            "pending_field":   pending_field,
+            "matches":         roster_entries,
+            "_roster_key":     roster_key,
+            "_roster_disambig": True,
+        }
+
+        labels = []
+        for i, entry in enumerate(roster_entries):
+            weapons = entry.get("weapons", [])
+            pts = entry.get("points")
+            models = entry.get("models", 1)
+
+            # Build concise weapon summary
+            if weapons:
+                weapon_str = ", ".join(weapons[:5])
+                if len(weapons) > 5:
+                    weapon_str += f" +{len(weapons) - 5}"
+            else:
+                weapon_str = "default loadout"
+
+            parts = [f"{unit_name}"]
+            if models and models > 1:
+                parts[0] = f"{models}x {unit_name}"
+            parts.append(f"[{weapon_str}]")
+            if pts:
+                parts.append(f"({pts} pts)")
+            labels.append("  ".join(parts))
+
+        return {
+            "ok":          True,
+            "command":     "disambiguation",
+            "result_type": "disambiguation",
+            "data": {
+                "message": f"Multiple {unit_name} in roster — which loadout?",
+                "matches": labels,
+                "prompt":  f"Select loadout by number:",
+            },
+            "meta": {},
+        }
+
+    @staticmethod
+    def _filter_weapons_by_roster(unit_weapons: list, roster_weapons: list[str]) -> list:
+        """Filter a unit's weapon list to only weapons matching the roster loadout.
+
+        Uses case-insensitive substring matching so roster entries like
+        "Railgun" match dossier weapons like "Railgun" or "Heavy railgun".
+        Returns all weapons if roster_weapons is empty (no filtering).
+        """
+        if not roster_weapons:
+            return unit_weapons
+
+        roster_lower = [w.lower() for w in roster_weapons]
+
+        filtered = []
+        for w in unit_weapons:
+            if isinstance(w, dict):
+                w_name = (w.get("name") or "").lower()
+            else:
+                w_name = str(w).lower()
+
+            # Check if this weapon matches any roster weapon entry
+            for rw in roster_lower:
+                if rw in w_name or w_name in rw:
+                    filtered.append(w)
+                    break
+
+        # If filtering removed everything (bad match), fall back to full list
+        return filtered if filtered else unit_weapons
+
     # ── Disambiguation helpers ──────────────────────────────────────────────────
 
     def _disambiguate(
@@ -738,8 +879,28 @@ class CombatTerminalEngine(EngineBase):
         selected = matches[n - 1]
         ctx      = d["context"]
         rp       = dict(d["resolved_params"])
+        is_roster = d.get("_roster_disambig", False)
         self._session["disambiguation"] = None  # clear before re-dispatch
 
+        # ── Roster loadout disambiguation ────────────────────────────────────
+        # selected is a roster entry dict with {name, weapons, models, ...}
+        if is_roster:
+            roster_key = d.get("_roster_key", "roster_my")
+            roster_idx = n - 1  # index into the roster entries for this unit
+
+            if ctx == "combat_attacker_roster":
+                return self._query_combat({
+                    **rp,
+                    "_attacker_roster_entry": selected,
+                })
+            elif ctx == "combat_defender_roster":
+                return self._query_combat({
+                    **rp,
+                    "_defender_roster_entry": selected,
+                })
+            return self._err("_select", f"Unknown roster disambiguation context '{ctx}'.")
+
+        # ── Standard dossier disambiguation ──────────────────────────────────
         if ctx == "spec":
             return self._query_spec({"name": selected["name"], "faction": selected["faction"]})
 
@@ -965,6 +1126,114 @@ class CombatTerminalEngine(EngineBase):
         att_name = att_unit.get("name", attacker_raw) if att_unit else attacker_raw
         def_name = def_unit.get("name", defender_raw) if def_unit else defender_raw
 
+        # ── Roster loadout disambiguation ────────────────────────────────────
+        # If a roster is loaded and has multiple entries for the same unit name
+        # (e.g. 2x Hammerhead with different loadouts), ask which one.
+        # Skip if a roster entry was already selected via _attacker_roster_entry.
+        att_roster_entry = params.get("_attacker_roster_entry")
+        def_roster_entry = params.get("_defender_roster_entry")
+
+        if att_unit and not att_roster_entry:
+            att_roster_matches = self._find_roster_entries(att_name, "roster_my")
+            if len(att_roster_matches) > 1:
+                return self._roster_disambiguate(
+                    "combat_attacker_roster",
+                    {
+                        "attacker":          att_name,
+                        "_attacker_faction": att_unit.get("faction"),
+                        "defender":          defender_raw,
+                        "_defender_faction": params.get("_defender_faction"),
+                        "_defender_roster_entry": def_roster_entry,
+                        "flags":             flags,
+                        "attacker_flags":    attacker_flags,
+                        "defender_flags":    defender_flags,
+                        "all_attacker_flags": all_attacker_flags,
+                        "all_defender_flags": all_defender_flags,
+                    },
+                    "attacker",
+                    att_name,
+                    att_roster_matches,
+                    "roster_my",
+                )
+            elif len(att_roster_matches) == 1:
+                att_roster_entry = att_roster_matches[0]
+
+        if def_unit and not def_roster_entry:
+            def_roster_matches = self._find_roster_entries(def_name, "roster_enemy")
+            if len(def_roster_matches) > 1:
+                return self._roster_disambiguate(
+                    "combat_defender_roster",
+                    {
+                        "attacker":          att_name,
+                        "_attacker_faction": att_unit.get("faction") if att_unit else None,
+                        "_attacker_roster_entry": att_roster_entry,
+                        "defender":          def_name,
+                        "_defender_faction": def_unit.get("faction") if def_unit else None,
+                        "flags":             flags,
+                        "attacker_flags":    attacker_flags,
+                        "defender_flags":    defender_flags,
+                        "all_attacker_flags": all_attacker_flags,
+                        "all_defender_flags": all_defender_flags,
+                    },
+                    "defender",
+                    def_name,
+                    def_roster_matches,
+                    "roster_enemy",
+                )
+            elif len(def_roster_matches) == 1:
+                def_roster_entry = def_roster_matches[0]
+
+        # ── Leader attachment — merge leader weapons into bodyguard unit ─────
+        # If a unit has an attached leader, merge the leader's dossier weapons
+        # into the unit for combat. If a leader is called directly, also pull
+        # in the bodyguard's weapons.
+        att_leader_unit = None
+        def_leader_unit = None
+
+        if att_unit:
+            leader_entry = self._find_attached_leader(att_name, "roster_my")
+            if leader_entry:
+                # A leader is attached to this unit — look up leader dossier
+                leader_name = leader_entry.get("name", "")
+                att_leader_unit = self._loader.get_unit(leader_name, faction=att_unit.get("faction"))
+            else:
+                # Maybe WE are the leader — check if we're attached to a bodyguard
+                bg_entry = self._find_bodyguard_for_leader(att_name, "roster_my")
+                if bg_entry:
+                    bg_name = bg_entry.get("name", "")
+                    att_leader_unit = att_unit  # the "leader" is us
+                    bg_unit = self._loader.get_unit(bg_name, faction=att_unit.get("faction"))
+                    if bg_unit:
+                        # Swap: bodyguard becomes the base unit, leader augments it
+                        att_leader_unit = att_unit
+                        att_unit = bg_unit
+                        att_name = bg_unit.get("name", att_name)
+                        # Use the bodyguard's roster entry for model count/weapons
+                        if not att_roster_entry:
+                            bg_matches = self._find_roster_entries(bg_name, "roster_my")
+                            if bg_matches:
+                                att_roster_entry = bg_matches[0]
+
+        if def_unit:
+            leader_entry = self._find_attached_leader(def_name, "roster_enemy")
+            if leader_entry:
+                leader_name = leader_entry.get("name", "")
+                def_leader_unit = self._loader.get_unit(leader_name, faction=def_unit.get("faction"))
+            else:
+                bg_entry = self._find_bodyguard_for_leader(def_name, "roster_enemy")
+                if bg_entry:
+                    bg_name = bg_entry.get("name", "")
+                    def_leader_unit = def_unit
+                    bg_unit = self._loader.get_unit(bg_name, faction=def_unit.get("faction"))
+                    if bg_unit:
+                        def_leader_unit = def_unit
+                        def_unit = bg_unit
+                        def_name = bg_unit.get("name", def_name)
+                        if not def_roster_entry:
+                            bg_matches = self._find_roster_entries(bg_name, "roster_enemy")
+                            if bg_matches:
+                                def_roster_entry = bg_matches[0]
+
         # ── Validate flags — reject unknown modifiers with suggestions ───────
         flag_errors = validate_flags(flags)
         if flag_errors:
@@ -987,10 +1256,12 @@ class CombatTerminalEngine(EngineBase):
         if att_unit:
             att_unit = self._augment_unit_with_supplements(att_unit)
 
-        # Model count — start from the dossier's unit_composition minimum,
-        # then override with the actual roster squad size when available.
+        # Model count — prefer roster entry (already resolved above),
+        # then fall back to scanning the roster list, then dossier minimum.
         att_models = _parse_min_models(att_unit.get("unit_composition", [])) if att_unit else 1
-        if att_unit:
+        if att_roster_entry and att_roster_entry.get("models"):
+            att_models = int(att_roster_entry["models"])
+        elif att_unit:
             _att_name = att_unit.get("name", "").lower()
             for _ru in self._session.get("roster_my", []):
                 _ru_name = (_ru.get("name") or "").lower()
@@ -1001,7 +1272,9 @@ class CombatTerminalEngine(EngineBase):
 
         # Defender model count — drives BLAST minimum-3-attacks rule.
         def_models = _parse_min_models(def_unit.get("unit_composition", [])) if def_unit else 1
-        if def_unit:
+        if def_roster_entry and def_roster_entry.get("models"):
+            def_models = int(def_roster_entry["models"])
+        elif def_unit:
             _def_name = def_unit.get("name", "").lower()
             for _ru in self._session.get("roster_enemy", []):
                 _ru_name = (_ru.get("name") or "").lower()
@@ -1009,6 +1282,30 @@ class CombatTerminalEngine(EngineBase):
                     if _ru.get("models"):
                         def_models = int(_ru["models"])
                     break
+
+        # ── Filter attacker weapons by roster loadout ────────────────────────
+        # If a roster entry was selected (or auto-matched), only include
+        # the weapons that are actually in that loadout.
+        att_weapons_source = att_unit.get("weapons", []) if att_unit else []
+        if att_roster_entry and att_roster_entry.get("weapons"):
+            att_weapons_source = self._filter_weapons_by_roster(
+                att_weapons_source, att_roster_entry["weapons"]
+            )
+
+        # Merge attached leader weapons (they fire independently, 1 model)
+        att_leader_weapons = []
+        if att_leader_unit:
+            leader_augmented = self._augment_unit_with_supplements(att_leader_unit)
+            leader_ws = leader_augmented.get("weapons", [])
+            # If the leader has a roster entry, filter its weapons too
+            leader_name_lower = att_leader_unit.get("name", "").lower()
+            for _ru in self._session.get("roster_my", []):
+                _rn = (_ru.get("name") or "").lower()
+                if _rn and (_rn in leader_name_lower or leader_name_lower in _rn):
+                    if _ru.get("weapons"):
+                        leader_ws = self._filter_weapons_by_roster(leader_ws, _ru["weapons"])
+                    break
+            att_leader_weapons = leader_ws
 
         # Extra attacks per model from attacker-side flags.
         # Supports both --ea 1 (stored as "ea:1") and --ea1 (stored as "ea1").
@@ -1024,7 +1321,7 @@ class CombatTerminalEngine(EngineBase):
         # Build structured weapon list from attacker unit
         weapons = []
         if att_unit:
-            for w in att_unit.get("weapons", []):
+            for w in att_weapons_source:
                 if isinstance(w, dict):
                     w_name = w.get("name", "Unknown")
                     # Dossiers use "type": "melee"/"ranged" or range "Melee"
@@ -1113,12 +1410,57 @@ class CombatTerminalEngine(EngineBase):
                         "wr_delta":    None,
                     })
 
+        # ── Append leader weapons (1 model, independent) ─────────────────────
+        if att_leader_weapons:
+            leader_label = att_leader_unit.get("name", "Leader") if att_leader_unit else "Leader"
+            for w in att_leader_weapons:
+                if isinstance(w, dict):
+                    w_name = w.get("name", "Unknown")
+                    w_type = "melee" if (
+                        w.get("type") == "melee"
+                        or str(w.get("range", "")).lower() == "melee"
+                        or "melee" in str(w.get("keywords", "")).lower()
+                    ) else "ranged"
+                    shots_raw = w.get("a") or w.get("attacks") or w.get("shots")
+                    keywords = w.get("keywords", [])
+                    if isinstance(keywords, str):
+                        keywords = [k.strip() for k in keywords.split(",") if k.strip()]
+                    weapons.append({
+                        "name":        f"{w_name} ({leader_label})",
+                        "type":        w_type,
+                        "shots":       shots_raw,
+                        "shots_total": None,  # leader is always 1 model
+                        "models":      1,
+                        "range":       w.get("range", "—"),
+                        "bs_ws":       w.get("bs_ws") or w.get("bs") or w.get("ws", "—"),
+                        "strength":    w.get("s") or w.get("strength", "—"),
+                        "ap":          w.get("ap", "—"),
+                        "damage":      w.get("d") or w.get("damage", "—"),
+                        "keywords":    keywords,
+                        "_drone":      False,
+                        "_leader":     True,  # tag for UI styling
+                        "dmg":         None,
+                        "kills":       None,
+                        "hit_pct":     None,
+                        "wound_pct":   None,
+                        "kill_pct":    None,
+                        "hit_target":  None,
+                        "wound_target": None,
+                        "bs_delta":    None,
+                        "wr_delta":    None,
+                    })
+
         # Abilities from attacker
         abilities = []
         if att_unit:
             for ab in att_unit.get("abilities", []):
                 norm = self._normalize_ability(ab)
                 abilities.append({"name": norm["name"], "description": norm["description"], "color": "cyan"})
+        # Merge leader abilities if attached
+        if att_leader_unit:
+            for ab in att_leader_unit.get("abilities", []):
+                norm = self._normalize_ability(ab)
+                abilities.append({"name": norm["name"], "description": norm["description"], "color": "amber"})
 
         # Flag notes for active modifiers
         FLAG_NOTE_MAP = {
@@ -1182,16 +1524,39 @@ class CombatTerminalEngine(EngineBase):
         # ── Run combat math ──────────────────────────────────────────────────
         # att_models: multiplies per-model attack counts by squad size.
         # def_models: used by BLAST minimum-3-attacks rule (rule applies vs 6+ model units).
+        #
+        # Pass a copy of att_unit with weapons filtered to the roster loadout
+        # (plus leader weapons) so the math engine only computes for equipped weapons.
         math_result = {}
         sensitivity = []
         if att_unit and def_unit:
+            # Build a math-unit with the roster-filtered weapons
+            att_unit_for_math = dict(att_unit)
+            math_weapons = list(att_weapons_source)
+            if att_leader_weapons and att_leader_unit:
+                # Rename leader weapons to match the display names used in the
+                # UI weapon list (e.g. "Lashwhip (HIVE TYRANT)") so that the
+                # per_weapon_dmg dict keys line up with the weapon entries.
+                leader_label = att_leader_unit.get("name", "Leader")
+                for lw in att_leader_weapons:
+                    if isinstance(lw, dict):
+                        renamed = dict(lw)
+                        renamed["name"] = f"{lw.get('name', 'Unknown')} ({leader_label})"
+                        renamed["_no_multiply"] = True  # leader is always 1 model
+                        math_weapons.append(renamed)
+                    else:
+                        math_weapons.append(lw)
+            elif att_leader_weapons:
+                math_weapons = math_weapons + list(att_leader_weapons)
+            att_unit_for_math["weapons"] = math_weapons
+
             try:
                 math_result = compute_combat(
-                    att_unit, def_unit, flags,
+                    att_unit_for_math, def_unit, flags,
                     att_models=att_models, def_models=def_models,
                 )
                 sensitivity = compute_sensitivity(
-                    att_unit, def_unit, flags,
+                    att_unit_for_math, def_unit, flags,
                     att_models=att_models, def_models=def_models,
                 )
             except Exception as _ce:
@@ -1256,27 +1621,42 @@ class CombatTerminalEngine(EngineBase):
         final_all_att = all_attacker_flags if all_attacker_flags is not None else list(attacker_flags)
         final_all_def = all_defender_flags if all_defender_flags is not None else list(defender_flags)
 
-        # Store last_combat for rerun support
+        # Store last_combat for rerun support (includes roster entries so
+        # reruns preserve the specific loadout selection).
         att_identity = att_unit.get("name", attacker_raw) if att_unit else attacker_raw
         def_identity = def_unit.get("name", defender_raw) if def_unit else defender_raw
         self._session["last_combat"] = {
             "attacker":              att_identity,
             "_attacker_faction":     att_unit.get("faction") if att_unit else None,
+            "_attacker_roster_entry": att_roster_entry,
             "defender":              def_identity,
             "_defender_faction":     def_unit.get("faction") if def_unit else None,
+            "_defender_roster_entry": def_roster_entry,
             "all_attacker_flags":    final_all_att,
             "all_defender_flags":    final_all_def,
             "active_attacker_flags": list(attacker_flags),
             "active_defender_flags": list(defender_flags),
         }
 
+        # Build display names — annotate with leader if attached
+        att_display = att_name
+        def_display = def_name
+        if att_leader_unit:
+            leader_n = att_leader_unit.get("name", "")
+            if leader_n.lower() != att_name.lower():
+                att_display = f"{att_name} + {leader_n}"
+        if def_leader_unit:
+            leader_n = def_leader_unit.get("name", "")
+            if leader_n.lower() != def_name.lower():
+                def_display = f"{def_name} + {leader_n}"
+
         return {
             "ok":          True,
             "command":     "combat",
             "result_type": "combat",
             "data": {
-                "attacker_name":       att_name,
-                "defender_name":       def_name,
+                "attacker_name":       att_display,
+                "defender_name":       def_display,
                 "flags":               flags,
                 # Per-side flag breakdowns — power the interactive toggle UI
                 "attacker_flags":      list(attacker_flags),
@@ -1358,8 +1738,10 @@ class CombatTerminalEngine(EngineBase):
         combat_params = {
             "attacker":              last["attacker"],
             "_attacker_faction":     last["_attacker_faction"],
+            "_attacker_roster_entry": last.get("_attacker_roster_entry"),
             "defender":              last["defender"],
             "_defender_faction":     last["_defender_faction"],
+            "_defender_roster_entry": last.get("_defender_roster_entry"),
             "flags":                 new_flags,
             "attacker_flags":        active_att,
             "defender_flags":        active_def,
@@ -1659,8 +2041,10 @@ class CombatTerminalEngine(EngineBase):
 
         Expected context shape:
           {
-            "my_units":       [{ "name": str, "faction": str, "models": int }, ...],
-            "opponent_units": [{ "name": str, "faction": str, "models": int }, ...],
+            "my_units":       [{ "name": str, "faction": str, "models": int,
+                                 "weapons": [str], "is_leader": bool,
+                                 "points": int|null, "attached_to": str|null }, ...],
+            "opponent_units": [... same shape ...],
           }
         Either key may be absent — only present keys are updated.
         """

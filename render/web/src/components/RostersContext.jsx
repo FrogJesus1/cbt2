@@ -81,6 +81,35 @@ function ArmyPanel({ roster, side, onUpload, onInject }) {
   const { name, unit_count = 0, total_points, units = [] } = roster || {};
   const hasUnits = units.length > 0;
   const sideColor = side === "PLAYER" ? C.cyan : C.amber;
+  const [expanded, setExpanded] = useState(false);
+  const [attachingLeader, setAttachingLeader] = useState(null); // leader name being attached
+  const [attachments, setAttachments] = useState(() => {
+    try {
+      const stored = JSON.parse(localStorage.getItem("ct_leader_attachments") || "{}");
+      const sideKey = side === "PLAYER" ? "player" : "enemy";
+      return stored[sideKey] || {};
+    } catch { return {}; }
+  });
+
+  const saveAttachments = (newMap) => {
+    setAttachments(newMap);
+    try {
+      const stored = JSON.parse(localStorage.getItem("ct_leader_attachments") || "{}");
+      const sideKey = side === "PLAYER" ? "player" : "enemy";
+      stored[sideKey] = newMap;
+      localStorage.setItem("ct_leader_attachments", JSON.stringify(stored));
+    } catch {}
+  };
+
+  const PREVIEW_LIMIT = 12;
+  const showAll = expanded || units.length <= PREVIEW_LIMIT;
+  const visibleUnits = showAll ? units : units.slice(0, PREVIEW_LIMIT);
+
+  // Non-leader units for attachment picker
+  const bodyguardUnits = units.filter(u => {
+    if (typeof u === "string") return true;
+    return !u.is_leader;
+  });
 
   return (
     <div style={{
@@ -116,22 +145,105 @@ function ArmyPanel({ roster, side, onUpload, onInject }) {
 
       {hasUnits ? (
         <div style={{ display: "flex", flexDirection: "column", gap: "2px" }}>
-          {units.slice(0, 12).map((u, i) => {
+          {visibleUnits.map((u, i) => {
             const uname = typeof u === "string" ? u : u.name;
             const upts  = typeof u === "object" ? u.points : null;
+            const isLdr = typeof u === "object" && u.is_leader;
+            const attachedTo = isLdr ? attachments[uname] : null;
             return (
-              <div key={i} style={{ display: "flex", justifyContent: "space-between", alignItems: "center", padding: "2px 0" }}>
-                <span style={{ color: C.mid, fontSize: "12px", cursor: "pointer", fontFamily: "monospace" }}
-                  onClick={() => onInject?.(`spec ${uname}`)}>
-                  {uname}
-                </span>
-                {upts ? <span style={{ color: C.dim, fontSize: "11px", fontFamily: "monospace" }}>{upts}</span> : null}
+              <div key={i}>
+                <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", padding: "2px 0" }}>
+                  <div style={{ display: "flex", alignItems: "center", gap: "6px", flex: 1, minWidth: 0 }}>
+                    <span style={{
+                      color: isLdr ? C.amber : C.mid,
+                      fontSize: "12px", cursor: "pointer", fontFamily: "monospace",
+                      fontWeight: isLdr ? 600 : 400,
+                      whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis",
+                    }}
+                      onClick={() => onInject?.(`spec ${uname}`)}>
+                      {isLdr ? "★ " : ""}{uname}
+                    </span>
+                    {isLdr && (
+                      <span
+                        onClick={() => setAttachingLeader(attachingLeader === uname ? null : uname)}
+                        style={{
+                          color: attachedTo ? C.green : C.dim,
+                          fontSize: "9px", cursor: "pointer", fontFamily: "monospace",
+                          border: `1px solid ${attachedTo ? C.green + "50" : C.border}`,
+                          padding: "0px 4px", letterSpacing: "0.06em",
+                          textTransform: "uppercase", userSelect: "none", flexShrink: 0,
+                        }}
+                        onMouseEnter={e => { e.currentTarget.style.color = C.cyan; e.currentTarget.style.borderColor = C.cyan + "50"; }}
+                        onMouseLeave={e => { e.currentTarget.style.color = attachedTo ? C.green : C.dim; e.currentTarget.style.borderColor = attachedTo ? C.green + "50" : C.border; }}
+                      >
+                        {attachedTo ? `→ ${attachedTo}` : "attach"}
+                      </span>
+                    )}
+                  </div>
+                  {upts ? <span style={{ color: C.dim, fontSize: "11px", fontFamily: "monospace", flexShrink: 0 }}>{upts}</span> : null}
+                </div>
+                {/* Attachment picker — inline list of bodyguard units */}
+                {attachingLeader === uname && (
+                  <div style={{
+                    marginLeft: "16px", marginTop: "2px", marginBottom: "4px",
+                    padding: "4px 8px", border: `1px solid ${C.border}`,
+                    background: C.bg, fontSize: "11px", fontFamily: "monospace",
+                  }}>
+                    <div style={{ color: C.dim, marginBottom: "4px" }}>Attach to unit:</div>
+                    {attachedTo && (
+                      <div
+                        onClick={() => {
+                          const next = { ...attachments };
+                          delete next[uname];
+                          saveAttachments(next);
+                          setAttachingLeader(null);
+                        }}
+                        style={{ color: C.red, cursor: "pointer", padding: "1px 0", marginBottom: "2px" }}
+                        onMouseEnter={e => e.currentTarget.style.color = C.amber}
+                        onMouseLeave={e => e.currentTarget.style.color = C.red}
+                      >
+                        ✕ detach from {attachedTo}
+                      </div>
+                    )}
+                    {bodyguardUnits.map((bg, j) => {
+                      const bgName = typeof bg === "string" ? bg : bg.name;
+                      return (
+                        <div
+                          key={j}
+                          onClick={() => {
+                            saveAttachments({ ...attachments, [uname]: bgName });
+                            setAttachingLeader(null);
+                          }}
+                          style={{
+                            color: C.mid, cursor: "pointer", padding: "1px 0",
+                          }}
+                          onMouseEnter={e => e.currentTarget.style.color = C.green}
+                          onMouseLeave={e => e.currentTarget.style.color = C.mid}
+                        >
+                          → {bgName}
+                        </div>
+                      );
+                    })}
+                    {bodyguardUnits.length === 0 && (
+                      <div style={{ color: C.dim, fontStyle: "italic" }}>No non-leader units to attach to</div>
+                    )}
+                  </div>
+                )}
               </div>
             );
           })}
-          {units.length > 12 && (
-            <span style={{ color: C.dim, fontSize: "11px", marginTop: "4px", fontFamily: "monospace" }}>
-              +{units.length - 12} more…
+          {units.length > PREVIEW_LIMIT && (
+            <span
+              onClick={() => setExpanded(!expanded)}
+              style={{
+                color: C.cyan, fontSize: "11px", marginTop: "4px",
+                fontFamily: "monospace", cursor: "pointer",
+                userSelect: "none",
+              }}
+              onMouseEnter={e => { e.currentTarget.style.color = C.green; }}
+              onMouseLeave={e => { e.currentTarget.style.color = C.cyan; }}
+            >
+              {expanded ? "▴ show less" : `▾ +${units.length - PREVIEW_LIMIT} more…`}
             </span>
           )}
         </div>

@@ -77,7 +77,13 @@ const NAV_LABELS = {
  * Skips: blank lines, # comments, + section headers, • sub-model bullets,
  *        indented continuation lines, enhancement lines.
  *
- * Returns: [{ name: string, faction: string, models: number }]
+ * Returns: [{
+ *   name: string, faction: string, models: number,
+ *   weapons: string[],      // weapon names from loadout (empty if none listed)
+ *   is_leader: boolean,     // true if line had CharN: prefix
+ *   points: number|null,    // point cost if present
+ *   attached_to: string|null, // leader→bodyguard link (set later by UI)
+ * }]
  */
 function parseRosterUnits(roster) {
   if (!roster?.content) return [];
@@ -94,6 +100,8 @@ function parseRosterUnits(roster) {
       line.startsWith("-") ||
       line.toLowerCase().startsWith("enhancement:")
     ) continue;
+    // Detect leader prefix (CharN:)
+    const isLeader = /^Char\d+:/i.test(line);
     // Strip optional "Char1: " / "CharN: " prefix (character unit entries)
     const stripped = line.replace(/^Char\d+:\s*/i, "");
     // Match the leading "Nx" count: "3x Crisis Fireknife Battlesuits (120 pts): ..."
@@ -101,7 +109,31 @@ function parseRosterUnits(roster) {
     if (m) {
       const models = parseInt(m[1], 10);
       const name   = m[2].trim();
-      if (name) units.push({ name, faction: faction || "", models });
+      if (!name) continue;
+
+      // Extract points: "... (120 pts)" or "(120pts)"
+      let points = null;
+      const ptsMatch = stripped.match(/\((\d+)\s*pts?\)/i);
+      if (ptsMatch) points = parseInt(ptsMatch[1], 10);
+
+      // Extract weapons: everything after the colon that follows the points/name
+      // e.g. "1x Hammerhead (200 pts): Railgun, 2x Seeker missile, ..."
+      let weapons = [];
+      const colonIdx = stripped.indexOf(":", (ptsMatch ? ptsMatch.index : name.length));
+      if (colonIdx !== -1) {
+        const weaponStr = stripped.slice(colonIdx + 1).trim();
+        if (weaponStr) {
+          weapons = weaponStr.split(",").map(w => {
+            // Strip leading count "2x " and trim
+            return w.trim().replace(/^\d+[xX×]\s*/, "").trim();
+          }).filter(Boolean);
+        }
+      }
+
+      units.push({
+        name, faction: faction || "", models, weapons,
+        is_leader: isLeader, points, attached_to: null,
+      });
     }
   }
   return units;
@@ -110,12 +142,31 @@ function parseRosterUnits(roster) {
 /**
  * Build a roster_context payload from the currently active rosters.
  * Returns null when both sides have no parsed units (avoids empty POST noise).
+ *
+ * Each unit includes: name, faction, models, weapons[], is_leader, points, attached_to
  */
 function buildRosterContext(activeRosters) {
   const myUnits  = parseRosterUnits(activeRosters.player);
   const oppUnits = parseRosterUnits(activeRosters.enemy);
-  if (!myUnits.length && !oppUnits.length) return null;
-  return { my_units: myUnits, opponent_units: oppUnits };
+
+  // Apply leader attachments from localStorage
+  const attachments = JSON.parse(localStorage.getItem("ct_leader_attachments") || "{}");
+  const applyAttachments = (units, side) => {
+    const key = side === "player" ? "player" : "enemy";
+    const sideAttachments = attachments[key] || {};
+    return units.map(u => {
+      if (u.is_leader && sideAttachments[u.name]) {
+        return { ...u, attached_to: sideAttachments[u.name] };
+      }
+      return u;
+    });
+  };
+
+  const myFinal  = applyAttachments(myUnits, "player");
+  const oppFinal = applyAttachments(oppUnits, "enemy");
+
+  if (!myFinal.length && !oppFinal.length) return null;
+  return { my_units: myFinal, opponent_units: oppFinal };
 }
 
 // ─── Boot splash ──────────────────────────────────────────────────────────────
