@@ -81,12 +81,17 @@ function ArmyPanel({ roster, side, onUpload, onInject }) {
   const { name, unit_count = 0, total_points, units = [] } = roster || {};
   const hasUnits = units.length > 0;
   const sideColor = side === "PLAYER" ? C.cyan : C.amber;
+  const sideKey = side === "PLAYER" ? "player" : "enemy";
   const [expanded, setExpanded] = useState(false);
-  const [attachingLeader, setAttachingLeader] = useState(null); // leader name being attached
+  const [attachingLeader, setAttachingLeader] = useState(null);
+  const [editingNickname, setEditingNickname] = useState(null); // index of unit being renamed
+  const [nicknameInput, setNicknameInput] = useState("");
+  const nicknameRef = useRef(null);
+
+  // ── Attachments (leader → bodyguard) ────────────────────────────────────
   const [attachments, setAttachments] = useState(() => {
     try {
       const stored = JSON.parse(localStorage.getItem("ct_leader_attachments") || "{}");
-      const sideKey = side === "PLAYER" ? "player" : "enemy";
       return stored[sideKey] || {};
     } catch { return {}; }
   });
@@ -95,18 +100,87 @@ function ArmyPanel({ roster, side, onUpload, onInject }) {
     setAttachments(newMap);
     try {
       const stored = JSON.parse(localStorage.getItem("ct_leader_attachments") || "{}");
-      const sideKey = side === "PLAYER" ? "player" : "enemy";
       stored[sideKey] = newMap;
       localStorage.setItem("ct_leader_attachments", JSON.stringify(stored));
     } catch {}
+    persistMetadata(nicknames, newMap);
   };
+
+  // ── Nicknames (keyed by side:index for uniqueness with duplicates) ──────
+  const [nicknames, setNicknames] = useState(() => {
+    try {
+      const stored = JSON.parse(localStorage.getItem("ct_unit_nicknames") || "{}");
+      return stored[sideKey] || {};
+    } catch { return {}; }
+  });
+
+  const saveNicknames = (newMap) => {
+    setNicknames(newMap);
+    try {
+      const stored = JSON.parse(localStorage.getItem("ct_unit_nicknames") || "{}");
+      stored[sideKey] = newMap;
+      localStorage.setItem("ct_unit_nicknames", JSON.stringify(stored));
+    } catch {}
+    persistMetadata(newMap, attachments);
+  };
+
+  const startNicknameEdit = (idx, currentNick) => {
+    setEditingNickname(idx);
+    setNicknameInput(currentNick || "");
+    setTimeout(() => nicknameRef.current?.focus(), 30);
+  };
+
+  const commitNickname = (idx) => {
+    const val = nicknameInput.trim();
+    const next = { ...nicknames };
+    if (val) { next[idx] = val; } else { delete next[idx]; }
+    saveNicknames(next);
+    setEditingNickname(null);
+  };
+
+  // ── Persist metadata to Airtable (debounced) ─────────────────────────────
+  const saveTimerRef = useRef(null);
+  const persistMetadata = useCallback((nicks, attachs) => {
+    if (!name) return;  // no roster loaded
+    if (saveTimerRef.current) clearTimeout(saveTimerRef.current);
+    saveTimerRef.current = setTimeout(() => {
+      const lines = [];
+      for (const [idx, nick] of Object.entries(nicks)) {
+        if (nick) lines.push(`# @nickname:${idx}:${nick}`);
+      }
+      for (const [leader, unit] of Object.entries(attachs)) {
+        if (unit) lines.push(`# @attach:${leader}:${unit}`);
+      }
+      fetch("/api/rosters/save-metadata", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ name, metadata: lines.join("\n") }),
+      }).catch(() => {}); // silent fail — localStorage is the fallback
+    }, 1500);
+  }, [name]);
+
+  // ── Seed localStorage from embedded content metadata on roster load ──────
+  useEffect(() => {
+    if (!hasUnits) return;
+    let seedNick = false, seedAttach = false;
+    const sNick = { ...nicknames };
+    const sAttach = { ...attachments };
+    units.forEach((u, i) => {
+      if (typeof u !== "object") return;
+      if (u.nickname && !sNick[i]) { sNick[i] = u.nickname; seedNick = true; }
+      if (u.is_leader && u.attached_to && !sAttach[u.name]) { sAttach[u.name] = u.attached_to; seedAttach = true; }
+    });
+    if (seedNick) saveNicknames(sNick);
+    if (seedAttach) saveAttachments(sAttach);
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [name]);
 
   const PREVIEW_LIMIT = 12;
   const showAll = expanded || units.length <= PREVIEW_LIMIT;
   const visibleUnits = showAll ? units : units.slice(0, PREVIEW_LIMIT);
 
-  // Non-leader units for attachment picker
-  const bodyguardUnits = units.filter(u => {
+  // Non-leader units for attachment picker (show nickname if set)
+  const bodyguardUnits = units.map((u, i) => ({ u, i })).filter(({ u }) => {
     if (typeof u === "string") return true;
     return !u.is_leader;
   });
@@ -150,6 +224,7 @@ function ArmyPanel({ roster, side, onUpload, onInject }) {
             const upts  = typeof u === "object" ? u.points : null;
             const isLdr = typeof u === "object" && u.is_leader;
             const attachedTo = isLdr ? attachments[uname] : null;
+            const nick = nicknames[i] || null;
             return (
               <div key={i}>
                 <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", padding: "2px 0" }}>
@@ -163,6 +238,39 @@ function ArmyPanel({ roster, side, onUpload, onInject }) {
                       onClick={() => onInject?.(`spec ${uname}`)}>
                       {isLdr ? "★ " : ""}{uname}
                     </span>
+                    {/* Nickname display / edit */}
+                    {editingNickname === i ? (
+                      <input
+                        ref={nicknameRef}
+                        value={nicknameInput}
+                        onChange={e => setNicknameInput(e.target.value)}
+                        onKeyDown={e => { if (e.key === "Enter") commitNickname(i); if (e.key === "Escape") setEditingNickname(null); }}
+                        onBlur={() => commitNickname(i)}
+                        style={{
+                          background: C.bg, color: C.green, border: `1px solid ${C.cyan}`,
+                          fontSize: "10px", fontFamily: "monospace", padding: "0px 4px",
+                          width: "90px", outline: "none",
+                        }}
+                        placeholder="nickname"
+                        maxLength={20}
+                      />
+                    ) : (
+                      <span
+                        onClick={() => startNicknameEdit(i, nick)}
+                        style={{
+                          color: nick ? C.green : C.dim,
+                          fontSize: nick ? "10px" : "9px",
+                          cursor: "pointer", fontFamily: "monospace",
+                          border: nick ? "none" : `1px dashed ${C.border}`,
+                          padding: "0px 3px", userSelect: "none", flexShrink: 0,
+                          fontStyle: nick ? "normal" : "italic",
+                        }}
+                        onMouseEnter={e => { e.currentTarget.style.color = C.cyan; }}
+                        onMouseLeave={e => { e.currentTarget.style.color = nick ? C.green : C.dim; }}
+                      >
+                        {nick ? `(${nick})` : "name"}
+                      </span>
+                    )}
                     {isLdr && (
                       <span
                         onClick={() => setAttachingLeader(attachingLeader === uname ? null : uname)}
@@ -205,11 +313,12 @@ function ArmyPanel({ roster, side, onUpload, onInject }) {
                         ✕ detach from {attachedTo}
                       </div>
                     )}
-                    {bodyguardUnits.map((bg, j) => {
+                    {bodyguardUnits.map(({ u: bg, i: bgIdx }) => {
                       const bgName = typeof bg === "string" ? bg : bg.name;
+                      const bgNick = nicknames[bgIdx];
                       return (
                         <div
-                          key={j}
+                          key={bgIdx}
                           onClick={() => {
                             saveAttachments({ ...attachments, [uname]: bgName });
                             setAttachingLeader(null);
@@ -220,7 +329,7 @@ function ArmyPanel({ roster, side, onUpload, onInject }) {
                           onMouseEnter={e => e.currentTarget.style.color = C.green}
                           onMouseLeave={e => e.currentTarget.style.color = C.mid}
                         >
-                          → {bgName}
+                          → {bgName}{bgNick ? ` (${bgNick})` : ""}
                         </div>
                       );
                     })}

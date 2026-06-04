@@ -732,6 +732,7 @@ class CombatTerminalEngine(EngineBase):
             weapons = entry.get("weapons", [])
             pts = entry.get("points")
             models = entry.get("models", 1)
+            nickname = entry.get("nickname")
 
             # Build concise weapon summary
             if weapons:
@@ -744,6 +745,8 @@ class CombatTerminalEngine(EngineBase):
             parts = [f"{unit_name}"]
             if models and models > 1:
                 parts[0] = f"{models}x {unit_name}"
+            if nickname:
+                parts[0] += f" ({nickname})"
             parts.append(f"[{weapon_str}]")
             if pts:
                 parts.append(f"({pts} pts)")
@@ -1638,17 +1641,20 @@ class CombatTerminalEngine(EngineBase):
             "active_defender_flags": list(defender_flags),
         }
 
-        # Build display names — annotate with leader if attached
-        att_display = att_name
-        def_display = def_name
+        # Build display names — annotate with nickname and/or leader
+        att_nick = att_roster_entry.get("nickname") if att_roster_entry else None
+        def_nick = def_roster_entry.get("nickname") if def_roster_entry else None
+
+        att_display = f"{att_name} ({att_nick})" if att_nick else att_name
+        def_display = f"{def_name} ({def_nick})" if def_nick else def_name
         if att_leader_unit:
             leader_n = att_leader_unit.get("name", "")
             if leader_n.lower() != att_name.lower():
-                att_display = f"{att_name} + {leader_n}"
+                att_display = f"{att_display} + {leader_n}"
         if def_leader_unit:
             leader_n = def_leader_unit.get("name", "")
             if leader_n.lower() != def_name.lower():
-                def_display = f"{def_name} + {leader_n}"
+                def_display = f"{def_display} + {leader_n}"
 
         return {
             "ok":          True,

@@ -38,6 +38,7 @@ import { Terminal }         from "@/components/Terminal";
 import { UnitsContext }     from "@/components/UnitsContext";
 import { RulesContext }     from "@/components/RulesContext";
 import { RostersContext }   from "@/components/RostersContext";
+import { CrusadeContext }   from "@/components/CrusadeContext";
 
 import { DiagnosticsPage }  from "@/components/DiagnosticsPage";
 import { ProfileGate }      from "@/components/ProfileGate";
@@ -57,9 +58,9 @@ function readStoredTheme() {
 
 // ─── Context config ───────────────────────────────────────────────────────────
 
-const VISIBLE_CONTEXTS = ["main", "units", "rosters", "rules"];  // settings hidden
-const CONTEXT_LABELS   = { main: "MAIN", units: "UNITS", rosters: "ROSTERS", rules: "RULES" };
-const CONTEXT_NAV_CMD  = { main: "home",  units: "units",  rosters: "rosters",  rules: "rules" };
+const VISIBLE_CONTEXTS = ["main", "units", "rosters", "crusade", "rules"];  // settings hidden
+const CONTEXT_LABELS   = { main: "MAIN", units: "UNITS", rosters: "ROSTERS", crusade: "CRUSADE", rules: "RULES" };
+const CONTEXT_NAV_CMD  = { main: "home",  units: "units",  rosters: "rosters",  crusade: "crusade",  rules: "rules" };
 
 // ─── Boot lines ───────────────────────────────────────────────────────────────
 
@@ -618,7 +619,8 @@ function AppInner({ profile, onLogout }) {
     const NAV_CMD_MAP = {
       home: "main", h: "main",
       units: "units", u: "units",
-      rosters: "rosters", campaign: "rosters", c: "rosters",
+      rosters: "rosters", c: "rosters",
+      crusade: "crusade", cr: "crusade", campaign: "crusade",
       rules: "rules", r: "rules",
       diag: "diag",
       settings: "settings",
@@ -631,7 +633,7 @@ function AppInner({ profile, onLogout }) {
 
     // Non-terminal contexts (rosters, diag) don't have a Terminal to consume
     // pending commands — route to main terminal instead to prevent hang.
-    const NON_TERMINAL = new Set(["rosters", "diag"]);
+    const NON_TERMINAL = new Set(["rosters", "crusade", "diag"]);
     const isNonTerminal = NON_TERMINAL.has(activeContext);
 
     // One-shot commands that need no visible output — route to main terminal
@@ -683,7 +685,7 @@ function AppInner({ profile, onLogout }) {
   // Terminal resolves `units`, `rules`, etc. → calls this with the view id.
 
   const handleNavigate = useCallback((view) => {
-    const knownContexts = ["main", "units", "rosters", "rules", "settings", "diag"];
+    const knownContexts = ["main", "units", "rosters", "crusade", "rules", "settings", "diag"];
     if (knownContexts.includes(view)) {
       setActiveContext(view);
     }
@@ -1146,6 +1148,11 @@ function AppInner({ profile, onLogout }) {
             triggerUpload={rosterUploadMode}
             onUploadConsumed={() => setRosterUploadMode(null)}
           />
+        </div>
+
+        {/* CRUSADE context */}
+        <div style={panelStyle("crusade")}>
+          <CrusadeContext profileName={profile?.name} />
         </div>
 
         {/* RULES context */}

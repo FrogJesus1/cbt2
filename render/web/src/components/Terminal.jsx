@@ -82,17 +82,39 @@ const NAV_LABELS = {
  *   weapons: string[],      // weapon names from loadout (empty if none listed)
  *   is_leader: boolean,     // true if line had CharN: prefix
  *   points: number|null,    // point cost if present
- *   attached_to: string|null, // leader→bodyguard link (set later by UI)
+ *   attached_to: string|null, // leader→bodyguard link (from content metadata)
+ *   nickname: string|null,    // user-assigned nickname (from content metadata)
  * }]
  */
 function parseRosterUnits(roster) {
   if (!roster?.content) return [];
   const { faction, content } = roster;
+
+  // ── First pass: extract embedded metadata lines ─────────────────────────
+  // Format: # @nickname:idx:value  or  # @attach:leaderName:unitName
+  const embeddedNicknames = {};   // idx → string
+  const embeddedAttach = {};      // leaderName → unitName
+  const lines = content.split("\n");
+  for (const rawLine of lines) {
+    const line = rawLine.trim();
+    const nickMatch = line.match(/^#\s*@nickname:(\d+):(.+)/);
+    if (nickMatch) {
+      embeddedNicknames[parseInt(nickMatch[1], 10)] = nickMatch[2].trim();
+      continue;
+    }
+    const attachMatch = line.match(/^#\s*@attach:([^:]+):(.+)/);
+    if (attachMatch) {
+      embeddedAttach[attachMatch[1].trim()] = attachMatch[2].trim();
+      continue;
+    }
+  }
+
+  // ── Second pass: parse units ────────────────────────────────────────────
   const units = [];
-  for (const rawLine of content.split("\n")) {
+  for (const rawLine of lines) {
     const line = rawLine.trim();
     if (!line) continue;
-    // Skip comments, headers, sub-model entries, enhancements
+    // Skip comments (including our metadata lines), headers, bullets, enhancements
     if (
       line.startsWith("#") ||
       line.startsWith("+") ||
@@ -117,22 +139,24 @@ function parseRosterUnits(roster) {
       if (ptsMatch) points = parseInt(ptsMatch[1], 10);
 
       // Extract weapons: everything after the colon that follows the points/name
-      // e.g. "1x Hammerhead (200 pts): Railgun, 2x Seeker missile, ..."
       let weapons = [];
       const colonIdx = stripped.indexOf(":", (ptsMatch ? ptsMatch.index : name.length));
       if (colonIdx !== -1) {
         const weaponStr = stripped.slice(colonIdx + 1).trim();
         if (weaponStr) {
           weapons = weaponStr.split(",").map(w => {
-            // Strip leading count "2x " and trim
             return w.trim().replace(/^\d+[xX×]\s*/, "").trim();
           }).filter(Boolean);
         }
       }
 
+      const idx = units.length;
+      const nickname = embeddedNicknames[idx] || null;
+      const attached_to = (isLeader && embeddedAttach[name]) ? embeddedAttach[name] : null;
+
       units.push({
         name, faction: faction || "", models, weapons,
-        is_leader: isLeader, points, attached_to: null,
+        is_leader: isLeader, points, attached_to, nickname,
       });
     }
   }
@@ -140,30 +164,60 @@ function parseRosterUnits(roster) {
 }
 
 /**
+ * Serialize nickname and attachment metadata as comment lines to embed
+ * in roster content text for Airtable persistence.
+ * Returns a string of "# @nickname:..." and "# @attach:..." lines.
+ */
+function buildRosterMetadata(side) {
+  const allNicknames = JSON.parse(localStorage.getItem("ct_unit_nicknames") || "{}");
+  const attachments  = JSON.parse(localStorage.getItem("ct_leader_attachments") || "{}");
+  const sideNicknames  = allNicknames[side] || {};
+  const sideAttachments = attachments[side] || {};
+
+  const lines = [];
+  for (const [idx, nick] of Object.entries(sideNicknames)) {
+    if (nick) lines.push(`# @nickname:${idx}:${nick}`);
+  }
+  for (const [leader, unit] of Object.entries(sideAttachments)) {
+    if (unit) lines.push(`# @attach:${leader}:${unit}`);
+  }
+  return lines.join("\n");
+}
+
+/**
  * Build a roster_context payload from the currently active rosters.
  * Returns null when both sides have no parsed units (avoids empty POST noise).
  *
- * Each unit includes: name, faction, models, weapons[], is_leader, points, attached_to
+ * Each unit includes: name, faction, models, weapons[], is_leader, points,
+ *                     attached_to, nickname
  */
 function buildRosterContext(activeRosters) {
   const myUnits  = parseRosterUnits(activeRosters.player);
   const oppUnits = parseRosterUnits(activeRosters.enemy);
 
-  // Apply leader attachments from localStorage
-  const attachments = JSON.parse(localStorage.getItem("ct_leader_attachments") || "{}");
-  const applyAttachments = (units, side) => {
-    const key = side === "player" ? "player" : "enemy";
-    const sideAttachments = attachments[key] || {};
-    return units.map(u => {
+  // localStorage overrides take priority over embedded content metadata
+  // (user may have changed them since last Airtable save)
+  const attachments  = JSON.parse(localStorage.getItem("ct_leader_attachments") || "{}");
+  const allNicknames = JSON.parse(localStorage.getItem("ct_unit_nicknames") || "{}");
+
+  const enrichUnits = (units, side) => {
+    const sideAttachments = (attachments[side] || {});
+    const sideNicknames   = (allNicknames[side] || {});
+    return units.map((u, i) => {
+      const enriched = { ...u };
+      // localStorage wins over embedded metadata
       if (u.is_leader && sideAttachments[u.name]) {
-        return { ...u, attached_to: sideAttachments[u.name] };
+        enriched.attached_to = sideAttachments[u.name];
       }
-      return u;
+      if (sideNicknames[i]) {
+        enriched.nickname = sideNicknames[i];
+      }
+      return enriched;
     });
   };
 
-  const myFinal  = applyAttachments(myUnits, "player");
-  const oppFinal = applyAttachments(oppUnits, "enemy");
+  const myFinal  = enrichUnits(myUnits, "player");
+  const oppFinal = enrichUnits(oppUnits, "enemy");
 
   if (!myFinal.length && !oppFinal.length) return null;
   return { my_units: myFinal, opponent_units: oppFinal };

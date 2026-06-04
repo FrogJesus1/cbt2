@@ -44,8 +44,9 @@ from render.web.profiles import list_profiles, create_profile, login as profile_
 from render.web.shared_rosters import (
     list_all_rosters, list_rosters_grouped, get_roster as get_shared_roster,
     find_roster_by_name as find_shared_roster, save_roster as save_shared_roster,
-    delete_roster as delete_shared_roster,
+    delete_roster as delete_shared_roster, update_roster_content,
 )
+from render.web import crusade_store
 
 
 # ─── Engine registry ───────────────────────────────────────────────────────────
@@ -145,6 +146,27 @@ class RosterUploadBody(BaseModel):
     faction:     str
     content:     str
     uploaded_by: str
+
+class CampaignCreateBody(BaseModel):
+    name:         str
+    faction:      str
+    rp:           int = 5
+    supply_limit: int = 1000
+    owner:        str = "unknown"
+
+class CampaignUpdateBody(BaseModel):
+    updates: dict = {}
+
+class UnitCreateBody(BaseModel):
+    unit_name: str
+    nickname:  str = ""
+    points:    int = 0
+    models:    int = 1
+    is_leader: bool = False
+    loadout:   list = []
+
+class UnitUpdateBody(BaseModel):
+    updates: dict = {}
 
 
 # ─── App factory ──────────────────────────────────────────────────────────────
@@ -293,6 +315,37 @@ def create_app(config: dict) -> FastAPI:
             raise HTTPException(status_code=404, detail="Roster not found")
         return {"ok": True}
 
+    @app.post("/api/rosters/save-metadata")
+    def api_save_roster_metadata(body: dict):
+        """Update embedded metadata (nicknames, attachments) in roster content.
+
+        Expects: { name: "roster name", metadata: "# @nickname:0:Railgun HH\\n..." }
+        Finds the roster by name, strips old metadata, appends the new lines.
+        """
+        roster_name = body.get("name", "").strip()
+        metadata = body.get("metadata", "").strip()
+        if not roster_name:
+            raise HTTPException(status_code=400, detail="Roster name required")
+
+        roster = find_shared_roster(roster_name)
+        if not roster:
+            return {"ok": False, "detail": "Roster not found — metadata saved locally only"}
+
+        # Strip existing metadata lines from content
+        import re
+        existing_lines = roster.get("content", "").split("\n")
+        clean_lines = [l for l in existing_lines if not re.match(r'^#\s*@(nickname|attach):', l.strip())]
+
+        # Append new metadata
+        new_content = "\n".join(clean_lines).rstrip()
+        if metadata:
+            new_content += "\n" + metadata + "\n"
+
+        updated = update_roster_content(roster["id"], new_content)
+        if not updated:
+            return {"ok": False, "detail": "Failed to update roster"}
+        return {"ok": True}
+
     @app.get("/api/factions")
     def api_list_factions():
         """Return all known faction names from the primary engine."""
@@ -343,6 +396,73 @@ def create_app(config: dict) -> FastAPI:
 
         best = max(faction_scores, key=faction_scores.get)
         return {"faction": best}
+
+    # ── Crusade routes ───────────────────────────────────────────────────────
+    # Campaign + Order of Battle storage (Crusade Tracker, Session 1).
+
+    @app.get("/api/crusade/campaigns")
+    def api_list_campaigns(owner: str | None = None):
+        try:
+            return {"campaigns": crusade_store.list_campaigns(owner)}
+        except Exception as e:
+            raise HTTPException(status_code=503, detail=str(e))
+
+    @app.get("/api/crusade/campaigns/{campaign_id}")
+    def api_get_campaign(campaign_id: str):
+        campaign = crusade_store.get_campaign(campaign_id)
+        if not campaign:
+            raise HTTPException(status_code=404, detail="Campaign not found")
+        campaign["units"] = crusade_store.list_units(campaign_id)
+        return campaign
+
+    @app.post("/api/crusade/campaigns")
+    def api_create_campaign(body: CampaignCreateBody):
+        try:
+            return crusade_store.create_campaign(
+                body.name, body.faction, body.rp, body.supply_limit, body.owner)
+        except Exception as e:
+            raise HTTPException(status_code=503, detail=str(e))
+
+    @app.put("/api/crusade/campaigns/{campaign_id}")
+    def api_update_campaign(campaign_id: str, body: CampaignUpdateBody):
+        campaign = crusade_store.update_campaign(campaign_id, body.updates)
+        if not campaign:
+            raise HTTPException(status_code=404, detail="Campaign not found")
+        return campaign
+
+    @app.delete("/api/crusade/campaigns/{campaign_id}")
+    def api_delete_campaign(campaign_id: str):
+        if not crusade_store.delete_campaign(campaign_id):
+            raise HTTPException(status_code=404, detail="Campaign not found")
+        return {"ok": True}
+
+    # ── Order of Battle (units) ──
+
+    @app.get("/api/crusade/campaigns/{campaign_id}/units")
+    def api_list_units(campaign_id: str):
+        return {"units": crusade_store.list_units(campaign_id)}
+
+    @app.post("/api/crusade/campaigns/{campaign_id}/units")
+    def api_create_unit(campaign_id: str, body: UnitCreateBody):
+        if not crusade_store.get_campaign(campaign_id):
+            raise HTTPException(status_code=404, detail="Campaign not found")
+        return crusade_store.create_unit(
+            campaign_id, body.unit_name, nickname=body.nickname,
+            points=body.points, models=body.models,
+            is_leader=body.is_leader, loadout=body.loadout)
+
+    @app.put("/api/crusade/units/{unit_id}")
+    def api_update_unit(unit_id: str, body: UnitUpdateBody):
+        unit = crusade_store.update_unit(unit_id, body.updates)
+        if not unit:
+            raise HTTPException(status_code=404, detail="Unit not found")
+        return unit
+
+    @app.delete("/api/crusade/units/{unit_id}")
+    def api_delete_unit(unit_id: str):
+        if not crusade_store.delete_unit(unit_id):
+            raise HTTPException(status_code=404, detail="Unit not found")
+        return {"ok": True}
 
     # ── Health check ─────────────────────────────────────────────────────────
 

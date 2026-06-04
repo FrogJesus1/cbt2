@@ -16,3 +16,4 @@ data/shared_rosters/*.json
 
 # OS
 .DS_Store
+render/web/vite.config.js.timestamp-*.mjs
