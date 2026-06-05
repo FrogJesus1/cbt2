@@ -1788,6 +1788,126 @@
    "notes": "Leader: the following units:, ■ Blightlord Terminators, ■ Deathshroud Terminators"
   },
   {
+   "name": "LORD OF POXES",
+   "legends": false,
+   "role": "CHARACTER",
+   "faction_keywords": [
+    "Lord of Poxes Death Guard"
+   ],
+   "keywords": [
+    "Infantry",
+    "Character",
+    "Grenades",
+    "Chaos",
+    "Nurgle"
+   ],
+   "points": null,
+   "stats": {
+    "M": "5\"",
+    "T": "6",
+    "Sv": "3+",
+    "W": "5",
+    "Ld": "6+",
+    "OC": "1"
+   },
+   "unit_composition": [
+    "None ■ 1 Lord of Poxes",
+    "This model is equipped with: plasma pistol; great plague blade."
+   ],
+   "base_size": null,
+   "abilities": [
+    {
+     "name": "CORE",
+     "summary": "Leader",
+     "phase_tags": []
+    },
+    {
+     "name": "FACTION",
+     "summary": "Nurgle’s Gift (Aura)",
+     "phase_tags": []
+    },
+    {
+     "name": "INVULNERABLE SAVE",
+     "summary": "4+",
+     "phase_tags": []
+    },
+    {
+     "name": "Gift of Poxes",
+     "summary": "Add 3\" to the range of this model’s Contagion Range.",
+     "phase_tags": []
+    },
+    {
+     "name": "Shroud of Disease",
+     "summary": "While this model is leading a unit, that unit cannot be targeted by ranged attacks unless the attacking model is within 18\".",
+     "phase_tags": []
+    }
+   ],
+   "wargear_options": [],
+   "weapons": [
+    {
+     "name": "Plasma pistol – standard",
+     "type": "ranged",
+     "range": "12\"",
+     "a": "1",
+     "bs_ws": "2+",
+     "s": "7",
+     "ap": "-2",
+     "d": "1",
+     "keywords": [
+      "PISTOL"
+     ]
+    },
+    {
+     "name": "Plasma pistol – supercharge",
+     "type": "ranged",
+     "range": "12\"",
+     "a": "1",
+     "bs_ws": "2+",
+     "s": "8",
+     "ap": "-3",
+     "d": "2",
+     "keywords": [
+      "HAZARDOUS",
+      "PISTOL"
+     ]
+    },
+    {
+     "name": "Great plague blade",
+     "type": "melee",
+     "range": "Melee",
+     "a": "6",
+     "bs_ws": "2+",
+     "s": "8",
+     "ap": "-2",
+     "d": "2",
+     "keywords": [
+      "DEVASTATING WOUNDS",
+      "LETHAL HITS"
+     ]
+    }
+   ],
+   "strengths": [],
+   "weaknesses": [],
+   "target_priority_tags": [],
+   "threat_tags": [
+    "MELEE_THREAT",
+    "HIGH_DURABILITY",
+    "INVULNERABLE_SAVE"
+   ],
+   "mobility_tags": [],
+   "durability_tags": [
+    "MEDIUM_TOUGHNESS",
+    "MULTI_WOUND"
+   ],
+   "tau_counterplay": [
+    "Melee threat — maintain distance, use Drones as speed bumps, overwatch with Pulse.",
+    "High durability — concentrate fire, Ion Accelerator or Railguns for AP-3+.",
+    "Invulnerable save — volume of fire preferred over single high-AP shots.",
+    "Support aura — extends Contagion Range and shields its unit from ranged fire beyond 18\"; prioritise killing the unit it leads at range."
+   ],
+   "notes": "Leader: can be attached to Plague Marines."
+  },
+  {
    "name": "LORD OF VIRULENCE",
    "legends": false,
    "role": "CHARACTER",
