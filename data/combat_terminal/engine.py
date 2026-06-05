@@ -12,6 +12,7 @@ and dispatches to the appropriate query handler.
 
 from __future__ import annotations
 
+import logging
 import random
 import re
 import sys
@@ -19,6 +20,8 @@ from pathlib import Path
 from typing import Any
 
 sys.path.insert(0, str(Path(__file__).parent.parent.parent))
+
+logger = logging.getLogger("combat_terminal.engine")
 
 from data._base import EngineBase
 from data.combat_terminal.loader import CombatTerminalLoader
@@ -448,9 +451,21 @@ class CombatTerminalEngine(EngineBase):
 
     def status(self) -> dict:
         loader_status = self._loader.status()
+        # "ready" must reflect real data, not just that load() ran. A failed data
+        # discovery still sets loaded=True but leaves zero units — in that state the
+        # engine fabricates stub units, so report not-ready instead of green.
+        has_units = loader_status["summary"].get("total_units", 0) > 0
+        ready = loader_status["loaded"] and has_units
+        if loader_status["loaded"] and not has_units:
+            loader_status["errors"] = loader_status.get("errors", []) + [
+                "The archives are empty — no unit data loaded. The faction files are missing "
+                "or failed to parse, so every lookup and combat will fail until it's fixed. "
+                "Check that data/combat_terminal/data/factions exists and contains the "
+                "*_parsed_dossier.json files."
+            ]
         return {
             "engine":          self.name(),
-            "ready":           loader_status["loaded"],
+            "ready":           ready,
             "summary":         loader_status["summary"],
             "errors":          loader_status["errors"],
             # Simulation layer — reports live MC config
@@ -464,11 +479,11 @@ class CombatTerminalEngine(EngineBase):
             "per_faction":     loader_status.get("per_faction", {}),
             # Data pipeline stages — each True = that stage loaded successfully
             "pipeline": {
-                "dossiers":    loader_status["loaded"],
+                "dossiers":    has_units,
                 "rules":       loader_status["summary"].get("rules", 0) > 0,
                 "modifiers":   True,   # hardcoded in math_adapter; always available
-                "engine":      loader_status["loaded"],
-                "output":      loader_status["loaded"],
+                "engine":      ready,
+                "output":      ready,
             },
         }
 
@@ -1546,6 +1561,29 @@ class CombatTerminalEngine(EngineBase):
         att_name = att_unit.get("name", attacker_raw) if att_unit else attacker_raw
         def_name = def_unit.get("name", defender_raw) if def_unit else defender_raw
 
+        # ── Stub guard ───────────────────────────────────────────────────────
+        # When faction data fails to load, loader.get_unit() returns a fabricated
+        # placeholder (_stub=True — a generic bolter Marine). Running combat math
+        # on it yields confident but fictional numbers, the worst failure mode for
+        # a tool whose value is numeric correctness. Refuse and surface the load
+        # failure instead of fabricating an answer.
+        for _side, _raw, _u in (("Attacker", attacker_raw, att_unit),
+                                 ("Defender", defender_raw, def_unit)):
+            if _u and _u.get("_stub"):
+                self._log_issue(
+                    "combat_math",
+                    f"{_side} '{_raw}' resolved to a placeholder stub because no faction "
+                    f"data is loaded — combat refused to avoid fabricated numbers",
+                    "stub_unit",
+                )
+                return self._err(
+                    "combat",
+                    f"The faction archives failed to load, so there are no real stats for the "
+                    f"{_side.lower()} '{_raw}'. Rather than run on made-up numbers, combat is "
+                    f"disabled until the data's back. Check the DIAG page (the pipeline will "
+                    f"show red) or restart the app to reload it.",
+                )
+
         # ── Roster loadout disambiguation ────────────────────────────────────
         # If a roster is loaded and has multiple entries for the same unit name
         # (e.g. 2x Hammerhead with different loadouts), ask which one.
@@ -1692,6 +1730,32 @@ class CombatTerminalEngine(EngineBase):
             self._log_issue("unit_lookup", f"Attacker not found: '{attacker_raw}'", f"query={attacker_raw}")
         if not def_unit:
             self._log_issue("unit_lookup", f"Defender not found: '{defender_raw}'", f"query={defender_raw}")
+
+        # Combat needs both combatants. If either is unresolved, return a clear
+        # not-found error instead of rendering an empty combat block (no weapons,
+        # null math) that looks like a broken result.
+        if not att_unit or not def_unit:
+            missing = []
+            missing_names = []
+            if not att_unit:
+                missing.append(f"the attacker '{attacker_raw}'")
+                missing_names.append(attacker_raw)
+            if not def_unit:
+                missing.append(f"the defender '{defender_raw}'")
+                missing_names.append(defender_raw)
+            # report this unit as missing (covers both sides if both are unknown),
+            # or — if it actually exists under another name — teach the spelling.
+            report_cmd = "report missing unit " + " and ".join(missing_names)
+            learn_tpl  = f"learn {missing_names[0]} = "
+            return self._err(
+                "combat",
+                f"No record of {' or '.join(missing)} in the archives. Check the spelling, "
+                f"or declare the faction with `faction <name>` (e.g. `faction tau`). "
+                f"If it should exist but doesn't, report it. If it exists under another "
+                f"name, teach it with `learn`.",
+                report_command=report_cmd,
+                learn_template=learn_tpl,
+            )
 
         # ── Crusade combat bridge ────────────────────────────────────────────
         # If the attacker's roster entry carries a crusade block, its OFFENSIVE
@@ -2090,7 +2154,29 @@ class CombatTerminalEngine(EngineBase):
             except Exception as _ce:
                 math_result = {}
                 sensitivity = []
-                self._log_issue("combat_math", f"Math engine error for {att_name} vs {def_name}: {_ce}")
+                self._log_issue(
+                    "combat_math",
+                    f"Combat math for {att_name} vs {def_name} failed outright — no damage "
+                    f"numbers could be produced. This is usually a unit with broken or missing "
+                    f"weapon stats. Details: {_ce}",
+                )
+
+            # Surface per-weapon math failures (previously dropped silently). Each
+            # failed weapon is logged to the session issue log so the `issues`
+            # panel / DIAG page can show the combat result is degraded, not whole.
+            _phase_label = {
+                "ev": "average-damage calculation",
+                "mc": "Monte Carlo (variance) simulation",
+            }
+            for _werr in math_result.get("weapon_errors", []):
+                _step = _phase_label.get(_werr.get("phase"), _werr.get("phase", "math"))
+                self._log_issue(
+                    "combat_math",
+                    f"The '{_werr.get('weapon')}' fell out of the calculation — its {_step} "
+                    f"failed, so the damage totals are missing its contribution and are "
+                    f"incomplete. Details: {_werr.get('error')}",
+                    f"{att_name} vs {def_name}",
+                )
 
         # Defender toughness — needed for wound-roll delta baseline
         def_T = None
@@ -2225,6 +2311,8 @@ class CombatTerminalEngine(EngineBase):
                 "modifier_impact":     sensitivity or None,
                 "simulation":          math_result.get("simulation"),
                 "simulation_status":   math_result.get("simulation_status", "OFFLINE"),
+                "weapon_errors":       math_result.get("weapon_errors", []),
+                "degraded":            bool(math_result.get("weapon_errors")),
                 "flag_notes":          flag_notes,
                 "abilities":           abilities,
                 "footer":              footer,
@@ -3913,12 +4001,16 @@ class CombatTerminalEngine(EngineBase):
                     merged          = _merge_mods(weapon_mods, base_mods)
                     result          = compute_attack_result(wp, target, base_mods=merged)
                     total_dmg      += result.expected_damage
-                except Exception:
-                    pass
+                except Exception as exc:
+                    # Bulk scoring loop (runs per weapon per unit pair) — debug
+                    # level avoids flooding the log, but it is no longer silent.
+                    logger.debug("Threat-score weapon math failed for %r: %s",
+                                 w.get("name", "?") if isinstance(w, dict) else "?", exc)
 
             return total_dmg
 
-        except Exception:
+        except Exception as exc:
+            logger.warning("Threat score computation failed: %s", exc)
             return 0.0
 
 
@@ -4163,12 +4255,26 @@ class CombatTerminalEngine(EngineBase):
         return notes[:6]
 
     @staticmethod
-    def _err(command: str, message: str) -> dict:
+    def _err(command: str, message: str,
+             report_command: str | None = None,
+             learn_template: str | None = None) -> dict:
+        """Build an error result.
+
+        report_command / learn_template are optional UI affordances surfaced in
+        meta: the frontend renders `report_command` as a clickable "report this
+        to the admin" link, and `learn_template` as a fill-in `learn <typo> = `
+        line for when the unit exists under another name.
+        """
+        meta: dict = {}
+        if report_command:
+            meta["report_command"] = report_command
+        if learn_template:
+            meta["learn_template"] = learn_template
         return {
             "ok":          False,
             "command":     command,
             "result_type": "error",
             "data":        message,
-            "meta":        {},
+            "meta":        meta,
         }
 

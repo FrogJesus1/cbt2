@@ -28,6 +28,9 @@ of the engine being able to answer a question with a computed result instead of 
 
 | Status | Priority | Description | Component | Fixed In |
 |--------|----------|-------------|-----------|----------|
+| ✅ FIXED | **CRITICAL** | **Failed data load fabricated plausible-but-wrong units into combat math** — when no faction dossier loaded (empty `_units`), `loader.get_unit()` returned `_stub_unit()` — a hardcoded generic bolter Marine — which flowed straight into `compute_combat` and produced confident, fictional damage numbers. `status().ready` still reported `True`. Fix: (1) `_query_combat` now refuses any matchup where attacker or defender resolved to a `_stub` unit, returning a clear "faction data unavailable — combat math disabled" error + an `issue_log` entry; (2) `engine.status()` gates `ready` (and the DIAG pipeline `dossiers`/`engine`/`output` stages) on `total_units > 0`, and appends a "no unit data loaded" error when discovery found nothing; (3) added a not-found guard so a combat where either side is unresolved returns a clean "could not find X" error instead of an empty combat block (no weapons / null math). Verified: real combat unaffected, stub path → error + `ready=False`, bogus name → clean not-found error. 92/92 tests green. | `engine.py` `_query_combat`, `status`; `loader.py` | 2026-06-05 |
+| ✅ FIXED | **HIGH** | **Per-weapon math failures silently dropped, surfacing as confident-but-wrong numbers** — `math_adapter._run_ev` / `_run_mc` / `_run_total` and `engine._compute_threat_score` caught bare `Exception` and continued with `None`/`0.0`/skip, so a malformed weapon or a real logic bug was indistinguishable from "weapon did 0 damage" and just vanished from the table. Fix: added a `combat_terminal.math` / `combat_terminal.engine` logger; every dropped weapon is now `logger.warning`-logged. `compute_combat` accumulates a `weapon_errors[]` list (weapon, phase, error) and returns it; `_query_combat` logs each to the session issue log and exposes `weapon_errors` + a `degraded` boolean on the combat result for the UI. One bad weapon still doesn't crash the whole combat (resilience preserved) but is no longer invisible. Verified end-to-end with a forced math failure. 92/92 tests green. | `math_adapter.py`, `engine.py` | 2026-06-05 |
+| ✅ FIXED | LOW | **Dead stacked `@staticmethod`** decorating nothing above `_stub_enhancement` (editing accident). Removed. | `loader.py` | 2026-06-05 |
 | ✅ FIXED | MED | **Attacker-side colon flags returned empty weapons** — a `--flag:value` token *before* `vs` (e.g. `intercessors --invuln:4 vs broadside`, `--sustained:2`, `--eap:3`) yielded `weapons: []` and the combat block rendered nothing (every parametrised flag affected: ea/ed/fnp/melta/criton/critwound/hitplus/wndplus/invuln/eap). Root cause: `_extract_all_flags`'s pattern `--(\w+)…` — `\w` excludes `:`, so `--invuln:4` captured only `invuln` and left `:4` behind in the text, which then corrupted the attacker's unit/loadout resolution. Fix: pattern now captures an inline colon value `--(\w+(?::-?\w+)?)…` and skips re-appending a space value when the name already carries a colon. Now colon, embedded (`--invuln4`), and space (`--invuln 4`) forms all resolve identically on both sides of `vs`, including negatives (`--eap:-1`) and multi-word unit names. 69/69 math tests green. | `engine.py` `_extract_all_flags` | 2026-06-04 |
 | ✅ FIXED | HIGH | Unit stats stored as nested `unit["stats"]` dict but engine reads top-level keys — all spec/threat/math returned `None` for M/T/Sv/W/Ld/OC | `loader.py` `_load_units` | 2026-03-22 |
 | ✅ FIXED | HIGH | Weapon profiles in `_query_combat` used wrong key names (`"attacks"`, `"shots"`) — dossiers store attacks as `"a"`, BS as `"bs_ws"`, etc. Result: all weapons showed `? shots` and no profile data in UI | `engine.py` `_query_combat` | 2026-03-22 |
@@ -199,6 +202,31 @@ Not a data engine — lives in the render layer alongside the rosters system.
 | ✅ ADDRESSED 2026-06-04 (S5, minimal) | Agenda XP — standard agendas documented + manual field | Per the S5 build decision (minimal scope): a curated `AGENDAS` reference table (name / XP / how-to) lives in `crusadeTraits.js` and is surfaced as a collapsible reference in PostBattleFlow next to the per-unit "XP gained" override. Agenda XP is entered manually into that field (`autoXp`/`compute_auto_xp` still accept the `agenda` passthrough). Full auto-tracked per-battle agenda objectives remain deferred — not planned unless requested. |
 | LOW | RP actions are client-composed, not a backend transaction | Each §3.4 action runs its unit/campaign mutation then a separate `updateCampaign({rp})` from the browser (consistent with the OOB editor). A partial failure could decrement RP without applying the effect, or vice-versa. A backend `spend_rp` endpoint would make it atomic like `finalize_battle`. |
 | LOW | Re-muster relies on the in-memory engine roster | `state.active_battle` durably restores the tracker UI, but the engine's `_session["roster_my"]` is in-memory; if the engine restarts mid-battle the BattleTracker "↻ Re-muster" re-pushes the roster from stored units. |
+
+---
+
+## Reports (render/web — `report` / `reports`)
+
+User-filed problem reports. Any logged-in user can flag a missing unit / wrong
+stat / bug; only the data owner can fix the dossiers, so reports collect
+server-side (Airtable `Reports` table, self-provisioning like the Crusade tables)
+for the owner to work through later.
+
+### Done
+
+| Status | Description | Component |
+|--------|-------------|-----------|
+| ✅ DONE 2026-06-05 | **Reports store + API** — `render/web/reports.py` (Airtable, mirrors `shared_rosters`/`crusade_store`: create/list/resolve/delete, `_ensure_schema` self-provisions the `Reports` table). Routes: `GET /api/reports?status=open\|resolved\|all`, `POST /api/reports`, `POST /api/reports/{id}/resolve`, `DELETE /api/reports/{id}` (Airtable failures → 503; empty body → 400; unknown id → 404). **Dockerfile updated** to `COPY render/web/reports.py` (the import-502 footgun from Session 1). Verified end-to-end via FastAPI TestClient with a mocked store + a fake-table unit test of the store logic. | `reports.py`, `server.py`, `Dockerfile` |
+| ✅ DONE 2026-06-05 | **`report` / `reports` / `resolve` commands** — registered web-only (`supports_cli=False`) in `commands.py` (meta group). Handled client-side in `Terminal.jsx` (Priority 6.5): `report <text>` POSTs a report (auto-detects `missing unit X` / `missing weapon X` → category+subject; tags the reporter's profile name); `reports` lists open reports (`reports_list` renderer); `resolve <n>` closes the n-th report from the last list (mapped via `lastReportsRef`). New `lib/reports.js` API client. | `commands.py`, `Terminal.jsx`, `lib/reports.js`, `TerminalBlock.jsx` |
+| ✅ DONE 2026-06-05 | **Error-message report + learn affordances** — `engine._err` now carries optional `report_command` / `learn_template` in `meta`. The combat "unit not found" error sets them; `TerminalError` renders a clickable **⚑ Report this to the admin** link (inject + submit) and an inline **`learn <typo> = <correct name>`** hint (fills the command bar without submitting, via the existing `onEdit` handler) for the case where the unit exists under another name. Frontend JS bundles clean (esbuild). | `engine.py`, `TerminalBlock.jsx` |
+
+### Gaps / Deferred
+
+| Priority | Gap | Notes |
+|----------|-----|-------|
+| LOW | Report affordance only on the combat not-found error | The clickable report/learn links could also be attached to the missing-leader combat warning and the per-weapon "fell out of the calculation" issue-log entries (both already carry the unit/weapon name). `_err` is generic, so it's a small follow-up. |
+| LOW | Anyone can view/resolve reports | Per the build decision, no owner gating — fine for trusted friends. A designated-owner check would need a profile "owner" flag (none exists today). |
+| LOW | No reports dashboard | Review is the `reports` command only (no REPORTS tab). Add a panel if the list grows. |
 
 ---
 

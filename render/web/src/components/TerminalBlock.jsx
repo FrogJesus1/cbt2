@@ -478,7 +478,7 @@ export function TerminalBlock({ entry, onSubmit, onInject, onEdit, onUpload, onD
         pending ? (
           <TerminalPending input={input} />
         ) : result ? (
-          <TerminalResult result={result} onSubmit={onSubmit} onInject={onInject} onUpload={onUpload} starredUnits={starredUnits} onToggleStar={onToggleStar} />
+          <TerminalResult result={result} onSubmit={onSubmit} onInject={onInject} onEdit={onEdit} onUpload={onUpload} starredUnits={starredUnits} onToggleStar={onToggleStar} />
         ) : null
       )}
     </div>
@@ -487,12 +487,16 @@ export function TerminalBlock({ entry, onSubmit, onInject, onEdit, onUpload, onD
 
 // ─── Result dispatcher ────────────────────────────────────────────────────
 
-function TerminalResult({ result, onSubmit, onInject, onUpload, starredUnits, onToggleStar }) {
+function TerminalResult({ result, onSubmit, onInject, onEdit, onUpload, starredUnits, onToggleStar }) {
   if (!result) return null;
   const { ok, result_type, data, meta } = result;
 
   if (result_type === "error" || !ok) {
-    return <TerminalError message={typeof data === "string" ? data : JSON.stringify(data)} onInject={onInject} />;
+    return <TerminalError message={typeof data === "string" ? data : JSON.stringify(data)} meta={meta} onInject={onInject} onEdit={onEdit} />;
+  }
+
+  if (result_type === "reports_list") {
+    return <ReportsList data={data} meta={meta} onInject={onInject} />;
   }
 
   // Stub detection — catch _stub: true from any result type before dispatching
@@ -1878,11 +1882,40 @@ function parseErrorSuggestions(message) {
   return { main, suggestions };
 }
 
-function TerminalError({ message, onInject }) {
+function TerminalError({ message, meta, onInject, onEdit }) {
   const { main, suggestions } = parseErrorSuggestions(message);
+  const reportCmd = meta?.report_command;
+  const learnTpl  = meta?.learn_template;
   return (
     <div className="font-mono" style={{ paddingLeft: "18px", fontSize: "14px" }}>
       <div style={{ color: C.red, fontWeight: 600 }}>✗ {main || message}</div>
+      {(reportCmd || learnTpl) && (
+        <div style={{ marginTop: "8px", display: "flex", flexWrap: "wrap", gap: "8px 14px", alignItems: "baseline" }}>
+          {reportCmd && (
+            <span
+              onClick={() => onInject?.(reportCmd)}
+              style={{ color: C.amber, cursor: onInject ? "pointer" : "default", fontWeight: 600,
+                       border: `1px solid ${C.amber}`, padding: "1px 8px", userSelect: "none" }}
+              title={reportCmd}
+            >
+              ⚑ Report this to the admin
+            </span>
+          )}
+          {learnTpl && (
+            <span style={{ color: C.label }}>
+              or, if it exists under another name, teach it:{" "}
+              <span
+                onClick={() => onEdit?.(learnTpl)}
+                style={{ color: C.mid, cursor: onEdit ? "pointer" : "default",
+                         textDecoration: onEdit ? "underline dotted" : "none", fontFamily: "monospace" }}
+                title="Fills the command bar — type the correct unit name and press Enter"
+              >
+                {learnTpl}&lt;correct name&gt;
+              </span>
+            </span>
+          )}
+        </div>
+      )}
       {suggestions.length === 1 && (
         <div style={{ color: C.label, marginTop: "4px" }}>
           Did you mean: <span style={{ color: C.mid }}>{suggestions[0]}</span>?
@@ -1904,6 +1937,51 @@ function TerminalError({ message, onInject }) {
           ))}
         </div>
       )}
+    </div>
+  );
+}
+
+// ─── Reports list (the `reports` command) ──────────────────────────────────
+
+function ReportsList({ data, meta, onInject }) {
+  const reports = Array.isArray(data) ? data : [];
+  return (
+    <div className="font-mono" style={{ paddingLeft: "18px", fontSize: "14px" }}>
+      {meta?.resolved && (
+        <div style={{ color: C.label, marginBottom: "6px" }}>
+          ✓ Resolved: <span style={{ color: C.mid }}>{meta.resolved}</span>
+        </div>
+      )}
+      <div style={{ color: C.mid, fontWeight: 600, marginBottom: "6px" }}>
+        OPEN REPORTS ({reports.length})
+      </div>
+      {reports.length === 0 ? (
+        <div style={{ color: C.label }}>No open reports. All clear.</div>
+      ) : (
+        reports.map((r, i) => (
+          <div key={r.id || i} style={{ display: "flex", gap: "8px", lineHeight: "1.7", alignItems: "baseline" }}>
+            <span style={{ color: C.amber, minWidth: "22px", textAlign: "right", flexShrink: 0, fontWeight: 600 }}>{i + 1}.</span>
+            <span style={{ flex: 1 }}>
+              <span style={{ color: C.label }}>[{r.category || "general"}]</span>{" "}
+              <span style={{ color: C.mid }}>{r.subject || r.body}</span>
+              {r.body && r.subject && r.body !== r.subject && (
+                <span style={{ color: C.label }}> — {r.body}</span>
+              )}
+              <span style={{ color: C.label, opacity: 0.7 }}>{"  "}· by {r.reported_by || "unknown"}</span>
+            </span>
+            <span
+              onClick={() => onInject?.(`resolve ${i + 1}`)}
+              style={{ color: C.label, cursor: onInject ? "pointer" : "default", flexShrink: 0, userSelect: "none" }}
+              title="Mark this report resolved"
+            >
+              ✓ resolve
+            </span>
+          </div>
+        ))
+      )}
+      <div style={{ color: C.label, marginTop: "8px", fontSize: "12px" }}>
+        Type <span style={{ color: C.mid }}>resolve &lt;n&gt;</span> to close a report.
+      </div>
     </div>
   );
 }

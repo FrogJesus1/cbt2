@@ -18,6 +18,7 @@ The returned dict slots directly into engine.py's _query_combat response shape:
 
 from __future__ import annotations
 
+import logging
 import re
 from copy import copy
 from dataclasses import fields as dc_fields
@@ -31,6 +32,8 @@ from data.combat_terminal.combat_math_engine import (
     compute_attack_result,
     monte_carlo_attack,
 )
+
+logger = logging.getLogger("combat_terminal.math")
 
 # ─── Monte Carlo config ────────────────────────────────────────────────────────
 # Reduced trial count keeps UI response time under ~0.3s for typical unit matchups.
@@ -753,6 +756,10 @@ def compute_combat(
         )
         (melee_weapons if is_melee else ranged_weapons).append(w)
 
+    # Per-weapon failures are collected here (not silently dropped) so the engine
+    # can log them to the issue log and the UI can flag the result as degraded.
+    weapon_errors: list[dict] = []
+
     # ── Deterministic EV pass ──────────────────────────────────────────────────
 
     def _run_ev(weapon_list: list) -> list[tuple[dict, Optional[AttackResult]]]:
@@ -780,7 +787,10 @@ def compute_combat(
                     wp.attacks = wp.attacks * att_models
                 result = compute_attack_result(wp, target, base_mods=merged)
                 out.append((w, result))
-            except Exception:
+            except Exception as exc:
+                wname = w.get("name", "?") if isinstance(w, dict) else "?"
+                logger.warning("EV math failed for weapon %r: %s", wname, exc)
+                weapon_errors.append({"weapon": wname, "phase": "ev", "error": str(exc)})
                 out.append((w, None))
         return out
 
@@ -906,6 +916,9 @@ def compute_combat(
                     mc_covers.append(category)
             except Exception as exc:
                 mc_error = str(exc)
+                wname = w.get("name", "?") if isinstance(w, dict) else "?"
+                logger.warning("Monte Carlo failed for weapon %r: %s", wname, exc)
+                weapon_errors.append({"weapon": wname, "phase": "mc", "error": str(exc)})
 
     _run_mc(ranged_weapons, "ranged")
     _run_mc(melee_weapons,  "melee")
@@ -965,6 +978,7 @@ def compute_combat(
         "per_weapon_dmg":    {**ranged_pw, **melee_pw},
         "simulation_status": simulation_status,
         "simulation":        simulation,
+        "weapon_errors":     weapon_errors,
         "target_profile": {
             "toughness": target.toughness,
             "save":      target.save,
@@ -1020,8 +1034,9 @@ def compute_sensitivity(
                     wp.attacks = wp.attacks * att_models
                 result = compute_attack_result(wp, target, merged)
                 total += result.expected_damage
-            except Exception:
-                pass
+            except Exception as exc:
+                wname = w.get("name", "?") if isinstance(w, dict) else "?"
+                logger.warning("Sensitivity sweep failed for weapon %r: %s", wname, exc)
         return total
 
     baseline = _run_total({})

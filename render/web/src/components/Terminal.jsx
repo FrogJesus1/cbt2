@@ -30,6 +30,7 @@ import {
 } from "@/lib/shared-rosters";
 import { THEME_REGISTRY, ALL_THEME_IDS } from "@/data/themeRegistry";
 import { parseRosterUnits } from "@/lib/rosterParse";
+import { createReport, listReports, resolveReport } from "@/lib/reports";
 
 
 // ─── Navigation config ────────────────────────────────────────────────────────
@@ -193,6 +194,9 @@ export function Terminal({
   const idRef           = useRef(0);
   const outputRef       = useRef(null);
   const entryRefs       = useRef({});
+  // Last list of open reports shown via `reports`, so `resolve <n>` can map a
+  // displayed number back to a report id.
+  const lastReportsRef  = useRef([]);
   // Tracks the stream entry id of the most recent non-rerun combat result.
   // When a rerun result arrives (_in_place: true), that entry's result is
   // updated in-place rather than appending a new combat block.
@@ -915,6 +919,64 @@ export function Terminal({
           pending: false,
         },
       ]);
+      return;
+    }
+
+    // ── Priority 6.5: reports — file / list / resolve problem reports ─────────
+    // Server-backed (Airtable); any logged-in user can file, anyone can view.
+    const firstWord = lower.split(/\s+/)[0];
+
+    if (firstWord === "report") {
+      const text = trimmed.slice(trimmed.toLowerCase().indexOf("report") + 6).trim();
+      if (!text) {
+        emitError(trimmed, "Usage:  report <what's wrong>   e.g.  report missing unit Krootox Rampagers");
+        return;
+      }
+      // Recognise "missing unit X" / "missing weapon X" → category + subject.
+      let category = "general", subject = "";
+      const mUnit = text.match(/^missing\s+unit\s+(.+)$/i);
+      const mWeap = text.match(/^missing\s+weapon\s+(.+)$/i);
+      if (mUnit)      { category = "missing-unit";   subject = mUnit[1].trim(); }
+      else if (mWeap) { category = "missing-weapon"; subject = mWeap[1].trim(); }
+      try {
+        const saved = await createReport({
+          body: text, category, subject,
+          reportedBy: profileName || "unknown",
+        });
+        emitLocalResult(trimmed, "system_msg",
+          `Report filed${saved.subject ? ` — "${saved.subject}"` : ""}. Thanks — the admin will see it under 'reports'.`);
+      } catch (err) {
+        emitError(trimmed, `Couldn't file the report: ${err.message}. (Reports need a server/Airtable connection.)`);
+      }
+      return;
+    }
+
+    if (lower === "reports") {
+      try {
+        const reports = await listReports("open");
+        lastReportsRef.current = reports;
+        emitLocalResult(trimmed, "reports_list", reports);
+      } catch (err) {
+        emitError(trimmed, `Couldn't load reports: ${err.message}.`);
+      }
+      return;
+    }
+
+    if (firstWord === "resolve" && /^resolve\s+\d+$/.test(lower) && lastReportsRef.current.length) {
+      const n = parseInt(lower.split(/\s+/)[1], 10);
+      const target = lastReportsRef.current[n - 1];
+      if (!target) {
+        emitError(trimmed, `No report #${n} in the current list. Type 'reports' to refresh it.`);
+        return;
+      }
+      try {
+        await resolveReport(target.id);
+        const reports = await listReports("open");
+        lastReportsRef.current = reports;
+        emitLocalResult(trimmed, "reports_list", reports, { resolved: target.subject || target.id });
+      } catch (err) {
+        emitError(trimmed, `Couldn't resolve report: ${err.message}.`);
+      }
       return;
     }
 

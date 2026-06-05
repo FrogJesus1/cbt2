@@ -602,6 +602,33 @@ REGISTRY: dict[str, Command] = {
         examples=["issues"],
     ),
 
+    "report": Command(
+        name="report",
+        description="Report a problem to the admin — a missing unit, wrong stats, or anything else",
+        usage="report <missing unit X | any text>",
+        group="meta",
+        aliases=[],
+        params={
+            "text": Param("string", True, "What's wrong (e.g. 'missing unit Krootox Rampagers')", "missing unit Krootox Rampagers"),
+        },
+        examples=[
+            "report missing unit Krootox Rampagers",
+            "report the Riptide's toughness looks wrong",
+        ],
+        supports_cli=False,  # needs the server + logged-in profile
+    ),
+
+    "reports": Command(
+        name="reports",
+        description="List open problem reports filed by users (resolve <n> to close one)",
+        usage="reports",
+        group="meta",
+        aliases=[],
+        params={},
+        examples=["reports"],
+        supports_cli=False,
+    ),
+
     "legend": Command(
         name="legend",
         description="Show the abbreviation key for all stat columns, probability chain fields, and modifier flags",

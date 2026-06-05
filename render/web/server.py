@@ -47,6 +47,7 @@ from render.web.shared_rosters import (
     delete_roster as delete_shared_roster, update_roster_content,
 )
 from render.web import crusade_store
+from render.web import reports as reports_store
 
 
 # ─── Engine registry ───────────────────────────────────────────────────────────
@@ -175,6 +176,14 @@ class BattleFinalizeBody(BaseModel):
     notes:        str = ""
     rp_gained:    int = 1
     unit_results: list = []           # [{unit_id, kills, destroyed, xp_gained, scars?, honours?}]
+
+class ReportCreateBody(BaseModel):
+    body:        str                  # the report text
+    category:    str = "general"      # missing-unit | missing-weapon | general
+    subject:     str = ""             # short label (often the unit name)
+    command:     str = ""             # originating command/context
+    faction:     str = ""
+    reported_by: str = "unknown"
 
 
 # ─── App factory ──────────────────────────────────────────────────────────────
@@ -494,6 +503,49 @@ def create_app(config: dict) -> FastAPI:
         if not campaign:
             raise HTTPException(status_code=404, detail="Campaign not found")
         return campaign
+
+    # ── Reports (user-filed problem reports) ───────────────────────────────────
+
+    @app.get("/api/reports")
+    def api_list_reports(status: str | None = "open"):
+        # status="open" (default) | "resolved" | "all"
+        try:
+            filt = None if status == "all" else status
+            return {"reports": reports_store.list_reports(filt)}
+        except Exception as e:
+            raise HTTPException(status_code=503, detail=str(e))
+
+    @app.post("/api/reports")
+    def api_create_report(body: ReportCreateBody):
+        try:
+            return reports_store.create_report(
+                body.body, category=body.category, subject=body.subject,
+                command=body.command, faction=body.faction,
+                reported_by=body.reported_by)
+        except ValueError as e:
+            raise HTTPException(status_code=400, detail=str(e))
+        except Exception as e:
+            raise HTTPException(status_code=503, detail=str(e))
+
+    @app.post("/api/reports/{report_id}/resolve")
+    def api_resolve_report(report_id: str):
+        try:
+            report = reports_store.resolve_report(report_id)
+        except Exception as e:
+            raise HTTPException(status_code=503, detail=str(e))
+        if not report:
+            raise HTTPException(status_code=404, detail="Report not found")
+        return report
+
+    @app.delete("/api/reports/{report_id}")
+    def api_delete_report(report_id: str):
+        try:
+            ok = reports_store.delete_report(report_id)
+        except Exception as e:
+            raise HTTPException(status_code=503, detail=str(e))
+        if not ok:
+            raise HTTPException(status_code=404, detail="Report not found")
+        return {"ok": True}
 
     # ── Health check ─────────────────────────────────────────────────────────
 

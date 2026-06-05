@@ -1288,8 +1288,6 @@ class CombatTerminalLoader:
         }
 
     @staticmethod
-
-    @staticmethod
     def _stub_enhancement(name: str, detachment: str | None = None) -> dict:
         return {
             "name":       name,
