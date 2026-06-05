@@ -14,13 +14,16 @@ import { useState } from "react";
 import { C } from "../shared/colors";
 import { ActionChip, inputStyle } from "./ui";
 import {
-  BATTLE_TRAITS_INFANTRY, BATTLE_TRAITS_VEHICLE, HONOUR_EXTRAS,
+  BATTLE_TRAITS_INFANTRY, BATTLE_TRAITS_MOUNTED, BATTLE_TRAITS_VEHICLE,
+  HONOUR_EXTRAS, CRUSADE_RELICS,
 } from "@/lib/crusadeTraits";
 
 const GROUPS = [
   { label: "Infantry Traits", items: BATTLE_TRAITS_INFANTRY },
+  { label: "Mounted Traits", items: BATTLE_TRAITS_MOUNTED },
   { label: "Vehicle Traits", items: BATTLE_TRAITS_VEHICLE },
-  { label: "Relics / Enhancements", items: HONOUR_EXTRAS },
+  { label: "Weapon Enhancements", items: HONOUR_EXTRAS },
+  { label: "Crusade Relics", items: CRUSADE_RELICS },
 ];
 
 export function HonourPicker({ slots = 1, value = [], onChange }) {

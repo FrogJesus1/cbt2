@@ -23,7 +23,7 @@ sys.path.insert(0, str(Path(__file__).parent.parent.parent))
 from data._base import EngineBase
 from data.combat_terminal.loader import CombatTerminalLoader
 from data.combat_terminal import commands as _cmds
-from data.combat_terminal.math_adapter import compute_combat, compute_sensitivity, validate_flags, get_mc_config, set_mc_trials
+from data.combat_terminal.math_adapter import compute_combat, compute_sensitivity, validate_flags, get_mc_config, set_mc_trials, is_defensive_flag
 from data.combat_terminal.math_ledger import build_combat_ledger
 from data.combat_terminal import term_aliases
 
@@ -1274,37 +1274,61 @@ class CombatTerminalEngine(EngineBase):
         return None
 
     @staticmethod
-    def _crusade_combat_mods(entry: dict | None) -> tuple[list, list, list]:
+    def _crusade_combat_mods(entry: dict | None, side: str = "attacker") -> tuple[list, list, list]:
         """From a roster entry's crusade block, derive auto-applied combat data.
+
+        `side` selects which flags apply to this combat:
+          - "attacker": only OFFENSIVE flags (hit/wound/AP/damage buffs). A unit's
+            defensive traits (FNP, invuln, +Wounds, …) are irrelevant when it is
+            doing the shooting — and must NOT leak onto the target profile.
+          - "defender": only DEFENSIVE flags (FNP, invuln, cover, +Wounds, damage
+            reduction, save/−save). These modify the target profile so the unit's
+            survivability traits actually affect incoming damage.
 
         Returns (auto_flags, notes, abilities):
           - auto_flags: combat flag strings to merge into the math (only honours/
-            scars that carry a `flag` contribute; descriptive-only ones don't).
+            scars that carry a `flag` for the relevant side contribute).
           - notes:      ◈-prefixed flag_note dicts for the combat callout panel.
-          - abilities:  ability dicts (amber honours, red scars) for the panel.
+          - abilities:  ability dicts (amber honours, red scars) — attacker side
+            only (the abilities panel describes the attacking unit).
         """
         crusade = (entry or {}).get("crusade") or {}
+        is_def = side == "defender"
+        side_tag = " (defender)" if is_def else ""
         auto_flags, notes, abilities = [], [], []
+
+        def _wanted(flag) -> bool:
+            # Keep a flag only if its side matches the side we're resolving.
+            return bool(flag) and (is_defensive_flag(str(flag)) == is_def)
+
         for h in crusade.get("honours", []):
             if not isinstance(h, dict):
                 continue
             name = h.get("name", "Honour")
             eff  = h.get("effect", "")
             flag = h.get("flag")
-            if flag:
+            applied = _wanted(flag)
+            if applied:
                 auto_flags.append(str(flag))
-            notes.append({"icon": "star", "text": f"◈ {name}" + (f" — {eff}" if eff else "")})
-            abilities.append({"name": f"◈ {name}", "description": eff, "color": "amber"})
+            # Show the note when the flag applies to this side, or (attacker side)
+            # for descriptive-only honours so the player still sees them.
+            if applied or (not is_def and not flag):
+                notes.append({"icon": "star", "text": f"◈ {name}{side_tag}" + (f" — {eff}" if eff else "")})
+            if not is_def:
+                abilities.append({"name": f"◈ {name}", "description": eff, "color": "amber"})
         for s in crusade.get("scars", []):
             if not isinstance(s, dict):
                 continue
             name = s.get("name", "Scar")
             eff  = s.get("effect", "")
             flag = s.get("flag")
-            if flag:
+            applied = _wanted(flag)
+            if applied:
                 auto_flags.append(str(flag))
-            notes.append({"icon": "skull", "text": f"◈ {name} (scar)" + (f" — {eff}" if eff else "")})
-            abilities.append({"name": f"◈ {name} (scar)", "description": eff, "color": "red"})
+            if applied or (not is_def and not flag):
+                notes.append({"icon": "skull", "text": f"◈ {name} (scar){side_tag}" + (f" — {eff}" if eff else "")})
+            if not is_def:
+                abilities.append({"name": f"◈ {name} (scar)", "description": eff, "color": "red"})
         return auto_flags, notes, abilities
 
     def _build_spec_result(self, result: dict) -> dict:
@@ -1670,18 +1694,29 @@ class CombatTerminalEngine(EngineBase):
             self._log_issue("unit_lookup", f"Defender not found: '{defender_raw}'", f"query={defender_raw}")
 
         # ── Crusade combat bridge ────────────────────────────────────────────
-        # If the attacker's roster entry carries a crusade block, its honours /
-        # scars contribute auto-flags to the math (no manual --flags needed) and
-        # ◈-tagged notes + abilities to the display. Defender enrichment is left
-        # to a later session. crusade_flags skip validate_flags (already past) so
-        # descriptive-only traits never raise "unknown modifier".
-        crusade_flags, crusade_notes, crusade_abilities = self._crusade_combat_mods(att_roster_entry)
+        # If the attacker's roster entry carries a crusade block, its OFFENSIVE
+        # honours / scars contribute auto-flags to the math (no manual --flags
+        # needed) and ◈-tagged notes + abilities to the display. crusade_flags
+        # skip validate_flags (already past) so descriptive-only traits never
+        # raise "unknown modifier".
+        crusade_flags, crusade_notes, crusade_abilities = self._crusade_combat_mods(att_roster_entry, "attacker")
         if not crusade_flags and not crusade_notes:
             # Fall back to a name match in case the roster entry wasn't resolved
             # (e.g. single-loadout unit auto-matched without _attacker_roster_entry).
             _cr_entry = self._crusade_block_for(att_name)
             if _cr_entry:
-                crusade_flags, crusade_notes, crusade_abilities = self._crusade_combat_mods(_cr_entry)
+                crusade_flags, crusade_notes, crusade_abilities = self._crusade_combat_mods(_cr_entry, "attacker")
+
+        # Defender-side crusade: a unit's DEFENSIVE honours/scars (FNP, invuln,
+        # +Wounds, damage reduction, save modifiers) modify the target profile
+        # when the unit is defending. The player's crusade units live in
+        # roster_my regardless of which side of `vs` they sit on, so search there
+        # first, then the enemy roster.
+        def_cr_entry = def_roster_entry if (def_roster_entry and def_roster_entry.get("crusade")) else None
+        if not def_cr_entry:
+            def_cr_entry = (self._crusade_block_for(def_name, "roster_my")
+                            or self._crusade_block_for(def_name, "roster_enemy"))
+        def_crusade_flags, def_crusade_notes, _ = self._crusade_combat_mods(def_cr_entry, "defender")
 
         # Augment attacker with drone / turret weapons so they appear in the
         # combat weapon table and are included in combat math.
@@ -1965,6 +2000,19 @@ class CombatTerminalEngine(EngineBase):
             elif key.startswith("wndplus"):
                 val = f.split(":")[1] if ":" in f else (re.sub(r'^wndplus', '', key) or "1")
                 flag_notes.append({"icon": "star", "text": f"+{val} to Wound rolls"})
+            elif key.startswith("woundsplus"):
+                val = f.split(":")[1] if ":" in f else (re.sub(r'^woundsplus', '', key) or "1")
+                flag_notes.append({"icon": "shield", "text": f"{'+' if not str(val).startswith('-') else ''}{val} to target Wounds characteristic (min 1)"})
+            elif key.startswith("dmgred"):
+                base = "dmgreduce" if key.startswith("dmgreduce") else "dmgred"
+                val = f.split(":")[1] if ":" in f else (re.sub(rf'^{base}', '', key) or "1")
+                flag_notes.append({"icon": "shield", "text": f"-{val} Damage suffered per attack (final damage floored at 1)"})
+            elif key.startswith("svplus"):
+                val = f.split(":")[1] if ":" in f else (re.sub(r'^svplus', '', key) or "1")
+                flag_notes.append({"icon": "shield", "text": f"+{val} to target Save rolls (better armour save)"})
+            elif key.startswith("svminus"):
+                val = f.split(":")[1] if ":" in f else (re.sub(r'^svminus', '', key) or "1")
+                flag_notes.append({"icon": "shield", "text": f"-{val} to target Save rolls (worse armour save)"})
             elif key.startswith("sus"):
                 base = "sustained" if key.startswith("sustained") else "sus"
                 raw = f.split(":")[1] if ":" in f else (key[len(base):] or "1")
@@ -1985,6 +2033,8 @@ class CombatTerminalEngine(EngineBase):
         # Crusade honour/scar notes — auto-applied, shown with a ◈ marker
         if crusade_notes:
             flag_notes.extend(crusade_notes)
+        if def_crusade_notes:
+            flag_notes.extend(def_crusade_notes)
 
         n_ranged = len([w for w in weapons if w["type"] != "melee"])
         n_melee  = len([w for w in weapons if w["type"] == "melee"])
@@ -2003,7 +2053,8 @@ class CombatTerminalEngine(EngineBase):
         #
         # math_flags merges the user's command flags with auto-applied Crusade
         # honour/scar flags so battle traits modify the math with no manual flags.
-        math_flags = list(flags) + list(crusade_flags)
+        # Attacker contributes offensive flags; defender contributes defensive ones.
+        math_flags = list(flags) + list(crusade_flags) + list(def_crusade_flags)
         math_result = {}
         sensitivity = []
         if att_unit and def_unit:
@@ -3573,6 +3624,10 @@ class CombatTerminalEngine(EngineBase):
             {"flag": "--eapdef",      "display": "[eapdef]",     "desc": "Extra AP (defender)",        "effect": "Defender worsens the AP of incoming attacks by N (AP-2 → AP-1, e.g. Commander in Enforcer Battlesuit). Forms: --eapdef, --eapdef2. Place after vs on the defender."},
             {"flag": "--fnp6",        "display": "[fnp:6]",      "desc": "Feel No Pain Override",      "effect": "Target gains/overrides Feel No Pain save to 6+. Also: --fnp5, --fnp:4 etc."},
             {"flag": "--halfdmg",     "display": "[halfdmg]",    "desc": "Half Damage",                "effect": "Halves damage inflicted (e.g. Duty Eternal, damage reduction abilities)"},
+            {"flag": "--woundsplus1", "display": "[woundsplus1]","desc": "Target +N Wounds",           "effect": "Adds N to the target's Wounds characteristic, floored at 1 (e.g. Reinforced Hull). Negative forms reduce it: --woundsplus-1. Crusade defensive trait."},
+            {"flag": "--dmgreduce1",  "display": "[dmgreduce1]", "desc": "Damage Reduction",           "effect": "Reduces incoming damage by N per attack, final damage floored at 1 (e.g. Armour Plating). Alias: --dmgred1. Crusade defensive trait."},
+            {"flag": "--svplus1",     "display": "[svplus1]",    "desc": "Target +N Save",             "effect": "Improves the target's armour save rolls by N (better save)."},
+            {"flag": "--svminus1",    "display": "[svminus1]",   "desc": "Target -N Save",             "effect": "Worsens the target's armour save rolls by N (e.g. Shell Shocked scar)."},
         ]
 
         faction_modifier_flags = [

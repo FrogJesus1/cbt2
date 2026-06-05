@@ -40,6 +40,8 @@ from data.combat_terminal.math_adapter import (
     compute_combat,
     compute_sensitivity,
     _merge_mods,
+    is_defensive_flag,
+    validate_flags,
 )
 
 # ─────────────────────────────────────────────────────────────────────────────
@@ -643,6 +645,64 @@ class TestEdgeCases:
 # Runner (no pytest required)
 # ─────────────────────────────────────────────────────────────────────────────
 
+class TestCrusadeDefensiveFlags:
+    """Session 5 — defender stat-modifier flags + flag classification.
+
+    Uses a high-volume weapon so per-attack effects are clearly visible in EV.
+    """
+
+    ATT = {
+        "name": "Shooter",
+        "weapons": [_make_weapon(name="autocannon", attacks="10", bs="3+", s=5, ap=1, d=2)],
+    }
+    DEF = {"name": "Mark", "T": "4", "Sv": "3", "W": "2", "abilities": []}
+
+    def _dmg(self, flags):
+        return compute_combat(self.ATT, self.DEF, flags)["ranged"]["expected_dmg"]
+
+    def _kills(self, flags):
+        return compute_combat(self.ATT, self.DEF, flags)["ranged"]["expected_kills"]
+
+    def test_woundsplus_increases_target_wounds(self):
+        # +2 wounds per model → harder to kill → fewer expected kills.
+        assert self._kills(["woundsplus2"]) < self._kills([]), \
+            "woundsplus should raise target Wounds and reduce kills"
+
+    def test_woundsplus_negative_floors_at_one(self):
+        from data.combat_terminal.combat_math_engine import AttackModifiers, TargetProfile
+        m, t = AttackModifiers(), _make_target(t=4, sv=3, w=1)
+        _apply_flags(["woundsplus-5"], m, t)
+        assert t.wounds == 1, f"Wounds must floor at 1, got {t.wounds}"
+
+    def test_dmgreduce_lowers_damage(self):
+        assert self._dmg(["dmgreduce1"]) < self._dmg([]), \
+            "dmgreduce should reduce incoming damage"
+        # dmgred alias behaves identically
+        assert abs(self._dmg(["dmgred1"]) - self._dmg(["dmgreduce1"])) < 1e-9, \
+            "dmgred alias must match dmgreduce"
+
+    def test_svminus_increases_damage(self):
+        assert self._dmg(["svminus1"]) > self._dmg([]), \
+            "worse save (svminus) should increase damage taken"
+
+    def test_svplus_decreases_damage(self):
+        assert self._dmg(["svplus1"]) < self._dmg([]), \
+            "better save (svplus) should decrease damage taken"
+
+    def test_classification_offensive_vs_defensive(self):
+        for f in ["fnp6", "invuln4", "woundsplus1", "dmgreduce1", "dmgred2",
+                  "svplus1", "svminus1", "stealth", "eapdef", "cover", "halfdmg"]:
+            assert is_defensive_flag(f), f"{f} should classify as defensive"
+        for f in ["hitplus1", "wndplus1", "lethal", "dev", "sus1", "eap2",
+                  "rrwound1", "twin", "lance"]:
+            assert not is_defensive_flag(f), f"{f} should classify as offensive"
+
+    def test_new_flags_validate(self):
+        assert validate_flags(["woundsplus1", "woundsplus-1", "dmgreduce2",
+                               "dmgred1", "svplus1", "svminus3"]) == [], \
+            "new defensive flags must pass validation"
+
+
 def _run_all() -> None:
     """Run all test classes and report results."""
     import traceback
@@ -657,6 +717,7 @@ def _run_all() -> None:
         TestMonteCarlo,
         TestSensitivity,
         TestEdgeCases,
+        TestCrusadeDefensiveFlags,
     ]
 
     passed = 0

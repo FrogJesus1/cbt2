@@ -188,6 +188,74 @@ function StatBlock({ label, value, color = C.green }) {
   );
 }
 
+function MiniBar({ pct, color = C.green }) {
+  const clamped = Math.max(0, Math.min(100, pct || 0));
+  return (
+    <div style={{ height: "5px", background: C.bgDark, border: `1px solid ${C.border}`, marginTop: "4px" }}>
+      <div style={{ height: "100%", width: `${clamped}%`, background: color, transition: "width 0.2s" }} />
+    </div>
+  );
+}
+
+function CampaignStats({ campaign, units }) {
+  const battles = campaign.battle_count || 0;
+  const wins = campaign.wins || 0;
+  const winRate = battles > 0 ? Math.round((wins / battles) * 100) : 0;
+
+  const totalPoints = units.reduce((s, u) => s + (u.points || 0) * (u.models ? 1 : 1), 0);
+  const supply = campaign.supply_limit || 0;
+  const supplyPct = supply > 0 ? Math.round((totalPoints / supply) * 100) : 0;
+
+  const totalXp = units.reduce((s, u) => s + (u.xp || 0), 0);
+  const totalKills = units.reduce((s, u) => s + (u.enemy_kills || 0), 0);
+  const totalHonours = units.reduce((s, u) => s + ((u.honours || []).length), 0);
+  const totalScars = units.reduce((s, u) => s + ((u.scars || []).length), 0);
+  const crusadePoints = totalHonours - totalScars;
+
+  const byKills = [...units].sort((a, b) => (b.enemy_kills || 0) - (a.enemy_kills || 0)).slice(0, 3);
+  const byXp = [...units].sort((a, b) => (b.xp || 0) - (a.xp || 0)).slice(0, 3);
+  const nameOf = (u) => u.nickname || u.name || "—";
+
+  const TopList = ({ title, items, metric, color }) => (
+    <div style={{ flex: 1, minWidth: "180px" }}>
+      <div style={{ color: C.dim, fontSize: "9px", fontFamily: "monospace", letterSpacing: "0.1em", textTransform: "uppercase", marginBottom: "6px" }}>{title}</div>
+      {items.filter((u) => metric(u) > 0).length === 0 ? (
+        <div style={{ color: C.border, fontSize: "11px", fontFamily: "monospace", fontStyle: "italic" }}>none yet</div>
+      ) : items.filter((u) => metric(u) > 0).map((u, i) => (
+        <div key={i} style={{ display: "flex", justifyContent: "space-between", fontSize: "11px", fontFamily: "monospace", color: C.mid, padding: "1px 0" }}>
+          <span>{i + 1}. {nameOf(u)}</span>
+          <span style={{ color }}>{metric(u)}</span>
+        </div>
+      ))}
+    </div>
+  );
+
+  return (
+    <div style={{ border: `1px solid ${C.border}`, background: C.panel, padding: "16px 18px" }}>
+      <SectionHeader title="Campaign Stats" subtitle={`${units.length} units in the Order of Battle`} />
+      <div style={{ display: "flex", gap: "22px", flexWrap: "wrap", marginBottom: "14px" }}>
+        <StatBlock label="Win Rate" value={`${winRate}%`} color={winRate >= 50 ? C.green : C.yellow} />
+        <StatBlock label="Total XP" value={totalXp} color={C.amber} />
+        <StatBlock label="Enemy Kills" value={totalKills} color={C.red} />
+        <StatBlock label="Honours" value={totalHonours} color={C.amber} />
+        <StatBlock label="Scars" value={totalScars} color={C.red} />
+        <StatBlock label="Crusade Pts" value={crusadePoints} color={crusadePoints >= 0 ? C.green : C.red} />
+      </div>
+      <div style={{ marginBottom: "14px" }}>
+        <div style={{ display: "flex", justifyContent: "space-between", fontSize: "10px", fontFamily: "monospace", color: C.dim }}>
+          <span>SUPPLY USED</span>
+          <span style={{ color: supplyPct > 100 ? C.red : C.mid }}>{totalPoints} / {supply} pts ({supplyPct}%)</span>
+        </div>
+        <MiniBar pct={supplyPct} color={supplyPct > 100 ? C.red : C.green} />
+      </div>
+      <div style={{ display: "flex", gap: "18px", flexWrap: "wrap" }}>
+        <TopList title="Top Killers" items={byKills} metric={(u) => u.enemy_kills || 0} color={C.red} />
+        <TopList title="Most Experienced" items={byXp} metric={(u) => u.xp || 0} color={C.amber} />
+      </div>
+    </div>
+  );
+}
+
 function CampaignDetail({ campaign, onBack, onReload, onError, engineId, onInject }) {
   const units = campaign.units || [];
   const activeBattle = campaign.state?.active_battle || null;
@@ -255,6 +323,11 @@ function CampaignDetail({ campaign, onBack, onReload, onError, engineId, onInjec
           onInject={onInject} onReload={onReload} onClose={() => setMuster(false)}
         />
       ) : null}
+
+      {/* Campaign stats dashboard (between battles) */}
+      {!activeBattle && units.length > 0 && (
+        <CampaignStats campaign={campaign} units={units} />
+      )}
 
       {/* Order of Battle — editable */}
       <OrderOfBattle campaign={campaign} units={units} onReload={onReload} onError={onError} />

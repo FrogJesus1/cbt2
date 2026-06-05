@@ -293,6 +293,30 @@ def _merge_mods(weapon: AttackModifiers, base: AttackModifiers) -> AttackModifie
 
 # ─── Public API ────────────────────────────────────────────────────────────────
 
+def _suffix_int(flag: str, key: str, base: str, default: int = 1) -> int:
+    """Extract the integer N from a flag in any of these forms:
+
+        base            → default
+        base:N / base:-N
+        baseN  / base-N (number embedded in the flag name)
+
+    `flag` is the raw token ("woundsplus-1"); `key` is its lowercased
+    pre-colon part; `base` is the flag's stem ("woundsplus").
+    """
+    if ":" in flag:
+        try:
+            return int(flag.split(":")[1])
+        except (ValueError, IndexError):
+            return default
+    rest = key[len(base):]
+    if rest:
+        try:
+            return int(rest)
+        except ValueError:
+            return default
+    return default
+
+
 def _apply_flags(flags: list, base_mods: "AttackModifiers", target: "TargetProfile") -> tuple["AttackModifiers", "TargetProfile"]:
     """Centralised flag → modifier/target application.
 
@@ -486,6 +510,34 @@ def _apply_flags(flags: list, base_mods: "AttackModifiers", target: "TargetProfi
         elif key == "halfdmg":
             base_mods.damage_multiplier = 0.5
 
+        # ── Defender stat modifiers (Crusade battle traits / scars) ───────────
+        # These modify the TARGET (defender). Applied automatically when the unit
+        # carrying the trait is the DEFENDER (see is_defensive_flag + the engine
+        # crusade bridge), and usable manually on the command line too.
+        elif key.startswith("woundsplus"):
+            # +N (or -N) to the target's Wounds characteristic (floored at 1).
+            # e.g. Reinforced Hull (+1 W) → woundsplus1; Weakened scar → woundsplus-1
+            n = _suffix_int(f, key, "woundsplus", default=1)
+            target.wounds = max(1, target.wounds + n)
+
+        elif key.startswith("dmgred"):
+            # Reduce incoming damage by N per attack (math floors final damage at 1).
+            # e.g. Armour Plating (-1 Damage suffered) → dmgreduce1 / dmgred1
+            base = "dmgreduce" if key.startswith("dmgreduce") else "dmgred"
+            n = _suffix_int(f, key, base, default=1)
+            target.damage_reduction += n
+
+        elif key.startswith("svplus"):
+            # Improve the target's save rolls by N (better save → harder to wound through).
+            n = _suffix_int(f, key, "svplus", default=1)
+            base_mods.save_bonus += n
+
+        elif key.startswith("svminus"):
+            # Worsen the target's save rolls by N (worse save → more damage taken).
+            # e.g. Shell Shocked scar (-1 to Save) → svminus1
+            n = _suffix_int(f, key, "svminus", default=1)
+            base_mods.save_penalty += n
+
         elif key in ("igncover", "nocover"):
             base_mods.ignore_cover = True
 
@@ -602,7 +654,26 @@ KNOWN_FLAG_BASES = {
     "rrwound1", "rrwounds1",
     "criton", "critwound",
     "oath", "hitplus", "wndplus",
+    "woundsplus", "dmgreduce", "dmgred", "svplus", "svminus",
 }
+
+
+# Flags that modify the DEFENDER (target). Used by the Crusade bridge to route a
+# unit's honours/scars to the correct side: a unit's defensive traits apply only
+# when it is the defender; its offensive traits apply only when it is the attacker.
+# (This also stops e.g. an attacker's "5+ FNP" honour from buffing the target.)
+DEFENSIVE_FLAG_BASES = {
+    "cover", "invuln", "fnp", "halfdmg", "eapdef", "stealth",
+    "woundsplus", "dmgreduce", "dmgred", "svplus", "svminus",
+}
+
+
+def is_defensive_flag(flag: str) -> bool:
+    """True if the flag modifies the defender (see DEFENSIVE_FLAG_BASES)."""
+    key = flag.split(":")[0].lower()
+    if key in DEFENSIVE_FLAG_BASES:
+        return True
+    return any(key.startswith(base) for base in DEFENSIVE_FLAG_BASES)
 
 
 def _levenshtein(a: str, b: str) -> int:

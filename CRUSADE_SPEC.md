@@ -331,8 +331,9 @@ This means battle traits that translate to combat flags (like +1 to Hit → `hit
 - [ ] `CrusadeBattles` table + battle history view
 - [ ] RP actions (add unit, rearm, heal scar, increase supply)
 
-### Session 5: Rules Data + Polish
-- [ ] Full battle traits/scars tables (faction-specific where available)
-- [ ] Crusade relics
-- [ ] Agenda system (mission-specific XP objectives)
-- [ ] Campaign summary/stats dashboard
+### Session 5: Rules Data + Polish  ✅ 2026-06-04
+- [x] Full battle traits/scars tables (generic by-type — battle traits are universal in 10e; faction relics can be layered later)
+- [x] Crusade relics (generic `CRUSADE_RELICS` list)
+- [~] Agenda system (minimal: standard `AGENDAS` reference + manual XP field; full auto-tracking deferred per build decision)
+- [x] Campaign summary/stats dashboard (`CampaignStats`)
+- [x] Bonus: defensive math flags (`woundsplus`/`dmgreduce`/`svplus`/`svminus`) + defender-side crusade application so survivability traits affect incoming damage

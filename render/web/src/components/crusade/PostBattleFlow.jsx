@@ -17,7 +17,7 @@ import { useState, useMemo } from "react";
 import { C } from "../shared/colors";
 import { ActionChip, SectionHeader, RankBadge, inputStyle, labelStyle } from "./ui";
 import { autoXp, rankForXp, promotionSlots, finalizeBattle } from "@/lib/crusade";
-import { BATTLE_SCARS } from "@/lib/crusadeTraits";
+import { BATTLE_SCARS, AGENDAS } from "@/lib/crusadeTraits";
 import { HonourPicker } from "./HonourPicker";
 
 const RESULTS = [
@@ -185,6 +185,20 @@ export function PostBattleFlow({ campaign, units, battleUnits, onDone, onCancel,
         <label style={labelStyle}>Result</label>
         <ResultPicker value={result} onChange={setResult} />
       </div>
+
+      <details style={{ marginBottom: "16px" }}>
+        <summary style={{ color: C.cyan, fontSize: "11px", fontFamily: "monospace", cursor: "pointer" }}>
+          ▸ Agendas reference — add achieved-agenda XP to a unit's "XP gained" field
+        </summary>
+        <div style={{ marginTop: "8px", display: "flex", flexDirection: "column", gap: "4px" }}>
+          {AGENDAS.map((a, i) => (
+            <div key={i} style={{ color: C.mid, fontSize: "11px", fontFamily: "monospace" }}>
+              <span style={{ color: C.amber }}>+{a.xp} XP</span> · <span style={{ color: C.green }}>{a.name}</span>
+              <span style={{ color: C.dim }}> — {a.how}</span>
+            </div>
+          ))}
+        </div>
+      </details>
 
       <div style={{ display: "flex", flexDirection: "column", gap: "8px", marginBottom: "16px" }}>
         {rows.length === 0 ? (
