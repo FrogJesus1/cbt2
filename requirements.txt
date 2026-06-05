@@ -1,5 +1,12 @@
-fastapi>=0.111.0
-uvicorn[standard]>=0.29.0
-pydantic>=2.7.0
-pyairtable>=2.3.0
-
+# Pinned with upper bounds so a breaking upstream major can't auto-install on
+# rebuild (the previous floors-only spec let any future release in). Lower
+# bounds are the proven baseline; upper bounds cap the next major.
+#   - pyairtable is capped below 3.0 on purpose: the Airtable store code
+#     (crusade_store / reports / shared_rosters) targets the 2.x API, which 3.x
+#     broke. Do NOT bump to 3.x without updating that code.
+# For a fully reproducible build, generate a lockfile from the prod host:
+#   pip freeze > requirements.lock.txt
+fastapi>=0.111.0,<1.0.0
+uvicorn[standard]>=0.29.0,<1.0.0
+pydantic>=2.7.0,<3.0.0
+pyairtable>=2.3.0,<3.0.0

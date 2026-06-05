@@ -23,6 +23,8 @@ from __future__ import annotations
 import time
 from typing import Any
 
+from data.combat_terminal.combat_math_engine import wound_target_from_raw
+
 
 # ─── Core ledger ───────────────────────────────────────────────────────────────
 
@@ -130,24 +132,12 @@ def _bs_to_target(bs_raw: Any) -> int | None:
 
 
 def _s_vs_t_target(strength: Any, toughness: int | None) -> int | None:
-    """Return the to-wound target using the standard S-vs-T chart."""
-    if toughness is None:
-        return None
-    try:
-        s = int(str(strength).strip())
-    except (TypeError, ValueError):
-        return None
-    t = toughness
-    if s >= t * 2:
-        return 2
-    elif s > t:
-        return 3
-    elif s == t:
-        return 4
-    elif s * 2 <= t:
-        return 6
-    else:
-        return 5
+    """Return the to-wound target using the standard S-vs-T chart.
+
+    Delegates to the single canonical wound chart in combat_math_engine so the
+    ledger's displayed wound target can never desync from the computed one.
+    """
+    return wound_target_from_raw(strength, toughness)
 
 
 def build_combat_ledger(

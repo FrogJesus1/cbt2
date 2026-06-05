@@ -32,6 +32,15 @@ from data.combat_terminal.combat_math_engine import (
     compute_attack_result,
     monte_carlo_attack,
 )
+# Flag parsing + classification live in the single registry (flags.py).
+# Re-exported here so existing `from math_adapter import is_defensive_flag` etc.
+# keep working.
+from data.combat_terminal.flags import (
+    flag_int,
+    KNOWN_FLAG_BASES,
+    DEFENSIVE_FLAG_BASES,
+    is_defensive_flag,
+)
 
 logger = logging.getLogger("combat_terminal.math")
 
@@ -297,27 +306,12 @@ def _merge_mods(weapon: AttackModifiers, base: AttackModifiers) -> AttackModifie
 # ─── Public API ────────────────────────────────────────────────────────────────
 
 def _suffix_int(flag: str, key: str, base: str, default: int = 1) -> int:
-    """Extract the integer N from a flag in any of these forms:
+    """Extract the integer N from a flag (base / base:N / baseN).
 
-        base            → default
-        base:N / base:-N
-        baseN  / base-N (number embedded in the flag name)
-
-    `flag` is the raw token ("woundsplus-1"); `key` is its lowercased
-    pre-colon part; `base` is the flag's stem ("woundsplus").
+    Thin wrapper over the single shared parser ``flags.flag_int`` (the ``key``
+    argument is retained for call-site compatibility but recomputed internally).
     """
-    if ":" in flag:
-        try:
-            return int(flag.split(":")[1])
-        except (ValueError, IndexError):
-            return default
-    rest = key[len(base):]
-    if rest:
-        try:
-            return int(rest)
-        except ValueError:
-            return default
-    return default
+    return flag_int(flag, base, default)
 
 
 def _apply_flags(flags: list, base_mods: "AttackModifiers", target: "TargetProfile") -> tuple["AttackModifiers", "TargetProfile"]:
@@ -437,13 +431,15 @@ def _apply_flags(flags: list, base_mods: "AttackModifiers", target: "TargetProfi
             except (ValueError, TypeError):
                 pass
 
-        elif key in ("ed", "dmgplus") or re.match(r'^ed\d+$', key):
-            # Extra Damage: --ed1, --ed:2, --ed 3 (also legacy --dmgplus:N)
+        elif key in ("ed", "dmgplus") or re.match(r'^(ed|dmgplus)\d+$', key):
+            # Extra Damage: --ed1, --ed:2, --ed 3 and --dmgplus / --dmgplus2 /
+            # --dmgplus:N (the embedded --dmgplusN form was previously dropped).
+            base = "dmgplus" if key.startswith("dmgplus") else "ed"
             try:
                 if ":" in f:
                     n = float(f.split(":")[1])
-                elif len(key) > 2 and key.startswith("ed"):
-                    n = float(key[2:])
+                elif len(key) > len(base):
+                    n = float(key[len(base):])
                 else:
                     n = 1.0
                 base_mods.flat_damage_bonus += n
@@ -647,36 +643,8 @@ def _apply_flags(flags: list, base_mods: "AttackModifiers", target: "TargetProfi
 
 # ─── Flag validation ─────────────────────────────────────────────────────────
 
-KNOWN_FLAG_BASES = {
-    "ml", "cover", "lethal", "twin", "sustained", "blast", "rf",
-    "torrent", "lance", "invuln", "ea", "dev", "devastating",
-    "fnp", "dmgplus", "ed", "melta", "heavy",
-    "stealth", "indirect", "halfdmg", "igncover", "nocover",
-    "eap", "eapdef", "sus",
-    "rrhit", "rrhits", "rrhit1", "rrhits1",
-    "rrwound1", "rrwounds1",
-    "criton", "critwound",
-    "oath", "hitplus", "wndplus",
-    "woundsplus", "dmgreduce", "dmgred", "svplus", "svminus",
-}
-
-
-# Flags that modify the DEFENDER (target). Used by the Crusade bridge to route a
-# unit's honours/scars to the correct side: a unit's defensive traits apply only
-# when it is the defender; its offensive traits apply only when it is the attacker.
-# (This also stops e.g. an attacker's "5+ FNP" honour from buffing the target.)
-DEFENSIVE_FLAG_BASES = {
-    "cover", "invuln", "fnp", "halfdmg", "eapdef", "stealth",
-    "woundsplus", "dmgreduce", "dmgred", "svplus", "svminus",
-}
-
-
-def is_defensive_flag(flag: str) -> bool:
-    """True if the flag modifies the defender (see DEFENSIVE_FLAG_BASES)."""
-    key = flag.split(":")[0].lower()
-    if key in DEFENSIVE_FLAG_BASES:
-        return True
-    return any(key.startswith(base) for base in DEFENSIVE_FLAG_BASES)
+# KNOWN_FLAG_BASES, DEFENSIVE_FLAG_BASES and is_defensive_flag are now defined in
+# the single flag registry (flags.py) and imported at the top of this module.
 
 
 def _levenshtein(a: str, b: str) -> int:
@@ -902,14 +870,24 @@ def compute_combat(
                     merged.flat_damage_bonus += merged.melta_value
                 if merged.use_heavy and merged.is_heavy:
                     merged.hit_bonus += 1
+                # Variable attacks (e.g. D6 shots) are sampled per firing model
+                # inside the MC loop via attacks_volleys; everything else keeps the
+                # pre-multiplied expected-value path.
+                sample_attacks = bool(wp.attacks_is_variable and wp.attacks_expression)
+                volleys = 1
                 if merged.use_blast and def_models >= 6:
                     wp.attacks = max(wp.attacks, 3.0)
+                    sample_attacks = False  # Blast min-3 floor uses the EV path
                 # Scale attacks by squad size — skip for unit-level weapons
                 if att_models > 1 and not w.get("_no_multiply"):
-                    wp.attacks = wp.attacks * att_models
+                    if sample_attacks:
+                        volleys = att_models     # one expression roll per model
+                    else:
+                        wp.attacks = wp.attacks * att_models
                 mc_result = monte_carlo_attack(
                     wp, target, base_mods=merged,
                     trials=_MC_TRIALS, seed=_MC_SEED,
+                    attacks_volleys=volleys,
                 )
                 mc_per_weapon[w.get("name", "?")] = mc_result
                 if category not in mc_covers:

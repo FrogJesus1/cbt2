@@ -703,6 +703,191 @@ class TestCrusadeDefensiveFlags:
             "new defensive flags must pass validation"
 
 
+# ─────────────────────────────────────────────────────────────────────────────
+# 11. Single-source wound chart — the three former copies must agree
+# ─────────────────────────────────────────────────────────────────────────────
+
+class TestWoundTableSync:
+    """The S-vs-T wound chart used to be reimplemented in three places
+    (combat_math_engine.wound_target, engine._baseline_wr, math_ledger._s_vs_t_target).
+    All three now delegate to one function — lock that they agree everywhere."""
+
+    def test_canonical_chart_values(self):
+        from data.combat_terminal.combat_math_engine import wound_target
+        assert wound_target(4, 4) == 4
+        assert wound_target(5, 4) == 3
+        assert wound_target(8, 4) == 2   # S >= 2T
+        assert wound_target(3, 4) == 5
+        assert wound_target(2, 4) == 6   # 2S <= T
+
+    def test_all_delegators_agree_over_grid(self):
+        from data.combat_terminal.combat_math_engine import wound_target, wound_target_from_raw
+        from data.combat_terminal.engine import _baseline_wr
+        from data.combat_terminal.math_ledger import _s_vs_t_target
+        for s in range(1, 15):
+            for t in range(1, 15):
+                base = wound_target(s, t)
+                assert wound_target_from_raw(s, t) == base
+                assert _baseline_wr(str(s), str(t)) == base, f"_baseline_wr desync at S{s} T{t}"
+                assert _s_vs_t_target(str(s), t) == base, f"_s_vs_t_target desync at S{s} T{t}"
+
+    def test_raw_parser_handles_strings_and_junk(self):
+        from data.combat_terminal.combat_math_engine import wound_target_from_raw
+        assert wound_target_from_raw("5+", '4"') == 3
+        assert wound_target_from_raw(None, 4) is None
+        assert wound_target_from_raw("x", 4) is None
+
+
+# ─────────────────────────────────────────────────────────────────────────────
+# 12. Flag registry ↔ math effect sync (kills the "silent flag" desync class)
+# ─────────────────────────────────────────────────────────────────────────────
+
+class TestFlagRegistrySync:
+    """Guarantees the single flag registry (flags.py) and the math
+    implementation (_apply_flags) cannot silently drift apart:
+
+      * KNOWN_FLAG_BASES / DEFENSIVE_FLAG_BASES are derived from the registry
+        and match the documented set.
+      * EVERY registry flag produces a real, measurable change in _apply_flags
+        (no flag can advertise a note while doing nothing to the math).
+      * EVERY registry flag validates.
+      * Parametric note text reflects the same N the math consumes.
+    """
+
+    def _sample_token(self, spec):
+        # A representative token for each flag: parametric flags carry N=2.
+        return spec["base"] + ("2" if spec["parametric"] else "")
+
+    def _baseline(self):
+        from data.combat_terminal.combat_math_engine import AttackModifiers
+        return AttackModifiers(), _make_target(t=4, sv=3, w=2)
+
+    def test_known_set_equals_registry(self):
+        from data.combat_terminal import flags as F
+        assert set(F.KNOWN_FLAG_BASES) == {s["base"] for s in F.FLAG_SPECS}
+        assert set(F.DEFENSIVE_FLAG_BASES) == {s["base"] for s in F.FLAG_SPECS if s["defensive"]}
+
+    def test_every_registry_flag_has_a_math_effect(self):
+        from dataclasses import asdict
+        from data.combat_terminal import flags as F
+        for spec in F.FLAG_SPECS:
+            token = self._sample_token(spec)
+            m0, t0 = self._baseline()
+            before = (asdict(m0), asdict(t0))
+            m1, t1 = _apply_flags([token], m0, t0)
+            after = (asdict(m1), asdict(t1))
+            assert after != before, \
+                f"flag '{token}' is in the registry but _apply_flags does nothing — silent flag"
+
+    def test_every_registry_flag_validates(self):
+        from data.combat_terminal import flags as F
+        tokens = [self._sample_token(s) for s in F.FLAG_SPECS]
+        assert validate_flags(tokens) == [], \
+            f"registry flags must all validate: {validate_flags(tokens)}"
+
+    def test_note_value_matches_math_value(self):
+        """Parametric notes must echo the same N the math actually applies."""
+        from data.combat_terminal import flags as F
+        from data.combat_terminal.combat_math_engine import AttackModifiers
+
+        # sustained: note says N, math sets sustained_hits = N
+        m, t = AttackModifiers(), _make_target()
+        _apply_flags(["sus3"], m, t)
+        assert m.sustained_hits == 3
+        assert "3" in F.note_for("sus3")["text"]
+
+        # hitplus: note says +N, math sets hit_bonus = N
+        m, t = AttackModifiers(), _make_target()
+        _apply_flags(["hitplus2"], m, t)
+        assert m.hit_bonus == 2
+        assert "+2" in F.note_for("hitplus2")["text"]
+
+        # invuln: note says N+, math sets invulnerable_save = N
+        m, t = AttackModifiers(), _make_target()
+        _, t2 = _apply_flags(["invuln4"], m, t)
+        assert t2.invulnerable_save == 4
+        assert "4+" in F.note_for("invuln4")["text"]
+
+        # eapdef (defensive AP): note says -N, math worsens AP by N (ap_modifier += N)
+        m, t = AttackModifiers(), _make_target()
+        _apply_flags(["eapdef2"], m, t)
+        assert m.ap_modifier == 2
+        assert "-2" in F.note_for("eapdef2")["text"]
+
+    def test_eapdef_beats_eap_in_lookup(self):
+        # "eapdef" must not be misread as the offensive "eap" flag.
+        from data.combat_terminal import flags as F
+        assert F.is_defensive_flag("eapdef")
+        assert not F.is_defensive_flag("eap")
+        assert "worsens" in F.note_for("eapdef")["text"]
+        assert "improves" in F.note_for("eap")["text"]
+
+    def test_fixed_flag_does_not_prefix_match_junk(self):
+        # A fixed (non-parametric) flag must match only its exact stem, so a
+        # malformed token like 'mlx' produces no note (old behaviour).
+        from data.combat_terminal import flags as F
+        assert F.note_for("mlx") is None
+
+
+# ─────────────────────────────────────────────────────────────────────────────
+# 13. Monte Carlo damage/attacks variance — variable dice must spread wider
+# ─────────────────────────────────────────────────────────────────────────────
+
+class TestMonteCarloVariance:
+    """Before this fix variable damage/attacks were collapsed to their expected
+    value at parse time, so a D6-damage weapon and a flat-3.5 weapon produced
+    identical MC distributions and confidence bands. Now the dice are sampled."""
+
+    # High BS/S/AP so almost every attack becomes an unsaved wound — this
+    # isolates the damage/attacks dice as the dominant source of variance.
+    def _flat_damage_wp(self):
+        return WeaponProfile("Flat-3.5", attacks=4, skill=2, strength=10, ap=6,
+                             damage=3.5)
+
+    def _d6_damage_wp(self):
+        return WeaponProfile("D6", attacks=4, skill=2, strength=10, ap=6,
+                             damage=3.5, damage_is_variable=True, damage_expression="D6")
+
+    def _big_target(self):
+        # One large model so per-wound damage accumulates without overkill
+        # truncation compressing the spread.
+        return TargetProfile(name="Monster", toughness=4, save=3,
+                             invulnerable_save=None, wounds=40, models=1)
+
+    def test_d6_damage_spreads_wider_than_flat(self):
+        tgt = self._big_target()
+        flat = monte_carlo_attack(self._flat_damage_wp(), tgt, trials=20000, seed=42)
+        d6   = monte_carlo_attack(self._d6_damage_wp(),   tgt, trials=20000, seed=42)
+        assert d6["std_dev_damage"] > flat["std_dev_damage"] * 1.3, \
+            f"D6 damage should be markedly swingier: d6={d6['std_dev_damage']} flat={flat['std_dev_damage']}"
+
+    def test_variable_damage_preserves_expected_value(self):
+        """Sampling must not shift the mean — only the spread."""
+        tgt = self._big_target()
+        flat = monte_carlo_attack(self._flat_damage_wp(), tgt, trials=20000, seed=42)
+        d6   = monte_carlo_attack(self._d6_damage_wp(),   tgt, trials=20000, seed=42)
+        assert abs(d6["mean_damage"] - flat["mean_damage"]) < 0.5, \
+            f"D6 (EV 3.5) and flat 3.5 should share a mean: d6={d6['mean_damage']} flat={flat['mean_damage']}"
+
+    def test_variable_attacks_spreads_wider_than_flat(self):
+        tgt = self._big_target()
+        flat = WeaponProfile("FlatA", attacks=3.5, skill=2, strength=10, ap=6, damage=1)
+        var  = WeaponProfile("D6A", attacks=3.5, skill=2, strength=10, ap=6, damage=1,
+                             attacks_is_variable=True, attacks_expression="D6")
+        rf = monte_carlo_attack(flat, tgt, trials=20000, seed=42)
+        rv = monte_carlo_attack(var,  tgt, trials=20000, seed=42)
+        assert rv["std_dev_damage"] > rf["std_dev_damage"], \
+            f"D6 attacks should be swingier than flat: var={rv['std_dev_damage']} flat={rf['std_dev_damage']}"
+
+    def test_flat_weapon_unchanged_by_new_path(self):
+        # A non-variable weapon must behave exactly as before (regression guard).
+        tgt = _make_target(t=4, sv=3, w=2, models=5)
+        wp = WeaponProfile("Bolter", attacks=2, skill=3, strength=4, ap=0, damage=1)
+        r = monte_carlo_attack(wp, tgt, trials=5000, seed=42)
+        assert r["mean_damage"] > 0
+        assert r["std_dev_damage"] >= 0
+
+
 def _run_all() -> None:
     """Run all test classes and report results."""
     import traceback
@@ -718,6 +903,9 @@ def _run_all() -> None:
         TestSensitivity,
         TestEdgeCases,
         TestCrusadeDefensiveFlags,
+        TestWoundTableSync,
+        TestFlagRegistrySync,
+        TestMonteCarloVariance,
     ]
 
     passed = 0

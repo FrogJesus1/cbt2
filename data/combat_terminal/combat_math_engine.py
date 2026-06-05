@@ -28,6 +28,7 @@ from typing import Any, Dict, List, Optional, Tuple
 import json
 import math
 import random
+import re
 import statistics
 
 
@@ -77,6 +78,13 @@ def crit_probability(target: int, reroll: str = "none", crit_on: int = 6) -> flo
 
 
 def wound_target(strength: int, toughness: int) -> int:
+    """Standard 10th-ed Strength-vs-Toughness to-wound target (2–6).
+
+    This is the single canonical wound chart for the whole project.  The display
+    helpers ``engine._baseline_wr`` and ``math_ledger._s_vs_t_target`` both parse
+    raw stat strings and delegate here via ``wound_target_from_raw`` so the
+    *displayed* wound target can never desync from the *computed* one.
+    """
     if strength >= toughness * 2:
         return 2
     if strength > toughness:
@@ -86,6 +94,26 @@ def wound_target(strength: int, toughness: int) -> int:
     if strength * 2 <= toughness:
         return 6
     return 5
+
+
+def _coerce_stat_int(value) -> Optional[int]:
+    """Parse a possibly-string stat like '5', '5+', '6"' → int, else None."""
+    if value is None:
+        return None
+    try:
+        return int(str(value).replace("+", "").replace('"', "").strip())
+    except (TypeError, ValueError):
+        return None
+
+
+def wound_target_from_raw(strength, toughness) -> Optional[int]:
+    """Parse raw (possibly-string) S and T and return the to-wound target, or
+    None if either value can't be parsed.  Thin wrapper over ``wound_target``."""
+    s = _coerce_stat_int(strength)
+    t = _coerce_stat_int(toughness)
+    if s is None or t is None:
+        return None
+    return wound_target(s, t)
 
 
 @dataclass
@@ -373,6 +401,38 @@ def roll_d6() -> int:
     return random.randint(1, 6)
 
 
+_DICE_EXPR_RE = re.compile(r"(\d*)D(\d+)\s*([+-]\s*\d+)?", re.IGNORECASE)
+
+
+def roll_dice_expression(expr, rng=random) -> Optional[int]:
+    """Roll an actual result for a dice expression like 'D6', '2D6+1', 'D3'.
+
+    Returns a sampled integer (NOT the expected value):
+        "3"     → 3
+        "D6"    → 1..6
+        "D6+1"  → 2..7
+        "2D6"   → 2..12
+    Plain integers return themselves; unparsable expressions return None so the
+    caller can fall back to the weapon's stored expected value.
+    """
+    if expr is None:
+        return None
+    s = str(expr).strip()
+    if re.fullmatch(r"\d+", s):
+        return int(s)
+    m = _DICE_EXPR_RE.search(s)
+    if not m:
+        try:
+            return int(round(float(s)))
+        except ValueError:
+            return None
+    count   = int(m.group(1)) if m.group(1) else 1
+    sides   = int(m.group(2))
+    mod_str = (m.group(3) or "").replace(" ", "")
+    mod     = int(mod_str) if mod_str else 0
+    return sum(rng.randint(1, sides) for _ in range(count)) + mod
+
+
 def _passes_roll(target: int) -> bool:
     return roll_d6() >= target
 
@@ -403,7 +463,19 @@ def monte_carlo_attack(
     extra_effects: Optional[List[Dict[str, Any]]] = None,
     trials: int = 100000,
     seed: Optional[int] = 42,
+    attacks_volleys: int = 1,
 ) -> Dict[str, Any]:
+    """Monte Carlo attack simulation.
+
+    Variable damage and attacks are *sampled* per trial (not collapsed to their
+    expected value) when ``weapon.damage_is_variable`` / ``weapon.attacks_is_variable``
+    are set and an expression is present — so a D6-damage weapon shows wider
+    spread (and a wider confidence band) than a flat-damage weapon of equal EV.
+
+    ``attacks_volleys``: for a variable-attacks weapon fired by a squad, roll the
+    attacks expression this many times per trial and sum (one volley per firing
+    model), instead of pre-multiplying the expected value.
+    """
     if seed is not None:
         random.seed(seed)
 
@@ -419,8 +491,32 @@ def monte_carlo_attack(
         wound_t = clamp(min(wound_t, mods.anti_wound_target), 2, 6)
     save_t = compute_save_target(target, weapon, mods)
 
-    attacks = int(max(0, round(weapon.attacks + mods.extra_attacks)))
+    # Fixed (EV) attack count — used when the weapon's attacks are not variable.
+    attacks_fixed = int(max(0, round(weapon.attacks + mods.extra_attacks)))
+    sample_attacks = bool(weapon.attacks_is_variable and weapon.attacks_expression)
+
+    sample_damage = bool(weapon.damage_is_variable and weapon.damage_expression)
+    # EV per-wound damage (used when damage is not variable, or as a fallback).
     effective_damage = max(1.0, ((weapon.damage + mods.flat_damage_bonus) * mods.damage_multiplier) - target.damage_reduction)
+
+    def _sample_attacks() -> int:
+        if not sample_attacks:
+            return attacks_fixed
+        rolled = 0
+        for _ in range(max(1, attacks_volleys)):
+            r = roll_dice_expression(weapon.attacks_expression)
+            rolled += r if r is not None else weapon.attacks
+        return int(max(0, round(rolled + mods.extra_attacks)))
+
+    def _roll_damage() -> float:
+        """Effective damage for one unsaved wound, sampling the damage dice when
+        the weapon has variable damage."""
+        if not sample_damage:
+            return effective_damage
+        base = roll_dice_expression(weapon.damage_expression)
+        if base is None:
+            base = weapon.damage
+        return max(1.0, ((base + mods.flat_damage_bonus) * mods.damage_multiplier) - target.damage_reduction)
 
     total_damage = []
     total_kills = []
@@ -436,6 +532,7 @@ def monte_carlo_attack(
         current_model_hp = wounds_per_model
         kills_this_trial = 0
 
+        attacks = _sample_attacks()
         for _ in range(attacks):
             # Torrent: auto-hits — roll a d6 only to check for crit
             if mods.use_torrent:
@@ -472,7 +569,7 @@ def monte_carlo_attack(
                 if save_t is not None:
                     failed = not _passes_roll(save_t)
                 if failed:
-                    dmg = effective_damage
+                    dmg = _roll_damage()
                     if target.feel_no_pain is not None:
                         prevented = 0
                         for _ in range(int(math.floor(dmg))):
@@ -489,7 +586,7 @@ def monte_carlo_attack(
 
             # Devastating wounds — bypass saves, FNP still applies
             for _ in range(wounds_dev):
-                dmg = effective_damage
+                dmg = _roll_damage()
                 if target.feel_no_pain is not None:
                     prevented = 0
                     for _ in range(int(math.floor(dmg))):

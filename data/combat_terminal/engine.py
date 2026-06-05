@@ -29,6 +29,8 @@ from data.combat_terminal import commands as _cmds
 from data.combat_terminal.math_adapter import compute_combat, compute_sensitivity, validate_flags, get_mc_config, set_mc_trials, is_defensive_flag
 from data.combat_terminal.math_ledger import build_combat_ledger
 from data.combat_terminal import term_aliases
+from data.combat_terminal import flags as _flags
+from data.combat_terminal.combat_math_engine import wound_target_from_raw
 
 
 # ─── Combat helpers ────────────────────────────────────────────────────────────
@@ -53,17 +55,12 @@ def _parse_min_models(composition: list) -> int:
 
 
 def _baseline_wr(strength_str, toughness_str):
-    """Return the standard 10th-ed wound roll needed given S vs T, or None."""
-    try:
-        s = int(str(strength_str or "").replace("+", "").strip())
-        t = int(str(toughness_str or "").replace('"', "").strip())
-    except (ValueError, TypeError):
-        return None
-    if s >= t * 2:  return 2
-    if s >  t:      return 3
-    if s == t:      return 4
-    if s * 2 > t:   return 5
-    return 6
+    """Return the standard 10th-ed wound roll needed given S vs T, or None.
+
+    Delegates to the single canonical wound chart in combat_math_engine so the
+    displayed baseline can never desync from the computed wound target.
+    """
+    return wound_target_from_raw(strength_str, toughness_str)
 
 
 # ─── Modifier-reason attribution ───────────────────────────────────────────────
@@ -90,19 +87,12 @@ def _signed(n):
 
 
 def _flag_int(flag, base, default=1):
-    """Pull the integer arg out of a flag like 'hitplus:2' or 'hitplus2'."""
-    key = flag.split(":")[0].lower()
-    if ":" in flag:
-        try:
-            return int(flag.split(":")[1])
-        except (ValueError, IndexError):
-            return default
-    if len(key) > len(base):
-        try:
-            return int(key[len(base):])
-        except ValueError:
-            return default
-    return default
+    """Pull the integer arg out of a flag like 'hitplus:2' or 'hitplus2'.
+
+    Delegates to the single shared parser in flags.py (formerly duplicated here
+    and as math_adapter._suffix_int).
+    """
+    return _flags.flag_int(flag, base, default)
 
 
 def _collect_stat_sources(flags, weapon_keywords):
@@ -2001,33 +1991,9 @@ class CombatTerminalEngine(EngineBase):
         if crusade_abilities:
             abilities.extend(crusade_abilities)
 
-        # Flag notes for active modifiers
-        FLAG_NOTE_MAP = {
-            "ml":        {"icon": "target",    "text": "Markerlights active — +1 to Hit rolls, Ignores Cover"},
-            "cover":     {"icon": "shield",    "text": "Target in cover — +1 to armour saves"},
-            "dev":       {"icon": "skull",     "text": "Devastating Wounds — critical wounds bypass saves"},
-            "lethal":    {"icon": "lightning", "text": "Lethal Hits — unmodified 6s to Hit auto-wound"},
-            "twin":      {"icon": "star",      "text": "Twin-linked — re-roll all failed wound rolls"},
-            "sustained": {"icon": "star",      "text": "Sustained Hits 1 — critical hits generate +1 extra hit"},
-            "blast":     {"icon": "skull",     "text": "Blast — makes minimum 3 attacks against units of 6+ models"},
-            "rf":        {"icon": "lightning", "text": "Rapid Fire — +attacks equal to weapon's Rapid Fire value within half range"},
-            "melta":     {"icon": "skull",     "text": "Melta — +damage equal to weapon's Melta value within half range"},
-            "torrent":   {"icon": "target",    "text": "Torrent — weapon auto-hits (no ballistic skill roll needed)"},
-            "lance":     {"icon": "star",      "text": "Lance — +1 to Wound rolls (charged this turn)"},
-            "heavy":     {"icon": "target",    "text": "Heavy — Remained Stationary: Heavy weapons get +1 to Hit rolls"},
-            "stealth":   {"icon": "shield",    "text": "Stealth — -1 to Hit rolls against this target"},
-            "indirect":  {"icon": "shield",    "text": "Indirect Fire — -1 to Hit rolls, target benefits from cover"},
-            "halfdmg":   {"icon": "shield",    "text": "Half Damage — damage output halved (e.g. Duty Eternal)"},
-            "igncover":  {"icon": "target",    "text": "Ignore Cover — attacker ignores benefit of cover"},
-            "nocover":   {"icon": "target",    "text": "Ignore Cover — attacker ignores benefit of cover"},
-            "rrhit":     {"icon": "star",      "text": "Re-roll Hits — re-roll all failed Hit rolls"},
-            "rrhits":    {"icon": "star",      "text": "Re-roll Hits — re-roll all failed Hit rolls"},
-            "rrhit1":    {"icon": "star",      "text": "Re-roll Hit 1s — re-roll Hit rolls of 1"},
-            "rrhits1":   {"icon": "star",      "text": "Re-roll Hit 1s — re-roll Hit rolls of 1"},
-            "rrwound1":  {"icon": "star",      "text": "Re-roll Wound 1s — re-roll Wound rolls of 1"},
-            "rrwounds1": {"icon": "star",      "text": "Re-roll Wound 1s — re-roll Wound rolls of 1"},
-            "oath":      {"icon": "star",      "text": "Oath of Moment — re-roll all failed Hit and Wound rolls"},
-        }
+        # Flag notes for active modifiers — sourced from the single flag registry
+        # (data/combat_terminal/flags.py) so the callout text can never drift out
+        # of sync with the parsing/classification used by the math.
         flag_notes = []
         if att_leader_missing:
             flag_notes.append({
@@ -2037,62 +2003,9 @@ class CombatTerminalEngine(EngineBase):
                          f"faction dossier to include it."),
             })
         for f in flags:
-            key = f.split(":")[0]
-            if key in FLAG_NOTE_MAP:
-                flag_notes.append(FLAG_NOTE_MAP[key])
-            elif key.startswith("invuln"):
-                val = f.split(":")[1] if ":" in f else re.sub(r'^invuln', '', key) or "?"
-                flag_notes.append({"icon": "diamond", "text": f"Invulnerable save active — {val}+ invuln overrides armour save"})
-            elif key == "ea" or re.match(r'^ea\d+$', key):
-                val = f.split(":")[1] if ":" in f else re.sub(r'^ea', '', key)
-                flag_notes.append({"icon": "zap", "text": f"+{val} extra attack(s) per model"})
-            elif key in ("ed", "dmgplus") or re.match(r'^ed\d+$', key):
-                val = f.split(":")[1] if ":" in f else re.sub(r'^(ed|dmgplus)', '', key) or "1"
-                flag_notes.append({"icon": "zap", "text": f"+{val} extra damage per unsaved wound"})
-            elif key.startswith("fnp"):
-                val = f.split(":")[1] if ":" in f else re.sub(r'^fnp', '', key) or "?"
-                flag_notes.append({"icon": "shield", "text": f"Feel No Pain {val}+ — target ignores wounds on {val}+"})
-            elif key.startswith("criton"):
-                val = f.split(":")[1] if ":" in f else re.sub(r'^criton', '', key) or "?"
-                flag_notes.append({"icon": "lightning", "text": f"Critical hits on {val}+ instead of 6+"})
-            elif key.startswith("critwound"):
-                val = f.split(":")[1] if ":" in f else re.sub(r'^critwound', '', key) or "?"
-                flag_notes.append({"icon": "lightning", "text": f"Critical wounds on {val}+ instead of 6+"})
-            elif key.startswith("hitplus"):
-                val = f.split(":")[1] if ":" in f else (re.sub(r'^hitplus', '', key) or "1")
-                flag_notes.append({"icon": "target", "text": f"+{val} to Hit rolls"})
-            elif key.startswith("wndplus"):
-                val = f.split(":")[1] if ":" in f else (re.sub(r'^wndplus', '', key) or "1")
-                flag_notes.append({"icon": "star", "text": f"+{val} to Wound rolls"})
-            elif key.startswith("woundsplus"):
-                val = f.split(":")[1] if ":" in f else (re.sub(r'^woundsplus', '', key) or "1")
-                flag_notes.append({"icon": "shield", "text": f"{'+' if not str(val).startswith('-') else ''}{val} to target Wounds characteristic (min 1)"})
-            elif key.startswith("dmgred"):
-                base = "dmgreduce" if key.startswith("dmgreduce") else "dmgred"
-                val = f.split(":")[1] if ":" in f else (re.sub(rf'^{base}', '', key) or "1")
-                flag_notes.append({"icon": "shield", "text": f"-{val} Damage suffered per attack (final damage floored at 1)"})
-            elif key.startswith("svplus"):
-                val = f.split(":")[1] if ":" in f else (re.sub(r'^svplus', '', key) or "1")
-                flag_notes.append({"icon": "shield", "text": f"+{val} to target Save rolls (better armour save)"})
-            elif key.startswith("svminus"):
-                val = f.split(":")[1] if ":" in f else (re.sub(r'^svminus', '', key) or "1")
-                flag_notes.append({"icon": "shield", "text": f"-{val} to target Save rolls (worse armour save)"})
-            elif key.startswith("sus"):
-                base = "sustained" if key.startswith("sustained") else "sus"
-                raw = f.split(":")[1] if ":" in f else (key[len(base):] or "1")
-                try: n = int(raw)
-                except ValueError: n = 1
-                flag_notes.append({"icon": "star", "text": f"Sustained Hits {n} — critical hits generate +{n} extra hit(s)"})
-            elif key.startswith("eapdef"):
-                raw = f.split(":")[1] if ":" in f else (re.sub(r'^eapdef', '', key) or "1")
-                try: n = int(raw)
-                except ValueError: n = 1
-                flag_notes.append({"icon": "shield", "text": f"-{n} Armour Penetration — target worsens incoming AP (e.g. Commander in Enforcer Battlesuit)"})
-            elif key.startswith("eap"):
-                raw = f.split(":")[1] if ":" in f else (re.sub(r'^eap', '', key) or "1")
-                try: n = int(raw)
-                except ValueError: n = 1
-                flag_notes.append({"icon": "skull", "text": f"+{n} Armour Penetration — improves weapon AP (e.g. AP-1 → AP-{1 + n})"})
+            note = _flags.note_for(f)
+            if note:
+                flag_notes.append(note)
 
         # Crusade honour/scar notes — auto-applied, shown with a ◈ marker
         if crusade_notes:
