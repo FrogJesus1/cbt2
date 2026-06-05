@@ -1,2841 +1,2856 @@
 {
-  "faction": "Imperial Agents",
-  "source_type": "codex_pdf_parse",
-  "source_name": "Imperial Agents — Individual Unit PDFs",
-  "edition": "10",
-  "version": "2.0",
-  "last_updated": "2026-03-19",
-  "army_rules": [
-    {
-      "name": "No filter",
-      "summary": "] Contents Books FAQ Faction Pack: Imperial Agents Introduction"
-    }
-  ],
-  "detachments": [
-    {
-      "name": "ORDO XENOS ALIEN HUNTERS",
-      "detachment_rule": "Deathwatch Mission Tactics",
-      "rule_summary": "Thousands of years of collated strategic data and hard-won combat experience have provided the Deathwatch with the ultimate battlefield tactics to combat almost any foe.  At the start of your Command phase, you can select one of the Mission Tactics listed below. Until the start of your next Command phase, that Mission Tactic is active and its effects apply to all DEATHWATCH units from your army. Each Mission Tactic can only be selected once per battle. Furor Tactics  The warriors of the Deathwat",
-      "enhancements": [
-        {
-          "name": "Amulet of Auto-Chastisement",
-          "points": 25,
-          "description": "This talisman houses a hate-filled machine spirit that despises alien artifice. Its influence can be focused against the war engines of aliens and traitors alike to disrupt or even paralyse them altogether.  WATCH MASTER model only. At the start of your opponents Shooting phase, select one enemy VEHICLE unit (excluding TITANIC units) within 12\" of and visible to the bearer. That unit must take a Leadership test. If that test is passed, until the end of the phase, each time a model in that unit makes an attack, subtract 1 from the Hit roll; if that test is failed, that unit is not eligible to shoot this phase.",
-          "applies_to": "WATCH MASTER model only."
-        },
-        {
-          "name": "Beacon Angelis",
-          "points": 30,
-          "description": "The Beacon Angelis was devised to guide the Death watch to the threshold of the alien adversary. Housed within a reliquary, it calls out to the warriors’ augur arrays with the voices of a hundred electric cherubim, its summons so strong that it draws the righteous unto its locale regardless of what darkness may surround it.  WATCH MASTER model only. Models in the bearer’s unit have the Deep Strike ability. In addition, you can target the bearer’s unit with the Rapid Ingress Stratagem for 0CP.",
-          "applies_to": "WATCH MASTER model only."
-        },
-        {
-          "name": "Blackweave Shroud",
-          "points": 15,
-          "description": "This hypermorphic bodyglove of uncertain origin is worn beneath a warrior’s armour. It forms a fibrous medium that shields the warrior’s most vital systems.  AGENTS OF THE IMPERIUM model only. The bearer has the Feel No Pain 4+ ability.",
-          "applies_to": "AGENTS OF THE IMPERIUM model only."
-        },
-        {
-          "name": "Universal Anathema",
-          "points": 10,
-          "description": "A fragment of STC technology, this device tastes the spoor of its owner’s foes, then fashions tailored toxins not even the most resilient victim can long endure.  AGENTS OF THE IMPERIUM model only. Melee weapons equipped by the bearer have the [ANTI-INFANTRy 2+] and [ANTI-MONSTER 4+] abilities.",
-          "applies_to": "AGENTS OF THE IMPERIUM model only."
-        }
-      ],
-      "stratagems": [
-        {
-          "name": "ARMOUR OF CONTEMPT",
-          "cp": 1,
-          "type": "Alien Hunters – Battle Tactic Stratagem",
-          "flavour": "The belligerence and transhuman physiologies of the Deathwatch make them unyielding foes.",
-          "when": "Your opponent’s Shooting phase or the Fight phase, just after an enemy unit has selected its targets.",
-          "target": "One DEATHWATCH unit from your army that was selected as the target of one or more of the attacking unit’s attacks.",
-          "effect": "Until the attacking unit has finished making its attacks, each time an attack targets your unit, worsen the Armour Penetration characteristic of that attack by 1."
-        },
-        {
-          "name": "ADAPTIVE TACTICS",
-          "cp": 1,
-          "type": "Alien Hunters – Strategic Ploy Stratagem",
-          "flavour": "Only a truly versatile approach to warfare allows the Deathwatch to focus their tactical genius and best the myriad xenos foes they face.",
-          "when": "Your Command phase.",
-          "target": "One DEATHWATCH unit from your army.",
-          "effect": "Select the Furor Tactics, Malleus Tactics or Purgatus Tactics. Until the start of your next Command phase, that Deathwatch Mission Tactic is active for your unit instead of any other Deathwatch Mission Tactic that is active for your army, even if you have already selected that Deathwatch Mission Tactic this battle."
-        },
-        {
-          "name": "HELLFIRE ROUNDS",
-          "cp": 1,
-          "type": "Alien Hunters – Wargear Stratagem",
-          "flavour": "Hellfire rounds contain reservoirs of virulent bioacids that eat away the flesh of their victims in seconds and leave nothing but bubbling gruel.",
-          "when": "Your Shooting phase.",
-          "target": "One DEATHWATCH INFANTRY unit from your army that has not been selected to shoot this phase.",
-          "effect": "Until the end of the phase, ranged weapons (excluding Devastating Wounds weapons) equipped by models in your unit have the [ANTI-INFANTRY 2+] and [ANTI-MONSTER 5+] abilities.  RESTRICTIONS: You cannot select any units that have already been targeted with either the Kraken Rounds or Dragonfire Rounds Stratagems this phase."
-        },
-        {
-          "name": "DRAGONFIRE ROUNDS",
-          "cp": 1,
-          "type": "Alien Hunters – Wargear Stratagem",
-          "flavour": "Dragonf ire rounds explode just before contact, saturating foes in cover with searing gas and flames.",
-          "when": "Your Shooting phase.",
-          "target": "One DEATHWATCH INFANTRY unit from your army that has not been selected to shoot this phase.",
-          "effect": "Until the end of the phase, ranged weapons equipped by models in your unit have the [ASSAULT] and [IGNORES COVER] abilities.  RESTRICTIONS: You cannot select any units that have already been targeted with either the Kraken Rounds or Hellfire Rounds Stratagems this phase."
-        },
-        {
-          "name": "KRAKEN ROUNDS",
-          "cp": 1,
-          "type": "Alien Hunters – Wargear Stratagem",
-          "flavour": "Kraken rounds utilise adamantine cores and improved propellants to penetrate the thickest hide.",
-          "when": "Your Shooting phase.",
-          "target": "One DEATHWATCH INFANTRY unit from your army that has not been selected to shoot this phase.",
-          "effect": "Until the end of the phase, improve the Armour Penetration characteristic of ranged weapons equipped by models in your unit by 1 and improve the Range characteristic of those weapons by 6\".  RESTRICTIONS: You cannot select any units that have already been targeted with either the Dragonfire Rounds or Hellfire Rounds Stratagems this phase."
-        },
-        {
-          "name": "RAPID TACTICAL RELOCATION",
-          "cp": 1,
-          "type": "Alien Hunters – Strategic Ploy Stratagem",
-          "flavour": "The Ordo Xenos and Deathwatch alike have access to swift gunships and landers that allow for hasty repositioning in the midst of battle.",
-          "when": "End of your opponent’s Fight phase.",
-          "target": "One INQUISITOR or DEATHWATCH INFANTRY unit from your army.",
-          "effect": "Remove your unit from the battlefield. In the Reinforcements step of your next Movement phase, set your unit up anywhere on the battlefield that is more than 9” horizontally away from all enemy models.  RESTRICTIONS: You cannot select a unit that is within Engagement Range of one or more enemy units. Ordo Hereticus Purgation Force"
-        }
-      ]
-    },
-    {
-      "name": "ORDO HERETICUS PURGATION FORCE",
-      "detachment_rule": "Root out Heresy",
-      "rule_summary": "No matter how cunningly their heretical prey hides, they cannot escape the zealous retribution of the Ordo Hereticus.  Ranged weapons equipped by ADEPTUS ARBITES, INQUISITOR, INQUISITORIAL AGENTS and ORDO HERETICUS models from your army have the [IGNORES COvER] ability.  Each time an ADEPTUS ARBITES, INQUISITOR, INQUISITORIAL AGENTS or ORDO HERETICUS model from your army makes an attack that targets a CHAOS unit containing 5 or more models, that attack has the [SUSTAINED HITS 1] ability.",
-      "enhancements": [
-        {
-          "name": "Ignis Judicium",
-          "points": 10,
-          "description": "An artificer-crafted flame projector of focused and terrible vehemence, this weapon has been the bane of countless heretics across the ages.  INQUISITOR or MINISTORUM PRIEST model only. The bearers ranged weapons have the [DEVASTATING WOUNDS], [MELTA 1] and [PRECISION] abilities.",
-          "applies_to": ""
-        },
-        {
-          "name": "Liber Heresius",
-          "points": 10,
-          "description": "This ancient grimoire contains the collected accounts of many Inquisitorial purges, and is a trove of lore for those seeking to ambush and entrap heretics.  INQUISITOR or MINISTORUM PRIEST model only. After both players have deployed their armies, select up to three AGENTS OF THE IMPERIUM units from your army and redeploy them. When doing so, you can set those units up in Strategic Reserves if you wish, regardless of how many units are already in Strategic Reserves.",
-          "applies_to": ""
-        },
-        {
-          "name": "No Escape (Aura)",
-          "points": 25,
-          "description": "None but the most diabolical or desperate stand any chance of slipping through this Inquisitor’s grasp.  INQUISITOR model only. While an enemy unit is within 6\" of the bearer, each time it is selected to Fall Back it must first take a Leadership test. If that test is failed, that unit must Remain Stationary this phase instead.",
-          "applies_to": "INQUISITOR model only."
-        },
-        {
-          "name": "Witch Hunter",
-          "points": 15,
-          "description": "This merciless Imperial agent is monomaniacally focused upon hunting and slaying psykers.  INQUISITOR or MINISTORUM PRIEST model only. While the bearer is leading a unit, each time a model in that unit makes an attack that targets a PSYKER unit, you can re-roll the Hit roll.",
-          "applies_to": ""
-        }
-      ],
-      "stratagems": [
-        {
-          "name": "STUN GRENADES",
-          "cp": 1,
-          "type": "Purgation Force – Wargear Stratagem",
-          "flavour": "Emitting blasts of light, sound and blinding smoke, these devices disorient the foe.",
-          "when": "Start of any phase (excluding the Command phase).",
-          "target": "One ADEPTUS ARBITES, INQUISITORIAL AGENTS or ORDO HERETICUS GRENADES unit from your army that is not within Engagement Range of one or more enemy units.",
-          "effect": "Select one enemy unit (excluding MONSTERS or VEHICLES) within 8\" of and visible to your unit. That enemy unit must take a Battle-shock test and, until the end of the phase, each time a model in that unit makes an attack, subtract 1 from the Hit roll."
-        },
-        {
-          "name": "DISPENSE JUSTICE",
-          "cp": 1,
-          "type": "Purgation Force – Battle Tactic Stratagem",
-          "flavour": "Agents of the Ordo Hereticus are unmerciful in meting out what they see as the Emperor's justice.",
-          "when": "Your Shooting phase or the Fight phase.",
-          "target": "One ADEPTUS ARBITES, INQUISITORIAL AGENTS or ORDO HERETICUS unit from your army that has not been selected to shoot or fight this phase.",
-          "effect": "Until the end of the phase, weapons equipped by models in your unit have the [LETHAL HITS] ability."
-        },
-        {
-          "name": "INVIOLATE JURISDICTION",
-          "cp": 1,
-          "type": "Purgation Force – Strategic Ploy Stratagem",
-          "flavour": "These warriors defend the sanctity of the Emperor's realm with unwavering determination, no matter the odds stacked against them.",
-          "when": "Your opponent’s Shooting phase or the Fight phase, just after an enemy unit has selected its targets.",
-          "target": "One ADEPTUS ARBITES, INQUISITORIAL AGENTS or ORDO HERETICUS INFANTRY unit from your army within range of an objective marker and that was selected as the target of one or more of the attacking unit’s attacks.",
-          "effect": "Until the end of the phase, models in your unit have the Feel No Pain 5+ ability."
-        },
-        {
-          "name": "EXECUTION ORDER",
-          "cp": 2,
-          "type": "Purgation Force – Epic Deed Stratagem",
-          "flavour": "There can be no mercy for heretic leaders.",
-          "when": "Your Command phase.",
-          "target": "One ADEPTUS ARBITES, INQUISITORIAL AGENTS or ORDO HERETICUS INFANTRY unit from your army.",
-          "effect": "Select one enemy CHARACTER unit on the battlefield. Until the start of your next Command phase, each time a model in your unit targets that CHARACTER unit, its weapons have the [PRECISION] ability."
-        },
-        {
-          "name": "LINE OF FIRE",
-          "cp": 1,
-          "type": "Purgation Force – Strategic Ploy Stratagem",
-          "flavour": "These ruthless warriors will risk firing into their own ranks if it ensures the deaths of heretics.",
-          "when": "Your Shooting phase.",
-          "target": "One ADEPTUS ARBITES, INQUISITORIAL AGENTS or ORDO HERETICUS unit from your army that has not been selected to shoot this phase.",
-          "effect": "Until the end of the phase, models in your unit can target enemy units that are within Engagement Range of one or more friendly units with ranged weapons (excluding Blast weapons), provided the target is within 12\"."
-        },
-        {
-          "name": "EXACT PUNISHMENT",
-          "cp": 1,
-          "type": "Purgation Force – Strategic Ploy Stratagem",
-          "flavour": "Vengeance is swift and unforgiving for those who attack the servants of the Emperor.",
-          "when": "Your opponent’s Shooting phase, just after an AGENTS OF THE IMPERIUM unit from your army is destroyed as the result of an enemy unit's attacks.",
-          "target": "One ADEPTUS ARBITES, INQUISITORIAL AGENTS or ORDO HERETICUS unit from your army that was within 6\" of the destroyed unit (you cannot target the destroyed unit with the Stratagem).",
-          "effect": "After the attacking unit has shot, your unit can shoot as if it were your Shooting phase, but when resolving those attacks it can only target that enemy unit (and only if it is an eligible target). Ordo Malleus Daemon Hunters"
-        }
-      ]
-    },
-    {
-      "name": "ORDO MALLEUS DAEMON HUNTERS",
-      "detachment_rule": "Destroy the Daemonic",
-      "rule_summary": "Knowing the vital nature of their mission, the servants of the Ordo Malleus fight all the harder to lay their enemies low.  Each time an INQUISITOR, INQUISITORIAL AGENTS or ORDO MALLEUS model from your army makes an attack, re-roll a Hit roll of 1 and, if the target of that attack is a DAEMON unit, re-roll a Wound roll of 1 as well.",
-      "enhancements": [
-        {
-          "name": "Daemon Slayer",
-          "points": 10,
-          "description": "Some whisper this weapon of banishment is in fact host to a hostile warp entity in its own right.  INQUISITOR model only. Add 1 to the Attacks characteristic of the bearers melee weapons, and those weapons have the [ANTI-DAEMON 3+] ability.",
-          "applies_to": "INQUISITOR model only."
-        },
-        {
-          "name": "Formidable Resolve",
-          "points": 5,
-          "description": "Inquisitors of the Ordo Malleus are amongst the hardiest and most bombastic of their kind. They must be to survive their duties.  INQUISITOR model only. Improve the bearer’s Leadership and Wounds characteristics by 1. Once per battle, at the start of any phase, you can select one friendly Battle-shocked unit within 12\" of the bearer. That unit is no longer Battle-shocked.",
-          "applies_to": "INQUISITOR model only."
-        },
-        {
-          "name": "Gift of the Prescient",
-          "points": 20,
-          "description": "Guided by the scryings of their Prognosticars, the Grey Knights strike with deadly precision and timing.  INQUISITOR model only. Once per battle, if the bearer is on the battlefield, you can use the Rapid Ingress Stratagem for 0CP. When doing so, you must target a GREY KNIGHTS TERMINATOR SQUAD unit from your army, and when using that Stratagem, that unit can be set up anywhere on the battlefield that is more than 3\" away from all enemy units.",
-          "applies_to": "INQUISITOR model only."
-        },
-        {
-          "name": "Grimoire of True Names (Aura)",
-          "points": 10,
-          "description": "To wield the true name of a daemon is to control its supernatural power, though whether in the name of banishment or to be unleashed as a weapon of terror falls to the discretion of the grimoire’s keeper.  INQUISITOR model only. While an enemy unit is within 9\" of the bearer, worsen the Leadership characteristic of models in that unit by 1. In addition, while an enemy DAEMON unit is within 9\" of the bearer, each time a model in that DAEMON unit makes an attack, subtract 1 from the Hit roll and subtract 1 from the Wound roll.",
-          "applies_to": "INQUISITOR model only."
-        }
-      ],
-      "stratagems": [
-        {
-          "name": "RITUAL OF WARDING",
-          "cp": 1,
-          "type": "Daemon Hunters – Strategic Ploy Stratagem",
-          "flavour": "Whether sanctifying the battlefield against heresy or binding sinister guardian entities to keep watch, this ritual extends its practitioner’s strategic influence.",
-          "when": "Start of any Command phase.",
-          "target": "One INQUISITOR, INQUISITORIAL AGENTS or ORDO MALLEUS unit from your army that is within range of an objective marker you control.",
-          "effect": "That objective marker is said to be Warded and remains under your control, even if you have no models within range of it, until your opponent controls it at the start or end of any turn. While an objective marker is Warded and under your control, enemy DAEMON units cannot be set up on the battlefield within 6\" of it."
-        },
-        {
-          "name": "RITES OF EXORCISM",
-          "cp": 1,
-          "type": "Daemon Hunters – Strategic Ploy Stratagem",
-          "flavour": "With the correct words of abjuration and banishment, daemons can be driven out of realspace and back into the warp.",
-          "when": "Your Shooting phase or the Fight phase.",
-          "target": "One INQUISITOR, INQUISITORIAL AGENTS or ORDO MALLEUS unit from your army.",
-          "effect": "Select one enemy DAEMON unit within 12\" and visible to your unit. That unit must take a Battle-shock test. If that test is failed, then until the end of the phase, each time a friendly AGENTS OF THE IMPERIUM unit makes an attack that targets that DAEMON unit, that attack has the [DEVASTATING WOUNDS] ability."
-        },
-        {
-          "name": "STEEL HEART",
-          "cp": 1,
-          "type": "Daemon Hunters – Strategic Ploy Stratagem",
-          "flavour": "The battle-brothers of the Grey Knights never flee from their daemonic foes, instead merely withdrawing momentarily before striking anew.",
-          "when": "Your Movement phase, just after a GREY KNIGHTS TERMINATOR SQUAD unit from your army Falls Back.",
-          "target": "That GREY KNIGHTS TERMINATOR SQUAD unit.",
-          "effect": "Until the end of the turn, your unit is eligible to shoot and declare a charge in a turn in which it Fell Back."
-        },
-        {
-          "name": "TRUESILVER ARMOUR",
-          "cp": 1,
-          "type": "Daemon Hunters – Wargear Stratagem",
-          "flavour": "Grey Knights battle plate incorporates litanies of purity, strands of sanctified silver and other sacred wards, whose defences can be further empowered by ritual mantras.",
-          "when": "Your opponent’s Shooting phase orthe Fight phase, just after an enemy unit has selected its targets.",
-          "target": "One GREY KNIGHTS TERMINATOR SQUAD unit from your army that was selected as the target of one or more of the attacking unit’s attacks.",
-          "effect": "Until the attacking unit has finished making its attacks, each time an attack targets your unit, worsen the Armour Penetration characteristic of that attack by 1."
-        },
-        {
-          "name": "HEXAGRAMMIC WARDS",
-          "cp": 1,
-          "type": "Daemon Hunters – Wargear Stratagem",
-          "flavour": "Ancient warding sigils inscribed in shimmering silver, these strange runic designs ward away the hostile energies of the warp.",
-          "when": "Your opponent’s Shooting phase or the Fight phase, just after an enemy unit has selected its targets.",
-          "target": "One ORDO MALLEUS unit from your army that was selected as the target of one or more of the attacking unit’s attacks.",
-          "effect": "Until the end of the phase, all Psychic weapons equipped by models in the attacking unit have the [HAZARDOUS] ability."
-        },
-        {
-          "name": "PSYBOLT AMMUNITION",
-          "cp": 1,
-          "type": "Daemon Hunters – Wargear Stratagem",
-          "flavour": "Specially consecrated and silver-tipped, these bolt shells channel the firer’s innate psychic fury and detonate spectacularly on impact.",
-          "when": "Your Shooting phase.",
-          "target": "One GREY KNIGHTS TERMINATOR SQUAD unit from your army that has not been selected to shoot this phase.",
-          "effect": "Until the end of the phase, ranged weapons equipped by models in your unit have the [LETHAL HITS] and [PSYCHIC] abilities. Imperialis Fleet"
-        }
-      ]
-    },
-    {
-      "name": "IMPERIALIS FLEET",
-      "detachment_rule": "At all Costs",
-      "rule_summary": "While the nature of the missions undertaken by Imperial agents is as varied as they are, the vital importance of these tasks rarely changes. The enemies they face are the most unholy. The prizes they seek are as priceless as they are nightmarishly dangerous. Thus, when such warriors of the Imperium identify a priority target for elimination or acquisition, no effort is too great nor price too high to see their aims achieved.  At the start of your Command phase, you can select one of the followin",
-      "enhancements": [
-        {
-          "name": "Clandestine Operation",
-          "points": 15,
-          "description": "This war leader prefers to strike with subtlety and precision, working their forces into advanced positions before commencing hostilities.  AGENTS OF THE IMPERIUM model only. At the start of the Declare Battle Formations step, you can select up to three AGENTS OF THE IMPERIUM INFANTRY units from your army (excluding GREY KNIGHTS TERMINATOR SQUAD units) - those units gain the Infiltrators ability.",
-          "applies_to": "AGENTS OF THE IMPERIUM model only."
-        },
-        {
-          "name": "Combat Landers",
-          "points": 10,
-          "description": "This commander has access to swift drop craft that can bear portions of their forces directly into the heart of the most ferocious battles.  VOIDFARERS model only. At the start of the Declare Battle Formations step, you can select up to three VOIDFARERS units from your army - those units gain the Deep Strike ability.",
-          "applies_to": "VOIDFARERS model only."
-        },
-        {
-          "name": "Digital Weapons",
-          "points": 10,
-          "description": "These potent, short-ranged energy weapons are concealed in precious items of jewellery, the better to lethally surprise the foe.  AGENTS OF THE IMPERIUM model only. Each time the bearer is selected to fight, roll three D6: for each 4+, one enemy unit within Engagement Range of the bearer suffers 1 mortal wound. Mortal wounds inflicted by this Enhancement are allocated as if they had the [PRECISION] ability.",
-          "applies_to": "AGENTS OF THE IMPERIUM model only."
-        },
-        {
-          "name": "Fleetmaster",
-          "points": 20,
-          "description": "Be they a Rogue Trader or some agent of the Imperial Navy, this warrior draws upon a wealth of shrewd voidfarer strategies to aid them in battle.  VOIDFARERS model only. Once per battle round, you can target the bearer’s unit with the Violent Acquisition, Masters of the Void or Close-quarters Barrage Stratagems for 0CP.",
-          "applies_to": "VOIDFARERS model only."
-        }
-      ],
-      "stratagems": [
-        {
-          "name": "VIOLENT ACQUISITION",
-          "cp": 2,
-          "type": "Imperialis Fleet – Strategic Ploy Stratagem",
-          "flavour": "If a high-ranking Imperial agent locates something they wish to acquire, nothing will stop them from unleashing all the forces at their command to seize it.",
-          "when": "Your Shooting phase or the Fight phase.",
-          "target": "One AGENTS OF THE IMPERIUM unit from your army.",
-          "effect": "Until the end of the phase, each time a model in your unit makes an attack that targets an enemy unit within range of an objective marker, that attack has the [SUSTAINED HITS 1], [LANCE] and [IGNORES COVER] abilities."
-        },
-        {
-          "name": "MASTERS OF THE VOID",
-          "cp": 1,
-          "type": "Imperialis Fleet – Epic Deed Stratagem",
-          "flavour": "With command of the orbital engagement zone comes the ability to strike at the enemy from unexpected angles.",
-          "when": "Your Movement phase.",
-          "target": "One VOIDFARERS CHARACTER unit from your army.",
-          "effect": "Until the end of the phase, each AGENTS OF THE IMPERIUM unit from your army that is arriving from Strategic Reserves this turn can be set up within your opponent’s deployment zone (all other restrictions still apply)."
-        },
-        {
-          "name": "CLOSE-QUARTERS BARRAGE",
-          "cp": 1,
-          "type": "Imperialis Fleet – Battle Tactic Stratagem",
-          "flavour": "Soldiers trained in shipboard warfare and chamber-by-chamber clearance know how best to focus theirfirepower during close-range firefights.",
-          "when": "Your Shooting phase.",
-          "target": "One VOIDFARERS unit from your army.",
-          "effect": "Until the end of the phase, each time a model in your unit makes a ranged attack that targets a unit within 12\", improve the Strength and Armour Penetration characteristics of that attack by 1. EMPEROR’S WILL 1CP Imperialis Fleet – Strategic Ploy Stratagem Believing theyfightforthe safety of the Golden Throne motivates warriors to exceptional deeds. WHEN: Your Movement phase."
-        },
-        {
-          "name": "DISPLACER FIELD",
-          "cp": 1,
-          "type": "Imperialis Fleet – Wargear Stratagem",
-          "flavour": "These rare protective fields perform microteleport displacements to remove their bearers from harm.",
-          "when": "Your opponent's Shooting phase, just after an enemy unit has selected its targets.",
-          "target": "One AGENTS OF THE IMPERIUM CHARACTER unit from your army (excluding OFFICIO ASSASSINORUM units) that was selected as the target of one or more of the attacking unit's attacks.",
-          "effect": "Until the end of the phase, models in your unit have a 4+ invulnerable save and, after the attacking unit has resolved its attacks, unless your unit is within Engagement Range of one or more enemy units, it can make a Normal move of up to 6\" (when doing so, models in this unit move as if they have the Fly keyword)."
-        },
-        {
-          "name": "SELFLESS BODYGUARD",
-          "cp": 1,
-          "type": "Imperialis Fleet – Epic Deed Stratagem",
-          "flavour": "Loyal Imperial warriors will martyr themselves gladly to protect high-ranking Imperial agents.",
-          "when": "Your opponent’s Shooting phase or the Fight phase, just after an enemy unit has selected its targets.",
-          "target": "One AGENTS OF THE IMPERIUM Attached unit that was selected as the target of one or more of the attacking unit’s attacks.",
-          "effect": "Until the end of the phase, each time an attack with the [PRECISION] ability is allocated to a CHARACTER model in your unit, if there are one or more Bodyguard models in your unit, roll one D6: on a 2+, that attack is allocated to a Bodyguard model of your choice in your unit instead. Veiled Blade Elimination Force The lethally efficient agents of the Officio Assassinorum ordinarily operate alone when stalking their prey. However, when assigned a particularly well-protected or formidable target, assassins from various temples may be brought together alongside other assets drawn from the milita"
-        }
-      ]
-    },
-    {
-      "name": "VEILED BLADE ELIMINATION FORCE",
-      "detachment_rule": "Extremis Sanction",
-      "rule_summary": "When pursuing an extremis-level target, the agents of the Officio Assassinorum are expected to push their altered minds and bodies beyond the limits of endurance. Additional equipment, augmentation and ammunition may be provided to complete the task.  OFFICIO ASSASSINORUM units from your army can use the Overkill, Soulless Horror and Shieldbreaker abilities twice per battle, instead of once per battle (but cannot use such an ability more than once in the same battle round).  When mustering your ",
-      "enhancements": [],
-      "stratagems": [
-        {
-          "name": "PRIME TARGET",
-          "cp": 1,
-          "type": "Veiled Blade Elimination Force – Battle Tactic Stratagem",
-          "flavour": "A primary target has been revealed. All efforts must be made to ensure the kill.",
-          "when": "Your Shooting phase or the Fight phase.",
-          "target": "One AGENTS OF THE IMPERIUM unit from your army that has not been selected to shoot or fight this phase.",
-          "effect": "Until the end of the phase, each time a model in your unit makes an attack that targets a CHARACTER unit, re-roll a Wound roll of 1. If that attack is made by an OFFICIO ASSASSINORUM model and it targets the enemy WARLORD, you can re-roll the Wound roll instead."
-        },
-        {
-          "name": "HYPERSTIMMS",
-          "cp": 2,
-          "type": "Veiled Blade Elimination Force – Battle Tactic Stratagem",
-          "flavour": "Unenhanced mortal bodies are routinely – and unknowingly – dosed with experimental stimulant cocktails that serve to reinforce their resilience, at least in the short term.",
-          "when": "Your opponent’s Shooting phase or the Fight phase, just after an enemy unit has selected its targets.",
-          "target": "One AGENTS OF THE IMPERIUM CHARACTER unit from your army that was selected as the target of one or more of the attacking unit’s attacks.",
-          "effect": "Until the end of the phase, add 1 to the Toughness characteristic of models in your unit. In addition, if it is an EVERSOR ASSASSIN unit, until the end of the phase, it has the Feel No Pain 4+ ability. WILL‑SAPPING SALVO 1CP Veiled Blade Elimination Force – Strategic Ploy Stratagem Aiming concentrated volleys of fire toward an exceptionally resilient foe, these agents erode the will of their target, increasing their vulnerability to the concentrated psychic onslaughts of the Culexus Assassin’s animus speculum. WHEN: Your Shooting phase."
-        },
-        {
-          "name": "ORBITAL OVERSIGHT",
-          "cp": 1,
-          "type": "Veiled Blade Elimination Force – Strategic Ploy Stratagem",
-          "flavour": "Aided by orbiting assets, when the assault begins, voidships flood communication networks with jamming frequencies, fire screening bombardments and otherwise mask the agents’ approach.",
-          "when": "Your opponent’s Shooting phase, just after an enemy unit has selected its targets.",
-          "target": "One AGENTS OF THE IMPERIUM INFANTRY unit from your army that was selected as the target of one or more of the attacking unit’s attacks.",
-          "effect": "Until the end of the phase, your unit can only be selected as the target of a ranged attack if the attacking model is within 18\", or, if your unit has the Lone Operative ability, if the attacking model is within 6\"."
-        },
-        {
-          "name": "BLIND GRENADES",
-          "cp": 1,
-          "type": "Veiled Blade Elimination Force – Strategic Ploy Stratagem",
-          "flavour": "These grenades release thick black smoke and broad-spectrum electromagnetic chaff that disrupt vision and foul augury equipment upon detonating.",
-          "when": "Your opponent’s Charge phase, just after an enemy unit has declared a charge.",
-          "target": "One AGENTS OF THE IMPERIUM GRENADES or VINDICARE ASSASSIN unit from your army that was selected as one of the targets of that charge and is not within Engagement Range of one or more enemy units.",
-          "effect": "Until the end of the phase, subtract 1 from Charge rolls made for that enemy unit, or, if your unit is a VINDICARE ASSASSIN, subtract 2 from Charge rolls made for that enemy unit instead."
-        }
-      ]
-    },
-    {
-      "name": "DETACHMENT (BESEECHMENT CODES)",
-      "detachment_rule": "Beseechment Codes",
-      "rule_summary": "Key to the duty of dedicated shipboard soldiery is the ability to move easily through even code-locked hatchways, or those whose machine spirits are corrupted or heretical. Dataspikes loaded with potent codes to appease or banish such troublesome gatekeepers allow them the swift progress they need.  In your Movement phase, each time a VOIDFARERS unit from your army makes a Normal move, while that unit is moving it can attempt to operate a closed Hatchway that it is within 1\" of at any point duri",
-      "enhancements": [],
-      "stratagems": [
-        {
-          "name": "BREACH AND CLEAR",
-          "cp": 1,
-          "type": "Voidship’s Company – Battle Tactic Stratagem",
-          "flavour": "Naval armsmen of every stripe train extensively in the tactics of chamber-by-chamber combat, clearing one space of foes before pressing on to the next.",
-          "when": "Your Movement phase, just after an IMPERIAL NAVY BREACHERS unit from yourarmy opens a Hatchway.",
-          "target": "That IMPERIAL NAVY BREACHERS unit.",
-          "effect": "Until the end of the turn, each time a model in your unit makes an attack, if that model is on the opposite side of the Hatchway from the side it started the turn on, add 1 to the Hit roll and add 1 to the Wound roll."
-        },
-        {
-          "name": "AMMO RATIONS",
-          "cp": 1,
-          "type": "Voidship’s Company – Battle Tactic Stratagem",
-          "flavour": "Many Navis officers carry limited quantities of specialist ammunition such as hellfire or manstopper rounds, to be issued to their squads in the face of especially formidable opposition.",
-          "when": "Start of your Shooting phase.",
-          "target": "One or more VOIDFARERS units from your army.",
-          "effect": "Select one enemy unit. Until the end of the phase, each time a model in one of your units makes an attack that targets that enemy unit, improve the Armour Penetration characteristic of that attack by 1."
-        }
-      ]
-    },
-    {
-      "name": "DETACHMENT (CHASTISOR AUTO-VOX)",
-      "detachment_rule": "Chastisor Auto-Vox",
-      "rule_summary": "Booming admonishments ring from vox-amps and laud hailers built into the Arbitrators’ wargear, demanding foes lay down arms and submit.  In your opponent’s Command phase, each enemy unit within 3\" of one or more ADEPTUS ARBITES units from your army must take a Battle-shock test. If that enemy unit is also Below Half-strength, subtract 1 from that test. This Detachment rule cannot cause a unit to take two Battle-shock tests in the same phase.",
-      "enhancements": [],
-      "stratagems": [
-        {
-          "name": "CRACKDOWN",
-          "cp": 1,
-          "type": "Interdiction Team – Battle Tactic Stratagem",
-          "flavour": "Veterans of close-quarters brutality, these warriors know how to swiftly incapacitate enemies in the close-quarters confines of voidships and the like.",
-          "when": "Fight phase.",
-          "target": "One ADEPTUS ARBITES unit from your army.",
-          "effect": "Until the end of the phase, each time a model in your unit makes an attack, you can re-roll the Hit roll and you can re-roll the Wound roll."
-        },
-        {
-          "name": "DUTY AND DEATH",
-          "cp": 1,
-          "type": "Interdiction Team – Battle Tactic Stratagem",
-          "flavour": "So important are the targets of Adeptus Arbites voidship raids that the Arbitrators will not let themselves fall until they know their duty is done.",
-          "when": "Your opponent’s Shooting phase or the Fight phase, just after an enemy unit has selected its targets.",
-          "target": "One ADEPTUS ARBITES unit from your army that was selected as the target of one or more of the attacking unit's attacks.",
-          "effect": "Until the end of the phase, models in your unit have the Feel No Pain 4+ ability."
-        },
-        {
-          "name": "ARBITRARY EXECUTION",
-          "cp": 1,
-          "type": "Interdiction Team – Strategic Ploy Stratagem",
-          "flavour": "Well practised in bringing down their targets with effective head shots, the Arbitrators wield their sidearms to deadly effect.",
-          "when": "Your Shooting phase.",
-          "target": "One ADEPTUS ARBITES unit from your army that has not been selected to shoot this phase.",
-          "effect": "Until the end of the phase, Arbites shotpistols equipped by models in your unit have an Attacks characteristic of 2 and the [LETHAL HITS] ability, and models in your unit can target enemy units that are not within Engagement Range of them (provided they are otherwise eligible targets)."
-        },
-        {
-          "name": "INESCAPABLE JUDGEMENT",
-          "cp": 1,
-          "type": "Interdiction Team – Strategic Ploy Stratagem",
-          "flavour": "Attempting to flee from the implacable Arbitrators and their ferocious cybercanids only exposes the foe to a swift and brutal end.",
-          "when": "Your opponent's Movement phase, just after an enemy unit is selected to Fall Back.",
-          "target": "One ADEPTUS ARBITES unit from your army within Engagement Range of that enemy unit.",
-          "effect": "Until the end of the phase, when that enemy unit Falls Back, models in it must take Desperate Escape tests as if their unit was Battle-shocked. When doing so, if that enemy unit is also Battle-shocked by other means, subtract 1 from each of those Desperate Escape tests. © Vyacheslav Maltsev 2013-2026"
-        }
-      ]
-    }
-  ],
-  "units": [
-    {
-      "name": "CALLIDUS ASSASSIN",
-      "legends": false,
-      "role": "AGENT",
-      "faction_keywords": [
-        "KEYWORDS: Infantry",
-        "Character",
-        "Epic Hero",
-        "Imperium",
-        "Callidus Assassin",
-        "Agents of the Imperium"
-      ],
-      "keywords": [
-        "KEYWORDS: Infantry",
-        "Character",
-        "Epic Hero",
-        "Imperium",
-        "Callidus Assassin Agents of the Imperium"
-      ],
-      "points": null,
-      "stats": {
-        "M": "7\"",
-        "T": "4",
-        "Sv": "6+",
-        "W": "4",
-        "Ld": "6+",
-        "OC": "1"
-      },
-      "unit_composition": [
-        "None ■ 1 Callidus Assassin – Epic Hero",
-        "This model is equipped with: neural shredder; phase sword",
-        "and poison blades."
-      ],
-      "base_size": null,
-      "abilities": [
-        {
-          "name": "CORE",
-          "summary": "Deep Strike",
-          "phase_tags": []
-        },
-        {
-          "name": "FACTION",
-          "summary": "Assigned Agents",
-          "phase_tags": []
-        },
-        {
-          "name": "Reign of Confusion",
-          "summary": "Once per battle, after your opponent uses",
-          "phase_tags": []
-        },
-        {
-          "name": "Polymorphine",
-          "summary": "At the end of your opponent’s turn, if this",
-          "phase_tags": []
-        },
-        {
-          "name": "INVULNERABLE SAVE",
-          "summary": "4+",
-          "phase_tags": []
-        }
-      ],
-      "wargear_options": [],
-      "weapons": [
-        {
-          "name": "Neural shredder",
-          "type": "ranged",
-          "range": "12\"",
-          "a": "D6",
-          "bs_ws": "N/A",
-          "s": "5",
-          "ap": "-2",
-          "d": "1",
-          "keywords": [
-            "ANTI-INFANTRY 2+",
-            "PRECISION",
-            "TORRENT"
-          ]
-        },
-        {
-          "name": "Phase sword and poison blades",
-          "type": "melee",
-          "range": "Melee",
-          "a": "5",
-          "bs_ws": "2+",
-          "s": "5",
-          "ap": "-4",
-          "d": "2",
-          "keywords": []
-        }
-      ],
-      "strengths": [],
-      "weaknesses": [],
-      "target_priority_tags": [],
-      "threat_tags": [
-        "RANGED_CAPABLE",
-        "INVULNERABLE_SAVE",
-        "DEEP_STRIKE"
-      ],
-      "mobility_tags": [
-        "DEEP_STRIKE"
-      ],
-      "durability_tags": [
-        "LIGHT_ARMOUR",
-        "MULTI_WOUND"
-      ],
-      "tau_counterplay": [
-        "Deep Strike threat — screen backfield with Kroot or Fire Warriors 9\" from objectives.",
-        "Invulnerable save — volume of fire preferred over single high-AP shots."
-      ],
-      "notes": ""
-    },
-    {
-      "name": "CULEXUS ASSASSIN",
-      "legends": false,
-      "role": "AGENT",
-      "faction_keywords": [
-        "Culexus Assassin Agents of the Imperium"
-      ],
-      "keywords": [
-        "Infantry",
-        "Character",
-        "Epic Hero",
-        "Grenades",
-        "Imperium"
-      ],
-      "points": null,
-      "stats": {
-        "M": "7\"",
-        "T": "4",
-        "Sv": "6+",
-        "W": "4",
-        "Ld": "6+",
-        "OC": "1"
-      },
-      "unit_composition": [
-        "None ■ 1 Culexus Assassin – Epic Hero",
-        "This model is equipped with: animus speculum;",
-        "life-draining touch."
-      ],
-      "base_size": null,
-      "abilities": [
-        {
-          "name": "CORE",
-          "summary": "Deep Strike",
-          "phase_tags": []
-        },
-        {
-          "name": "FACTION",
-          "summary": "Assigned Agents",
-          "phase_tags": []
-        },
-        {
-          "name": "Psychic Assassin",
-          "summary": "Each time you select a Psyker unit as the target for this weapon, until those attacks FACTION: Assigned Agents",
-          "phase_tags": []
-        },
-        {
-          "name": "Abomination",
-          "summary": "This model has the Feel No Pain 2+ ability",
-          "phase_tags": []
-        },
-        {
-          "name": "Soulless Horror (Aura)",
-          "summary": "While an enemy unit is within 6\" of",
-          "phase_tags": []
-        },
-        {
-          "name": "INVULNERABLE SAVE",
-          "summary": "4+",
-          "phase_tags": []
-        }
-      ],
-      "wargear_options": [],
-      "weapons": [
-        {
-          "name": "Animus speculum",
-          "type": "ranged",
-          "range": "24\"",
-          "a": "3",
-          "bs_ws": "2+",
-          "s": "5",
-          "ap": "-2",
-          "d": "D3",
-          "keywords": []
-        }
-      ],
-      "strengths": [],
-      "weaknesses": [],
-      "target_priority_tags": [],
-      "threat_tags": [
-        "RANGED_CAPABLE",
-        "INVULNERABLE_SAVE",
-        "DEEP_STRIKE"
-      ],
-      "mobility_tags": [
-        "DEEP_STRIKE"
-      ],
-      "durability_tags": [
-        "LIGHT_ARMOUR",
-        "MULTI_WOUND"
-      ],
-      "tau_counterplay": [
-        "Deep Strike threat — screen backfield with Kroot or Fire Warriors 9\" from objectives.",
-        "Invulnerable save — volume of fire preferred over single high-AP shots."
-      ],
-      "notes": ""
-    },
-    {
-      "name": "EVERSOR ASSASSIN",
-      "legends": false,
-      "role": "AGENT",
-      "faction_keywords": [
-        "Eversor Assassin Agents of the Imperium"
-      ],
-      "keywords": [
-        "Infantry",
-        "Character",
-        "Epic Hero",
-        "Grenades",
-        "Imperium"
-      ],
-      "points": null,
-      "stats": {
-        "M": "9\"",
-        "T": "4",
-        "Sv": "6+",
-        "W": "4",
-        "Ld": "6+",
-        "OC": "1"
-      },
-      "unit_composition": [
-        "None ■ 1 Eversor Assassin – Epic Hero",
-        "This model is equipped with: executioner pistol; power sword",
-        "and neuro gauntlet."
-      ],
-      "base_size": null,
-      "abilities": [
-        {
-          "name": "CORE",
-          "summary": "Deadly Demise D3",
-          "phase_tags": []
-        },
-        {
-          "name": "FACTION",
-          "summary": "Assigned Agents",
-          "phase_tags": []
-        },
-        {
-          "name": "Frenzon",
-          "summary": "In your Command phase, select one of the effects",
-          "phase_tags": []
-        },
-        {
-          "name": "Adrenal Surge",
-          "summary": "This model is eligible to shoot and declare a",
-          "phase_tags": []
-        },
-        {
-          "name": "Predatory Focus",
-          "summary": "This model’s weapons have the",
-          "phase_tags": []
-        },
-        {
-          "name": "Killing Rampage",
-          "summary": "This model’s weapons have the",
-          "phase_tags": []
-        },
-        {
-          "name": "Sentinel Array",
-          "summary": "Once per battle round, you can target",
-          "phase_tags": []
-        },
-        {
-          "name": "INVULNERABLE SAVE",
-          "summary": "4+",
-          "phase_tags": []
-        }
-      ],
-      "wargear_options": [],
-      "weapons": [
-        {
-          "name": "Executioner pistol",
-          "type": "ranged",
-          "range": "12\"",
-          "a": "4",
-          "bs_ws": "2+",
-          "s": "4",
-          "ap": "0",
-          "d": "1",
-          "keywords": [
-            "ANTI-INFANTRY 3+",
-            "PISTOL"
-          ]
-        },
-        {
-          "name": "Power sword and neuro gauntlet",
-          "type": "melee",
-          "range": "Melee",
-          "a": "6",
-          "bs_ws": "2+",
-          "s": "5",
-          "ap": "-2",
-          "d": "2",
-          "keywords": [
-            "ANTI-INFANTRY 3+"
-          ]
-        }
-      ],
-      "strengths": [],
-      "weaknesses": [],
-      "target_priority_tags": [],
-      "threat_tags": [
-        "RANGED_CAPABLE",
-        "INVULNERABLE_SAVE"
-      ],
-      "mobility_tags": [
-        "MOBILE"
-      ],
-      "durability_tags": [
-        "LIGHT_ARMOUR",
-        "MULTI_WOUND"
-      ],
-      "tau_counterplay": [
-        "Invulnerable save — volume of fire preferred over single high-AP shots."
-      ],
-      "notes": ""
-    },
-    {
-      "name": "EXACTION SQUAD",
-      "legends": false,
-      "role": "AGENT",
-      "faction_keywords": [
-        "KEYWORDS: Infantry",
-        "Grenades",
-        "Imperium",
-        "Retinue",
-        "Exaction Squad",
-        "Agents of the Imperium"
-      ],
-      "keywords": [
-        "KEYWORDS: Infantry",
-        "Grenades",
-        "Imperium",
-        "Retinue",
-        "Exaction Squad Agents of the Imperium"
-      ],
-      "points": null,
-      "stats": {
-        "M": "6\"",
-        "T": "3",
-        "Sv": "4+",
-        "W": "1",
-        "Ld": "7+",
-        "OC": "1"
-      },
-      "unit_composition": [
-        "For every 5 models in this unit, up to 2 Exaction Vigilants can each have their Arbites combat ■ 1 Proctor-Exactant",
-        "shotguns replaced with one of the following (duplicates are not allowed): ■ 4-9 Exaction Vigilants",
-        "1 executioner shotgun ■ 0-1 Cyber-mastiff",
-        "1 Arbites grenade launcher",
-        "Every Proctor-Exactant and Exaction Vigilant is equipped",
-        "1 heavy stubber with: Arbites combat shotgun; Arbites shotpistol; close",
-        "1 webber combat weapon.",
-        "1 Exaction Vigilant that is equipped with an Arbites combat shotgun can be equipped with 1 The Cyber-mastiff is equipped with: mechanical bite.",
-        "excruciator maul.*",
-        "1 other Exaction Vigilant that is equipped with an Arbites combat shotgun can be equipped with 1",
-        "Arbites medi-kit.*",
-        "1 other Exaction Vigilant that is equipped with an Arbites combat shotgun can be equipped with 1",
-        "soulguilt scanner.*",
-        "The Proctor-Exactant can be equipped with 1 nuncio aquila.",
-        "* That model’s Arbites combat shotgun cannot be replaced."
-      ],
-      "base_size": null,
-      "abilities": [
-        {
-          "name": "FACTION",
-          "summary": "Assigned Agents",
-          "phase_tags": []
-        },
-        {
-          "name": "Imperial Law",
-          "summary": "At the start of the first battle round, select one",
-          "phase_tags": []
-        },
-        {
-          "name": "Arbites Medi-kit",
-          "summary": "Models in the bearer’s unit have the",
-          "phase_tags": []
-        },
-        {
-          "name": "Nuncio Aquila (Aura)",
-          "summary": "While an enemy unit is within 3\" of the",
-          "phase_tags": []
-        },
-        {
-          "name": "Soulguilt Scanner",
-          "summary": "Ranged weapons equipped by models in",
-          "phase_tags": []
-        }
-      ],
-      "wargear_options": [],
-      "weapons": [
-        {
-          "name": "Arbites combat shotgun",
-          "type": "ranged",
-          "range": "18\"",
-          "a": "2",
-          "bs_ws": "4+",
-          "s": "4",
-          "ap": "0",
-          "d": "1",
-          "keywords": [
-            "ASSAULT"
-          ]
-        },
-        {
-          "name": "Arbites grenade launcher – frag",
-          "type": "ranged",
-          "range": "24\"",
-          "a": "D3",
-          "bs_ws": "4+",
-          "s": "4",
-          "ap": "0",
-          "d": "1",
-          "keywords": [
-            "BLAST"
-          ]
-        },
-        {
-          "name": "Arbites grenade launcher – krak",
-          "type": "ranged",
-          "range": "24\"",
-          "a": "1",
-          "bs_ws": "4+",
-          "s": "9",
-          "ap": "-2",
-          "d": "D3",
-          "keywords": []
-        },
-        {
-          "name": "Arbites shotpistol",
-          "type": "ranged",
-          "range": "12\"",
-          "a": "1",
-          "bs_ws": "4+",
-          "s": "4",
-          "ap": "0",
-          "d": "1",
-          "keywords": [
-            "PISTOL"
-          ]
-        },
-        {
-          "name": "Executioner shotgun",
-          "type": "ranged",
-          "range": "24\"",
-          "a": "1",
-          "bs_ws": "4+",
-          "s": "5",
-          "ap": "-1",
-          "d": "1",
-          "keywords": [
-            "IGNORES COVER",
-            "PRECISION"
-          ]
-        },
-        {
-          "name": "Heavy stubber",
-          "type": "ranged",
-          "range": "36\"",
-          "a": "3",
-          "bs_ws": "4+",
-          "s": "4",
-          "ap": "0",
-          "d": "1",
-          "keywords": [
-            "RAPID FIRE 3"
-          ]
-        },
-        {
-          "name": "Webber",
-          "type": "ranged",
-          "range": "12\"",
-          "a": "D6",
-          "bs_ws": "N/A",
-          "s": "2",
-          "ap": "0",
-          "d": "1",
-          "keywords": [
-            "ASSAULT",
-            "DEVASTATING WOUNDS",
-            "TORRENT"
-          ]
-        },
-        {
-          "name": "Close combat weapon",
-          "type": "melee",
-          "range": "Melee",
-          "a": "2",
-          "bs_ws": "4+",
-          "s": "3",
-          "ap": "0",
-          "d": "1",
-          "keywords": []
-        },
-        {
-          "name": "Excruciator maul",
-          "type": "melee",
-          "range": "Melee",
-          "a": "2",
-          "bs_ws": "3+",
-          "s": "4",
-          "ap": "-1",
-          "d": "2",
-          "keywords": []
-        },
-        {
-          "name": "Mechanical bite",
-          "type": "melee",
-          "range": "Melee",
-          "a": "3",
-          "bs_ws": "4+",
-          "s": "4",
-          "ap": "0",
-          "d": "1",
-          "keywords": []
-        }
-      ],
-      "strengths": [],
-      "weaknesses": [],
-      "target_priority_tags": [],
-      "threat_tags": [
-        "RANGED_CAPABLE",
-        "BLAST_WEAPONS"
-      ],
-      "mobility_tags": [],
-      "durability_tags": [
-        "LIGHT_ARMOUR"
-      ],
-      "tau_counterplay": [],
-      "notes": ""
-    },
-    {
-      "name": "IMPERIAL NAVY BREACHERS",
-      "legends": false,
-      "role": "AGENT",
-      "faction_keywords": [
-        "Imperial Navy Breachers Agents of the Imperium"
-      ],
-      "keywords": [
-        "Infantry",
-        "Grenades",
-        "Imperium",
-        "Navis Imperialis",
-        "Retinue"
-      ],
-      "points": null,
-      "stats": {
-        "M": "6\"",
-        "T": "3",
-        "Sv": "4+",
-        "W": "1",
-        "Ld": "8+",
-        "OC": "2"
-      },
-      "unit_composition": [
-        "The Navis Sergeant-at-Arms’ Navis shotgun can be replaced with one of the following: ■ 1 Navis Sergeant-at-Arms",
-        "1 autopistol and 1 chainsword ■ 9 Navis Armsmen",
-        "1 bolt pistol and 1 power weapon One Navis Armsman is equipped with: Navis las-volley; close",
-        "1 Navis Armsman’s Navis las-volley can be replaced with one of the following: combat weapon.",
-        "1 meltagun One other Navis Armsman is equipped with: Navis heavy",
-        "1 plasma gun shotgun; close combat weapon; endurant shield.",
-        "1 Navis Armsman’s Navis shotgun can be replaced with 1 autopistol and 1 power weapon. Every other model is equipped with: Navis shotgun; close",
-        "combat weapon.",
-        "1 Navis Armsman’s Navis shotgun can be replaced with 1 autopistol and 1 chainfist.",
-        "1 Navis Armsman can be equipped with 1 demolition charge and 1 grenade belts."
-      ],
-      "base_size": null,
-      "abilities": [
-        {
-          "name": "FACTION",
-          "summary": "Assigned Agents",
-          "phase_tags": []
-        },
-        {
-          "name": "Breaching Team",
-          "summary": "Each time a model in this unit makes an",
-          "phase_tags": []
-        },
-        {
-          "name": "One Shot",
-          "summary": "The bearer can only shoot with this weapon once per battle. an enemy unit within range of an objective marker, you can",
-          "phase_tags": []
-        },
-        {
-          "name": "Endurant Shield",
-          "summary": "The bearer has a 4+ invulnerable save.",
-          "phase_tags": []
-        },
-        {
-          "name": "Grenade Belts",
-          "summary": "The bearer has the Smoke keyword, and",
-          "phase_tags": []
-        }
-      ],
-      "wargear_options": [],
-      "weapons": [
-        {
-          "name": "Autopistol",
-          "type": "ranged",
-          "range": "12\"",
-          "a": "1",
-          "bs_ws": "4+",
-          "s": "3",
-          "ap": "0",
-          "d": "1",
-          "keywords": [
-            "PISTOL"
-          ]
-        },
-        {
-          "name": "Bolt pistol",
-          "type": "ranged",
-          "range": "12\"",
-          "a": "1",
-          "bs_ws": "4+",
-          "s": "4",
-          "ap": "0",
-          "d": "1",
-          "keywords": [
-            "PISTOL"
-          ]
-        },
-        {
-          "name": "Demolition charge",
-          "type": "ranged",
-          "range": "6\"",
-          "a": "D6+3",
-          "bs_ws": "4+",
-          "s": "12",
-          "ap": "-2",
-          "d": "2",
-          "keywords": [
-            "ASSAULT",
-            "BLAST",
-            "HAZARDOUS",
-            "ONE SHOT"
-          ]
-        },
-        {
-          "name": "Meltagun",
-          "type": "ranged",
-          "range": "12\"",
-          "a": "1",
-          "bs_ws": "4+",
-          "s": "9",
-          "ap": "-4",
-          "d": "D6",
-          "keywords": [
-            "MELTA 2"
-          ]
-        },
-        {
-          "name": "Navis heavy shotgun",
-          "type": "ranged",
-          "range": "12\"",
-          "a": "4",
-          "bs_ws": "4+",
-          "s": "4",
-          "ap": "0",
-          "d": "1",
-          "keywords": [
-            "ASSAULT"
-          ]
-        },
-        {
-          "name": "Navis las-volley",
-          "type": "ranged",
-          "range": "18\"",
-          "a": "4",
-          "bs_ws": "4+",
-          "s": "6",
-          "ap": "0",
-          "d": "1",
-          "keywords": []
-        },
-        {
-          "name": "Navis shotgun",
-          "type": "ranged",
-          "range": "12\"",
-          "a": "2",
-          "bs_ws": "4+",
-          "s": "4",
-          "ap": "0",
-          "d": "1",
-          "keywords": [
-            "ASSAULT"
-          ]
-        },
-        {
-          "name": "Chainfist",
-          "type": "melee",
-          "range": "Melee",
-          "a": "1",
-          "bs_ws": "5+",
-          "s": "6",
-          "ap": "-2",
-          "d": "2",
-          "keywords": [
-            "ANTI-VEHICLE 3+"
-          ]
-        },
-        {
-          "name": "Chainsword",
-          "type": "melee",
-          "range": "Melee",
-          "a": "3",
-          "bs_ws": "4+",
-          "s": "3",
-          "ap": "0",
-          "d": "1",
-          "keywords": []
-        },
-        {
-          "name": "Close combat weapon",
-          "type": "melee",
-          "range": "Melee",
-          "a": "1",
-          "bs_ws": "4+",
-          "s": "3",
-          "ap": "0",
-          "d": "1",
-          "keywords": []
-        },
-        {
-          "name": "Power weapon",
-          "type": "melee",
-          "range": "Melee",
-          "a": "2",
-          "bs_ws": "4+",
-          "s": "4",
-          "ap": "-2",
-          "d": "1",
-          "keywords": []
-        }
-      ],
-      "strengths": [],
-      "weaknesses": [],
-      "target_priority_tags": [],
-      "threat_tags": [
-        "MELEE_THREAT",
-        "RANGED_CAPABLE",
-        "BLAST_WEAPONS",
-        "MELTA",
-        "INVULNERABLE_SAVE"
-      ],
-      "mobility_tags": [],
-      "durability_tags": [
-        "LIGHT_ARMOUR"
-      ],
-      "tau_counterplay": [
-        "Melee threat — maintain distance, use Drones as speed bumps, overwatch with Pulse.",
-        "Invulnerable save — volume of fire preferred over single high-AP shots."
-      ],
-      "notes": ""
-    },
-    {
-      "name": "INQUISITOR COTEAZ",
-      "legends": false,
-      "role": "AGENT",
-      "faction_keywords": [
-        "Inquisitor",
-        "Coteaz Agents of the Imperium"
-      ],
-      "keywords": [
-        "Infantry",
-        "Character",
-        "Epic Hero",
-        "Psyker",
-        "Imperium"
-      ],
-      "points": null,
-      "stats": {
-        "M": "6\"",
-        "T": "3",
-        "Sv": "2+",
-        "W": "4",
-        "Ld": "6+",
-        "OC": "1"
-      },
-      "unit_composition": [
-        "None ■ 1 Inquisitor Coteaz – Epic Hero",
-        "This model is equipped with: bolt pistol; Psychic Blast;",
-        "Nemesis daemon hammer."
-      ],
-      "base_size": null,
-      "abilities": [
-        {
-          "name": "CORE",
-          "summary": "Leader",
-          "phase_tags": []
-        },
-        {
-          "name": "FACTION",
-          "summary": "Assigned Agents",
-          "phase_tags": []
-        },
-        {
-          "name": "Authority of the Inquisition",
-          "summary": "While this model is leading a",
-          "phase_tags": []
-        },
-        {
-          "name": "Malefic Wardings (Psychic)",
-          "summary": "While this model is leading",
-          "phase_tags": []
-        },
-        {
-          "name": "Spy Network",
-          "summary": "Each time your opponent gains a CP as the",
-          "phase_tags": []
-        },
-        {
-          "name": "INVULNERABLE SAVE",
-          "summary": "5+",
-          "phase_tags": []
-        }
-      ],
-      "wargear_options": [],
-      "weapons": [
-        {
-          "name": "Bolt pistol",
-          "type": "ranged",
-          "range": "12\"",
-          "a": "1",
-          "bs_ws": "3+",
-          "s": "4",
-          "ap": "0",
-          "d": "1",
-          "keywords": [
-            "PISTOL"
-          ]
-        },
-        {
-          "name": "Nemesis daemon hammer",
-          "type": "melee",
-          "range": "Melee",
-          "a": "3",
-          "bs_ws": "3+",
-          "s": "9",
-          "ap": "-3",
-          "d": "3",
-          "keywords": [
-            "PSYCHIC"
-          ]
-        }
-      ],
-      "strengths": [],
-      "weaknesses": [],
-      "target_priority_tags": [],
-      "threat_tags": [
-        "MELEE_THREAT",
-        "RANGED_CAPABLE",
-        "HIGH_DURABILITY",
-        "INVULNERABLE_SAVE"
-      ],
-      "mobility_tags": [],
-      "durability_tags": [
-        "HEAVY_ARMOUR",
-        "MULTI_WOUND"
-      ],
-      "tau_counterplay": [
-        "Melee threat — maintain distance, use Drones as speed bumps, overwatch with Pulse.",
-        "High durability — concentrate fire, Ion Accelerator or Railguns for AP-3+.",
-        "Invulnerable save — volume of fire preferred over single high-AP shots."
-      ],
-      "notes": "Leader: the following units:, ■ Imperium Battleline Infantry, ■ Inquisitorial Henchmen"
-    },
-    {
-      "name": "INQUISITOR EISENHORN",
-      "legends": false,
-      "role": "AGENT",
-      "faction_keywords": [
-        "Inquisitor",
-        "Eisenhorn Agents of the Imperium"
-      ],
-      "keywords": [
-        "Infantry",
-        "Character",
-        "Epic Hero",
-        "Psyker",
-        "Grenades",
-        "Imperium"
-      ],
-      "points": null,
-      "stats": {
-        "M": "6\"",
-        "T": "3",
-        "Sv": "4+",
-        "W": "4",
-        "Ld": "6+",
-        "OC": "1"
-      },
-      "unit_composition": [
-        "None ■ 1 Inquisitor Eisenhorn – Epic Hero",
-        "This model is equipped with: artificer bolt pistol; Mind Assault;",
-        "runestaff and Barbarisater"
-      ],
-      "base_size": null,
-      "abilities": [
-        {
-          "name": "CORE",
-          "summary": "Feel No Pain 6+",
-          "phase_tags": []
-        },
-        {
-          "name": "FACTION",
-          "summary": "Assigned Agents",
-          "phase_tags": []
-        },
-        {
-          "name": "Authority of the Inquisition",
-          "summary": "While this model is leading a",
-          "phase_tags": []
-        },
-        {
-          "name": "Malus Codicium",
-          "summary": "While this model is leading a unit, double the",
-          "phase_tags": []
-        },
-        {
-          "name": "Dominate Will (Psychic)",
-          "summary": "At the start of your opponent’s",
-          "phase_tags": []
-        },
-        {
-          "name": "INVULNERABLE SAVE",
-          "summary": "5+",
-          "phase_tags": []
-        }
-      ],
-      "wargear_options": [],
-      "weapons": [
-        {
-          "name": "Artificer bolt pistol",
-          "type": "ranged",
-          "range": "12\"",
-          "a": "4",
-          "bs_ws": "3+",
-          "s": "4",
-          "ap": "0",
-          "d": "2",
-          "keywords": []
-        },
-        {
-          "name": "Runestaff and Barbarisater",
-          "type": "melee",
-          "range": "Melee",
-          "a": "5",
-          "bs_ws": "3+",
-          "s": "6",
-          "ap": "-2",
-          "d": "2",
-          "keywords": [
-            "PSYCHIC"
-          ]
-        }
-      ],
-      "strengths": [],
-      "weaknesses": [],
-      "target_priority_tags": [],
-      "threat_tags": [
-        "MELEE_THREAT",
-        "RANGED_CAPABLE",
-        "INVULNERABLE_SAVE"
-      ],
-      "mobility_tags": [],
-      "durability_tags": [
-        "LIGHT_ARMOUR",
-        "MULTI_WOUND"
-      ],
-      "tau_counterplay": [
-        "Melee threat — maintain distance, use Drones as speed bumps, overwatch with Pulse.",
-        "Invulnerable save — volume of fire preferred over single high-AP shots."
-      ],
-      "notes": "Leader: the following units:, ■ Imperium Battleline Infantry, ■ Inquisitorial Henchmen"
-    },
-    {
-      "name": "INQUISITOR GREYFAX",
-      "legends": false,
-      "role": "AGENT",
-      "faction_keywords": [
-        "Inquisitor",
-        "Greyfax Agents of the Imperium"
-      ],
-      "keywords": [
-        "Infantry",
-        "Character",
-        "Epic Hero",
-        "Psyker",
-        "Grenades",
-        "Imperium"
-      ],
-      "points": null,
-      "stats": {
-        "M": "6\"",
-        "T": "3",
-        "Sv": "3+",
-        "W": "4",
-        "Ld": "4+",
-        "OC": "1"
-      },
-      "unit_composition": [
-        "None ■ 1 Inquisitor Greyfax – Epic Hero",
-        "This model is equipped with: Castigation; condemnor stake;",
-        "master-crafter power sword."
-      ],
-      "base_size": null,
-      "abilities": [
-        {
-          "name": "CORE",
-          "summary": "Leader",
-          "phase_tags": []
-        },
-        {
-          "name": "FACTION",
-          "summary": "Assigned Agents",
-          "phase_tags": []
-        },
-        {
-          "name": "Authority of the Inquisition",
-          "summary": "While this model is leading a",
-          "phase_tags": []
-        },
-        {
-          "name": "No Escape",
-          "summary": "Each time an enemy unit (excluding Monster",
-          "phase_tags": []
-        },
-        {
-          "name": "INVULNERABLE SAVE",
-          "summary": "5+",
-          "phase_tags": []
-        }
-      ],
-      "wargear_options": [],
-      "weapons": [
-        {
-          "name": "[ANTI-CHARACTER 4+, DEVASTATING WOUNDS, PRECISION,",
-          "type": "ranged",
-          "range": "18\"",
-          "a": "1",
-          "bs_ws": "3+",
-          "s": "8",
-          "ap": "-2",
-          "d": "3",
-          "keywords": []
-        },
-        {
-          "name": "[ANTI-PSYKER 2+, DEVASTATING WOUNDS, PRECISION, RAPID",
-          "type": "ranged",
-          "range": "24\"",
-          "a": "1",
-          "bs_ws": "3+",
-          "s": "4",
-          "ap": "0",
-          "d": "1",
-          "keywords": []
-        },
-        {
-          "name": "Master-crafted power sword",
-          "type": "melee",
-          "range": "Melee",
-          "a": "4",
-          "bs_ws": "3+",
-          "s": "4",
-          "ap": "-2",
-          "d": "2",
-          "keywords": []
-        }
-      ],
-      "strengths": [],
-      "weaknesses": [],
-      "target_priority_tags": [],
-      "threat_tags": [
-        "RANGED_CAPABLE",
-        "MEDIUM_DURABILITY",
-        "INVULNERABLE_SAVE"
-      ],
-      "mobility_tags": [],
-      "durability_tags": [
-        "MEDIUM_ARMOUR",
-        "MULTI_WOUND"
-      ],
-      "tau_counterplay": [
-        "Invulnerable save — volume of fire preferred over single high-AP shots."
-      ],
-      "notes": "Leader: the following units:, ■ Imperium Battleline Infantry, ■ Inquisitorial Henchmen"
-    },
-    {
-      "name": "INQUISITOR KARAMAZOV",
-      "legends": false,
-      "role": "AGENT",
-      "faction_keywords": [
-        "Karamazov Agents of the Imperium"
-      ],
-      "keywords": [
-        "Vehicle",
-        "Walker",
-        "Character",
-        "Epic Hero",
-        "Imperium",
-        "Inquisitor"
-      ],
-      "points": null,
-      "stats": {
-        "M": "5\"",
-        "T": "8",
-        "Sv": "3+",
-        "W": "9",
-        "Ld": "6+",
-        "OC": "3"
-      },
-      "unit_composition": [
-        "None ■ 1 Inquisitor Karamazov – Epic Hero",
-        "This model is equipped with: master-crafted multi-melta;",
-        "master-crafted power sword."
-      ],
-      "base_size": null,
-      "abilities": [
-        {
-          "name": "CORE",
-          "summary": "Deadly Demise 1",
-          "phase_tags": []
-        },
-        {
-          "name": "FACTION",
-          "summary": "Assigned Agents",
-          "phase_tags": []
-        },
-        {
-          "name": "Throne of Judgement (Aura)",
-          "summary": "While a friendly unit is within",
-          "phase_tags": []
-        },
-        {
-          "name": "Dread Reputation",
-          "summary": "At the start of your Shooting phase, select",
-          "phase_tags": []
-        },
-        {
-          "name": "INVULNERABLE SAVE",
-          "summary": "4+",
-          "phase_tags": []
-        }
-      ],
-      "wargear_options": [],
-      "weapons": [
-        {
-          "name": "Master-crafted multi-melta",
-          "type": "ranged",
-          "range": "18\"",
-          "a": "3",
-          "bs_ws": "3+",
-          "s": "10",
-          "ap": "-4",
-          "d": "D6",
-          "keywords": [
-            "MELTA 3"
-          ]
-        },
-        {
-          "name": "Master-crafted power sword",
-          "type": "melee",
-          "range": "Melee",
-          "a": "6",
-          "bs_ws": "3+",
-          "s": "6",
-          "ap": "-2",
-          "d": "2",
-          "keywords": []
-        }
-      ],
-      "strengths": [],
-      "weaknesses": [],
-      "target_priority_tags": [],
-      "threat_tags": [
-        "MELEE_THREAT",
-        "RANGED_CAPABLE",
-        "MELTA",
-        "MEDIUM_DURABILITY",
-        "INVULNERABLE_SAVE"
-      ],
-      "mobility_tags": [],
-      "durability_tags": [
-        "MEDIUM_ARMOUR",
-        "HIGH_TOUGHNESS",
-        "MULTI_WOUND"
-      ],
-      "tau_counterplay": [
-        "Melee threat — maintain distance, use Drones as speed bumps, overwatch with Pulse.",
-        "T8 — Heavy Burst Cannon, Plasma, or Ion Blaster recommended.",
-        "Invulnerable save — volume of fire preferred over single high-AP shots."
-      ],
-      "notes": ""
-    },
-    {
-      "name": "INQUISITOR",
-      "legends": false,
-      "role": "AGENT",
-      "faction_keywords": [
-        "KEYWORDS: Infantry",
-        "Character",
-        "Grenades",
-        "Imperium",
-        "Inquisitor",
-        "Agents of the Imperium"
-      ],
-      "keywords": [
-        "KEYWORDS: Infantry",
-        "Character",
-        "Grenades",
-        "Imperium",
-        "Inquisitor Agents of the Imperium"
-      ],
-      "points": null,
-      "stats": {
-        "M": "6\"",
-        "T": "3",
-        "Sv": "4+",
-        "W": "4",
-        "Ld": "6+",
-        "OC": "1"
-      },
-      "unit_composition": [
-        "This model’s bolt pistol can be replaced with 1 combi-weapon. ■ 1 Inquisitor",
-        "This model’s blessed wardings can be replaced with 1 psychic gifts and 1 Psychic Shock Wave. This model is equipped with: bolt pistol; Inquisitorial melee",
-        "weapon; blessed wardings.",
-        "If this model is equipped with 1 psychic gifts, its Inquisitorial melee weapon can be replaced with 1",
-        "force weapon."
-      ],
-      "base_size": null,
-      "abilities": [
-        {
-          "name": "CORE",
-          "summary": "Leader",
-          "phase_tags": []
-        },
-        {
-          "name": "FACTION",
-          "summary": "Assigned Agents",
-          "phase_tags": []
-        },
-        {
-          "name": "Authority of the Inquisition",
-          "summary": "While this model is leading a",
-          "phase_tags": []
-        },
-        {
-          "name": "Power of the Rosette",
-          "summary": "Each time you target this model’s unit",
-          "phase_tags": []
-        },
-        {
-          "name": "Blessed Wardings",
-          "summary": "While this model is leading a unit,",
-          "phase_tags": []
-        },
-        {
-          "name": "Psychic Gifts",
-          "summary": "The bearer has the Psyker keyword.",
-          "phase_tags": []
-        },
-        {
-          "name": "INVULNERABLE SAVE",
-          "summary": "5+",
-          "phase_tags": []
-        }
-      ],
-      "wargear_options": [],
-      "weapons": [
-        {
-          "name": "Bolt pistol",
-          "type": "ranged",
-          "range": "12\"",
-          "a": "1",
-          "bs_ws": "3+",
-          "s": "4",
-          "ap": "0",
-          "d": "1",
-          "keywords": [
-            "PISTOL"
-          ]
-        },
-        {
-          "name": "Inquisitorial melee weapon",
-          "type": "melee",
-          "range": "Melee",
-          "a": "5",
-          "bs_ws": "3+",
-          "s": "4",
-          "ap": "-2",
-          "d": "1",
-          "keywords": []
-        },
-        {
-          "name": "Force weapon",
-          "type": "melee",
-          "range": "Melee",
-          "a": "4",
-          "bs_ws": "3+",
-          "s": "5",
-          "ap": "-2",
-          "d": "D3",
-          "keywords": [
-            "PSYCHIC"
-          ]
-        }
-      ],
-      "strengths": [],
-      "weaknesses": [],
-      "target_priority_tags": [],
-      "threat_tags": [
-        "RANGED_CAPABLE",
-        "INVULNERABLE_SAVE"
-      ],
-      "mobility_tags": [],
-      "durability_tags": [
-        "LIGHT_ARMOUR",
-        "MULTI_WOUND"
-      ],
-      "tau_counterplay": [
-        "Invulnerable save — volume of fire preferred over single high-AP shots."
-      ],
-      "notes": "Leader: the following units:, ■ Imperium Battleline Infantry, ■ Inquisitorial Henchmen, FACTION"
-    },
-    {
-      "name": "INQUISITORIAL HENCHMEN",
-      "legends": false,
-      "role": "AGENT",
-      "faction_keywords": [
-        "KEYWORDS: Infantry",
-        "Grenades",
-        "Imperium",
-        "Retinue",
-        "Inquisitorial Henchmen",
-        "Agents of the Imperium"
-      ],
-      "keywords": [
-        "KEYWORDS: Infantry",
-        "Grenades",
-        "Imperium",
-        "Retinue",
-        "Inquisitorial Henchmen Agents of the Imperium"
-      ],
-      "points": null,
-      "stats": {
-        "M": "6\"",
-        "T": "3",
-        "Sv": "5+",
-        "W": "2",
-        "Ld": "7+",
-        "OC": "1"
-      },
-      "unit_composition": [
-        "1 Inquisitorial Acolyte can be equipped with 1 plasma pistol. ■ 4-10 Inquisitorial Acolytes",
-        "1 Inquisitorial Acolyte can be equipped with 1 eviscerator. ■ 0-2 Gun Servitors",
-        "0-2 Mystics",
-        "1 Gun Servitor’s heavy bolter can be replaced with one of the following:",
-        "0-1 Jokaero Weaponsmith",
-        "1 multi-melta",
-        "0-1 Daemonhost",
-        "1 plasma cannon",
-        "Every Inquisitorial Acolyte is equipped with: Acolyte firearm;",
-        "Acolyte melee weapon.",
-        "Every Gun Servitor is equipped with: heavy bolter; Acolyte",
-        "melee weapon.",
-        "Every Mystic is equipped with: Acolyte firearm; Acolyte",
-        "melee weapon.",
-        "A Jokaero Weaponsmith is equipped with: Jokaero weapons;",
-        "Acolyte melee weapon.",
-        "A Daemonhost is equipped with: Unholy Gaze; warp grasp."
-      ],
-      "base_size": null,
-      "abilities": [
-        {
-          "name": "FACTION",
-          "summary": "Assigned Agents",
-          "phase_tags": []
-        },
-        {
-          "name": "Acolytes",
-          "summary": "While an Inquisitor model is leading this unit, each",
-          "phase_tags": []
-        },
-        {
-          "name": "Mystics",
-          "summary": "While an Inquisitor model is leading this",
-          "phase_tags": []
-        },
-        {
-          "name": "Jokaero",
-          "summary": "While an Inquisitor model is leading this unit, if",
-          "phase_tags": []
-        }
-      ],
-      "wargear_options": [],
-      "weapons": [
-        {
-          "name": "Acolyte firearm",
-          "type": "ranged",
-          "range": "12\"",
-          "a": "1",
-          "bs_ws": "4+",
-          "s": "4",
-          "ap": "-1",
-          "d": "1",
-          "keywords": [
-            "PISTOL"
-          ]
-        },
-        {
-          "name": "Heavy bolter",
-          "type": "ranged",
-          "range": "36\"",
-          "a": "3",
-          "bs_ws": "5+",
-          "s": "5",
-          "ap": "-1",
-          "d": "2",
-          "keywords": [
-            "HEAVY",
-            "SUSTAINED HITS 1"
-          ]
-        },
-        {
-          "name": "Jokaero weapons",
-          "type": "ranged",
-          "range": "18\"",
-          "a": "3",
-          "bs_ws": "3+",
-          "s": "6",
-          "ap": "-1",
-          "d": "2",
-          "keywords": []
-        },
-        {
-          "name": "Multi-melta",
-          "type": "ranged",
-          "range": "18\"",
-          "a": "2",
-          "bs_ws": "5+",
-          "s": "9",
-          "ap": "-4",
-          "d": "D6",
-          "keywords": [
-            "HEAVY",
-            "MELTA 2"
-          ]
-        },
-        {
-          "name": "Plasma cannon – standard",
-          "type": "ranged",
-          "range": "36\"",
-          "a": "D3",
-          "bs_ws": "5+",
-          "s": "7",
-          "ap": "-1",
-          "d": "1",
-          "keywords": [
-            "HEAVY",
-            "BLAST"
-          ]
-        },
-        {
-          "name": "Plasma pistol – standard",
-          "type": "ranged",
-          "range": "12\"",
-          "a": "1",
-          "bs_ws": "4+",
-          "s": "7",
-          "ap": "-1",
-          "d": "1",
-          "keywords": [
-            "PISTOL"
-          ]
-        },
-        {
-          "name": "Plasma pistol – supercharge",
-          "type": "ranged",
-          "range": "12\"",
-          "a": "1",
-          "bs_ws": "4+",
-          "s": "8",
-          "ap": "-2",
-          "d": "2",
-          "keywords": [
-            "HAZARDOUS",
-            "PISTOL"
-          ]
-        },
-        {
-          "name": "Unholy Gaze",
-          "type": "ranged",
-          "range": "18\"",
-          "a": "1",
-          "bs_ws": "4+",
-          "s": "9",
-          "ap": "-2",
-          "d": "3",
-          "keywords": [
-            "PSYCHIC",
-            "SUSTAINED HITS D3"
-          ]
-        },
-        {
-          "name": "Acolyte melee weapon",
-          "type": "melee",
-          "range": "Melee",
-          "a": "3",
-          "bs_ws": "4+",
-          "s": "3",
-          "ap": "0",
-          "d": "1",
-          "keywords": []
-        }
-      ],
-      "strengths": [],
-      "weaknesses": [],
-      "target_priority_tags": [],
-      "threat_tags": [
-        "RANGED_CAPABLE",
-        "BLAST_WEAPONS",
-        "MELTA",
-        "PLASMA"
-      ],
-      "mobility_tags": [],
-      "durability_tags": [
-        "LIGHT_ARMOUR"
-      ],
-      "tau_counterplay": [],
-      "notes": ""
-    },
-    {
-      "name": "LORD INQUISITOR KYRIA DRAXUS",
-      "legends": false,
-      "role": "AGENT",
-      "faction_keywords": [
-        "Inquisitor",
-        "Lord Inquisitor Kyria Draxus Agents of the Imperium"
-      ],
-      "keywords": [
-        "Infantry",
-        "Character",
-        "Epic Hero",
-        "Psyker",
-        "Grenades",
-        "Imperium"
-      ],
-      "points": null,
-      "stats": {
-        "M": "6\"",
-        "T": "3",
-        "Sv": "3+",
-        "W": "4",
-        "Ld": "6+",
-        "OC": "1"
-      },
-      "unit_composition": [
-        "None ■ 1 Lord Inquisitor Kyria Draxus – Epic Hero",
-        "This model is equipped with: Dirgesinger; Psychic Tempest;",
-        "power fist."
-      ],
-      "base_size": null,
-      "abilities": [
-        {
-          "name": "CORE",
-          "summary": "Leader",
-          "phase_tags": []
-        },
-        {
-          "name": "FACTION",
-          "summary": "Assigned Agents",
-          "phase_tags": []
-        },
-        {
-          "name": "Authority of the Inquisition",
-          "summary": "While this model is leading a",
-          "phase_tags": []
-        },
-        {
-          "name": "Xenos Hunter",
-          "summary": "While this model is leading a unit, each time a",
-          "phase_tags": []
-        },
-        {
-          "name": "Psychic Veil (Psychic)",
-          "summary": "In your Command phase, this Psyker",
-          "phase_tags": []
-        },
-        {
-          "name": "INVULNERABLE SAVE",
-          "summary": "5+",
-          "phase_tags": []
-        }
-      ],
-      "wargear_options": [],
-      "weapons": [
-        {
-          "name": "Dirgesinger",
-          "type": "ranged",
-          "range": "18\"",
-          "a": "4",
-          "bs_ws": "3+",
-          "s": "4",
-          "ap": "0",
-          "d": "2",
-          "keywords": []
-        },
-        {
-          "name": "Power fist",
-          "type": "melee",
-          "range": "Melee",
-          "a": "3",
-          "bs_ws": "3+",
-          "s": "6",
-          "ap": "-2",
-          "d": "2",
-          "keywords": []
-        }
-      ],
-      "strengths": [],
-      "weaknesses": [],
-      "target_priority_tags": [],
-      "threat_tags": [
-        "MELEE_THREAT",
-        "RANGED_CAPABLE",
-        "MEDIUM_DURABILITY",
-        "INVULNERABLE_SAVE"
-      ],
-      "mobility_tags": [],
-      "durability_tags": [
-        "MEDIUM_ARMOUR",
-        "MULTI_WOUND"
-      ],
-      "tau_counterplay": [
-        "Melee threat — maintain distance, use Drones as speed bumps, overwatch with Pulse.",
-        "Invulnerable save — volume of fire preferred over single high-AP shots."
-      ],
-      "notes": "Leader: the following units:, ■ Imperium Battleline Infantry, ■ Inquisitorial Henchmen"
-    },
-    {
-      "name": "ROGUE TRADER ENTOURAGE",
-      "legends": false,
-      "role": "AGENT",
-      "faction_keywords": [
-        "Retinue",
-        "Rogue Trader Entourage | ROGUE TRADER: Character Agents of the Imperium"
-      ],
-      "keywords": [
-        "Retinue",
-        "Rogue Trader Entourage | ROGUE TRADER: Character Agents of the Imperium"
-      ],
-      "points": null,
-      "stats": {
-        "M": "6\"",
-        "T": "3",
-        "Sv": "4+",
-        "W": "4",
-        "Ld": "6+",
-        "OC": "1"
-      },
-      "unit_composition": [
-        "None ■ 1 Rogue Trader",
-        "3 Rogue Trader Specialists",
-        "The Rogue Trader is equipped with: household pistol;",
-        "monomolecular cane-rapier.",
-        "One Rogue Trader Specialist is equipped with: dartmask;",
-        "Death Cult power blade.",
-        "One other Rogue Trader Specialist is equipped with: voltaic",
-        "pistol; close combat weapon.",
-        "One other Rogue Trader Specialist is equipped with: laspistol;",
-        "close combat weapon; healing serum."
-      ],
-      "base_size": null,
-      "abilities": [
-        {
-          "name": "CORE",
-          "summary": "Infiltrators",
-          "phase_tags": []
-        },
-        {
-          "name": "FACTION",
-          "summary": "Assigned Agents",
-          "phase_tags": []
-        },
-        {
-          "name": "Backroom Deals",
-          "summary": "While this unit is leading a unit, models in",
-          "phase_tags": []
-        },
-        {
-          "name": "Healing Serum",
-          "summary": "Models in the bearer’s unit have the",
-          "phase_tags": []
-        },
-        {
-          "name": "INVULNERABLE SAVE",
-          "summary": "4+",
-          "phase_tags": []
-        }
-      ],
-      "wargear_options": [],
-      "weapons": [
-        {
-          "name": "Dartmask",
-          "type": "ranged",
-          "range": "12\"",
-          "a": "1",
-          "bs_ws": "4+",
-          "s": "2",
-          "ap": "-1",
-          "d": "D3",
-          "keywords": [
-            "ANTI-INFANTRY 2+",
-            "PISTOL",
-            "PRECISION"
-          ]
-        },
-        {
-          "name": "Household pistol",
-          "type": "ranged",
-          "range": "12\"",
-          "a": "2",
-          "bs_ws": "3+",
-          "s": "5",
-          "ap": "-2",
-          "d": "2",
-          "keywords": [
-            "PISTOL",
-            "DEVASTATING WOUNDS"
-          ]
-        },
-        {
-          "name": "Laspistol",
-          "type": "ranged",
-          "range": "12\"",
-          "a": "1",
-          "bs_ws": "4+",
-          "s": "3",
-          "ap": "0",
-          "d": "1",
-          "keywords": [
-            "PISTOL"
-          ]
-        },
-        {
-          "name": "Voltaic pistol",
-          "type": "ranged",
-          "range": "12\"",
-          "a": "3",
-          "bs_ws": "3+",
-          "s": "4",
-          "ap": "-2",
-          "d": "1",
-          "keywords": [
-            "PISTOL",
-            "SUSTAINED HITS 2"
-          ]
-        },
-        {
-          "name": "Close combat weapon",
-          "type": "melee",
-          "range": "Melee",
-          "a": "1",
-          "bs_ws": "4+",
-          "s": "3",
-          "ap": "0",
-          "d": "1",
-          "keywords": []
-        },
-        {
-          "name": "Death Cult power blade",
-          "type": "melee",
-          "range": "Melee",
-          "a": "5",
-          "bs_ws": "2+",
-          "s": "4",
-          "ap": "-2",
-          "d": "1",
-          "keywords": [
-            "PRECISION"
-          ]
-        },
-        {
-          "name": "Monomolecular cane-rapier",
-          "type": "melee",
-          "range": "Melee",
-          "a": "4",
-          "bs_ws": "3+",
-          "s": "4",
-          "ap": "-1",
-          "d": "1",
-          "keywords": []
-        }
-      ],
-      "strengths": [],
-      "weaknesses": [],
-      "target_priority_tags": [],
-      "threat_tags": [
-        "RANGED_CAPABLE",
-        "INVULNERABLE_SAVE",
-        "INFILTRATOR"
-      ],
-      "mobility_tags": [],
-      "durability_tags": [
-        "LIGHT_ARMOUR",
-        "MULTI_WOUND"
-      ],
-      "tau_counterplay": [
-        "Infiltrator/Scout — expect pressure Turn 1. Keep screens forward.",
-        "Invulnerable save — volume of fire preferred over single high-AP shots."
-      ],
-      "notes": "Leader: the following units:, ■ Imperial Navy Breachers, ■ Voidsmen-at-Arms, KEYWORDS – ALL MODELS: Infantry, Grenades, Imperium, Navis Imperialis, FACTION"
-    },
-    {
-      "name": "SUBDUCTOR SQUAD",
-      "legends": false,
-      "role": "AGENT",
-      "faction_keywords": [
-        "KEYWORDS: Infantry",
-        "Grenades",
-        "Imperium",
-        "Retinue",
-        "Subductor Squad",
-        "Agents of the Imperium"
-      ],
-      "keywords": [
-        "KEYWORDS: Infantry",
-        "Grenades",
-        "Imperium",
-        "Retinue",
-        "Subductor Squad Agents of the Imperium"
-      ],
-      "points": null,
-      "stats": {
-        "M": "6\"",
-        "T": "3",
-        "Sv": "3+",
-        "W": "1",
-        "Ld": "7+",
-        "OC": "1"
-      },
-      "unit_composition": [
-        "The Proctor-Subductor can be equipped with 1 nuncio aquila. ■ 1 Proctor-Subductor",
-        "9 Subductors",
-        "0-1 Cyber-mastiff",
-        "Every Proctor-Subductor and Subductor is equipped with:",
-        "Arbites shotpistol; shock maul.",
-        "The Cyber-mastiff is equipped with: mechanical bite."
-      ],
-      "base_size": null,
-      "abilities": [
-        {
-          "name": "FACTION",
-          "summary": "Assigned Agents",
-          "phase_tags": []
-        },
-        {
-          "name": "Nuncio Aquila (Aura)",
-          "summary": "While an enemy unit is within 3\" of the",
-          "phase_tags": []
-        }
-      ],
-      "wargear_options": [],
-      "weapons": [
-        {
-          "name": "Arbites shotpistol",
-          "type": "ranged",
-          "range": "12\"",
-          "a": "1",
-          "bs_ws": "4+",
-          "s": "4",
-          "ap": "0",
-          "d": "1",
-          "keywords": [
-            "PISTOL"
-          ]
-        },
-        {
-          "name": "Mechanical bite",
-          "type": "melee",
-          "range": "Melee",
-          "a": "3",
-          "bs_ws": "4+",
-          "s": "4",
-          "ap": "0",
-          "d": "1",
-          "keywords": []
-        },
-        {
-          "name": "Shock maul",
-          "type": "melee",
-          "range": "Melee",
-          "a": "2",
-          "bs_ws": "4+",
-          "s": "4",
-          "ap": "-1",
-          "d": "1",
-          "keywords": []
-        }
-      ],
-      "strengths": [],
-      "weaknesses": [],
-      "target_priority_tags": [],
-      "threat_tags": [
-        "RANGED_CAPABLE",
-        "MEDIUM_DURABILITY"
-      ],
-      "mobility_tags": [],
-      "durability_tags": [
-        "MEDIUM_ARMOUR"
-      ],
-      "tau_counterplay": [],
-      "notes": ""
-    },
-    {
-      "name": "VIGILANT SQUAD",
-      "legends": false,
-      "role": "AGENT",
-      "faction_keywords": [
-        "KEYWORDS: Infantry",
-        "Battleline",
-        "Grenades",
-        "Imperium",
-        "Retinue",
-        "Vigilant Squad",
-        "Agents of the Imperium"
-      ],
-      "keywords": [
-        "KEYWORDS: Infantry",
-        "Battleline",
-        "Grenades",
-        "Imperium",
-        "Retinue",
-        "Vigilant Squad Agents of the Imperium"
-      ],
-      "points": null,
-      "stats": {
-        "M": "6\"",
-        "T": "3",
-        "Sv": "4+",
-        "W": "1",
-        "Ld": "7+",
-        "OC": "2"
-      },
-      "unit_composition": [
-        "Up to 2 Vigilants can each have their Arbites combat shotgun replaced with one of the following ■ 1 Proctor-Vigilant",
-        "(duplicates are not allowed): ■ 9 Vigilants",
-        "1 executioner shotgun ■ 0-1 Cyber-mastiff",
-        "1 Arbites grenade launcher",
-        "Every Proctor-Vigilant and Vigilant is equipped with: Arbites",
-        "1 heavy stubber combat shotgun; Arbites shotpistol; close combat weapon.",
-        "1 webber",
-        "The Cyber-mastiff is equipped with: mechanical bite.",
-        "The Proctor-Vigilant can be equipped with 1 nuncio aquila."
-      ],
-      "base_size": null,
-      "abilities": [
-        {
-          "name": "FACTION",
-          "summary": "Assigned Agents",
-          "phase_tags": []
-        },
-        {
-          "name": "Merciless Judgement",
-          "summary": "Each time a model in this unit makes",
-          "phase_tags": []
-        },
-        {
-          "name": "Nuncio Aquila (Aura)",
-          "summary": "While an enemy unit is within 3\" of the",
-          "phase_tags": []
-        }
-      ],
-      "wargear_options": [],
-      "weapons": [
-        {
-          "name": "Arbites combat shotgun",
-          "type": "ranged",
-          "range": "18\"",
-          "a": "2",
-          "bs_ws": "4+",
-          "s": "4",
-          "ap": "0",
-          "d": "1",
-          "keywords": [
-            "ASSAULT"
-          ]
-        },
-        {
-          "name": "Arbites grenade launcher – frag",
-          "type": "ranged",
-          "range": "24\"",
-          "a": "D3",
-          "bs_ws": "4+",
-          "s": "4",
-          "ap": "0",
-          "d": "1",
-          "keywords": [
-            "BLAST"
-          ]
-        },
-        {
-          "name": "Arbites grenade launcher – krak",
-          "type": "ranged",
-          "range": "24\"",
-          "a": "1",
-          "bs_ws": "4+",
-          "s": "9",
-          "ap": "-2",
-          "d": "D3",
-          "keywords": []
-        },
-        {
-          "name": "Arbites shotpistol",
-          "type": "ranged",
-          "range": "12\"",
-          "a": "1",
-          "bs_ws": "4+",
-          "s": "4",
-          "ap": "0",
-          "d": "1",
-          "keywords": [
-            "PISTOL"
-          ]
-        },
-        {
-          "name": "Executioner shotgun",
-          "type": "ranged",
-          "range": "24\"",
-          "a": "1",
-          "bs_ws": "4+",
-          "s": "5",
-          "ap": "-1",
-          "d": "1",
-          "keywords": [
-            "IGNORES COVER",
-            "PRECISION"
-          ]
-        },
-        {
-          "name": "Heavy stubber",
-          "type": "ranged",
-          "range": "36\"",
-          "a": "3",
-          "bs_ws": "4+",
-          "s": "4",
-          "ap": "0",
-          "d": "1",
-          "keywords": [
-            "RAPID FIRE 3"
-          ]
-        },
-        {
-          "name": "Webber",
-          "type": "ranged",
-          "range": "12\"",
-          "a": "D6",
-          "bs_ws": "N/A",
-          "s": "2",
-          "ap": "0",
-          "d": "1",
-          "keywords": [
-            "ASSAULT",
-            "DEVASTATING WOUNDS",
-            "TORRENT"
-          ]
-        },
-        {
-          "name": "Close combat weapon",
-          "type": "melee",
-          "range": "Melee",
-          "a": "2",
-          "bs_ws": "4+",
-          "s": "3",
-          "ap": "0",
-          "d": "1",
-          "keywords": []
-        },
-        {
-          "name": "Mechanical bite",
-          "type": "melee",
-          "range": "Melee",
-          "a": "3",
-          "bs_ws": "4+",
-          "s": "4",
-          "ap": "0",
-          "d": "1",
-          "keywords": []
-        }
-      ],
-      "strengths": [],
-      "weaknesses": [],
-      "target_priority_tags": [],
-      "threat_tags": [
-        "RANGED_CAPABLE",
-        "BLAST_WEAPONS"
-      ],
-      "mobility_tags": [],
-      "durability_tags": [
-        "LIGHT_ARMOUR"
-      ],
-      "tau_counterplay": [],
-      "notes": ""
-    },
-    {
-      "name": "VINDICARE ASSASSIN",
-      "legends": false,
-      "role": "AGENT",
-      "faction_keywords": [
-        "Vindicare Assassin Agents of the Imperium"
-      ],
-      "keywords": [
-        "Infantry",
-        "Character",
-        "Epic Hero",
-        "Smoke",
-        "Imperium"
-      ],
-      "points": null,
-      "stats": {
-        "M": "7\"",
-        "T": "4",
-        "Sv": "6+",
-        "W": "4",
-        "Ld": "6+",
-        "OC": "1"
-      },
-      "unit_composition": [
-        "None ■ 1 Vindicare Assassin – Epic Hero",
-        "This model is equipped with: exitus pistol; exitus rifle;",
-        "Vindicare combat knife."
-      ],
-      "base_size": null,
-      "abilities": [
-        {
-          "name": "CORE",
-          "summary": "Infiltrators",
-          "phase_tags": []
-        },
-        {
-          "name": "FACTION",
-          "summary": "Assigned Agents",
-          "phase_tags": []
-        },
-        {
-          "name": "Deadshot",
-          "summary": "Each time this model makes a ranged attack, if a",
-          "phase_tags": []
-        },
-        {
-          "name": "Shieldbreaker",
-          "summary": "Once per battle, when selecting targets for this",
-          "phase_tags": []
-        },
-        {
-          "name": "INVULNERABLE SAVE",
-          "summary": "4+",
-          "phase_tags": []
-        }
-      ],
-      "wargear_options": [],
-      "weapons": [
-        {
-          "name": "Exitus pistol",
-          "type": "ranged",
-          "range": "12\"",
-          "a": "3",
-          "bs_ws": "2+",
-          "s": "5",
-          "ap": "-2",
-          "d": "3",
-          "keywords": []
-        },
-        {
-          "name": "Vindicare combat knife",
-          "type": "melee",
-          "range": "Melee",
-          "a": "4",
-          "bs_ws": "2+",
-          "s": "4",
-          "ap": "-1",
-          "d": "1",
-          "keywords": []
-        }
-      ],
-      "strengths": [],
-      "weaknesses": [],
-      "target_priority_tags": [],
-      "threat_tags": [
-        "RANGED_CAPABLE",
-        "INVULNERABLE_SAVE",
-        "INFILTRATOR"
-      ],
-      "mobility_tags": [],
-      "durability_tags": [
-        "LIGHT_ARMOUR",
-        "MULTI_WOUND"
-      ],
-      "tau_counterplay": [
-        "Infiltrator/Scout — expect pressure Turn 1. Keep screens forward.",
-        "Invulnerable save — volume of fire preferred over single high-AP shots."
-      ],
-      "notes": ""
-    },
-    {
-      "name": "VOIDSMEN-AT-ARMS",
-      "legends": false,
-      "role": "AGENT",
-      "faction_keywords": [
-        "Retinue",
-        "Voidsmen-at-Arms Agents of the Imperium"
-      ],
-      "keywords": [
-        "Infantry",
-        "Battleline",
-        "Grenades",
-        "Imperium",
-        "Navis Imperialis"
-      ],
-      "points": null,
-      "stats": {
-        "M": "6\"",
-        "T": "3",
-        "Sv": "4+",
-        "W": "1",
-        "Ld": "8+",
-        "OC": "2"
-      },
-      "unit_composition": [
-        "None ■ 1 Voidmaster",
-        "4-8 Voidsmen",
-        "0-1 Canid",
-        "The Voidmaster is equipped with: artificer shotgun; laspistol;",
-        "close combat weapon.",
-        "For every 5 models in this unit, 1 Voidsman is equipped with:",
-        "laspistol; Voidsman rotor cannon; close combat weapon.",
-        "Every other Voidsman is equipped with: lasgun; laspistol;",
-        "close combat weapon.",
-        "The Canid is equipped with: vicious bite."
-      ],
-      "base_size": null,
-      "abilities": [
-        {
-          "name": "FACTION",
-          "summary": "Assigned Agents",
-          "phase_tags": []
-        },
-        {
-          "name": "Masters of Close Confines",
-          "summary": "Each time a model in this unit",
-          "phase_tags": []
-        }
-      ],
-      "wargear_options": [],
-      "weapons": [
-        {
-          "name": "Artificer shotgun",
-          "type": "ranged",
-          "range": "12\"",
-          "a": "2",
-          "bs_ws": "4+",
-          "s": "4",
-          "ap": "0",
-          "d": "2",
-          "keywords": [
-            "ASSAULT"
-          ]
-        },
-        {
-          "name": "Lasgun",
-          "type": "ranged",
-          "range": "24\"",
-          "a": "1",
-          "bs_ws": "4+",
-          "s": "3",
-          "ap": "0",
-          "d": "1",
-          "keywords": [
-            "RAPID FIRE 1"
-          ]
-        },
-        {
-          "name": "Laspistol",
-          "type": "ranged",
-          "range": "12\"",
-          "a": "1",
-          "bs_ws": "4+",
-          "s": "3",
-          "ap": "0",
-          "d": "1",
-          "keywords": [
-            "PISTOL"
-          ]
-        },
-        {
-          "name": "Voidsman rotor cannon",
-          "type": "ranged",
-          "range": "24\"",
-          "a": "6",
-          "bs_ws": "5+",
-          "s": "6",
-          "ap": "0",
-          "d": "1",
-          "keywords": [
-            "HEAVY",
-            "SUSTAINED HITS 1"
-          ]
-        },
-        {
-          "name": "Close combat weapon",
-          "type": "melee",
-          "range": "Melee",
-          "a": "1",
-          "bs_ws": "4+",
-          "s": "3",
-          "ap": "0",
-          "d": "1",
-          "keywords": []
-        },
-        {
-          "name": "Vicious bite",
-          "type": "melee",
-          "range": "Melee",
-          "a": "3",
-          "bs_ws": "4+",
-          "s": "4",
-          "ap": "0",
-          "d": "1",
-          "keywords": []
-        }
-      ],
-      "strengths": [],
-      "weaknesses": [],
-      "target_priority_tags": [],
-      "threat_tags": [
-        "RANGED_CAPABLE"
-      ],
-      "mobility_tags": [],
-      "durability_tags": [
-        "LIGHT_ARMOUR"
-      ],
-      "tau_counterplay": [],
-      "notes": ""
-    }
-  ],
-  "weapons_index": {},
-  "faction_strengths": [],
-  "faction_weaknesses": [],
-  "playstyle_summary": "",
-  "tau_matchup_notes": [],
-  "priority_targets_for_tau": [],
-  "recommended_tau_deployment_tags": [],
-  "recommended_tau_loadout_tags": [],
-  "metadata": {
-    "unit_count": 17,
-    "parse_errors": 0,
-    "points_note": "Fill from Munitorum Field Manual",
-    "builder": "build_all_factions.py v4.0"
+ "faction": "Imperial Agents",
+ "source_type": "codex_pdf_parse",
+ "source_name": "Imperial Agents — Individual Unit PDFs",
+ "edition": "10",
+ "version": "2.0",
+ "last_updated": "2026-03-19",
+ "army_rules": [
+  {
+   "name": "No filter",
+   "summary": "] Contents Books FAQ Faction Pack: Imperial Agents Introduction"
   }
+ ],
+ "detachments": [
+  {
+   "name": "ORDO XENOS ALIEN HUNTERS",
+   "detachment_rule": "Deathwatch Mission Tactics",
+   "rule_summary": "Thousands of years of collated strategic data and hard-won combat experience have provided the Deathwatch with the ultimate battlefield tactics to combat almost any foe.  At the start of your Command phase, you can select one of the Mission Tactics listed below. Until the start of your next Command phase, that Mission Tactic is active and its effects apply to all DEATHWATCH units from your army. Each Mission Tactic can only be selected once per battle. Furor Tactics  The warriors of the Deathwat",
+   "enhancements": [
+    {
+     "name": "Amulet of Auto-Chastisement",
+     "points": 25,
+     "description": "This talisman houses a hate-filled machine spirit that despises alien artifice. Its influence can be focused against the war engines of aliens and traitors alike to disrupt or even paralyse them altogether.  WATCH MASTER model only. At the start of your opponents Shooting phase, select one enemy VEHICLE unit (excluding TITANIC units) within 12\" of and visible to the bearer. That unit must take a Leadership test. If that test is passed, until the end of the phase, each time a model in that unit makes an attack, subtract 1 from the Hit roll; if that test is failed, that unit is not eligible to shoot this phase.",
+     "applies_to": "WATCH MASTER model only."
+    },
+    {
+     "name": "Beacon Angelis",
+     "points": 30,
+     "description": "The Beacon Angelis was devised to guide the Death watch to the threshold of the alien adversary. Housed within a reliquary, it calls out to the warriors’ augur arrays with the voices of a hundred electric cherubim, its summons so strong that it draws the righteous unto its locale regardless of what darkness may surround it.  WATCH MASTER model only. Models in the bearer’s unit have the Deep Strike ability. In addition, you can target the bearer’s unit with the Rapid Ingress Stratagem for 0CP.",
+     "applies_to": "WATCH MASTER model only."
+    },
+    {
+     "name": "Blackweave Shroud",
+     "points": 15,
+     "description": "This hypermorphic bodyglove of uncertain origin is worn beneath a warrior’s armour. It forms a fibrous medium that shields the warrior’s most vital systems.  AGENTS OF THE IMPERIUM model only. The bearer has the Feel No Pain 4+ ability.",
+     "applies_to": "AGENTS OF THE IMPERIUM model only."
+    },
+    {
+     "name": "Universal Anathema",
+     "points": 10,
+     "description": "A fragment of STC technology, this device tastes the spoor of its owner’s foes, then fashions tailored toxins not even the most resilient victim can long endure.  AGENTS OF THE IMPERIUM model only. Melee weapons equipped by the bearer have the [ANTI-INFANTRy 2+] and [ANTI-MONSTER 4+] abilities.",
+     "applies_to": "AGENTS OF THE IMPERIUM model only."
+    }
+   ],
+   "stratagems": [
+    {
+     "name": "ARMOUR OF CONTEMPT",
+     "cp": 1,
+     "type": "Alien Hunters – Battle Tactic Stratagem",
+     "flavour": "The belligerence and transhuman physiologies of the Deathwatch make them unyielding foes.",
+     "when": "Your opponent’s Shooting phase or the Fight phase, just after an enemy unit has selected its targets.",
+     "target": "One DEATHWATCH unit from your army that was selected as the target of one or more of the attacking unit’s attacks.",
+     "effect": "Until the attacking unit has finished making its attacks, each time an attack targets your unit, worsen the Armour Penetration characteristic of that attack by 1."
+    },
+    {
+     "name": "ADAPTIVE TACTICS",
+     "cp": 1,
+     "type": "Alien Hunters – Strategic Ploy Stratagem",
+     "flavour": "Only a truly versatile approach to warfare allows the Deathwatch to focus their tactical genius and best the myriad xenos foes they face.",
+     "when": "Your Command phase.",
+     "target": "One DEATHWATCH unit from your army.",
+     "effect": "Select the Furor Tactics, Malleus Tactics or Purgatus Tactics. Until the start of your next Command phase, that Deathwatch Mission Tactic is active for your unit instead of any other Deathwatch Mission Tactic that is active for your army, even if you have already selected that Deathwatch Mission Tactic this battle."
+    },
+    {
+     "name": "HELLFIRE ROUNDS",
+     "cp": 1,
+     "type": "Alien Hunters – Wargear Stratagem",
+     "flavour": "Hellfire rounds contain reservoirs of virulent bioacids that eat away the flesh of their victims in seconds and leave nothing but bubbling gruel.",
+     "when": "Your Shooting phase.",
+     "target": "One DEATHWATCH INFANTRY unit from your army that has not been selected to shoot this phase.",
+     "effect": "Until the end of the phase, ranged weapons (excluding Devastating Wounds weapons) equipped by models in your unit have the [ANTI-INFANTRY 2+] and [ANTI-MONSTER 5+] abilities.  RESTRICTIONS: You cannot select any units that have already been targeted with either the Kraken Rounds or Dragonfire Rounds Stratagems this phase."
+    },
+    {
+     "name": "DRAGONFIRE ROUNDS",
+     "cp": 1,
+     "type": "Alien Hunters – Wargear Stratagem",
+     "flavour": "Dragonf ire rounds explode just before contact, saturating foes in cover with searing gas and flames.",
+     "when": "Your Shooting phase.",
+     "target": "One DEATHWATCH INFANTRY unit from your army that has not been selected to shoot this phase.",
+     "effect": "Until the end of the phase, ranged weapons equipped by models in your unit have the [ASSAULT] and [IGNORES COVER] abilities.  RESTRICTIONS: You cannot select any units that have already been targeted with either the Kraken Rounds or Hellfire Rounds Stratagems this phase."
+    },
+    {
+     "name": "KRAKEN ROUNDS",
+     "cp": 1,
+     "type": "Alien Hunters – Wargear Stratagem",
+     "flavour": "Kraken rounds utilise adamantine cores and improved propellants to penetrate the thickest hide.",
+     "when": "Your Shooting phase.",
+     "target": "One DEATHWATCH INFANTRY unit from your army that has not been selected to shoot this phase.",
+     "effect": "Until the end of the phase, improve the Armour Penetration characteristic of ranged weapons equipped by models in your unit by 1 and improve the Range characteristic of those weapons by 6\".  RESTRICTIONS: You cannot select any units that have already been targeted with either the Dragonfire Rounds or Hellfire Rounds Stratagems this phase."
+    },
+    {
+     "name": "RAPID TACTICAL RELOCATION",
+     "cp": 1,
+     "type": "Alien Hunters – Strategic Ploy Stratagem",
+     "flavour": "The Ordo Xenos and Deathwatch alike have access to swift gunships and landers that allow for hasty repositioning in the midst of battle.",
+     "when": "End of your opponent’s Fight phase.",
+     "target": "One INQUISITOR or DEATHWATCH INFANTRY unit from your army.",
+     "effect": "Remove your unit from the battlefield. In the Reinforcements step of your next Movement phase, set your unit up anywhere on the battlefield that is more than 9” horizontally away from all enemy models.  RESTRICTIONS: You cannot select a unit that is within Engagement Range of one or more enemy units. Ordo Hereticus Purgation Force"
+    }
+   ]
+  },
+  {
+   "name": "ORDO HERETICUS PURGATION FORCE",
+   "detachment_rule": "Root out Heresy",
+   "rule_summary": "No matter how cunningly their heretical prey hides, they cannot escape the zealous retribution of the Ordo Hereticus.  Ranged weapons equipped by ADEPTUS ARBITES, INQUISITOR, INQUISITORIAL AGENTS and ORDO HERETICUS models from your army have the [IGNORES COvER] ability.  Each time an ADEPTUS ARBITES, INQUISITOR, INQUISITORIAL AGENTS or ORDO HERETICUS model from your army makes an attack that targets a CHAOS unit containing 5 or more models, that attack has the [SUSTAINED HITS 1] ability.",
+   "enhancements": [
+    {
+     "name": "Ignis Judicium",
+     "points": 10,
+     "description": "An artificer-crafted flame projector of focused and terrible vehemence, this weapon has been the bane of countless heretics across the ages.  INQUISITOR or MINISTORUM PRIEST model only. The bearers ranged weapons have the [DEVASTATING WOUNDS], [MELTA 1] and [PRECISION] abilities.",
+     "applies_to": ""
+    },
+    {
+     "name": "Liber Heresius",
+     "points": 10,
+     "description": "This ancient grimoire contains the collected accounts of many Inquisitorial purges, and is a trove of lore for those seeking to ambush and entrap heretics.  INQUISITOR or MINISTORUM PRIEST model only. After both players have deployed their armies, select up to three AGENTS OF THE IMPERIUM units from your army and redeploy them. When doing so, you can set those units up in Strategic Reserves if you wish, regardless of how many units are already in Strategic Reserves.",
+     "applies_to": ""
+    },
+    {
+     "name": "No Escape (Aura)",
+     "points": 25,
+     "description": "None but the most diabolical or desperate stand any chance of slipping through this Inquisitor’s grasp.  INQUISITOR model only. While an enemy unit is within 6\" of the bearer, each time it is selected to Fall Back it must first take a Leadership test. If that test is failed, that unit must Remain Stationary this phase instead.",
+     "applies_to": "INQUISITOR model only."
+    },
+    {
+     "name": "Witch Hunter",
+     "points": 15,
+     "description": "This merciless Imperial agent is monomaniacally focused upon hunting and slaying psykers.  INQUISITOR or MINISTORUM PRIEST model only. While the bearer is leading a unit, each time a model in that unit makes an attack that targets a PSYKER unit, you can re-roll the Hit roll.",
+     "applies_to": ""
+    }
+   ],
+   "stratagems": [
+    {
+     "name": "STUN GRENADES",
+     "cp": 1,
+     "type": "Purgation Force – Wargear Stratagem",
+     "flavour": "Emitting blasts of light, sound and blinding smoke, these devices disorient the foe.",
+     "when": "Start of any phase (excluding the Command phase).",
+     "target": "One ADEPTUS ARBITES, INQUISITORIAL AGENTS or ORDO HERETICUS GRENADES unit from your army that is not within Engagement Range of one or more enemy units.",
+     "effect": "Select one enemy unit (excluding MONSTERS or VEHICLES) within 8\" of and visible to your unit. That enemy unit must take a Battle-shock test and, until the end of the phase, each time a model in that unit makes an attack, subtract 1 from the Hit roll."
+    },
+    {
+     "name": "DISPENSE JUSTICE",
+     "cp": 1,
+     "type": "Purgation Force – Battle Tactic Stratagem",
+     "flavour": "Agents of the Ordo Hereticus are unmerciful in meting out what they see as the Emperor's justice.",
+     "when": "Your Shooting phase or the Fight phase.",
+     "target": "One ADEPTUS ARBITES, INQUISITORIAL AGENTS or ORDO HERETICUS unit from your army that has not been selected to shoot or fight this phase.",
+     "effect": "Until the end of the phase, weapons equipped by models in your unit have the [LETHAL HITS] ability."
+    },
+    {
+     "name": "INVIOLATE JURISDICTION",
+     "cp": 1,
+     "type": "Purgation Force – Strategic Ploy Stratagem",
+     "flavour": "These warriors defend the sanctity of the Emperor's realm with unwavering determination, no matter the odds stacked against them.",
+     "when": "Your opponent’s Shooting phase or the Fight phase, just after an enemy unit has selected its targets.",
+     "target": "One ADEPTUS ARBITES, INQUISITORIAL AGENTS or ORDO HERETICUS INFANTRY unit from your army within range of an objective marker and that was selected as the target of one or more of the attacking unit’s attacks.",
+     "effect": "Until the end of the phase, models in your unit have the Feel No Pain 5+ ability."
+    },
+    {
+     "name": "EXECUTION ORDER",
+     "cp": 2,
+     "type": "Purgation Force – Epic Deed Stratagem",
+     "flavour": "There can be no mercy for heretic leaders.",
+     "when": "Your Command phase.",
+     "target": "One ADEPTUS ARBITES, INQUISITORIAL AGENTS or ORDO HERETICUS INFANTRY unit from your army.",
+     "effect": "Select one enemy CHARACTER unit on the battlefield. Until the start of your next Command phase, each time a model in your unit targets that CHARACTER unit, its weapons have the [PRECISION] ability."
+    },
+    {
+     "name": "LINE OF FIRE",
+     "cp": 1,
+     "type": "Purgation Force – Strategic Ploy Stratagem",
+     "flavour": "These ruthless warriors will risk firing into their own ranks if it ensures the deaths of heretics.",
+     "when": "Your Shooting phase.",
+     "target": "One ADEPTUS ARBITES, INQUISITORIAL AGENTS or ORDO HERETICUS unit from your army that has not been selected to shoot this phase.",
+     "effect": "Until the end of the phase, models in your unit can target enemy units that are within Engagement Range of one or more friendly units with ranged weapons (excluding Blast weapons), provided the target is within 12\"."
+    },
+    {
+     "name": "EXACT PUNISHMENT",
+     "cp": 1,
+     "type": "Purgation Force – Strategic Ploy Stratagem",
+     "flavour": "Vengeance is swift and unforgiving for those who attack the servants of the Emperor.",
+     "when": "Your opponent’s Shooting phase, just after an AGENTS OF THE IMPERIUM unit from your army is destroyed as the result of an enemy unit's attacks.",
+     "target": "One ADEPTUS ARBITES, INQUISITORIAL AGENTS or ORDO HERETICUS unit from your army that was within 6\" of the destroyed unit (you cannot target the destroyed unit with the Stratagem).",
+     "effect": "After the attacking unit has shot, your unit can shoot as if it were your Shooting phase, but when resolving those attacks it can only target that enemy unit (and only if it is an eligible target). Ordo Malleus Daemon Hunters"
+    }
+   ]
+  },
+  {
+   "name": "ORDO MALLEUS DAEMON HUNTERS",
+   "detachment_rule": "Destroy the Daemonic",
+   "rule_summary": "Knowing the vital nature of their mission, the servants of the Ordo Malleus fight all the harder to lay their enemies low.  Each time an INQUISITOR, INQUISITORIAL AGENTS or ORDO MALLEUS model from your army makes an attack, re-roll a Hit roll of 1 and, if the target of that attack is a DAEMON unit, re-roll a Wound roll of 1 as well.",
+   "enhancements": [
+    {
+     "name": "Daemon Slayer",
+     "points": 10,
+     "description": "Some whisper this weapon of banishment is in fact host to a hostile warp entity in its own right.  INQUISITOR model only. Add 1 to the Attacks characteristic of the bearers melee weapons, and those weapons have the [ANTI-DAEMON 3+] ability.",
+     "applies_to": "INQUISITOR model only."
+    },
+    {
+     "name": "Formidable Resolve",
+     "points": 5,
+     "description": "Inquisitors of the Ordo Malleus are amongst the hardiest and most bombastic of their kind. They must be to survive their duties.  INQUISITOR model only. Improve the bearer’s Leadership and Wounds characteristics by 1. Once per battle, at the start of any phase, you can select one friendly Battle-shocked unit within 12\" of the bearer. That unit is no longer Battle-shocked.",
+     "applies_to": "INQUISITOR model only."
+    },
+    {
+     "name": "Gift of the Prescient",
+     "points": 20,
+     "description": "Guided by the scryings of their Prognosticars, the Grey Knights strike with deadly precision and timing.  INQUISITOR model only. Once per battle, if the bearer is on the battlefield, you can use the Rapid Ingress Stratagem for 0CP. When doing so, you must target a GREY KNIGHTS TERMINATOR SQUAD unit from your army, and when using that Stratagem, that unit can be set up anywhere on the battlefield that is more than 3\" away from all enemy units.",
+     "applies_to": "INQUISITOR model only."
+    },
+    {
+     "name": "Grimoire of True Names (Aura)",
+     "points": 10,
+     "description": "To wield the true name of a daemon is to control its supernatural power, though whether in the name of banishment or to be unleashed as a weapon of terror falls to the discretion of the grimoire’s keeper.  INQUISITOR model only. While an enemy unit is within 9\" of the bearer, worsen the Leadership characteristic of models in that unit by 1. In addition, while an enemy DAEMON unit is within 9\" of the bearer, each time a model in that DAEMON unit makes an attack, subtract 1 from the Hit roll and subtract 1 from the Wound roll.",
+     "applies_to": "INQUISITOR model only."
+    }
+   ],
+   "stratagems": [
+    {
+     "name": "RITUAL OF WARDING",
+     "cp": 1,
+     "type": "Daemon Hunters – Strategic Ploy Stratagem",
+     "flavour": "Whether sanctifying the battlefield against heresy or binding sinister guardian entities to keep watch, this ritual extends its practitioner’s strategic influence.",
+     "when": "Start of any Command phase.",
+     "target": "One INQUISITOR, INQUISITORIAL AGENTS or ORDO MALLEUS unit from your army that is within range of an objective marker you control.",
+     "effect": "That objective marker is said to be Warded and remains under your control, even if you have no models within range of it, until your opponent controls it at the start or end of any turn. While an objective marker is Warded and under your control, enemy DAEMON units cannot be set up on the battlefield within 6\" of it."
+    },
+    {
+     "name": "RITES OF EXORCISM",
+     "cp": 1,
+     "type": "Daemon Hunters – Strategic Ploy Stratagem",
+     "flavour": "With the correct words of abjuration and banishment, daemons can be driven out of realspace and back into the warp.",
+     "when": "Your Shooting phase or the Fight phase.",
+     "target": "One INQUISITOR, INQUISITORIAL AGENTS or ORDO MALLEUS unit from your army.",
+     "effect": "Select one enemy DAEMON unit within 12\" and visible to your unit. That unit must take a Battle-shock test. If that test is failed, then until the end of the phase, each time a friendly AGENTS OF THE IMPERIUM unit makes an attack that targets that DAEMON unit, that attack has the [DEVASTATING WOUNDS] ability."
+    },
+    {
+     "name": "STEEL HEART",
+     "cp": 1,
+     "type": "Daemon Hunters – Strategic Ploy Stratagem",
+     "flavour": "The battle-brothers of the Grey Knights never flee from their daemonic foes, instead merely withdrawing momentarily before striking anew.",
+     "when": "Your Movement phase, just after a GREY KNIGHTS TERMINATOR SQUAD unit from your army Falls Back.",
+     "target": "That GREY KNIGHTS TERMINATOR SQUAD unit.",
+     "effect": "Until the end of the turn, your unit is eligible to shoot and declare a charge in a turn in which it Fell Back."
+    },
+    {
+     "name": "TRUESILVER ARMOUR",
+     "cp": 1,
+     "type": "Daemon Hunters – Wargear Stratagem",
+     "flavour": "Grey Knights battle plate incorporates litanies of purity, strands of sanctified silver and other sacred wards, whose defences can be further empowered by ritual mantras.",
+     "when": "Your opponent’s Shooting phase orthe Fight phase, just after an enemy unit has selected its targets.",
+     "target": "One GREY KNIGHTS TERMINATOR SQUAD unit from your army that was selected as the target of one or more of the attacking unit’s attacks.",
+     "effect": "Until the attacking unit has finished making its attacks, each time an attack targets your unit, worsen the Armour Penetration characteristic of that attack by 1."
+    },
+    {
+     "name": "HEXAGRAMMIC WARDS",
+     "cp": 1,
+     "type": "Daemon Hunters – Wargear Stratagem",
+     "flavour": "Ancient warding sigils inscribed in shimmering silver, these strange runic designs ward away the hostile energies of the warp.",
+     "when": "Your opponent’s Shooting phase or the Fight phase, just after an enemy unit has selected its targets.",
+     "target": "One ORDO MALLEUS unit from your army that was selected as the target of one or more of the attacking unit’s attacks.",
+     "effect": "Until the end of the phase, all Psychic weapons equipped by models in the attacking unit have the [HAZARDOUS] ability."
+    },
+    {
+     "name": "PSYBOLT AMMUNITION",
+     "cp": 1,
+     "type": "Daemon Hunters – Wargear Stratagem",
+     "flavour": "Specially consecrated and silver-tipped, these bolt shells channel the firer’s innate psychic fury and detonate spectacularly on impact.",
+     "when": "Your Shooting phase.",
+     "target": "One GREY KNIGHTS TERMINATOR SQUAD unit from your army that has not been selected to shoot this phase.",
+     "effect": "Until the end of the phase, ranged weapons equipped by models in your unit have the [LETHAL HITS] and [PSYCHIC] abilities. Imperialis Fleet"
+    }
+   ]
+  },
+  {
+   "name": "IMPERIALIS FLEET",
+   "detachment_rule": "At all Costs",
+   "rule_summary": "While the nature of the missions undertaken by Imperial agents is as varied as they are, the vital importance of these tasks rarely changes. The enemies they face are the most unholy. The prizes they seek are as priceless as they are nightmarishly dangerous. Thus, when such warriors of the Imperium identify a priority target for elimination or acquisition, no effort is too great nor price too high to see their aims achieved.  At the start of your Command phase, you can select one of the followin",
+   "enhancements": [
+    {
+     "name": "Clandestine Operation",
+     "points": 15,
+     "description": "This war leader prefers to strike with subtlety and precision, working their forces into advanced positions before commencing hostilities.  AGENTS OF THE IMPERIUM model only. At the start of the Declare Battle Formations step, you can select up to three AGENTS OF THE IMPERIUM INFANTRY units from your army (excluding GREY KNIGHTS TERMINATOR SQUAD units) - those units gain the Infiltrators ability.",
+     "applies_to": "AGENTS OF THE IMPERIUM model only."
+    },
+    {
+     "name": "Combat Landers",
+     "points": 10,
+     "description": "This commander has access to swift drop craft that can bear portions of their forces directly into the heart of the most ferocious battles.  VOIDFARERS model only. At the start of the Declare Battle Formations step, you can select up to three VOIDFARERS units from your army - those units gain the Deep Strike ability.",
+     "applies_to": "VOIDFARERS model only."
+    },
+    {
+     "name": "Digital Weapons",
+     "points": 10,
+     "description": "These potent, short-ranged energy weapons are concealed in precious items of jewellery, the better to lethally surprise the foe.  AGENTS OF THE IMPERIUM model only. Each time the bearer is selected to fight, roll three D6: for each 4+, one enemy unit within Engagement Range of the bearer suffers 1 mortal wound. Mortal wounds inflicted by this Enhancement are allocated as if they had the [PRECISION] ability.",
+     "applies_to": "AGENTS OF THE IMPERIUM model only."
+    },
+    {
+     "name": "Fleetmaster",
+     "points": 20,
+     "description": "Be they a Rogue Trader or some agent of the Imperial Navy, this warrior draws upon a wealth of shrewd voidfarer strategies to aid them in battle.  VOIDFARERS model only. Once per battle round, you can target the bearer’s unit with the Violent Acquisition, Masters of the Void or Close-quarters Barrage Stratagems for 0CP.",
+     "applies_to": "VOIDFARERS model only."
+    }
+   ],
+   "stratagems": [
+    {
+     "name": "VIOLENT ACQUISITION",
+     "cp": 2,
+     "type": "Imperialis Fleet – Strategic Ploy Stratagem",
+     "flavour": "If a high-ranking Imperial agent locates something they wish to acquire, nothing will stop them from unleashing all the forces at their command to seize it.",
+     "when": "Your Shooting phase or the Fight phase.",
+     "target": "One AGENTS OF THE IMPERIUM unit from your army.",
+     "effect": "Until the end of the phase, each time a model in your unit makes an attack that targets an enemy unit within range of an objective marker, that attack has the [SUSTAINED HITS 1], [LANCE] and [IGNORES COVER] abilities."
+    },
+    {
+     "name": "MASTERS OF THE VOID",
+     "cp": 1,
+     "type": "Imperialis Fleet – Epic Deed Stratagem",
+     "flavour": "With command of the orbital engagement zone comes the ability to strike at the enemy from unexpected angles.",
+     "when": "Your Movement phase.",
+     "target": "One VOIDFARERS CHARACTER unit from your army.",
+     "effect": "Until the end of the phase, each AGENTS OF THE IMPERIUM unit from your army that is arriving from Strategic Reserves this turn can be set up within your opponent’s deployment zone (all other restrictions still apply)."
+    },
+    {
+     "name": "CLOSE-QUARTERS BARRAGE",
+     "cp": 1,
+     "type": "Imperialis Fleet – Battle Tactic Stratagem",
+     "flavour": "Soldiers trained in shipboard warfare and chamber-by-chamber clearance know how best to focus theirfirepower during close-range firefights.",
+     "when": "Your Shooting phase.",
+     "target": "One VOIDFARERS unit from your army.",
+     "effect": "Until the end of the phase, each time a model in your unit makes a ranged attack that targets a unit within 12\", improve the Strength and Armour Penetration characteristics of that attack by 1. EMPEROR’S WILL 1CP Imperialis Fleet – Strategic Ploy Stratagem Believing theyfightforthe safety of the Golden Throne motivates warriors to exceptional deeds. WHEN: Your Movement phase."
+    },
+    {
+     "name": "DISPLACER FIELD",
+     "cp": 1,
+     "type": "Imperialis Fleet – Wargear Stratagem",
+     "flavour": "These rare protective fields perform microteleport displacements to remove their bearers from harm.",
+     "when": "Your opponent's Shooting phase, just after an enemy unit has selected its targets.",
+     "target": "One AGENTS OF THE IMPERIUM CHARACTER unit from your army (excluding OFFICIO ASSASSINORUM units) that was selected as the target of one or more of the attacking unit's attacks.",
+     "effect": "Until the end of the phase, models in your unit have a 4+ invulnerable save and, after the attacking unit has resolved its attacks, unless your unit is within Engagement Range of one or more enemy units, it can make a Normal move of up to 6\" (when doing so, models in this unit move as if they have the Fly keyword)."
+    },
+    {
+     "name": "SELFLESS BODYGUARD",
+     "cp": 1,
+     "type": "Imperialis Fleet – Epic Deed Stratagem",
+     "flavour": "Loyal Imperial warriors will martyr themselves gladly to protect high-ranking Imperial agents.",
+     "when": "Your opponent’s Shooting phase or the Fight phase, just after an enemy unit has selected its targets.",
+     "target": "One AGENTS OF THE IMPERIUM Attached unit that was selected as the target of one or more of the attacking unit’s attacks.",
+     "effect": "Until the end of the phase, each time an attack with the [PRECISION] ability is allocated to a CHARACTER model in your unit, if there are one or more Bodyguard models in your unit, roll one D6: on a 2+, that attack is allocated to a Bodyguard model of your choice in your unit instead. Veiled Blade Elimination Force The lethally efficient agents of the Officio Assassinorum ordinarily operate alone when stalking their prey. However, when assigned a particularly well-protected or formidable target, assassins from various temples may be brought together alongside other assets drawn from the milita"
+    }
+   ]
+  },
+  {
+   "name": "VEILED BLADE ELIMINATION FORCE",
+   "detachment_rule": "Extremis Sanction",
+   "rule_summary": "When pursuing an extremis-level target, the agents of the Officio Assassinorum are expected to push their altered minds and bodies beyond the limits of endurance. Additional equipment, augmentation and ammunition may be provided to complete the task.  OFFICIO ASSASSINORUM units from your army can use the Overkill, Soulless Horror and Shieldbreaker abilities twice per battle, instead of once per battle (but cannot use such an ability more than once in the same battle round).  When mustering your ",
+   "enhancements": [],
+   "stratagems": [
+    {
+     "name": "PRIME TARGET",
+     "cp": 1,
+     "type": "Veiled Blade Elimination Force – Battle Tactic Stratagem",
+     "flavour": "A primary target has been revealed. All efforts must be made to ensure the kill.",
+     "when": "Your Shooting phase or the Fight phase.",
+     "target": "One AGENTS OF THE IMPERIUM unit from your army that has not been selected to shoot or fight this phase.",
+     "effect": "Until the end of the phase, each time a model in your unit makes an attack that targets a CHARACTER unit, re-roll a Wound roll of 1. If that attack is made by an OFFICIO ASSASSINORUM model and it targets the enemy WARLORD, you can re-roll the Wound roll instead."
+    },
+    {
+     "name": "HYPERSTIMMS",
+     "cp": 2,
+     "type": "Veiled Blade Elimination Force – Battle Tactic Stratagem",
+     "flavour": "Unenhanced mortal bodies are routinely – and unknowingly – dosed with experimental stimulant cocktails that serve to reinforce their resilience, at least in the short term.",
+     "when": "Your opponent’s Shooting phase or the Fight phase, just after an enemy unit has selected its targets.",
+     "target": "One AGENTS OF THE IMPERIUM CHARACTER unit from your army that was selected as the target of one or more of the attacking unit’s attacks.",
+     "effect": "Until the end of the phase, add 1 to the Toughness characteristic of models in your unit. In addition, if it is an EVERSOR ASSASSIN unit, until the end of the phase, it has the Feel No Pain 4+ ability. WILL‑SAPPING SALVO 1CP Veiled Blade Elimination Force – Strategic Ploy Stratagem Aiming concentrated volleys of fire toward an exceptionally resilient foe, these agents erode the will of their target, increasing their vulnerability to the concentrated psychic onslaughts of the Culexus Assassin’s animus speculum. WHEN: Your Shooting phase."
+    },
+    {
+     "name": "ORBITAL OVERSIGHT",
+     "cp": 1,
+     "type": "Veiled Blade Elimination Force – Strategic Ploy Stratagem",
+     "flavour": "Aided by orbiting assets, when the assault begins, voidships flood communication networks with jamming frequencies, fire screening bombardments and otherwise mask the agents’ approach.",
+     "when": "Your opponent’s Shooting phase, just after an enemy unit has selected its targets.",
+     "target": "One AGENTS OF THE IMPERIUM INFANTRY unit from your army that was selected as the target of one or more of the attacking unit’s attacks.",
+     "effect": "Until the end of the phase, your unit can only be selected as the target of a ranged attack if the attacking model is within 18\", or, if your unit has the Lone Operative ability, if the attacking model is within 6\"."
+    },
+    {
+     "name": "BLIND GRENADES",
+     "cp": 1,
+     "type": "Veiled Blade Elimination Force – Strategic Ploy Stratagem",
+     "flavour": "These grenades release thick black smoke and broad-spectrum electromagnetic chaff that disrupt vision and foul augury equipment upon detonating.",
+     "when": "Your opponent’s Charge phase, just after an enemy unit has declared a charge.",
+     "target": "One AGENTS OF THE IMPERIUM GRENADES or VINDICARE ASSASSIN unit from your army that was selected as one of the targets of that charge and is not within Engagement Range of one or more enemy units.",
+     "effect": "Until the end of the phase, subtract 1 from Charge rolls made for that enemy unit, or, if your unit is a VINDICARE ASSASSIN, subtract 2 from Charge rolls made for that enemy unit instead."
+    }
+   ]
+  },
+  {
+   "name": "DETACHMENT (BESEECHMENT CODES)",
+   "detachment_rule": "Beseechment Codes",
+   "rule_summary": "Key to the duty of dedicated shipboard soldiery is the ability to move easily through even code-locked hatchways, or those whose machine spirits are corrupted or heretical. Dataspikes loaded with potent codes to appease or banish such troublesome gatekeepers allow them the swift progress they need.  In your Movement phase, each time a VOIDFARERS unit from your army makes a Normal move, while that unit is moving it can attempt to operate a closed Hatchway that it is within 1\" of at any point duri",
+   "enhancements": [],
+   "stratagems": [
+    {
+     "name": "BREACH AND CLEAR",
+     "cp": 1,
+     "type": "Voidship’s Company – Battle Tactic Stratagem",
+     "flavour": "Naval armsmen of every stripe train extensively in the tactics of chamber-by-chamber combat, clearing one space of foes before pressing on to the next.",
+     "when": "Your Movement phase, just after an IMPERIAL NAVY BREACHERS unit from yourarmy opens a Hatchway.",
+     "target": "That IMPERIAL NAVY BREACHERS unit.",
+     "effect": "Until the end of the turn, each time a model in your unit makes an attack, if that model is on the opposite side of the Hatchway from the side it started the turn on, add 1 to the Hit roll and add 1 to the Wound roll."
+    },
+    {
+     "name": "AMMO RATIONS",
+     "cp": 1,
+     "type": "Voidship’s Company – Battle Tactic Stratagem",
+     "flavour": "Many Navis officers carry limited quantities of specialist ammunition such as hellfire or manstopper rounds, to be issued to their squads in the face of especially formidable opposition.",
+     "when": "Start of your Shooting phase.",
+     "target": "One or more VOIDFARERS units from your army.",
+     "effect": "Select one enemy unit. Until the end of the phase, each time a model in one of your units makes an attack that targets that enemy unit, improve the Armour Penetration characteristic of that attack by 1."
+    }
+   ]
+  },
+  {
+   "name": "DETACHMENT (CHASTISOR AUTO-VOX)",
+   "detachment_rule": "Chastisor Auto-Vox",
+   "rule_summary": "Booming admonishments ring from vox-amps and laud hailers built into the Arbitrators’ wargear, demanding foes lay down arms and submit.  In your opponent’s Command phase, each enemy unit within 3\" of one or more ADEPTUS ARBITES units from your army must take a Battle-shock test. If that enemy unit is also Below Half-strength, subtract 1 from that test. This Detachment rule cannot cause a unit to take two Battle-shock tests in the same phase.",
+   "enhancements": [],
+   "stratagems": [
+    {
+     "name": "CRACKDOWN",
+     "cp": 1,
+     "type": "Interdiction Team – Battle Tactic Stratagem",
+     "flavour": "Veterans of close-quarters brutality, these warriors know how to swiftly incapacitate enemies in the close-quarters confines of voidships and the like.",
+     "when": "Fight phase.",
+     "target": "One ADEPTUS ARBITES unit from your army.",
+     "effect": "Until the end of the phase, each time a model in your unit makes an attack, you can re-roll the Hit roll and you can re-roll the Wound roll."
+    },
+    {
+     "name": "DUTY AND DEATH",
+     "cp": 1,
+     "type": "Interdiction Team – Battle Tactic Stratagem",
+     "flavour": "So important are the targets of Adeptus Arbites voidship raids that the Arbitrators will not let themselves fall until they know their duty is done.",
+     "when": "Your opponent’s Shooting phase or the Fight phase, just after an enemy unit has selected its targets.",
+     "target": "One ADEPTUS ARBITES unit from your army that was selected as the target of one or more of the attacking unit's attacks.",
+     "effect": "Until the end of the phase, models in your unit have the Feel No Pain 4+ ability."
+    },
+    {
+     "name": "ARBITRARY EXECUTION",
+     "cp": 1,
+     "type": "Interdiction Team – Strategic Ploy Stratagem",
+     "flavour": "Well practised in bringing down their targets with effective head shots, the Arbitrators wield their sidearms to deadly effect.",
+     "when": "Your Shooting phase.",
+     "target": "One ADEPTUS ARBITES unit from your army that has not been selected to shoot this phase.",
+     "effect": "Until the end of the phase, Arbites shotpistols equipped by models in your unit have an Attacks characteristic of 2 and the [LETHAL HITS] ability, and models in your unit can target enemy units that are not within Engagement Range of them (provided they are otherwise eligible targets)."
+    },
+    {
+     "name": "INESCAPABLE JUDGEMENT",
+     "cp": 1,
+     "type": "Interdiction Team – Strategic Ploy Stratagem",
+     "flavour": "Attempting to flee from the implacable Arbitrators and their ferocious cybercanids only exposes the foe to a swift and brutal end.",
+     "when": "Your opponent's Movement phase, just after an enemy unit is selected to Fall Back.",
+     "target": "One ADEPTUS ARBITES unit from your army within Engagement Range of that enemy unit.",
+     "effect": "Until the end of the phase, when that enemy unit Falls Back, models in it must take Desperate Escape tests as if their unit was Battle-shocked. When doing so, if that enemy unit is also Battle-shocked by other means, subtract 1 from each of those Desperate Escape tests. © Vyacheslav Maltsev 2013-2026"
+    }
+   ]
+  }
+ ],
+ "units": [
+  {
+   "name": "CALLIDUS ASSASSIN",
+   "legends": false,
+   "role": "AGENT",
+   "faction_keywords": [
+    "KEYWORDS: Infantry",
+    "Character",
+    "Epic Hero",
+    "Imperium",
+    "Callidus Assassin",
+    "Agents of the Imperium"
+   ],
+   "keywords": [
+    "KEYWORDS: Infantry",
+    "Character",
+    "Epic Hero",
+    "Imperium",
+    "Callidus Assassin Agents of the Imperium"
+   ],
+   "points": null,
+   "stats": {
+    "M": "7\"",
+    "T": "4",
+    "Sv": "6+",
+    "W": "4",
+    "Ld": "6+",
+    "OC": "1"
+   },
+   "unit_composition": [
+    "None ■ 1 Callidus Assassin – Epic Hero",
+    "This model is equipped with: neural shredder; phase sword",
+    "and poison blades."
+   ],
+   "base_size": null,
+   "abilities": [
+    {
+     "name": "CORE",
+     "summary": "Deep Strike",
+     "phase_tags": []
+    },
+    {
+     "name": "FACTION",
+     "summary": "Assigned Agents",
+     "phase_tags": []
+    },
+    {
+     "name": "INVULNERABLE SAVE",
+     "summary": "4+",
+     "phase_tags": []
+    },
+    {
+     "name": "Reign of Confusion",
+     "summary": "Once per battle, after your opponent uses a Stratagem, this model can use this ability. If it does, until the end of the battle, the CP cost your opponent must pay to use that Stratagem again is increased by 1CP.",
+     "phase_tags": []
+    },
+    {
+     "name": "Polymorphine",
+     "summary": "At the end of your opponent’s turn, if this model is not within Engagement Range of any enemy units, you can remove it from the battlefield and then, in the Reinforcements step of your next Movement phase, set it up anywhere on the battlefield that is more than 9\" horizontally away from all enemy models. If the battle ends and this model is not on the battlefield, it is destroyed.",
+     "phase_tags": []
+    }
+   ],
+   "wargear_options": [],
+   "weapons": [
+    {
+     "name": "Neural shredder",
+     "type": "ranged",
+     "range": "12\"",
+     "a": "D6",
+     "bs_ws": "N/A",
+     "s": "5",
+     "ap": "-2",
+     "d": "1",
+     "keywords": [
+      "ANTI-INFANTRY 2+",
+      "PRECISION",
+      "TORRENT"
+     ]
+    },
+    {
+     "name": "Phase sword and poison blades",
+     "type": "melee",
+     "range": "Melee",
+     "a": "5",
+     "bs_ws": "2+",
+     "s": "5",
+     "ap": "-4",
+     "d": "2",
+     "keywords": []
+    }
+   ],
+   "strengths": [],
+   "weaknesses": [],
+   "target_priority_tags": [],
+   "threat_tags": [
+    "RANGED_CAPABLE",
+    "INVULNERABLE_SAVE",
+    "DEEP_STRIKE"
+   ],
+   "mobility_tags": [
+    "DEEP_STRIKE"
+   ],
+   "durability_tags": [
+    "LIGHT_ARMOUR",
+    "MULTI_WOUND"
+   ],
+   "tau_counterplay": [
+    "Deep Strike threat — screen backfield with Kroot or Fire Warriors 9\" from objectives.",
+    "Invulnerable save — volume of fire preferred over single high-AP shots."
+   ],
+   "notes": ""
+  },
+  {
+   "name": "CULEXUS ASSASSIN",
+   "legends": false,
+   "role": "AGENT",
+   "faction_keywords": [
+    "Culexus Assassin Agents of the Imperium"
+   ],
+   "keywords": [
+    "Infantry",
+    "Character",
+    "Epic Hero",
+    "Grenades",
+    "Imperium"
+   ],
+   "points": null,
+   "stats": {
+    "M": "7\"",
+    "T": "4",
+    "Sv": "6+",
+    "W": "4",
+    "Ld": "6+",
+    "OC": "1"
+   },
+   "unit_composition": [
+    "None ■ 1 Culexus Assassin – Epic Hero",
+    "This model is equipped with: animus speculum;",
+    "life-draining touch."
+   ],
+   "base_size": null,
+   "abilities": [
+    {
+     "name": "CORE",
+     "summary": "Deep Strike",
+     "phase_tags": []
+    },
+    {
+     "name": "FACTION",
+     "summary": "Assigned Agents",
+     "phase_tags": []
+    },
+    {
+     "name": "INVULNERABLE SAVE",
+     "summary": "4+",
+     "phase_tags": []
+    },
+    {
+     "name": "Abomination",
+     "summary": "This model has the Feel No Pain 2+ ability against Psychic Attacks.",
+     "phase_tags": []
+    },
+    {
+     "name": "Soulless Horror (Aura)",
+     "summary": "While an enemy unit is within 6\" of this model, worsen that unit’s Leadership characteristic by 1, or by 2 instead if that unit is a Psyker. In addition, once per battle, at the start of any Command phase, this model can use this ability. If it does, each enemy unit within 6\" of this model must take a Battle-shock test.",
+     "phase_tags": []
+    },
+    {
+     "name": "Psychic Assassin",
+     "summary": "Each time you select a Psyker unit as the target for this weapon, until those attacks are resolved, change the Attacks characteristic of this weapon to 6.",
+     "phase_tags": []
+    }
+   ],
+   "wargear_options": [],
+   "weapons": [
+    {
+     "name": "Animus speculum",
+     "type": "ranged",
+     "range": "24\"",
+     "a": "3",
+     "bs_ws": "2+",
+     "s": "5",
+     "ap": "-2",
+     "d": "D3",
+     "keywords": []
+    }
+   ],
+   "strengths": [],
+   "weaknesses": [],
+   "target_priority_tags": [],
+   "threat_tags": [
+    "RANGED_CAPABLE",
+    "INVULNERABLE_SAVE",
+    "DEEP_STRIKE"
+   ],
+   "mobility_tags": [
+    "DEEP_STRIKE"
+   ],
+   "durability_tags": [
+    "LIGHT_ARMOUR",
+    "MULTI_WOUND"
+   ],
+   "tau_counterplay": [
+    "Deep Strike threat — screen backfield with Kroot or Fire Warriors 9\" from objectives.",
+    "Invulnerable save — volume of fire preferred over single high-AP shots."
+   ],
+   "notes": ""
+  },
+  {
+   "name": "EVERSOR ASSASSIN",
+   "legends": false,
+   "role": "AGENT",
+   "faction_keywords": [
+    "Eversor Assassin Agents of the Imperium"
+   ],
+   "keywords": [
+    "Infantry",
+    "Character",
+    "Epic Hero",
+    "Grenades",
+    "Imperium"
+   ],
+   "points": null,
+   "stats": {
+    "M": "9\"",
+    "T": "4",
+    "Sv": "6+",
+    "W": "4",
+    "Ld": "6+",
+    "OC": "1"
+   },
+   "unit_composition": [
+    "None ■ 1 Eversor Assassin – Epic Hero",
+    "This model is equipped with: executioner pistol; power sword",
+    "and neuro gauntlet."
+   ],
+   "base_size": null,
+   "abilities": [
+    {
+     "name": "CORE",
+     "summary": "Deadly Demise D3",
+     "phase_tags": []
+    },
+    {
+     "name": "FACTION",
+     "summary": "Assigned Agents",
+     "phase_tags": []
+    },
+    {
+     "name": "INVULNERABLE SAVE",
+     "summary": "4+",
+     "phase_tags": []
+    },
+    {
+     "name": "Frenzon",
+     "summary": "In your Command phase, select one of the effects below to apply until the start of your next Command phase:",
+     "phase_tags": []
+    },
+    {
+     "name": "Adrenal Surge",
+     "summary": "This model is eligible to shoot and declare a charge in a turn in which it Advanced.",
+     "phase_tags": []
+    },
+    {
+     "name": "Predatory Focus",
+     "summary": "This model’s weapons have the [PRECISION] ability.",
+     "phase_tags": []
+    },
+    {
+     "name": "Killing Rampage",
+     "summary": "This model’s weapons have the [SUSTAINED HITS 3] ability.",
+     "phase_tags": []
+    },
+    {
+     "name": "Sentinel Array",
+     "summary": "Once per battle round, you can target this model with the Fire Overwatch or Heroic Intervention Stratagem for 0CP, and can do so even if you have already used that Stratagem on a different unit this phase.",
+     "phase_tags": []
+    }
+   ],
+   "wargear_options": [],
+   "weapons": [
+    {
+     "name": "Executioner pistol",
+     "type": "ranged",
+     "range": "12\"",
+     "a": "4",
+     "bs_ws": "2+",
+     "s": "4",
+     "ap": "0",
+     "d": "1",
+     "keywords": [
+      "ANTI-INFANTRY 3+",
+      "PISTOL"
+     ]
+    },
+    {
+     "name": "Power sword and neuro gauntlet",
+     "type": "melee",
+     "range": "Melee",
+     "a": "6",
+     "bs_ws": "2+",
+     "s": "5",
+     "ap": "-2",
+     "d": "2",
+     "keywords": [
+      "ANTI-INFANTRY 3+"
+     ]
+    }
+   ],
+   "strengths": [],
+   "weaknesses": [],
+   "target_priority_tags": [],
+   "threat_tags": [
+    "RANGED_CAPABLE",
+    "INVULNERABLE_SAVE"
+   ],
+   "mobility_tags": [
+    "MOBILE"
+   ],
+   "durability_tags": [
+    "LIGHT_ARMOUR",
+    "MULTI_WOUND"
+   ],
+   "tau_counterplay": [
+    "Invulnerable save — volume of fire preferred over single high-AP shots."
+   ],
+   "notes": ""
+  },
+  {
+   "name": "EXACTION SQUAD",
+   "legends": false,
+   "role": "AGENT",
+   "faction_keywords": [
+    "KEYWORDS: Infantry",
+    "Grenades",
+    "Imperium",
+    "Retinue",
+    "Exaction Squad",
+    "Agents of the Imperium"
+   ],
+   "keywords": [
+    "KEYWORDS: Infantry",
+    "Grenades",
+    "Imperium",
+    "Retinue",
+    "Exaction Squad Agents of the Imperium"
+   ],
+   "points": null,
+   "stats": {
+    "M": "6\"",
+    "T": "3",
+    "Sv": "4+",
+    "W": "1",
+    "Ld": "7+",
+    "OC": "1"
+   },
+   "unit_composition": [
+    "For every 5 models in this unit, up to 2 Exaction Vigilants can each have their Arbites combat ■ 1 Proctor-Exactant",
+    "shotguns replaced with one of the following (duplicates are not allowed): ■ 4-9 Exaction Vigilants",
+    "1 executioner shotgun ■ 0-1 Cyber-mastiff",
+    "1 Arbites grenade launcher",
+    "Every Proctor-Exactant and Exaction Vigilant is equipped",
+    "1 heavy stubber with: Arbites combat shotgun; Arbites shotpistol; close",
+    "1 webber combat weapon.",
+    "1 Exaction Vigilant that is equipped with an Arbites combat shotgun can be equipped with 1 The Cyber-mastiff is equipped with: mechanical bite.",
+    "excruciator maul.*",
+    "1 other Exaction Vigilant that is equipped with an Arbites combat shotgun can be equipped with 1",
+    "Arbites medi-kit.*",
+    "1 other Exaction Vigilant that is equipped with an Arbites combat shotgun can be equipped with 1",
+    "soulguilt scanner.*",
+    "The Proctor-Exactant can be equipped with 1 nuncio aquila.",
+    "* That model’s Arbites combat shotgun cannot be replaced."
+   ],
+   "base_size": null,
+   "abilities": [
+    {
+     "name": "FACTION",
+     "summary": "Assigned Agents",
+     "phase_tags": []
+    },
+    {
+     "name": "Imperial Law",
+     "summary": "At the start of the first battle round, select one enemy unit to be this unit’s quarry. Each time a model in this unit makes an attack that targets its quarry, add 1 to the Hit roll.",
+     "phase_tags": []
+    },
+    {
+     "name": "Arbites Medi-kit",
+     "summary": "Models in the bearer’s unit have the Feel No Pain 5+ ability.",
+     "phase_tags": []
+    },
+    {
+     "name": "Nuncio Aquila (Aura)",
+     "summary": "While an enemy unit is within 3\" of the bearer, each time that unit takes a Battle-shock test, subtract 1 from that test.",
+     "phase_tags": []
+    },
+    {
+     "name": "Soulguilt Scanner",
+     "summary": "Ranged weapons equipped by models in the bearer’s unit have the [IGNORES COVER] ability.",
+     "phase_tags": []
+    }
+   ],
+   "wargear_options": [],
+   "weapons": [
+    {
+     "name": "Arbites combat shotgun",
+     "type": "ranged",
+     "range": "18\"",
+     "a": "2",
+     "bs_ws": "4+",
+     "s": "4",
+     "ap": "0",
+     "d": "1",
+     "keywords": [
+      "ASSAULT"
+     ]
+    },
+    {
+     "name": "Arbites grenade launcher – frag",
+     "type": "ranged",
+     "range": "24\"",
+     "a": "D3",
+     "bs_ws": "4+",
+     "s": "4",
+     "ap": "0",
+     "d": "1",
+     "keywords": [
+      "BLAST"
+     ]
+    },
+    {
+     "name": "Arbites grenade launcher – krak",
+     "type": "ranged",
+     "range": "24\"",
+     "a": "1",
+     "bs_ws": "4+",
+     "s": "9",
+     "ap": "-2",
+     "d": "D3",
+     "keywords": []
+    },
+    {
+     "name": "Arbites shotpistol",
+     "type": "ranged",
+     "range": "12\"",
+     "a": "1",
+     "bs_ws": "4+",
+     "s": "4",
+     "ap": "0",
+     "d": "1",
+     "keywords": [
+      "PISTOL"
+     ]
+    },
+    {
+     "name": "Executioner shotgun",
+     "type": "ranged",
+     "range": "24\"",
+     "a": "1",
+     "bs_ws": "4+",
+     "s": "5",
+     "ap": "-1",
+     "d": "1",
+     "keywords": [
+      "IGNORES COVER",
+      "PRECISION"
+     ]
+    },
+    {
+     "name": "Heavy stubber",
+     "type": "ranged",
+     "range": "36\"",
+     "a": "3",
+     "bs_ws": "4+",
+     "s": "4",
+     "ap": "0",
+     "d": "1",
+     "keywords": [
+      "RAPID FIRE 3"
+     ]
+    },
+    {
+     "name": "Webber",
+     "type": "ranged",
+     "range": "12\"",
+     "a": "D6",
+     "bs_ws": "N/A",
+     "s": "2",
+     "ap": "0",
+     "d": "1",
+     "keywords": [
+      "ASSAULT",
+      "DEVASTATING WOUNDS",
+      "TORRENT"
+     ]
+    },
+    {
+     "name": "Close combat weapon",
+     "type": "melee",
+     "range": "Melee",
+     "a": "2",
+     "bs_ws": "4+",
+     "s": "3",
+     "ap": "0",
+     "d": "1",
+     "keywords": []
+    },
+    {
+     "name": "Excruciator maul",
+     "type": "melee",
+     "range": "Melee",
+     "a": "2",
+     "bs_ws": "3+",
+     "s": "4",
+     "ap": "-1",
+     "d": "2",
+     "keywords": []
+    },
+    {
+     "name": "Mechanical bite",
+     "type": "melee",
+     "range": "Melee",
+     "a": "3",
+     "bs_ws": "4+",
+     "s": "4",
+     "ap": "0",
+     "d": "1",
+     "keywords": []
+    }
+   ],
+   "strengths": [],
+   "weaknesses": [],
+   "target_priority_tags": [],
+   "threat_tags": [
+    "RANGED_CAPABLE",
+    "BLAST_WEAPONS"
+   ],
+   "mobility_tags": [],
+   "durability_tags": [
+    "LIGHT_ARMOUR"
+   ],
+   "tau_counterplay": [],
+   "notes": ""
+  },
+  {
+   "name": "IMPERIAL NAVY BREACHERS",
+   "legends": false,
+   "role": "AGENT",
+   "faction_keywords": [
+    "Imperial Navy Breachers Agents of the Imperium"
+   ],
+   "keywords": [
+    "Infantry",
+    "Grenades",
+    "Imperium",
+    "Navis Imperialis",
+    "Retinue"
+   ],
+   "points": null,
+   "stats": {
+    "M": "6\"",
+    "T": "3",
+    "Sv": "4+",
+    "W": "1",
+    "Ld": "8+",
+    "OC": "2"
+   },
+   "unit_composition": [
+    "The Navis Sergeant-at-Arms’ Navis shotgun can be replaced with one of the following: ■ 1 Navis Sergeant-at-Arms",
+    "1 autopistol and 1 chainsword ■ 9 Navis Armsmen",
+    "1 bolt pistol and 1 power weapon One Navis Armsman is equipped with: Navis las-volley; close",
+    "1 Navis Armsman’s Navis las-volley can be replaced with one of the following: combat weapon.",
+    "1 meltagun One other Navis Armsman is equipped with: Navis heavy",
+    "1 plasma gun shotgun; close combat weapon; endurant shield.",
+    "1 Navis Armsman’s Navis shotgun can be replaced with 1 autopistol and 1 power weapon. Every other model is equipped with: Navis shotgun; close",
+    "combat weapon.",
+    "1 Navis Armsman’s Navis shotgun can be replaced with 1 autopistol and 1 chainfist.",
+    "1 Navis Armsman can be equipped with 1 demolition charge and 1 grenade belts."
+   ],
+   "base_size": null,
+   "abilities": [
+    {
+     "name": "FACTION",
+     "summary": "Assigned Agents",
+     "phase_tags": []
+    },
+    {
+     "name": "Breaching Team",
+     "summary": "Each time a model in this unit makes an attack, re-roll a Wound roll of 1. If the target of that attack is an enemy unit within range of an objective marker, you can re-roll the Wound roll instead.",
+     "phase_tags": []
+    },
+    {
+     "name": "Endurant Shield",
+     "summary": "The bearer has a 4+ invulnerable save.",
+     "phase_tags": []
+    },
+    {
+     "name": "Grenade Belts",
+     "summary": "The bearer has the Smoke keyword, and each time you select the bearer’s unit as the target of the Grenade Stratagem, roll one additional D6 when resolving that Stratagem.",
+     "phase_tags": []
+    }
+   ],
+   "wargear_options": [],
+   "weapons": [
+    {
+     "name": "Autopistol",
+     "type": "ranged",
+     "range": "12\"",
+     "a": "1",
+     "bs_ws": "4+",
+     "s": "3",
+     "ap": "0",
+     "d": "1",
+     "keywords": [
+      "PISTOL"
+     ]
+    },
+    {
+     "name": "Bolt pistol",
+     "type": "ranged",
+     "range": "12\"",
+     "a": "1",
+     "bs_ws": "4+",
+     "s": "4",
+     "ap": "0",
+     "d": "1",
+     "keywords": [
+      "PISTOL"
+     ]
+    },
+    {
+     "name": "Demolition charge",
+     "type": "ranged",
+     "range": "6\"",
+     "a": "D6+3",
+     "bs_ws": "4+",
+     "s": "12",
+     "ap": "-2",
+     "d": "2",
+     "keywords": [
+      "ASSAULT",
+      "BLAST",
+      "HAZARDOUS",
+      "ONE SHOT"
+     ]
+    },
+    {
+     "name": "Meltagun",
+     "type": "ranged",
+     "range": "12\"",
+     "a": "1",
+     "bs_ws": "4+",
+     "s": "9",
+     "ap": "-4",
+     "d": "D6",
+     "keywords": [
+      "MELTA 2"
+     ]
+    },
+    {
+     "name": "Navis heavy shotgun",
+     "type": "ranged",
+     "range": "12\"",
+     "a": "4",
+     "bs_ws": "4+",
+     "s": "4",
+     "ap": "0",
+     "d": "1",
+     "keywords": [
+      "ASSAULT"
+     ]
+    },
+    {
+     "name": "Navis las-volley",
+     "type": "ranged",
+     "range": "18\"",
+     "a": "4",
+     "bs_ws": "4+",
+     "s": "6",
+     "ap": "0",
+     "d": "1",
+     "keywords": []
+    },
+    {
+     "name": "Navis shotgun",
+     "type": "ranged",
+     "range": "12\"",
+     "a": "2",
+     "bs_ws": "4+",
+     "s": "4",
+     "ap": "0",
+     "d": "1",
+     "keywords": [
+      "ASSAULT"
+     ]
+    },
+    {
+     "name": "Chainfist",
+     "type": "melee",
+     "range": "Melee",
+     "a": "1",
+     "bs_ws": "5+",
+     "s": "6",
+     "ap": "-2",
+     "d": "2",
+     "keywords": [
+      "ANTI-VEHICLE 3+"
+     ]
+    },
+    {
+     "name": "Chainsword",
+     "type": "melee",
+     "range": "Melee",
+     "a": "3",
+     "bs_ws": "4+",
+     "s": "3",
+     "ap": "0",
+     "d": "1",
+     "keywords": []
+    },
+    {
+     "name": "Close combat weapon",
+     "type": "melee",
+     "range": "Melee",
+     "a": "1",
+     "bs_ws": "4+",
+     "s": "3",
+     "ap": "0",
+     "d": "1",
+     "keywords": []
+    },
+    {
+     "name": "Power weapon",
+     "type": "melee",
+     "range": "Melee",
+     "a": "2",
+     "bs_ws": "4+",
+     "s": "4",
+     "ap": "-2",
+     "d": "1",
+     "keywords": []
+    }
+   ],
+   "strengths": [],
+   "weaknesses": [],
+   "target_priority_tags": [],
+   "threat_tags": [
+    "MELEE_THREAT",
+    "RANGED_CAPABLE",
+    "BLAST_WEAPONS",
+    "MELTA",
+    "INVULNERABLE_SAVE"
+   ],
+   "mobility_tags": [],
+   "durability_tags": [
+    "LIGHT_ARMOUR"
+   ],
+   "tau_counterplay": [
+    "Melee threat — maintain distance, use Drones as speed bumps, overwatch with Pulse.",
+    "Invulnerable save — volume of fire preferred over single high-AP shots."
+   ],
+   "notes": ""
+  },
+  {
+   "name": "INQUISITOR COTEAZ",
+   "legends": false,
+   "role": "AGENT",
+   "faction_keywords": [
+    "Inquisitor",
+    "Coteaz Agents of the Imperium"
+   ],
+   "keywords": [
+    "Infantry",
+    "Character",
+    "Epic Hero",
+    "Psyker",
+    "Imperium"
+   ],
+   "points": null,
+   "stats": {
+    "M": "6\"",
+    "T": "3",
+    "Sv": "2+",
+    "W": "4",
+    "Ld": "6+",
+    "OC": "1"
+   },
+   "unit_composition": [
+    "None ■ 1 Inquisitor Coteaz – Epic Hero",
+    "This model is equipped with: bolt pistol; Psychic Blast;",
+    "Nemesis daemon hammer."
+   ],
+   "base_size": null,
+   "abilities": [
+    {
+     "name": "CORE",
+     "summary": "Leader",
+     "phase_tags": []
+    },
+    {
+     "name": "FACTION",
+     "summary": "Assigned Agents",
+     "phase_tags": []
+    },
+    {
+     "name": "INVULNERABLE SAVE",
+     "summary": "5+",
+     "phase_tags": []
+    },
+    {
+     "name": "Authority of the Inquisition",
+     "summary": "While this model is leading a unit, it can embark within any Transport that its Bodyguard unit can embark within.",
+     "phase_tags": []
+    },
+    {
+     "name": "Malefic Wardings (Psychic)",
+     "summary": "While this model is leading a unit, models in that unit have the Feel No Pain 5+ ability against Psychic Attacks and attacks made by Daemon models.",
+     "phase_tags": []
+    },
+    {
+     "name": "Spy Network",
+     "summary": "Each time your opponent gains a CP as the result of an ability, roll one D6: on a 2+, you also gain 1CP.",
+     "phase_tags": []
+    }
+   ],
+   "wargear_options": [],
+   "weapons": [
+    {
+     "name": "Bolt pistol",
+     "type": "ranged",
+     "range": "12\"",
+     "a": "1",
+     "bs_ws": "3+",
+     "s": "4",
+     "ap": "0",
+     "d": "1",
+     "keywords": [
+      "PISTOL"
+     ]
+    },
+    {
+     "name": "Nemesis daemon hammer",
+     "type": "melee",
+     "range": "Melee",
+     "a": "3",
+     "bs_ws": "3+",
+     "s": "9",
+     "ap": "-3",
+     "d": "3",
+     "keywords": [
+      "PSYCHIC"
+     ]
+    }
+   ],
+   "strengths": [],
+   "weaknesses": [],
+   "target_priority_tags": [],
+   "threat_tags": [
+    "MELEE_THREAT",
+    "RANGED_CAPABLE",
+    "HIGH_DURABILITY",
+    "INVULNERABLE_SAVE"
+   ],
+   "mobility_tags": [],
+   "durability_tags": [
+    "HEAVY_ARMOUR",
+    "MULTI_WOUND"
+   ],
+   "tau_counterplay": [
+    "Melee threat — maintain distance, use Drones as speed bumps, overwatch with Pulse.",
+    "High durability — concentrate fire, Ion Accelerator or Railguns for AP-3+.",
+    "Invulnerable save — volume of fire preferred over single high-AP shots."
+   ],
+   "notes": "Leader: the following units:, ■ Imperium Battleline Infantry, ■ Inquisitorial Henchmen"
+  },
+  {
+   "name": "INQUISITOR EISENHORN",
+   "legends": false,
+   "role": "AGENT",
+   "faction_keywords": [
+    "Inquisitor",
+    "Eisenhorn Agents of the Imperium"
+   ],
+   "keywords": [
+    "Infantry",
+    "Character",
+    "Epic Hero",
+    "Psyker",
+    "Grenades",
+    "Imperium"
+   ],
+   "points": null,
+   "stats": {
+    "M": "6\"",
+    "T": "3",
+    "Sv": "4+",
+    "W": "4",
+    "Ld": "6+",
+    "OC": "1"
+   },
+   "unit_composition": [
+    "None ■ 1 Inquisitor Eisenhorn – Epic Hero",
+    "This model is equipped with: artificer bolt pistol; Mind Assault;",
+    "runestaff and Barbarisater"
+   ],
+   "base_size": null,
+   "abilities": [
+    {
+     "name": "CORE",
+     "summary": "Feel No Pain 6+",
+     "phase_tags": []
+    },
+    {
+     "name": "FACTION",
+     "summary": "Assigned Agents",
+     "phase_tags": []
+    },
+    {
+     "name": "INVULNERABLE SAVE",
+     "summary": "5+",
+     "phase_tags": []
+    },
+    {
+     "name": "Authority of the Inquisition",
+     "summary": "While this model is leading a unit, it can embark within any Transport that its Bodyguard unit can embark within.",
+     "phase_tags": []
+    },
+    {
+     "name": "Malus Codicium",
+     "summary": "While this model is leading a unit, double the Attacks characteristic of weapons equipped by Daemonhost models in that unit.",
+     "phase_tags": []
+    },
+    {
+     "name": "Dominate Will (Psychic)",
+     "summary": "At the start of your opponent’s Shooting phase, select one enemy Infantry unit that is within 12\" of and visible to this model and roll one D6: on a 1, this model suffers D3 mortal wounds; on a 2-5, until the end of the phase, each time a model in that unit makes an attack, subtract 1 from the Hit roll; on a 6, until the end of the phase, that unit is not eligible to shoot.",
+     "phase_tags": []
+    }
+   ],
+   "wargear_options": [],
+   "weapons": [
+    {
+     "name": "Artificer bolt pistol",
+     "type": "ranged",
+     "range": "12\"",
+     "a": "4",
+     "bs_ws": "3+",
+     "s": "4",
+     "ap": "0",
+     "d": "2",
+     "keywords": []
+    },
+    {
+     "name": "Runestaff and Barbarisater",
+     "type": "melee",
+     "range": "Melee",
+     "a": "5",
+     "bs_ws": "3+",
+     "s": "6",
+     "ap": "-2",
+     "d": "2",
+     "keywords": [
+      "PSYCHIC"
+     ]
+    }
+   ],
+   "strengths": [],
+   "weaknesses": [],
+   "target_priority_tags": [],
+   "threat_tags": [
+    "MELEE_THREAT",
+    "RANGED_CAPABLE",
+    "INVULNERABLE_SAVE"
+   ],
+   "mobility_tags": [],
+   "durability_tags": [
+    "LIGHT_ARMOUR",
+    "MULTI_WOUND"
+   ],
+   "tau_counterplay": [
+    "Melee threat — maintain distance, use Drones as speed bumps, overwatch with Pulse.",
+    "Invulnerable save — volume of fire preferred over single high-AP shots."
+   ],
+   "notes": "Leader: the following units:, ■ Imperium Battleline Infantry, ■ Inquisitorial Henchmen"
+  },
+  {
+   "name": "INQUISITOR GREYFAX",
+   "legends": false,
+   "role": "AGENT",
+   "faction_keywords": [
+    "Inquisitor",
+    "Greyfax Agents of the Imperium"
+   ],
+   "keywords": [
+    "Infantry",
+    "Character",
+    "Epic Hero",
+    "Psyker",
+    "Grenades",
+    "Imperium"
+   ],
+   "points": null,
+   "stats": {
+    "M": "6\"",
+    "T": "3",
+    "Sv": "3+",
+    "W": "4",
+    "Ld": "4+",
+    "OC": "1"
+   },
+   "unit_composition": [
+    "None ■ 1 Inquisitor Greyfax – Epic Hero",
+    "This model is equipped with: Castigation; condemnor stake;",
+    "master-crafter power sword."
+   ],
+   "base_size": null,
+   "abilities": [
+    {
+     "name": "CORE",
+     "summary": "Leader",
+     "phase_tags": []
+    },
+    {
+     "name": "FACTION",
+     "summary": "Assigned Agents",
+     "phase_tags": []
+    },
+    {
+     "name": "INVULNERABLE SAVE",
+     "summary": "5+",
+     "phase_tags": []
+    },
+    {
+     "name": "Authority of the Inquisition",
+     "summary": "While this model is leading a unit, it can embark within any Transport that its Bodyguard unit can embark within.",
+     "phase_tags": []
+    },
+    {
+     "name": "Psyoculum",
+     "summary": "While this model is leading a unit, ranged weapons equipped by models in that unit have the [ANTI-PSYKER 4+] ability.",
+     "phase_tags": []
+    },
+    {
+     "name": "No Escape",
+     "summary": "Each time an enemy unit (excluding Monster and Vehicle units) that is within Engagement Range of one or more units with this ability is selected to Fall Back, models in that enemy unit must take Desperate Escape tests as if their unit was Battle-shocked. When doing so, if that enemy unit is also Battle-shocked by other means, subtract 1 from each of those Desperate Escape tests.",
+     "phase_tags": []
+    }
+   ],
+   "wargear_options": [],
+   "weapons": [
+    {
+     "name": "[ANTI-CHARACTER 4+, DEVASTATING WOUNDS, PRECISION,",
+     "type": "ranged",
+     "range": "18\"",
+     "a": "1",
+     "bs_ws": "3+",
+     "s": "8",
+     "ap": "-2",
+     "d": "3",
+     "keywords": []
+    },
+    {
+     "name": "[ANTI-PSYKER 2+, DEVASTATING WOUNDS, PRECISION, RAPID",
+     "type": "ranged",
+     "range": "24\"",
+     "a": "1",
+     "bs_ws": "3+",
+     "s": "4",
+     "ap": "0",
+     "d": "1",
+     "keywords": []
+    },
+    {
+     "name": "Master-crafted power sword",
+     "type": "melee",
+     "range": "Melee",
+     "a": "4",
+     "bs_ws": "3+",
+     "s": "4",
+     "ap": "-2",
+     "d": "2",
+     "keywords": []
+    }
+   ],
+   "strengths": [],
+   "weaknesses": [],
+   "target_priority_tags": [],
+   "threat_tags": [
+    "RANGED_CAPABLE",
+    "MEDIUM_DURABILITY",
+    "INVULNERABLE_SAVE"
+   ],
+   "mobility_tags": [],
+   "durability_tags": [
+    "MEDIUM_ARMOUR",
+    "MULTI_WOUND"
+   ],
+   "tau_counterplay": [
+    "Invulnerable save — volume of fire preferred over single high-AP shots."
+   ],
+   "notes": "Leader: the following units:, ■ Imperium Battleline Infantry, ■ Inquisitorial Henchmen"
+  },
+  {
+   "name": "INQUISITOR KARAMAZOV",
+   "legends": false,
+   "role": "AGENT",
+   "faction_keywords": [
+    "Karamazov Agents of the Imperium"
+   ],
+   "keywords": [
+    "Vehicle",
+    "Walker",
+    "Character",
+    "Epic Hero",
+    "Imperium",
+    "Inquisitor"
+   ],
+   "points": null,
+   "stats": {
+    "M": "5\"",
+    "T": "8",
+    "Sv": "3+",
+    "W": "9",
+    "Ld": "6+",
+    "OC": "3"
+   },
+   "unit_composition": [
+    "None ■ 1 Inquisitor Karamazov – Epic Hero",
+    "This model is equipped with: master-crafted multi-melta;",
+    "master-crafted power sword."
+   ],
+   "base_size": null,
+   "abilities": [
+    {
+     "name": "CORE",
+     "summary": "Deadly Demise 1",
+     "phase_tags": []
+    },
+    {
+     "name": "FACTION",
+     "summary": "Assigned Agents",
+     "phase_tags": []
+    },
+    {
+     "name": "INVULNERABLE SAVE",
+     "summary": "4+",
+     "phase_tags": []
+    },
+    {
+     "name": "Throne of Judgement (Aura)",
+     "summary": "While a friendly unit is within 6\" of this model, add 1 to Battle-shock and Leadership tests taken for that unit. While an enemy unit is within 6\" of this model, subtract 1 from Battle-shock and Leadership tests taken for that enemy unit.",
+     "phase_tags": []
+    },
+    {
+     "name": "Dread Reputation",
+     "summary": "At the start of your Shooting phase, select one enemy unit within 12\" of this model. That unit must take a Battle-shock test.",
+     "phase_tags": []
+    }
+   ],
+   "wargear_options": [],
+   "weapons": [
+    {
+     "name": "Master-crafted multi-melta",
+     "type": "ranged",
+     "range": "18\"",
+     "a": "3",
+     "bs_ws": "3+",
+     "s": "10",
+     "ap": "-4",
+     "d": "D6",
+     "keywords": [
+      "MELTA 3"
+     ]
+    },
+    {
+     "name": "Master-crafted power sword",
+     "type": "melee",
+     "range": "Melee",
+     "a": "6",
+     "bs_ws": "3+",
+     "s": "6",
+     "ap": "-2",
+     "d": "2",
+     "keywords": []
+    }
+   ],
+   "strengths": [],
+   "weaknesses": [],
+   "target_priority_tags": [],
+   "threat_tags": [
+    "MELEE_THREAT",
+    "RANGED_CAPABLE",
+    "MELTA",
+    "MEDIUM_DURABILITY",
+    "INVULNERABLE_SAVE"
+   ],
+   "mobility_tags": [],
+   "durability_tags": [
+    "MEDIUM_ARMOUR",
+    "HIGH_TOUGHNESS",
+    "MULTI_WOUND"
+   ],
+   "tau_counterplay": [
+    "Melee threat — maintain distance, use Drones as speed bumps, overwatch with Pulse.",
+    "T8 — Heavy Burst Cannon, Plasma, or Ion Blaster recommended.",
+    "Invulnerable save — volume of fire preferred over single high-AP shots."
+   ],
+   "notes": ""
+  },
+  {
+   "name": "INQUISITOR",
+   "legends": false,
+   "role": "AGENT",
+   "faction_keywords": [
+    "KEYWORDS: Infantry",
+    "Character",
+    "Grenades",
+    "Imperium",
+    "Inquisitor",
+    "Agents of the Imperium"
+   ],
+   "keywords": [
+    "KEYWORDS: Infantry",
+    "Character",
+    "Grenades",
+    "Imperium",
+    "Inquisitor Agents of the Imperium"
+   ],
+   "points": null,
+   "stats": {
+    "M": "6\"",
+    "T": "3",
+    "Sv": "4+",
+    "W": "4",
+    "Ld": "6+",
+    "OC": "1"
+   },
+   "unit_composition": [
+    "This model’s bolt pistol can be replaced with 1 combi-weapon. ■ 1 Inquisitor",
+    "This model’s blessed wardings can be replaced with 1 psychic gifts and 1 Psychic Shock Wave. This model is equipped with: bolt pistol; Inquisitorial melee",
+    "weapon; blessed wardings.",
+    "If this model is equipped with 1 psychic gifts, its Inquisitorial melee weapon can be replaced with 1",
+    "force weapon."
+   ],
+   "base_size": null,
+   "abilities": [
+    {
+     "name": "CORE",
+     "summary": "Leader",
+     "phase_tags": []
+    },
+    {
+     "name": "FACTION",
+     "summary": "Assigned Agents",
+     "phase_tags": []
+    },
+    {
+     "name": "INVULNERABLE SAVE",
+     "summary": "5+",
+     "phase_tags": []
+    },
+    {
+     "name": "Authority of the Inquisition",
+     "summary": "While this model is leading a unit, it can embark within any Transport that its Bodyguard unit can embark within.",
+     "phase_tags": []
+    },
+    {
+     "name": "Power of the Rosette",
+     "summary": "Each time you target this model’s unit with a Stratagem, roll one D6: on a 3+, you gain 1CP.",
+     "phase_tags": []
+    },
+    {
+     "name": "Blessed Wardings",
+     "summary": "While this model is leading a unit, models in that unit have the Feel No Pain 5+ ability against mortal wounds.",
+     "phase_tags": []
+    },
+    {
+     "name": "Psychic Gifts",
+     "summary": "The bearer has the Psyker keyword.",
+     "phase_tags": []
+    }
+   ],
+   "wargear_options": [],
+   "weapons": [
+    {
+     "name": "Bolt pistol",
+     "type": "ranged",
+     "range": "12\"",
+     "a": "1",
+     "bs_ws": "3+",
+     "s": "4",
+     "ap": "0",
+     "d": "1",
+     "keywords": [
+      "PISTOL"
+     ]
+    },
+    {
+     "name": "Inquisitorial melee weapon",
+     "type": "melee",
+     "range": "Melee",
+     "a": "5",
+     "bs_ws": "3+",
+     "s": "4",
+     "ap": "-2",
+     "d": "1",
+     "keywords": []
+    },
+    {
+     "name": "Force weapon",
+     "type": "melee",
+     "range": "Melee",
+     "a": "4",
+     "bs_ws": "3+",
+     "s": "5",
+     "ap": "-2",
+     "d": "D3",
+     "keywords": [
+      "PSYCHIC"
+     ]
+    }
+   ],
+   "strengths": [],
+   "weaknesses": [],
+   "target_priority_tags": [],
+   "threat_tags": [
+    "RANGED_CAPABLE",
+    "INVULNERABLE_SAVE"
+   ],
+   "mobility_tags": [],
+   "durability_tags": [
+    "LIGHT_ARMOUR",
+    "MULTI_WOUND"
+   ],
+   "tau_counterplay": [
+    "Invulnerable save — volume of fire preferred over single high-AP shots."
+   ],
+   "notes": "Leader: the following units:, ■ Imperium Battleline Infantry, ■ Inquisitorial Henchmen, FACTION"
+  },
+  {
+   "name": "INQUISITORIAL HENCHMEN",
+   "legends": false,
+   "role": "AGENT",
+   "faction_keywords": [
+    "KEYWORDS: Infantry",
+    "Grenades",
+    "Imperium",
+    "Retinue",
+    "Inquisitorial Henchmen",
+    "Agents of the Imperium"
+   ],
+   "keywords": [
+    "KEYWORDS: Infantry",
+    "Grenades",
+    "Imperium",
+    "Retinue",
+    "Inquisitorial Henchmen Agents of the Imperium"
+   ],
+   "points": null,
+   "stats": {
+    "M": "6\"",
+    "T": "3",
+    "Sv": "5+",
+    "W": "2",
+    "Ld": "7+",
+    "OC": "1"
+   },
+   "unit_composition": [
+    "1 Inquisitorial Acolyte can be equipped with 1 plasma pistol. ■ 4-10 Inquisitorial Acolytes",
+    "1 Inquisitorial Acolyte can be equipped with 1 eviscerator. ■ 0-2 Gun Servitors",
+    "0-2 Mystics",
+    "1 Gun Servitor’s heavy bolter can be replaced with one of the following:",
+    "0-1 Jokaero Weaponsmith",
+    "1 multi-melta",
+    "0-1 Daemonhost",
+    "1 plasma cannon",
+    "Every Inquisitorial Acolyte is equipped with: Acolyte firearm;",
+    "Acolyte melee weapon.",
+    "Every Gun Servitor is equipped with: heavy bolter; Acolyte",
+    "melee weapon.",
+    "Every Mystic is equipped with: Acolyte firearm; Acolyte",
+    "melee weapon.",
+    "A Jokaero Weaponsmith is equipped with: Jokaero weapons;",
+    "Acolyte melee weapon.",
+    "A Daemonhost is equipped with: Unholy Gaze; warp grasp."
+   ],
+   "base_size": null,
+   "abilities": [
+    {
+     "name": "FACTION",
+     "summary": "Assigned Agents",
+     "phase_tags": []
+    },
+    {
+     "name": "Acolytes",
+     "summary": "While an Inquisitor model is leading this unit, each time an attack is made against this unit, subtract 1 from the Wound roll.",
+     "phase_tags": []
+    },
+    {
+     "name": "Mystics",
+     "summary": "While an Inquisitor model is leading this unit, enemy units that are set up on the battlefield as Reinforcements cannot be set up within 12” of one or more of this unit’s Mystic models.",
+     "phase_tags": []
+    },
+    {
+     "name": "Jokaero",
+     "summary": "While an Inquisitor model is leading this unit, if it contains a Jokaero model, each time a model in this unit makes a ranged attack, add 1 to the Wound roll.",
+     "phase_tags": []
+    },
+    {
+     "name": "Daemonhost",
+     "summary": "While an Inquisitor model is leading this unit, if it contains a Daemonhost model, models in this unit have a 5+ invulnerable save.",
+     "phase_tags": []
+    }
+   ],
+   "wargear_options": [],
+   "weapons": [
+    {
+     "name": "Acolyte firearm",
+     "type": "ranged",
+     "range": "12\"",
+     "a": "1",
+     "bs_ws": "4+",
+     "s": "4",
+     "ap": "-1",
+     "d": "1",
+     "keywords": [
+      "PISTOL"
+     ]
+    },
+    {
+     "name": "Heavy bolter",
+     "type": "ranged",
+     "range": "36\"",
+     "a": "3",
+     "bs_ws": "5+",
+     "s": "5",
+     "ap": "-1",
+     "d": "2",
+     "keywords": [
+      "HEAVY",
+      "SUSTAINED HITS 1"
+     ]
+    },
+    {
+     "name": "Jokaero weapons",
+     "type": "ranged",
+     "range": "18\"",
+     "a": "3",
+     "bs_ws": "3+",
+     "s": "6",
+     "ap": "-1",
+     "d": "2",
+     "keywords": []
+    },
+    {
+     "name": "Multi-melta",
+     "type": "ranged",
+     "range": "18\"",
+     "a": "2",
+     "bs_ws": "5+",
+     "s": "9",
+     "ap": "-4",
+     "d": "D6",
+     "keywords": [
+      "HEAVY",
+      "MELTA 2"
+     ]
+    },
+    {
+     "name": "Plasma cannon – standard",
+     "type": "ranged",
+     "range": "36\"",
+     "a": "D3",
+     "bs_ws": "5+",
+     "s": "7",
+     "ap": "-1",
+     "d": "1",
+     "keywords": [
+      "HEAVY",
+      "BLAST"
+     ]
+    },
+    {
+     "name": "Plasma pistol – standard",
+     "type": "ranged",
+     "range": "12\"",
+     "a": "1",
+     "bs_ws": "4+",
+     "s": "7",
+     "ap": "-1",
+     "d": "1",
+     "keywords": [
+      "PISTOL"
+     ]
+    },
+    {
+     "name": "Plasma pistol – supercharge",
+     "type": "ranged",
+     "range": "12\"",
+     "a": "1",
+     "bs_ws": "4+",
+     "s": "8",
+     "ap": "-2",
+     "d": "2",
+     "keywords": [
+      "HAZARDOUS",
+      "PISTOL"
+     ]
+    },
+    {
+     "name": "Unholy Gaze",
+     "type": "ranged",
+     "range": "18\"",
+     "a": "1",
+     "bs_ws": "4+",
+     "s": "9",
+     "ap": "-2",
+     "d": "3",
+     "keywords": [
+      "PSYCHIC",
+      "SUSTAINED HITS D3"
+     ]
+    },
+    {
+     "name": "Acolyte melee weapon",
+     "type": "melee",
+     "range": "Melee",
+     "a": "3",
+     "bs_ws": "4+",
+     "s": "3",
+     "ap": "0",
+     "d": "1",
+     "keywords": []
+    }
+   ],
+   "strengths": [],
+   "weaknesses": [],
+   "target_priority_tags": [],
+   "threat_tags": [
+    "RANGED_CAPABLE",
+    "BLAST_WEAPONS",
+    "MELTA",
+    "PLASMA"
+   ],
+   "mobility_tags": [],
+   "durability_tags": [
+    "LIGHT_ARMOUR"
+   ],
+   "tau_counterplay": [],
+   "notes": ""
+  },
+  {
+   "name": "LORD INQUISITOR KYRIA DRAXUS",
+   "legends": false,
+   "role": "AGENT",
+   "faction_keywords": [
+    "Inquisitor",
+    "Lord Inquisitor Kyria Draxus Agents of the Imperium"
+   ],
+   "keywords": [
+    "Infantry",
+    "Character",
+    "Epic Hero",
+    "Psyker",
+    "Grenades",
+    "Imperium"
+   ],
+   "points": null,
+   "stats": {
+    "M": "6\"",
+    "T": "3",
+    "Sv": "3+",
+    "W": "4",
+    "Ld": "6+",
+    "OC": "1"
+   },
+   "unit_composition": [
+    "None ■ 1 Lord Inquisitor Kyria Draxus – Epic Hero",
+    "This model is equipped with: Dirgesinger; Psychic Tempest;",
+    "power fist."
+   ],
+   "base_size": null,
+   "abilities": [
+    {
+     "name": "CORE",
+     "summary": "Leader",
+     "phase_tags": []
+    },
+    {
+     "name": "FACTION",
+     "summary": "Assigned Agents",
+     "phase_tags": []
+    },
+    {
+     "name": "INVULNERABLE SAVE",
+     "summary": "5+",
+     "phase_tags": []
+    },
+    {
+     "name": "Authority of the Inquisition",
+     "summary": "While this model is leading a unit, it can embark within any Transport that its Bodyguard unit can embark within.",
+     "phase_tags": []
+    },
+    {
+     "name": "Xenos Hunter",
+     "summary": "While this model is leading a unit, each time a model in that unit makes an attack that targets an enemy unit (excluding Imperium and Chaos units), add 1 to the Hit roll.",
+     "phase_tags": []
+    },
+    {
+     "name": "Psychic Veil (Psychic)",
+     "summary": "In your Command phase, this Psyker can use this ability. If it does, roll one D6: on a 1, this Psyker’s unit suffers D3 mortal wounds; on a 2+, until the start of your next Command phase, this Psyker’s unit can only be selected as the target of a ranged attack if the attacking model is within 18\".",
+     "phase_tags": []
+    }
+   ],
+   "wargear_options": [],
+   "weapons": [
+    {
+     "name": "Dirgesinger",
+     "type": "ranged",
+     "range": "18\"",
+     "a": "4",
+     "bs_ws": "3+",
+     "s": "4",
+     "ap": "0",
+     "d": "2",
+     "keywords": []
+    },
+    {
+     "name": "Power fist",
+     "type": "melee",
+     "range": "Melee",
+     "a": "3",
+     "bs_ws": "3+",
+     "s": "6",
+     "ap": "-2",
+     "d": "2",
+     "keywords": []
+    }
+   ],
+   "strengths": [],
+   "weaknesses": [],
+   "target_priority_tags": [],
+   "threat_tags": [
+    "MELEE_THREAT",
+    "RANGED_CAPABLE",
+    "MEDIUM_DURABILITY",
+    "INVULNERABLE_SAVE"
+   ],
+   "mobility_tags": [],
+   "durability_tags": [
+    "MEDIUM_ARMOUR",
+    "MULTI_WOUND"
+   ],
+   "tau_counterplay": [
+    "Melee threat — maintain distance, use Drones as speed bumps, overwatch with Pulse.",
+    "Invulnerable save — volume of fire preferred over single high-AP shots."
+   ],
+   "notes": "Leader: the following units:, ■ Imperium Battleline Infantry, ■ Inquisitorial Henchmen"
+  },
+  {
+   "name": "ROGUE TRADER ENTOURAGE",
+   "legends": false,
+   "role": "AGENT",
+   "faction_keywords": [
+    "Retinue",
+    "Rogue Trader Entourage | ROGUE TRADER: Character Agents of the Imperium"
+   ],
+   "keywords": [
+    "Retinue",
+    "Rogue Trader Entourage | ROGUE TRADER: Character Agents of the Imperium"
+   ],
+   "points": null,
+   "stats": {
+    "M": "6\"",
+    "T": "3",
+    "Sv": "4+",
+    "W": "4",
+    "Ld": "6+",
+    "OC": "1"
+   },
+   "unit_composition": [
+    "None ■ 1 Rogue Trader",
+    "3 Rogue Trader Specialists",
+    "The Rogue Trader is equipped with: household pistol;",
+    "monomolecular cane-rapier.",
+    "One Rogue Trader Specialist is equipped with: dartmask;",
+    "Death Cult power blade.",
+    "One other Rogue Trader Specialist is equipped with: voltaic",
+    "pistol; close combat weapon.",
+    "One other Rogue Trader Specialist is equipped with: laspistol;",
+    "close combat weapon; healing serum."
+   ],
+   "base_size": null,
+   "abilities": [
+    {
+     "name": "CORE",
+     "summary": "Infiltrators",
+     "phase_tags": []
+    },
+    {
+     "name": "FACTION",
+     "summary": "Assigned Agents",
+     "phase_tags": []
+    },
+    {
+     "name": "INVULNERABLE SAVE",
+     "summary": "4+",
+     "phase_tags": []
+    },
+    {
+     "name": "Backroom Deals",
+     "summary": "While this unit is leading a unit, models in that unit have the Infiltrators ability.",
+     "phase_tags": []
+    },
+    {
+     "name": "Warrant of Trade",
+     "summary": "If your army includes one or more units with this ability, after players have deployed, select D3 Imperium Battleline units from your army and redeploy them. You can use this ability to place those selected units into Strategic Reserves, regardless of how many units are already in Strategic Reserves. If both players have abilities that redeploy units, roll off: the winner chooses who redeploys units first.",
+     "phase_tags": []
+    },
+    {
+     "name": "Healing Serum",
+     "summary": "Models in the bearer’s unit have the Feel No Pain 5+ ability.",
+     "phase_tags": []
+    }
+   ],
+   "wargear_options": [],
+   "weapons": [
+    {
+     "name": "Dartmask",
+     "type": "ranged",
+     "range": "12\"",
+     "a": "1",
+     "bs_ws": "4+",
+     "s": "2",
+     "ap": "-1",
+     "d": "D3",
+     "keywords": [
+      "ANTI-INFANTRY 2+",
+      "PISTOL",
+      "PRECISION"
+     ]
+    },
+    {
+     "name": "Household pistol",
+     "type": "ranged",
+     "range": "12\"",
+     "a": "2",
+     "bs_ws": "3+",
+     "s": "5",
+     "ap": "-2",
+     "d": "2",
+     "keywords": [
+      "PISTOL",
+      "DEVASTATING WOUNDS"
+     ]
+    },
+    {
+     "name": "Laspistol",
+     "type": "ranged",
+     "range": "12\"",
+     "a": "1",
+     "bs_ws": "4+",
+     "s": "3",
+     "ap": "0",
+     "d": "1",
+     "keywords": [
+      "PISTOL"
+     ]
+    },
+    {
+     "name": "Voltaic pistol",
+     "type": "ranged",
+     "range": "12\"",
+     "a": "3",
+     "bs_ws": "3+",
+     "s": "4",
+     "ap": "-2",
+     "d": "1",
+     "keywords": [
+      "PISTOL",
+      "SUSTAINED HITS 2"
+     ]
+    },
+    {
+     "name": "Close combat weapon",
+     "type": "melee",
+     "range": "Melee",
+     "a": "1",
+     "bs_ws": "4+",
+     "s": "3",
+     "ap": "0",
+     "d": "1",
+     "keywords": []
+    },
+    {
+     "name": "Death Cult power blade",
+     "type": "melee",
+     "range": "Melee",
+     "a": "5",
+     "bs_ws": "2+",
+     "s": "4",
+     "ap": "-2",
+     "d": "1",
+     "keywords": [
+      "PRECISION"
+     ]
+    },
+    {
+     "name": "Monomolecular cane-rapier",
+     "type": "melee",
+     "range": "Melee",
+     "a": "4",
+     "bs_ws": "3+",
+     "s": "4",
+     "ap": "-1",
+     "d": "1",
+     "keywords": []
+    }
+   ],
+   "strengths": [],
+   "weaknesses": [],
+   "target_priority_tags": [],
+   "threat_tags": [
+    "RANGED_CAPABLE",
+    "INVULNERABLE_SAVE",
+    "INFILTRATOR"
+   ],
+   "mobility_tags": [],
+   "durability_tags": [
+    "LIGHT_ARMOUR",
+    "MULTI_WOUND"
+   ],
+   "tau_counterplay": [
+    "Infiltrator/Scout — expect pressure Turn 1. Keep screens forward.",
+    "Invulnerable save — volume of fire preferred over single high-AP shots."
+   ],
+   "notes": "Leader: the following units:, ■ Imperial Navy Breachers, ■ Voidsmen-at-Arms, KEYWORDS – ALL MODELS: Infantry, Grenades, Imperium, Navis Imperialis, FACTION"
+  },
+  {
+   "name": "SUBDUCTOR SQUAD",
+   "legends": false,
+   "role": "AGENT",
+   "faction_keywords": [
+    "KEYWORDS: Infantry",
+    "Grenades",
+    "Imperium",
+    "Retinue",
+    "Subductor Squad",
+    "Agents of the Imperium"
+   ],
+   "keywords": [
+    "KEYWORDS: Infantry",
+    "Grenades",
+    "Imperium",
+    "Retinue",
+    "Subductor Squad Agents of the Imperium"
+   ],
+   "points": null,
+   "stats": {
+    "M": "6\"",
+    "T": "3",
+    "Sv": "3+",
+    "W": "1",
+    "Ld": "7+",
+    "OC": "1"
+   },
+   "unit_composition": [
+    "The Proctor-Subductor can be equipped with 1 nuncio aquila. ■ 1 Proctor-Subductor",
+    "9 Subductors",
+    "0-1 Cyber-mastiff",
+    "Every Proctor-Subductor and Subductor is equipped with:",
+    "Arbites shotpistol; shock maul.",
+    "The Cyber-mastiff is equipped with: mechanical bite."
+   ],
+   "base_size": null,
+   "abilities": [
+    {
+     "name": "FACTION",
+     "summary": "Assigned Agents",
+     "phase_tags": []
+    },
+    {
+     "name": "Dedication to Duty",
+     "summary": "Each time a model in this unit is destroyed by a melee attack, if that model has not fought this phase, roll one D6: on a 4+, do not remove it from play. The destroyed model can fight after the attacking model’s unit has finished making its attacks, and is then removed from play.",
+     "phase_tags": []
+    },
+    {
+     "name": "Nuncio Aquila (Aura)",
+     "summary": "While an enemy unit is within 3\" of the bearer, each time that unit takes a Battle-shock test, subtract 1 from that test.",
+     "phase_tags": []
+    }
+   ],
+   "wargear_options": [],
+   "weapons": [
+    {
+     "name": "Arbites shotpistol",
+     "type": "ranged",
+     "range": "12\"",
+     "a": "1",
+     "bs_ws": "4+",
+     "s": "4",
+     "ap": "0",
+     "d": "1",
+     "keywords": [
+      "PISTOL"
+     ]
+    },
+    {
+     "name": "Mechanical bite",
+     "type": "melee",
+     "range": "Melee",
+     "a": "3",
+     "bs_ws": "4+",
+     "s": "4",
+     "ap": "0",
+     "d": "1",
+     "keywords": []
+    },
+    {
+     "name": "Shock maul",
+     "type": "melee",
+     "range": "Melee",
+     "a": "2",
+     "bs_ws": "4+",
+     "s": "4",
+     "ap": "-1",
+     "d": "1",
+     "keywords": []
+    }
+   ],
+   "strengths": [],
+   "weaknesses": [],
+   "target_priority_tags": [],
+   "threat_tags": [
+    "RANGED_CAPABLE",
+    "MEDIUM_DURABILITY"
+   ],
+   "mobility_tags": [],
+   "durability_tags": [
+    "MEDIUM_ARMOUR"
+   ],
+   "tau_counterplay": [],
+   "notes": ""
+  },
+  {
+   "name": "VIGILANT SQUAD",
+   "legends": false,
+   "role": "AGENT",
+   "faction_keywords": [
+    "KEYWORDS: Infantry",
+    "Battleline",
+    "Grenades",
+    "Imperium",
+    "Retinue",
+    "Vigilant Squad",
+    "Agents of the Imperium"
+   ],
+   "keywords": [
+    "KEYWORDS: Infantry",
+    "Battleline",
+    "Grenades",
+    "Imperium",
+    "Retinue",
+    "Vigilant Squad Agents of the Imperium"
+   ],
+   "points": null,
+   "stats": {
+    "M": "6\"",
+    "T": "3",
+    "Sv": "4+",
+    "W": "1",
+    "Ld": "7+",
+    "OC": "2"
+   },
+   "unit_composition": [
+    "Up to 2 Vigilants can each have their Arbites combat shotgun replaced with one of the following ■ 1 Proctor-Vigilant",
+    "(duplicates are not allowed): ■ 9 Vigilants",
+    "1 executioner shotgun ■ 0-1 Cyber-mastiff",
+    "1 Arbites grenade launcher",
+    "Every Proctor-Vigilant and Vigilant is equipped with: Arbites",
+    "1 heavy stubber combat shotgun; Arbites shotpistol; close combat weapon.",
+    "1 webber",
+    "The Cyber-mastiff is equipped with: mechanical bite.",
+    "The Proctor-Vigilant can be equipped with 1 nuncio aquila."
+   ],
+   "base_size": null,
+   "abilities": [
+    {
+     "name": "FACTION",
+     "summary": "Assigned Agents",
+     "phase_tags": []
+    },
+    {
+     "name": "Merciless Judgement",
+     "summary": "Each time a model in this unit makes a ranged attack that targets a unit that is Below Half-strength, add 1 to the Wound roll.",
+     "phase_tags": []
+    },
+    {
+     "name": "Nuncio Aquila (Aura)",
+     "summary": "While an enemy unit is within 3\" of the bearer, each time that unit takes a Battle-shock test, subtract 1 from that test.",
+     "phase_tags": []
+    }
+   ],
+   "wargear_options": [],
+   "weapons": [
+    {
+     "name": "Arbites combat shotgun",
+     "type": "ranged",
+     "range": "18\"",
+     "a": "2",
+     "bs_ws": "4+",
+     "s": "4",
+     "ap": "0",
+     "d": "1",
+     "keywords": [
+      "ASSAULT"
+     ]
+    },
+    {
+     "name": "Arbites grenade launcher – frag",
+     "type": "ranged",
+     "range": "24\"",
+     "a": "D3",
+     "bs_ws": "4+",
+     "s": "4",
+     "ap": "0",
+     "d": "1",
+     "keywords": [
+      "BLAST"
+     ]
+    },
+    {
+     "name": "Arbites grenade launcher – krak",
+     "type": "ranged",
+     "range": "24\"",
+     "a": "1",
+     "bs_ws": "4+",
+     "s": "9",
+     "ap": "-2",
+     "d": "D3",
+     "keywords": []
+    },
+    {
+     "name": "Arbites shotpistol",
+     "type": "ranged",
+     "range": "12\"",
+     "a": "1",
+     "bs_ws": "4+",
+     "s": "4",
+     "ap": "0",
+     "d": "1",
+     "keywords": [
+      "PISTOL"
+     ]
+    },
+    {
+     "name": "Executioner shotgun",
+     "type": "ranged",
+     "range": "24\"",
+     "a": "1",
+     "bs_ws": "4+",
+     "s": "5",
+     "ap": "-1",
+     "d": "1",
+     "keywords": [
+      "IGNORES COVER",
+      "PRECISION"
+     ]
+    },
+    {
+     "name": "Heavy stubber",
+     "type": "ranged",
+     "range": "36\"",
+     "a": "3",
+     "bs_ws": "4+",
+     "s": "4",
+     "ap": "0",
+     "d": "1",
+     "keywords": [
+      "RAPID FIRE 3"
+     ]
+    },
+    {
+     "name": "Webber",
+     "type": "ranged",
+     "range": "12\"",
+     "a": "D6",
+     "bs_ws": "N/A",
+     "s": "2",
+     "ap": "0",
+     "d": "1",
+     "keywords": [
+      "ASSAULT",
+      "DEVASTATING WOUNDS",
+      "TORRENT"
+     ]
+    },
+    {
+     "name": "Close combat weapon",
+     "type": "melee",
+     "range": "Melee",
+     "a": "2",
+     "bs_ws": "4+",
+     "s": "3",
+     "ap": "0",
+     "d": "1",
+     "keywords": []
+    },
+    {
+     "name": "Mechanical bite",
+     "type": "melee",
+     "range": "Melee",
+     "a": "3",
+     "bs_ws": "4+",
+     "s": "4",
+     "ap": "0",
+     "d": "1",
+     "keywords": []
+    }
+   ],
+   "strengths": [],
+   "weaknesses": [],
+   "target_priority_tags": [],
+   "threat_tags": [
+    "RANGED_CAPABLE",
+    "BLAST_WEAPONS"
+   ],
+   "mobility_tags": [],
+   "durability_tags": [
+    "LIGHT_ARMOUR"
+   ],
+   "tau_counterplay": [],
+   "notes": ""
+  },
+  {
+   "name": "VINDICARE ASSASSIN",
+   "legends": false,
+   "role": "AGENT",
+   "faction_keywords": [
+    "Vindicare Assassin Agents of the Imperium"
+   ],
+   "keywords": [
+    "Infantry",
+    "Character",
+    "Epic Hero",
+    "Smoke",
+    "Imperium"
+   ],
+   "points": null,
+   "stats": {
+    "M": "7\"",
+    "T": "4",
+    "Sv": "6+",
+    "W": "4",
+    "Ld": "6+",
+    "OC": "1"
+   },
+   "unit_composition": [
+    "None ■ 1 Vindicare Assassin – Epic Hero",
+    "This model is equipped with: exitus pistol; exitus rifle;",
+    "Vindicare combat knife."
+   ],
+   "base_size": null,
+   "abilities": [
+    {
+     "name": "CORE",
+     "summary": "Infiltrators",
+     "phase_tags": []
+    },
+    {
+     "name": "FACTION",
+     "summary": "Assigned Agents",
+     "phase_tags": []
+    },
+    {
+     "name": "INVULNERABLE SAVE",
+     "summary": "4+",
+     "phase_tags": []
+    },
+    {
+     "name": "Deadshot",
+     "summary": "Each time this model makes a ranged attack, if a Critical Hit is scored, add 3 to the Damage characteristic of that attack. After this model has resolved its ranged attacks, select one enemy unit that was hit by one or more of those attacks. That unit must take a Battle-shock test.",
+     "phase_tags": []
+    },
+    {
+     "name": "Shieldbreaker",
+     "summary": "Once per battle, when selecting targets for this model’s exitus rifle, it can fire a shieldbreaker round. If it does, until the end of the phase, each time this model makes an attack with that weapon, no saving throws of any kind can be made against that attack.",
+     "phase_tags": []
+    }
+   ],
+   "wargear_options": [],
+   "weapons": [
+    {
+     "name": "Exitus pistol",
+     "type": "ranged",
+     "range": "12\"",
+     "a": "3",
+     "bs_ws": "2+",
+     "s": "5",
+     "ap": "-2",
+     "d": "3",
+     "keywords": []
+    },
+    {
+     "name": "Vindicare combat knife",
+     "type": "melee",
+     "range": "Melee",
+     "a": "4",
+     "bs_ws": "2+",
+     "s": "4",
+     "ap": "-1",
+     "d": "1",
+     "keywords": []
+    }
+   ],
+   "strengths": [],
+   "weaknesses": [],
+   "target_priority_tags": [],
+   "threat_tags": [
+    "RANGED_CAPABLE",
+    "INVULNERABLE_SAVE",
+    "INFILTRATOR"
+   ],
+   "mobility_tags": [],
+   "durability_tags": [
+    "LIGHT_ARMOUR",
+    "MULTI_WOUND"
+   ],
+   "tau_counterplay": [
+    "Infiltrator/Scout — expect pressure Turn 1. Keep screens forward.",
+    "Invulnerable save — volume of fire preferred over single high-AP shots."
+   ],
+   "notes": ""
+  },
+  {
+   "name": "VOIDSMEN-AT-ARMS",
+   "legends": false,
+   "role": "AGENT",
+   "faction_keywords": [
+    "Retinue",
+    "Voidsmen-at-Arms Agents of the Imperium"
+   ],
+   "keywords": [
+    "Infantry",
+    "Battleline",
+    "Grenades",
+    "Imperium",
+    "Navis Imperialis"
+   ],
+   "points": null,
+   "stats": {
+    "M": "6\"",
+    "T": "3",
+    "Sv": "4+",
+    "W": "1",
+    "Ld": "8+",
+    "OC": "2"
+   },
+   "unit_composition": [
+    "None ■ 1 Voidmaster",
+    "4-8 Voidsmen",
+    "0-1 Canid",
+    "The Voidmaster is equipped with: artificer shotgun; laspistol;",
+    "close combat weapon.",
+    "For every 5 models in this unit, 1 Voidsman is equipped with:",
+    "laspistol; Voidsman rotor cannon; close combat weapon.",
+    "Every other Voidsman is equipped with: lasgun; laspistol;",
+    "close combat weapon.",
+    "The Canid is equipped with: vicious bite."
+   ],
+   "base_size": null,
+   "abilities": [
+    {
+     "name": "FACTION",
+     "summary": "Assigned Agents",
+     "phase_tags": []
+    },
+    {
+     "name": "Masters of Close Confines",
+     "summary": "Each time a model in this unit makes a ranged attack that targets the closest eligible target, that attack has the [LETHAL HITS] ability.",
+     "phase_tags": []
+    }
+   ],
+   "wargear_options": [],
+   "weapons": [
+    {
+     "name": "Artificer shotgun",
+     "type": "ranged",
+     "range": "12\"",
+     "a": "2",
+     "bs_ws": "4+",
+     "s": "4",
+     "ap": "0",
+     "d": "2",
+     "keywords": [
+      "ASSAULT"
+     ]
+    },
+    {
+     "name": "Lasgun",
+     "type": "ranged",
+     "range": "24\"",
+     "a": "1",
+     "bs_ws": "4+",
+     "s": "3",
+     "ap": "0",
+     "d": "1",
+     "keywords": [
+      "RAPID FIRE 1"
+     ]
+    },
+    {
+     "name": "Laspistol",
+     "type": "ranged",
+     "range": "12\"",
+     "a": "1",
+     "bs_ws": "4+",
+     "s": "3",
+     "ap": "0",
+     "d": "1",
+     "keywords": [
+      "PISTOL"
+     ]
+    },
+    {
+     "name": "Voidsman rotor cannon",
+     "type": "ranged",
+     "range": "24\"",
+     "a": "6",
+     "bs_ws": "5+",
+     "s": "6",
+     "ap": "0",
+     "d": "1",
+     "keywords": [
+      "HEAVY",
+      "SUSTAINED HITS 1"
+     ]
+    },
+    {
+     "name": "Close combat weapon",
+     "type": "melee",
+     "range": "Melee",
+     "a": "1",
+     "bs_ws": "4+",
+     "s": "3",
+     "ap": "0",
+     "d": "1",
+     "keywords": []
+    },
+    {
+     "name": "Vicious bite",
+     "type": "melee",
+     "range": "Melee",
+     "a": "3",
+     "bs_ws": "4+",
+     "s": "4",
+     "ap": "0",
+     "d": "1",
+     "keywords": []
+    }
+   ],
+   "strengths": [],
+   "weaknesses": [],
+   "target_priority_tags": [],
+   "threat_tags": [
+    "RANGED_CAPABLE"
+   ],
+   "mobility_tags": [],
+   "durability_tags": [
+    "LIGHT_ARMOUR"
+   ],
+   "tau_counterplay": [],
+   "notes": ""
+  }
+ ],
+ "weapons_index": {},
+ "faction_strengths": [],
+ "faction_weaknesses": [],
+ "playstyle_summary": "",
+ "tau_matchup_notes": [],
+ "priority_targets_for_tau": [],
+ "recommended_tau_deployment_tags": [],
+ "recommended_tau_loadout_tags": [],
+ "metadata": {
+  "unit_count": 17,
+  "parse_errors": 0,
+  "points_note": "Fill from Munitorum Field Manual",
+  "builder": "build_all_factions.py v4.0"
+ }
 }
