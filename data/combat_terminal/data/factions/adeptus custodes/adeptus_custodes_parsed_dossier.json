@@ -884,7 +884,7 @@
    "notes": "Leader: the following units:, ■ Prosecutors, ■ Vigilators, ■ Witchseekers"
   },
   {
-   "name": "SHIELD-CAPTAIN",
+   "name": "SHIELD-CAPTAIN IN ALLARUS TERMINATOR ARMOUR",
    "legends": false,
    "role": "CHARACTER",
    "faction_keywords": [
@@ -1042,7 +1042,7 @@
    "notes": "Leader: the following unit:, ■ Allarus Custodians, FACTION"
   },
   {
-   "name": "SHIELD-CAPTAIN",
+   "name": "SHIELD-CAPTAIN ON DAWNEAGLE JETBIKE",
    "legends": false,
    "role": "CHARACTER",
    "faction_keywords": [
@@ -2416,7 +2416,7 @@
    "notes": ""
   },
   {
-   "name": "CUSTODIAN GUARD",
+   "name": "CUSTODIAN GUARD WITH ADRASITE AND PYRITHITE SPEARS",
    "legends": false,
    "role": "SUPER-HEAVY",
    "faction_keywords": [

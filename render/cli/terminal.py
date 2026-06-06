@@ -233,6 +233,18 @@ class Terminal:
         elif result_type == "list":
             for item in (data or []):
                 print(f"  • {item}")
+        elif result_type == "unit_list_rich":
+            units = data or []
+            width = max((len(u.get("name", "")) for u in units), default=4)
+            for i, u in enumerate(units, 1):
+                name = u.get("name", "?")
+                tag = ""
+                if u.get("legends"):
+                    tag = "  [LEGENDS]"
+                elif u.get("forgeworld"):
+                    tag = "  [FORGE WORLD]"
+                t = u.get("T", "—"); w = u.get("W", "—")
+                print(f"  {i:>3}.  {name:<{width}}  T {t:<3}  W {w:<3}{tag}")
         elif result_type == "text":
             for line in str(data).splitlines():
                 print(f"  {line}")

@@ -125,10 +125,15 @@ class EngineRegistry:
 class QueryBody(BaseModel):
     command: str = ""
     params:  dict = {}
+    session_id: str | None = None   # opaque per-client token (P0-2 isolation)
 
 class ExecBody(BaseModel):
     input: str = ""
     roster_context: dict | None = None
+    session_id: str | None = None   # opaque per-client token (P0-2 isolation)
+
+class ProfileDeleteBody(BaseModel):
+    pin: str | None = None          # in the body, never the URL (kept out of logs)
 
 class ProfileCreateBody(BaseModel):
     name: str
@@ -170,12 +175,13 @@ class UnitUpdateBody(BaseModel):
     updates: dict = {}
 
 class BattleFinalizeBody(BaseModel):
-    result:       str = "draw"        # win | loss | draw
-    mission:      str = ""
-    point_limit:  int = 0
-    notes:        str = ""
-    rp_gained:    int = 1
-    unit_results: list = []           # [{unit_id, kills, destroyed, xp_gained, scars?, honours?}]
+    result:        str = "draw"       # win | loss | draw
+    mission:       str = ""
+    point_limit:   int = 0
+    notes:         str = ""
+    rp_gained:     int = 1
+    unit_results:  list = []          # [{unit_id, kills, destroyed, xp_gained, scars?, honours?}]
+    battle_token:  str | None = None  # idempotency key — retries with the same token are no-ops
 
 class ReportCreateBody(BaseModel):
     body:        str                  # the report text
@@ -222,6 +228,9 @@ def create_app(config: dict) -> FastAPI:
         engine = registry.get(name)
         if not engine:
             raise HTTPException(status_code=404, detail=f"Engine '{name}' not loaded")
+        # Bind this request to its client's isolated session (P0-2).
+        if hasattr(engine, "set_session"):
+            engine.set_session(body.session_id)
         return engine.query(body.command, body.params)
 
     @app.post("/api/engines/{name}/exec")
@@ -230,6 +239,10 @@ def create_app(config: dict) -> FastAPI:
         engine = registry.get(name)
         if not engine:
             raise HTTPException(status_code=404, detail=f"Engine '{name}' not loaded")
+        # Bind this request to its client's isolated session (P0-2) BEFORE any
+        # session mutation, so roster_context lands in the right client's state.
+        if hasattr(engine, "set_session"):
+            engine.set_session(body.session_id)
         # Sync roster context into engine session before dispatching.
         # This keeps _session["roster_my"] / _session["roster_enemy"] in step
         # with whatever rosters the frontend has active, without requiring a
@@ -291,7 +304,10 @@ def create_app(config: dict) -> FastAPI:
             raise HTTPException(status_code=404, detail=str(e))
 
     @app.delete("/api/profiles/{name}")
-    def api_delete_profile(name: str, pin: str | None = None):
+    def api_delete_profile(name: str, body: ProfileDeleteBody | None = None):
+        # PIN travels in the request body, never the URL query string, so it
+        # can't leak into access logs / browser history.
+        pin = body.pin if body else None
         try:
             delete_profile(name, pin)
             return {"ok": True}
@@ -327,8 +343,14 @@ def create_app(config: dict) -> FastAPI:
         return roster
 
     @app.delete("/api/rosters/{roster_id}")
-    def api_delete_roster(roster_id: str):
-        if not delete_shared_roster(roster_id):
+    def api_delete_roster(roster_id: str, requester: str | None = None):
+        # `requester` is the caller's (non-secret) profile name. When the roster
+        # has a known uploader, only that uploader may delete it.
+        try:
+            deleted = delete_shared_roster(roster_id, requester)
+        except PermissionError as e:
+            raise HTTPException(status_code=403, detail=str(e))
+        if not deleted:
             raise HTTPException(status_code=404, detail="Roster not found")
         return {"ok": True}
 
@@ -497,7 +519,8 @@ def create_app(config: dict) -> FastAPI:
                 campaign_id,
                 result=body.result, mission=body.mission,
                 point_limit=body.point_limit, unit_results=body.unit_results,
-                notes=body.notes, rp_gained=body.rp_gained)
+                notes=body.notes, rp_gained=body.rp_gained,
+                battle_token=body.battle_token)
         except Exception as e:
             raise HTTPException(status_code=503, detail=str(e))
         if not campaign:
@@ -597,12 +620,19 @@ def create_app(config: dict) -> FastAPI:
     if (dist_dir / "assets").exists():
         app.mount("/assets", StaticFiles(directory=str(dist_dir / "assets")), name="assets")
 
+    dist_root = dist_dir.resolve()
+
     @app.get("/{full_path:path}")
     def spa_fallback(full_path: str):
-        # Serve root-level static files (favicon, manifest, etc.) directly
+        # Serve root-level static files (favicon, manifest, etc.) directly.
+        # Resolve the candidate and confirm it stays inside dist/ before serving
+        # so a crafted path (e.g. "../../etc/passwd") can't escape the web root.
         if full_path:
-            candidate = dist_dir / full_path
-            if candidate.exists() and candidate.is_file():
+            candidate = (dist_dir / full_path).resolve()
+            if (
+                candidate.is_file()
+                and candidate.is_relative_to(dist_root)
+            ):
                 return FileResponse(str(candidate))
         # Everything else → SPA index
         index = dist_dir / "index.html"

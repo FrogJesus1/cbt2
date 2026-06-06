@@ -44,6 +44,7 @@ import { DiagnosticsPage }  from "@/components/DiagnosticsPage";
 import { ProfileGate }      from "@/components/ProfileGate";
 import { THEME_REGISTRY, ALL_THEME_IDS, MENU_THEME_IDS } from "@/data/themeRegistry";
 import { saveProfileState, collectCurrentState, clearLastProfile } from "@/lib/profile";
+import { getSessionId } from "@/lib/session";
 
 // ─── Theme persistence helpers ─────────────────────────────────────────────────
 // Active theme is stored in localStorage so it survives page reloads.
@@ -502,7 +503,7 @@ function AppInner({ profile, onLogout }) {
   // ── Exec handler ─────────────────────────────────────────────────────────
 
   const handleExec = useCallback(async (rawInput, rosterContext = null) => {
-    const body = { input: rawInput };
+    const body = { input: rawInput, session_id: getSessionId() };
     if (rosterContext) body.roster_context = rosterContext;
     const res = await fetch(`${API}/engines/${activeEngineId}/exec`, {
       method:  "POST",

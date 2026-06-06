@@ -50,7 +50,10 @@ def _hash_pin(pin: str, salt: str) -> str:
 
 def _find_by_slug(table, slug: str) -> dict | None:
     """Find a profile record by slug. Returns raw Airtable record or None."""
-    records = table.all(formula=f"{{Slug}} = '{slug}'")
+    # slug is already restricted to [a-z0-9-] by _slugify, but escape anyway so
+    # the formula is safe by construction regardless of caller (defence in depth).
+    safe = str(slug).replace("\\", "\\\\").replace("'", r"\'")
+    records = table.all(formula=f"{{Slug}} = '{safe}'")
     return records[0] if records else None
 
 

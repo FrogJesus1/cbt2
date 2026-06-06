@@ -1132,7 +1132,7 @@
  ],
  "units": [
   {
-   "name": "CHAOS LORD",
+   "name": "CHAOS LORD IN TERMINATOR ARMOUR",
    "legends": false,
    "role": "CHARACTER",
    "faction_keywords": [
@@ -1771,7 +1771,7 @@
    "notes": "Leader: the following units:, ■ Chosen, ■ Legionaries, You can attach this model to one of the above units even if, one other Character model has already been"
   },
   {
-   "name": "HERETIC ASTARTES DAEMON PRINCE",
+   "name": "HERETIC ASTARTES DAEMON PRINCE WITH WINGS",
    "legends": false,
    "role": "CHARACTER",
    "faction_keywords": [
@@ -2441,7 +2441,7 @@
    "notes": "Leader: the following units:, ■ Chosen, ■ Legionaries, ■ Possessed, FACTION"
   },
   {
-   "name": "SORCERER",
+   "name": "SORCERER IN TERMINATOR ARMOUR",
    "legends": false,
    "role": "CHARACTER",
    "faction_keywords": [

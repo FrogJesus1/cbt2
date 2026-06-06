@@ -23,12 +23,76 @@ from pathlib import Path
 ROOT = Path(__file__).parent.parent
 sys.path.insert(0, str(ROOT))
 
+import copy
+import re
+
+from render.web import crusade_store
 from render.web.crusade_store import (
     rank_for_xp,
     compute_auto_xp,
     promotion_slots,
     RANK_THRESHOLDS,
+    CAMPAIGNS_TABLE,
+    UNITS_TABLE,
+    BATTLES_TABLE,
 )
+
+
+# ── In-memory fake Airtable table (no network) ──────────────────────────────────
+
+class _FakeTable:
+    """Minimal stand-in for a pyairtable Table: all()/create()/update()/delete()
+    over an in-memory record list, with `{Field} = 'value'` formula filtering.
+    `fail_update_on` makes the Nth update() raise — to simulate a mid-transaction
+    Airtable failure."""
+
+    def __init__(self):
+        self.records = []
+        self._auto = 0
+        self.update_calls = 0
+        self.fail_update_on = None
+        self.fail_next_create = False
+
+    def all(self, formula=None):
+        if not formula:
+            return [copy.deepcopy(r) for r in self.records]
+        m = re.match(r"\{(\w+)\}\s*=\s*'(.*)'$", formula)
+        field = m.group(1)
+        val = m.group(2).replace(r"\'", "'").replace("\\\\", "\\")
+        return [copy.deepcopy(r) for r in self.records if r["fields"].get(field) == val]
+
+    def create(self, fields):
+        if self.fail_next_create:
+            self.fail_next_create = False
+            raise RuntimeError("simulated Airtable create failure")
+        self._auto += 1
+        rec = {"id": f"rec{self._auto}", "fields": dict(fields)}
+        self.records.append(rec)
+        return copy.deepcopy(rec)
+
+    def update(self, rec_id, fields):
+        self.update_calls += 1
+        if self.fail_update_on and self.update_calls == self.fail_update_on:
+            raise RuntimeError("simulated Airtable failure")
+        for r in self.records:
+            if r["id"] == rec_id:
+                r["fields"].update(fields)
+                return copy.deepcopy(r)
+        raise KeyError(rec_id)
+
+    def delete(self, rec_id):
+        self.records = [r for r in self.records if r["id"] != rec_id]
+        return True
+
+
+def _patch_store():
+    """Swap crusade_store._table for in-memory fakes. Returns (tables, restore)."""
+    tables = {CAMPAIGNS_TABLE: _FakeTable(),
+              UNITS_TABLE: _FakeTable(),
+              BATTLES_TABLE: _FakeTable()}
+    orig = crusade_store._table
+    crusade_store._table = lambda name: tables[name]
+    return tables, (lambda: setattr(crusade_store, "_table", orig))
 
 
 # ── rank_for_xp ────────────────────────────────────────────────────────────────
@@ -123,6 +187,108 @@ def test_promotion_never_negative():
 def test_promotion_to_legendary():
     # Heroic (31) → Legendary (51) is one tier.
     assert promotion_slots(31, 51) == 1
+
+
+# ── finalize_battle idempotency + resumability (P1) ─────────────────────────────
+
+def _setup_campaign(tables):
+    import time
+    campaign = crusade_store.create_campaign("Test", "tau", rp=5)
+    units = []
+    for i in range(3):
+        units.append(crusade_store.create_unit(campaign["id"], f"Unit {i}"))
+        time.sleep(0.002)  # unit ids are ms-timestamped — keep them distinct
+    return campaign, units
+
+
+def test_finalize_is_idempotent_on_retry():
+    """A retry / double-submit with the same battle_token must be a no-op — XP and
+    campaign counters apply exactly once."""
+    tables, restore = _patch_store()
+    try:
+        campaign, units = _setup_campaign(tables)
+        ur = [{"unit_id": u["id"], "kills": 0, "destroyed": False, "xp_gained": 2}
+              for u in units]
+
+        first = crusade_store.finalize_battle(
+            campaign["id"], result="win", unit_results=ur, rp_gained=1, battle_token="T1")
+        assert first is not None
+        assert {u["xp"] for u in first["units"]} == {2}, "each unit gains 2 XP once"
+        assert first["battle_count"] == 1 and first["rp"] == 6
+
+        # Same token again → idempotent no-op.
+        second = crusade_store.finalize_battle(
+            campaign["id"], result="win", unit_results=ur, rp_gained=1, battle_token="T1")
+        assert second.get("already_finalized") is True
+        assert {u["xp"] for u in second["units"]} == {2}, "no double XP on retry"
+        assert second["battle_count"] == 1 and second["rp"] == 6, "counters bumped once"
+        assert len(tables[BATTLES_TABLE].records) == 1, "exactly one battle row"
+    finally:
+        restore()
+
+
+def test_finalize_resumes_after_midloop_failure():
+    """If a unit update fails mid-loop, a retry with the same token resumes — the
+    already-applied unit must not be bumped twice."""
+    tables, restore = _patch_store()
+    try:
+        campaign, units = _setup_campaign(tables)
+        ur = [{"unit_id": u["id"], "kills": 0, "destroyed": False, "xp_gained": 2}
+              for u in units]
+
+        # Fail on the 2nd unit update (unit[0] applied, unit[1] raises).
+        tables[UNITS_TABLE].fail_update_on = 2
+        try:
+            crusade_store.finalize_battle(
+                campaign["id"], result="win", unit_results=ur, rp_gained=1, battle_token="T2")
+            assert False, "expected the simulated failure to propagate"
+        except RuntimeError:
+            pass
+
+        # Battle not written, campaign not bumped, but progress recorded.
+        assert len(tables[BATTLES_TABLE].records) == 0
+        assert crusade_store.get_campaign(campaign["id"])["battle_count"] == 0
+
+        # Retry (failure cleared) → completes, each unit bumped exactly once.
+        tables[UNITS_TABLE].fail_update_on = None
+        done = crusade_store.finalize_battle(
+            campaign["id"], result="win", unit_results=ur, rp_gained=1, battle_token="T2")
+        xps = sorted(u["xp"] for u in done["units"])
+        assert xps == [2, 2, 2], f"no double-bump after resume, got {xps}"
+        assert done["battle_count"] == 1 and done["rp"] == 6
+        assert len(tables[BATTLES_TABLE].records) == 1
+    finally:
+        restore()
+
+
+def test_finalize_resumes_after_postloop_failure():
+    """Regression: if the battle-row write (after the unit loop) fails, a retry
+    with the same token must NOT re-bump the already-applied units."""
+    tables, restore = _patch_store()
+    try:
+        campaign, units = _setup_campaign(tables)
+        ur = [{"unit_id": u["id"], "kills": 0, "destroyed": False, "xp_gained": 2}
+              for u in units]
+
+        # Units all apply, then the CrusadeBattles create blows up.
+        tables[BATTLES_TABLE].fail_next_create = True
+        try:
+            crusade_store.finalize_battle(
+                campaign["id"], result="win", unit_results=ur, rp_gained=1, battle_token="T3")
+            assert False, "expected the post-loop create failure to propagate"
+        except RuntimeError:
+            pass
+        assert crusade_store.get_campaign(campaign["id"])["battle_count"] == 0
+
+        # Retry → completes; units must still be at 2 XP, not 4.
+        done = crusade_store.finalize_battle(
+            campaign["id"], result="win", unit_results=ur, rp_gained=1, battle_token="T3")
+        xps = sorted(u["xp"] for u in done["units"])
+        assert xps == [2, 2, 2], f"post-loop retry double-applied XP: {xps}"
+        assert done["battle_count"] == 1 and done["rp"] == 6
+        assert len(tables[BATTLES_TABLE].records) == 1
+    finally:
+        restore()
 
 
 # ── manual runner ───────────────────────────────────────────────────────────────

@@ -1755,7 +1755,7 @@
    "notes": "Leader: the following unit:, ■ Bladeguard Veteran Squad, You can attach this model to the above unit even if one, Captain, Chapter Master or Lieutenant model "
   },
   {
-   "name": "CAPTAIN",
+   "name": "CAPTAIN IN GRAVIS ARMOUR",
    "legends": false,
    "role": "CHARACTER",
    "faction_keywords": [
@@ -1933,7 +1933,7 @@
    "notes": "Leader: the following units:, ■ Aggressor Squad, ■ Eradicator Squad, ■ Heavy Intercessor Squad, FACTION"
   },
   {
-   "name": "CAPTAIN",
+   "name": "CAPTAIN IN PHOBOS ARMOUR",
    "legends": false,
    "role": "CHARACTER",
    "faction_keywords": [
@@ -2061,7 +2061,7 @@
    "notes": "Leader: the following units:, ■ Eliminator Squad, ■ Incursor Squad, ■ Infiltrator Squad, ■ Reiver Squad, ■ Scout Squad, ■ Scout Sniper Squad, FACTION"
   },
   {
-   "name": "CAPTAIN",
+   "name": "CAPTAIN IN TERMINATOR ARMOUR",
    "legends": false,
    "role": "CHARACTER",
    "faction_keywords": [
@@ -2242,7 +2242,7 @@
    "notes": "Leader: the following units:, ■ This model’s relic weapon can be replaced with one of the following: ■ Relic Terminator Squad, ◦ 1 chainfist ■ Terminator Assa"
   },
   {
-   "name": "CAPTAIN",
+   "name": "CAPTAIN ON BIKE",
    "legends": false,
    "role": "CHARACTER",
    "faction_keywords": [
@@ -2489,7 +2489,7 @@
    "notes": "Leader: the following units:, ◦ 1 storm bolter** * Maximum one per model. ■ Bike Squad, ◦ 1 relic shield* ** The profile for this weapon can be found on the A"
   },
   {
-   "name": "CAPTAIN",
+   "name": "CAPTAIN WITH JUMP PACK",
    "legends": false,
    "role": "CHARACTER",
    "faction_keywords": [
@@ -3011,7 +3011,7 @@
    "notes": "Leader: the following units:, ◦ 1 power fist Astartes chainsword can be replaced with 1 twin ■ Assault Squad, ◦ 1 relic shield* lightning claws. ■ Command Squ"
   },
   {
-   "name": "CHAPLAIN",
+   "name": "CHAPLAIN IN TERMINATOR ARMOUR",
    "legends": false,
    "role": "CHARACTER",
    "faction_keywords": [
@@ -3135,7 +3135,7 @@
    "notes": "Leader: the following units:, ■ Relic Terminator Squad, ■ Terminator Assault Squad, ■ Terminator Squad, FACTION"
   },
   {
-   "name": "CHAPLAIN",
+   "name": "CHAPLAIN ON BIKE",
    "legends": false,
    "role": "CHARACTER",
    "faction_keywords": [
@@ -3259,7 +3259,7 @@
    "notes": "Leader: the following units:, ■ Bike Squad, ■ Outrider Squad, FACTION"
   },
   {
-   "name": "CHAPLAIN",
+   "name": "CHAPLAIN WITH JUMP PACK",
    "legends": false,
    "role": "CHARACTER",
    "faction_keywords": [
@@ -3773,7 +3773,7 @@
    "notes": "Leader: the following units:, ■ Assault Intercessor Squad, ■ Bladeguard Veteran Squad, ■ Infernus Squad, ■ Intercessor Squad, ■ Sternguard Veteran Squad, FACT"
   },
   {
-   "name": "LIBRARIAN",
+   "name": "LIBRARIAN IN PHOBOS ARMOUR",
    "legends": false,
    "role": "CHARACTER",
    "faction_keywords": [
@@ -3886,7 +3886,7 @@
    "notes": "Leader: the following units:, ■ Eliminator Squad, ■ Incursor Squad, ■ Infiltrator Squad, ■ Reiver Squad"
   },
   {
-   "name": "LIBRARIAN",
+   "name": "LIBRARIAN IN TERMINATOR ARMOUR",
    "legends": false,
    "role": "CHARACTER",
    "faction_keywords": [
@@ -4023,7 +4023,7 @@
    "notes": "Leader: the following units:, ■ Relic Terminator Squad, ■ Terminator Assault Squad, ■ Terminator Squad, FACTION"
   },
   {
-   "name": "LIBRARIAN",
+   "name": "LIBRARIAN WITH JUMP PACK",
    "legends": false,
    "role": "CHARACTER",
    "faction_keywords": [
@@ -4408,7 +4408,7 @@
    "notes": "Leader: the following units:, ◦ 1 plasma pistol ■ Assault Squad, ◦ 1 storm bolter ■ Command Squad, ■ Tactical Squad, ■ Vanguard Veteran Squad, FACTION"
   },
   {
-   "name": "LIEUTENANT",
+   "name": "LIEUTENANT IN PHOBOS ARMOUR",
    "legends": false,
    "role": "CHARACTER",
    "faction_keywords": [
@@ -4531,7 +4531,7 @@
    "notes": "Leader: the following units:, ■ Incursor Squad, ■ Infiltrator Squad, ■ Reiver Squad, You can attach this model to one of the above units even if, one Captain "
   },
   {
-   "name": "LIEUTENANT",
+   "name": "LIEUTENANT IN REIVER ARMOUR",
    "legends": false,
    "role": "CHARACTER",
    "faction_keywords": [
@@ -4630,7 +4630,7 @@
    "notes": "Leader: the following unit:, ■ Reiver Squad, You can attach this model to the above unit even if one, Captain or Chapter Master model has already been, attach"
   },
   {
-   "name": "LIEUTENANT",
+   "name": "LIEUTENANT WITH COMBI-WEAPON",
    "legends": false,
    "role": "CHARACTER",
    "faction_keywords": [
@@ -9734,7 +9734,7 @@
    "notes": ""
   },
   {
-   "name": "DEATH COMPANY MARINES",
+   "name": "DEATH COMPANY MARINES WITH JUMP PACKS",
    "legends": false,
    "role": "UNKNOWN",
    "faction_keywords": [
@@ -10987,105 +10987,6 @@
     "Deep Strike threat — screen backfield with Kroot or Fire Warriors 9\" from objectives."
    ],
    "notes": "Leader: the following units:, ■ Assault Squad with Jump Packs, ■ Vanguard Veteran Squad with Jump packs, You can attach this model to one of the above units, "
-  },
-  {
-   "name": "SANGUINARY PRIEST",
-   "legends": false,
-   "role": "UNKNOWN",
-   "faction_keywords": [
-    "KEYWORDS: Infantry",
-    "Character",
-    "Grenades",
-    "Imperium",
-    "Sanguinary Priest",
-    "Adeptus Astartes",
-    "Blood Angels"
-   ],
-   "keywords": [
-    "KEYWORDS: Infantry",
-    "Character",
-    "Grenades",
-    "Imperium",
-    "Sanguinary Priest Adeptus Astartes",
-    "Blood Angels"
-   ],
-   "points": null,
-   "stats": {
-    "M": "6\"",
-    "T": "4",
-    "Sv": "3+",
-    "W": "4",
-    "Ld": "6+",
-    "OC": "1"
-   },
-   "unit_composition": [
-    "None ■ 1 Sanguinary Priest",
-    "This model is equipped with: bolt pistol; Astartes chainsword."
-   ],
-   "base_size": null,
-   "abilities": [
-    {
-     "name": "CORE",
-     "summary": "Deep Strike",
-     "phase_tags": []
-    },
-    {
-     "name": "FACTION",
-     "summary": "Oath of Moment",
-     "phase_tags": []
-    },
-    {
-     "name": "Sanguinary Priest",
-     "summary": "While this model is leading a unit, models in that unit have the Feel No Pain 5+ ability.",
-     "phase_tags": []
-    },
-    {
-     "name": "Blood Chalice",
-     "summary": "While this model is leading a unit, improve the Armour Penetration characteristic of melee weapons equipped by models in that unit by 1.",
-     "phase_tags": []
-    }
-   ],
-   "wargear_options": [],
-   "weapons": [
-    {
-     "name": "Bolt pistol",
-     "type": "ranged",
-     "range": "12\"",
-     "a": "1",
-     "bs_ws": "2+",
-     "s": "4",
-     "ap": "0",
-     "d": "1",
-     "keywords": [
-      "PISTOL"
-     ]
-    },
-    {
-     "name": "Astartes chainsword",
-     "type": "melee",
-     "range": "Melee",
-     "a": "5",
-     "bs_ws": "2+",
-     "s": "4",
-     "ap": "-1",
-     "d": "1",
-     "keywords": []
-    }
-   ],
-   "strengths": [],
-   "weaknesses": [],
-   "target_priority_tags": [],
-   "threat_tags": [
-    "RANGED_CAPABLE",
-    "MEDIUM_DURABILITY"
-   ],
-   "mobility_tags": [],
-   "durability_tags": [
-    "MEDIUM_ARMOUR",
-    "MULTI_WOUND"
-   ],
-   "tau_counterplay": [],
-   "notes": "Leader: the following units:, ■ Assault Squad, ■ Devastator Squad, ■ Tactical Squad, ■ Vanguard Veteran Squad, You can attach this model to one of the above u"
   },
   {
    "name": "THE SANGUINOR",
@@ -16534,7 +16435,7 @@
    "notes": "Leader: the following units:, ■ Blood Claws, ■ Grey Hunters, ■ Wolf Guard"
   },
   {
-   "name": "LOGAN GRIMNAR",
+   "name": "LOGAN GRIMNAR ON STORMRIDER",
    "legends": false,
    "role": "UNKNOWN",
    "faction_keywords": [
@@ -18596,7 +18497,7 @@
    "notes": "Leader: the following units:, ■ Blood Claws, ■ Grey Hunters, ■ Long Fangs, ■ Wolf Guard"
   },
   {
-   "name": "WOLF GUARD BATTLE LEADER",
+   "name": "WOLF GUARD BATTLE LEADER IN TERMINATOR ARMOUR",
    "legends": false,
    "role": "UNKNOWN",
    "faction_keywords": [
@@ -18775,7 +18676,7 @@
    "notes": "Leader: the following units:, ■ This model’s storm bolter can be replaced with one of the following:, ◦ 1 chainfist ■ Relic Terminator Squad, ◦ 1 power fist ■"
   },
   {
-   "name": "WOLF GUARD BATTLE LEADER",
+   "name": "WOLF GUARD BATTLE LEADER ON THUNDERWOLF",
    "legends": false,
    "role": "UNKNOWN",
    "faction_keywords": [
@@ -18992,7 +18893,7 @@
    "notes": "Leader: the following unit:, ◦ 1 combi-weapon, ◦ 1 master-crafted boltgun ■ Thunderwolf Cavalry, ◦ 1 plasma pistol You can attach this model to the above unit"
   },
   {
-   "name": "WOLF GUARD PACK LEADER",
+   "name": "WOLF GUARD PACK LEADERS IN TERMINATOR ARMOUR",
    "legends": false,
    "role": "UNKNOWN",
    "faction_keywords": [
@@ -19194,7 +19095,7 @@
    "notes": "Leader: the following units:, ◦ 1 chainfist, ■ Blood Claws, ◦ 1 power fist, ■ Grey Hunters, ◦ 1 thunder hammer, ■ Long Fangs, ◦ 1 storm shield, You must attac"
   },
   {
-   "name": "WOLF GUARD PACK LEADER",
+   "name": "WOLF GUARD PACK LEADERS WITH JUMP PACKS",
    "legends": false,
    "role": "UNKNOWN",
    "faction_keywords": [
@@ -19370,7 +19271,7 @@
    "notes": "Leader: the following unit:, ◦ 1 Astartes chainsword, ■ Skyclaws, ◦ 1 power fist, ◦ 1 power weapon You must attach this model to the above unit, and can do, s"
   },
   {
-   "name": "WOLF GUARD PACK LEADER",
+   "name": "WOLF GUARD PACK LEADERS",
    "legends": false,
    "role": "UNKNOWN",
    "faction_keywords": [
@@ -21226,7 +21127,7 @@
    "notes": ""
   },
   {
-   "name": "ASSAULT SQUAD",
+   "name": "ASSAULT SQUAD WITH JUMP PACKS",
    "legends": false,
    "role": "INFANTRY",
    "faction_keywords": [
@@ -25540,7 +25441,7 @@
    "notes": ""
   },
   {
-   "name": "VANGUARD VETERAN SQUAD",
+   "name": "VANGUARD VETERAN SQUAD WITH JUMP PACKS",
    "legends": false,
    "role": "INFANTRY",
    "faction_keywords": [

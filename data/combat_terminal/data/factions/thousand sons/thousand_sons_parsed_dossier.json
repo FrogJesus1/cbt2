@@ -580,7 +580,7 @@
  ],
  "units": [
   {
-   "name": "AHRIMAN",
+   "name": "AHRIMAN ON DISC OF TZEENTCH",
    "legends": false,
    "role": "CHARACTER",
    "faction_keywords": [
@@ -831,7 +831,7 @@
    "notes": "Leader: the following unit:, ■ Rubric Marines, AHRIMAN, Your army cannot contain both Ahriman and Ahriman on, Disc of Tzeentch., FACTION"
   },
   {
-   "name": "EXALTED SORCERER",
+   "name": "EXALTED SORCERER ON DISC OF TZEENTCH",
    "legends": false,
    "role": "CHARACTER",
    "faction_keywords": [
@@ -1458,7 +1458,7 @@
    "notes": ""
   },
   {
-   "name": "THOUSAND SONS DAEMON PRINCE",
+   "name": "THOUSAND SONS DAEMON PRINCE WITH WINGS",
    "legends": false,
    "role": "CHARACTER",
    "faction_keywords": [
@@ -1701,7 +1701,7 @@
    "notes": ""
   },
   {
-   "name": "THOUSAND SONS SORCERER",
+   "name": "THOUSAND SONS SORCERER IN TERMINATOR ARMOUR",
    "legends": false,
    "role": "CHARACTER",
    "faction_keywords": [

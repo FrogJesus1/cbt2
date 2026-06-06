@@ -163,6 +163,8 @@ export function PostBattleFlow({ campaign, units, battleUnits, onDone, onCancel,
         notes: notes.trim(),
         rp_gained: rpGained,
         unit_results,
+        // Idempotency key (stable per battle) so a retry can't double-apply.
+        battle_token: active.token || active.started_at || null,
       });
       onDone?.(refreshed);
     } catch (e) {

@@ -244,6 +244,37 @@ def note_for(flag: str) -> Optional[dict]:
     return spec["note"](flag)
 
 
+def legend_rows() -> dict:
+    """Modifier-flag legend rows derived from FLAG_SPECS, split offensive vs
+    defensive.
+
+    The ``legend`` command used to hand-maintain a *separate* copy of every
+    flag's description + effect — a fifth place the flag set had to be kept in
+    lockstep, free to drift from the parsing/classification/note text used by the
+    math. Generating the legend here makes FLAG_SPECS the single source: a flag
+    can't exist in the math without also appearing, correctly described, in the
+    legend.
+
+    Each row: ``{flag, display, desc, effect}``.  ``effect`` reuses the same
+    callout-note text the combat panel shows (so the legend and the in-combat
+    note never disagree); flags with no note fall back to their one-line
+    ``legend`` description.
+    """
+    offensive: list[dict] = []
+    defensive: list[dict] = []
+    for spec in FLAG_SPECS:
+        base = spec["base"]
+        note = spec["note"](base) if spec["note"] else None
+        row = {
+            "flag":    f"--{base}",
+            "display": f"[{base}]",
+            "desc":    spec["legend"],
+            "effect":  note["text"] if note else spec["legend"],
+        }
+        (defensive if spec["defensive"] else offensive).append(row)
+    return {"offensive": offensive, "defensive": defensive}
+
+
 def is_defensive_flag(flag: str) -> bool:
     """True if the flag modifies the defender (see DEFENSIVE_FLAG_BASES).
 

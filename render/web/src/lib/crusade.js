@@ -6,6 +6,8 @@
  * plus unit CRUD scaffolding.
  */
 
+import { getSessionId } from "@/lib/session";
+
 const API = "/api/crusade";
 
 async function jsonOrThrow(res, fallback) {
@@ -258,7 +260,13 @@ export async function startBattle(engineId, units, faction) {
   const res = await fetch(`/api/engines/${engineId}/exec`, {
     method: "POST",
     headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({ input: factionCmd, roster_context: { my_units: myUnits } }),
+    body: JSON.stringify({
+      input: factionCmd,
+      roster_context: { my_units: myUnits },
+      // Same per-tab token the terminal uses, so the mustered crusade roster
+      // lands in this client's session and terminal combat can see it (P0-2).
+      session_id: getSessionId(),
+    }),
   });
   if (!res.ok) {
     const err = await res.json().catch(() => ({}));
@@ -278,6 +286,11 @@ export function buildActiveBattle({ mission = "", pointLimit = 0, units, markedI
     mission,
     point_limit: pointLimit,
     started_at: new Date().toISOString(),
+    // Stable idempotency key for this battle — sent on finalize so a retry /
+    // double-submit can't apply the XP + counters twice (server dedupes on it).
+    token: (typeof crypto !== "undefined" && crypto.randomUUID)
+      ? crypto.randomUUID()
+      : `b-${Date.now().toString(36)}-${Math.random().toString(36).slice(2, 10)}`,
     units: units.map((u) => ({
       unit_id: u.id,
       unit_name: u.nickname || u.unit_name,

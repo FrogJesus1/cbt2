@@ -225,9 +225,22 @@ def _loads(raw, default):
         return default
 
 
+def _escape_formula_value(value: str) -> str:
+    """Escape a value for safe interpolation into an Airtable formula literal.
+
+    Formula string literals are single-quoted, so an unescaped quote/backslash in
+    user-influenced input would break out of the literal (formula injection).
+    """
+    return str(value).replace("\\", "\\\\").replace("'", r"\'")
+
+
+def _eq_formula(field: str, value: str) -> str:
+    """Build a safe ``{Field} = 'value'`` equality formula."""
+    return f"{{{field}}} = '{_escape_formula_value(value)}'"
+
+
 def _find(table, field: str, value: str) -> dict | None:
-    safe = value.replace("'", r"\'")
-    records = table.all(formula=f"{{{field}}} = '{safe}'")
+    records = table.all(formula=_eq_formula(field, value))
     return records[0] if records else None
 
 
@@ -360,7 +373,7 @@ def delete_campaign(campaign_id: str) -> bool:
         return False
     # Cascade: remove the campaign's units first.
     units_table = _table(UNITS_TABLE)
-    unit_records = units_table.all(formula=f"{{CampaignId}} = '{campaign_id}'")
+    unit_records = units_table.all(formula=_eq_formula("CampaignId", campaign_id))
     for ur in unit_records:
         units_table.delete(ur["id"])
     table.delete(record["id"])
@@ -371,7 +384,7 @@ def delete_campaign(campaign_id: str) -> bool:
 
 def list_units(campaign_id: str) -> list[dict]:
     table = _table(UNITS_TABLE)
-    records = table.all(formula=f"{{CampaignId}} = '{campaign_id}'")
+    records = table.all(formula=_eq_formula("CampaignId", campaign_id))
     units = [_record_to_unit(r) for r in records]
     units.sort(key=lambda u: (not u["is_leader"], u["unit_name"].lower()))
     return units
@@ -388,7 +401,7 @@ def create_unit(campaign_id: str, unit_name: str, *, nickname: str = "",
                 loadout: list | None = None) -> dict:
     table = _table(UNITS_TABLE)
     # Stable per-campaign index id: campaignId:N
-    existing = table.all(formula=f"{{CampaignId}} = '{campaign_id}'")
+    existing = table.all(formula=_eq_formula("CampaignId", campaign_id))
     unit_id = f"{campaign_id}:{int(time.time() * 1000)}"
     now = _now()
     table.create({
@@ -483,10 +496,11 @@ def _record_to_battle(record: dict) -> dict:
 def create_battle(campaign_id: str, *, mission: str = "", point_limit: int = 0,
                   result: str = "", rp_gained: int = 0,
                   unit_results: list | None = None, notes: str = "",
-                  played_at: str | None = None) -> dict:
+                  played_at: str | None = None, battle_id: str | None = None) -> dict:
     table = _table(BATTLES_TABLE)
     played = played_at or _now()
-    battle_id = f"{campaign_id}:battle:{int(time.time() * 1000)}"
+    if battle_id is None:
+        battle_id = f"{campaign_id}:battle:{int(time.time() * 1000)}"
     table.create({
         "BattleId":     battle_id,
         "CampaignId":   campaign_id,
@@ -505,7 +519,7 @@ def create_battle(campaign_id: str, *, mission: str = "", point_limit: int = 0,
 def list_battles(campaign_id: str) -> list[dict]:
     """Return a campaign's battles, newest first."""
     table = _table(BATTLES_TABLE)
-    records = table.all(formula=f"{{CampaignId}} = '{campaign_id}'")
+    records = table.all(formula=_eq_formula("CampaignId", campaign_id))
     battles = [_record_to_battle(r) for r in records]
     battles.sort(key=lambda b: b.get("played_at") or "", reverse=True)
     return battles
@@ -515,8 +529,9 @@ def list_battles(campaign_id: str) -> list[dict]:
 
 def finalize_battle(campaign_id: str, *, result: str, mission: str = "",
                     point_limit: int = 0, unit_results: list | None = None,
-                    notes: str = "", rp_gained: int = 1) -> dict | None:
-    """Atomically resolve a battle.
+                    notes: str = "", rp_gained: int = 1,
+                    battle_token: str | None = None) -> dict | None:
+    """Resolve a battle, idempotently and resumably.
 
     For each entry in ``unit_results`` (``[{unit_id, kills, destroyed,
     xp_gained, scars?, honours?}]``):
@@ -525,60 +540,143 @@ def finalize_battle(campaign_id: str, *, result: str, mission: str = "",
       • bump battles fought (+1), battles survived (+1 unless destroyed),
         lifetime kills, and clear marked-for-greatness.
     Then write one CrusadeBattles row, bump the campaign's RP / W-L-D /
-    battle count, and clear ``state.active_battle``. Returns the refreshed
-    campaign (with units), or ``None`` if the campaign is missing.
+    battle count, and clear ``state.active_battle``.
+
+    True atomicity isn't available over Airtable's REST API, so this is made
+    **idempotent + resumable** instead (the failure mode the old version had:
+    30+ sequential writes with no rollback double-applied XP on a retry):
+
+      • ``battle_token`` identifies this finalize. A token that has already been
+        fully finalized returns the campaign unchanged (safe to retry / handles
+        double-submits).
+      • Each unit's id is recorded in campaign State as it's applied. A retry
+        with the same token skips already-applied units, so a mid-loop failure
+        resumes instead of re-bumping.
+      • The battle row is keyed by the token, so a retry won't write a duplicate.
+
+    Returns the refreshed campaign (with units), or ``None`` if it's missing.
     """
     campaign = get_campaign(campaign_id)
     if not campaign:
         return None
 
+    state = dict(campaign.get("state") or {})
+    token = battle_token or f"{campaign_id}:{int(time.time() * 1000)}"
+    battle_row_id = f"{campaign_id}:battle:{token}"
+    finalized = list(state.get("_finalized_battles") or [])
+
+    # Already finalized → no-op (idempotent). Return current state.
+    if token in finalized:
+        done = get_campaign(campaign_id)
+        if done is not None:
+            done["units"] = list_units(campaign_id)
+            done["already_finalized"] = True
+        return done
+
+    progress = dict((state.get("_finalize_progress") or {}).get(token) or {})
+    applied = set(progress.get("applied_unit_ids") or [])
+
     result = (result or "").lower()
-    won = result == "win"
     summary = []
 
-    for ur in (unit_results or []):
-        unit = get_unit(ur.get("unit_id", ""))
-        if not unit:
-            continue
-        xp_gained = int(ur.get("xp_gained", 0) or 0)
-        old_xp = int(unit.get("xp", 0) or 0)
-        new_xp = old_xp + xp_gained
-        old_rank = rank_for_xp(old_xp)
-        new_rank = rank_for_xp(new_xp)
-        destroyed = bool(ur.get("destroyed"))
-        kills = int(ur.get("kills", 0) or 0)
-        new_honours = ur.get("honours") or []
-        new_scars = ur.get("scars") or []
+    def _persist_progress():
+        prog = dict(state.get("_finalize_progress") or {})
+        prog[token] = {"applied_unit_ids": sorted(applied)}
+        state["_finalize_progress"] = prog
+        update_campaign(campaign_id, {"state": state})
 
-        update_unit(unit["id"], {
-            "xp":               new_xp,
-            "rank":             new_rank,
-            "honours":          (unit.get("honours") or []) + new_honours,
-            "scars":            (unit.get("scars") or []) + new_scars,
-            "battles_fought":   int(unit.get("battles_fought", 0) or 0) + 1,
-            "battles_survived": int(unit.get("battles_survived", 0) or 0) + (0 if destroyed else 1),
-            "enemy_kills":      int(unit.get("enemy_kills", 0) or 0) + kills,
-            "marked_for_greatness": False,
-        })
+    try:
+        for ur in (unit_results or []):
+            uid = ur.get("unit_id", "")
+            unit = get_unit(uid)
+            if not unit:
+                continue
+            xp_gained = int(ur.get("xp_gained", 0) or 0)
+            destroyed = bool(ur.get("destroyed"))
+            kills = int(ur.get("kills", 0) or 0)
+            new_honours = ur.get("honours") or []
+            new_scars = ur.get("scars") or []
+            old_xp = int(unit.get("xp", 0) or 0)
 
-        summary.append({
-            "unit_id":    unit["id"],
-            "unit_name":  unit.get("nickname") or unit.get("unit_name", ""),
-            "kills":      kills,
-            "destroyed":  destroyed,
-            "xp_gained":  xp_gained,
-            "new_xp":     new_xp,
-            "new_rank":   new_rank,
-            "promoted":   new_rank != old_rank,
-            "scars":      new_scars,
-            "honours":    new_honours,
-        })
+            if uid in applied:
+                # Already applied on a prior attempt — don't double-bump. Rebuild
+                # the summary line from the unit's persisted (post-apply) state.
+                cur_xp = old_xp
+                summary.append({
+                    "unit_id":   unit["id"],
+                    "unit_name": unit.get("nickname") or unit.get("unit_name", ""),
+                    "kills":     kills,
+                    "destroyed": destroyed,
+                    "xp_gained": xp_gained,
+                    "new_xp":    cur_xp,
+                    "new_rank":  rank_for_xp(cur_xp),
+                    "promoted":  False,
+                    "scars":     new_scars,
+                    "honours":   new_honours,
+                    "resumed":   True,
+                })
+                continue
 
-    battle = create_battle(
-        campaign_id, mission=mission, point_limit=point_limit, result=result,
-        rp_gained=rp_gained, unit_results=summary, notes=notes)
+            new_xp = old_xp + xp_gained
+            old_rank = rank_for_xp(old_xp)
+            new_rank = rank_for_xp(new_xp)
 
-    state = dict(campaign.get("state") or {})
+            update_unit(unit["id"], {
+                "xp":               new_xp,
+                "rank":             new_rank,
+                "honours":          (unit.get("honours") or []) + new_honours,
+                "scars":            (unit.get("scars") or []) + new_scars,
+                "battles_fought":   int(unit.get("battles_fought", 0) or 0) + 1,
+                "battles_survived": int(unit.get("battles_survived", 0) or 0) + (0 if destroyed else 1),
+                "enemy_kills":      int(unit.get("enemy_kills", 0) or 0) + kills,
+                "marked_for_greatness": False,
+            })
+            applied.add(uid)
+
+            summary.append({
+                "unit_id":    unit["id"],
+                "unit_name":  unit.get("nickname") or unit.get("unit_name", ""),
+                "kills":      kills,
+                "destroyed":  destroyed,
+                "xp_gained":  xp_gained,
+                "new_xp":     new_xp,
+                "new_rank":   new_rank,
+                "promoted":   new_rank != old_rank,
+                "scars":      new_scars,
+                "honours":    new_honours,
+            })
+    except Exception:
+        # Save how far we got so a retry with the same token resumes rather than
+        # re-applying. Best-effort persistence, then re-raise (route → 503).
+        try:
+            _persist_progress()
+        except Exception:
+            pass
+        raise
+
+    # Persist the fully-applied unit set BEFORE the battle-row write + campaign
+    # bump. Those are two more network calls; if either fails, a retry with the
+    # same token must still skip the already-bumped units (otherwise XP is applied
+    # twice). The battle row is token-keyed (idempotent) and the campaign bump
+    # reads a fresh snapshot, so persisting `applied` here closes the post-loop
+    # double-apply window.
+    _persist_progress()
+
+    # All units applied. Write the battle row keyed by the token (skip if a prior
+    # attempt already wrote it) and bump the campaign exactly once.
+    battle = None
+    if _find(_table(BATTLES_TABLE), "BattleId", battle_row_id) is None:
+        battle = create_battle(
+            campaign_id, mission=mission, point_limit=point_limit, result=result,
+            rp_gained=rp_gained, unit_results=summary, notes=notes,
+            battle_id=battle_row_id)
+
+    # Mark finalized, clear progress + active battle, bump campaign counters.
+    finalized.append(token)
+    state["_finalized_battles"] = finalized[-50:]   # cap retained history
+    prog = dict(state.get("_finalize_progress") or {})
+    prog.pop(token, None)
+    state["_finalize_progress"] = prog
     state.pop("active_battle", None)
     update_campaign(campaign_id, {
         "rp":           int(campaign.get("rp", 0) or 0) + int(rp_gained or 0),

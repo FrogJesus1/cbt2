@@ -571,7 +571,7 @@
  ],
  "units": [
   {
-   "name": "BEASTBOSS",
+   "name": "BEASTBOSS ON SQUIGOSAUR",
    "legends": false,
    "role": "CHARACTER",
    "faction_keywords": [
@@ -837,7 +837,7 @@
    "notes": "Leader: the following unit:, ■ Beast Snagga Boyz, FACTION"
   },
   {
-   "name": "BIG MEK",
+   "name": "BIG MEK IN MEGA ARMOUR",
    "legends": false,
    "role": "CHARACTER",
    "faction_keywords": [
@@ -966,21 +966,19 @@
    "notes": "Leader: the following unit:, ◦ 1 kustom force field, ■ This model can be equipped with 1 grot oiler. ■ Meganobz, FACTION"
   },
   {
-   "name": "BIG MEK",
-   "legends": false,
-   "role": "CHARACTER",
+   "name": "BIG MEK WITH KUSTOM FORCE FIELD",
+   "legends": true,
+   "role": null,
    "faction_keywords": [
-    "KEYWORDS: Infantry",
-    "Character",
-    "Grenades",
-    "Big Mek with Kustom Force Field",
-    "Orks"
+    "Big Mek with Kustom Force Field Orks"
    ],
    "keywords": [
-    "KEYWORDS: Infantry",
+    "Infantry",
     "Character",
     "Grenades",
-    "Big Mek with Kustom Force Field Orks"
+    "Mek",
+    "Big Mek",
+    "FACTION KEYWORDS: Big Mek with Kustom Force Field Orks"
    ],
    "points": null,
    "stats": {
@@ -993,11 +991,53 @@
    },
    "unit_composition": [
     "This model can be equipped with 1 grot helper. ■ 1 Big Mek with Kustom Force Field",
-    "This model is equipped with: slugga; choppa."
+    "Boyz",
+    "Burna Boyz",
+    "Tankbustas",
+    "Lootas",
+    "Nobz"
    ],
    "base_size": null,
-   "abilities": [],
-   "wargear_options": [],
+   "abilities": [
+    {
+     "name": "CORE",
+     "summary": "Leader",
+     "phase_tags": []
+    },
+    {
+     "name": "FACTION",
+     "summary": "Waaagh!",
+     "phase_tags": []
+    },
+    {
+     "name": "More Dakka",
+     "summary": "While this model is leading a unit, each time a model in that unit makes a ranged attack, re-roll a Hit roll of 1.",
+     "phase_tags": []
+    },
+    {
+     "name": "Kustom Force Field",
+     "summary": "While this model is leading a unit, models in that unit have a 5+ invulnerable save against ranged attacks. Once per battle, at the start of any phase, this model can overcharge its kustom force field. If it does, until the end of the phase, this invulnerable save is improved to 4+.",
+     "phase_tags": []
+    },
+    {
+     "name": "Grot Helper",
+     "summary": "Once per battle, the bearer can overcharge its kustom force field one additional time.",
+     "phase_tags": []
+    },
+    {
+     "name": "Designer’s Note",
+     "summary": "Place a Grot Helper token next to the bearer, removing it once this ability has been used.",
+     "phase_tags": []
+    }
+   ],
+   "wargear_options": [
+    "This model can be equipped with 1 grot helper. ■ 1 Big Mek with Kustom Force Field",
+    "Boyz",
+    "Burna Boyz",
+    "Tankbustas",
+    "Lootas",
+    "Nobz"
+   ],
    "weapons": [
     {
      "name": "Slugga",
@@ -1011,36 +1051,19 @@
      "keywords": [
       "PISTOL"
      ]
-    },
-    {
-     "name": "Choppa",
-     "type": "melee",
-     "range": "Melee",
-     "a": "4",
-     "bs_ws": "3+",
-     "s": "5",
-     "ap": "-1",
-     "d": "1",
-     "keywords": []
     }
    ],
    "strengths": [],
    "weaknesses": [],
    "target_priority_tags": [],
-   "threat_tags": [
-    "RANGED_CAPABLE"
-   ],
+   "threat_tags": [],
    "mobility_tags": [],
-   "durability_tags": [
-    "LIGHT_ARMOUR",
-    "MEDIUM_TOUGHNESS",
-    "MULTI_WOUND"
-   ],
+   "durability_tags": [],
    "tau_counterplay": [],
-   "notes": "Leader: the following units:, ■ Boyz, ■ Burna Boyz, ■ Tankbustas, ■ Lootas, ■ Nobz, FACTION"
+   "notes": ""
   },
   {
-   "name": "BIG MEK",
+   "name": "BIG MEK WITH SHOKK ATTACK GUN",
    "legends": false,
    "role": "CHARACTER",
    "faction_keywords": [
@@ -1928,7 +1951,7 @@
    "notes": ""
   },
   {
-   "name": "NOB",
+   "name": "NOB ON SMASHA SQUIG",
    "legends": false,
    "role": "CHARACTER",
    "faction_keywords": [
@@ -2046,7 +2069,7 @@
    "notes": "Leader: the following unit:, ■ Squighog Boyz, FACTION"
   },
   {
-   "name": "NOB",
+   "name": "NOB WITH WAAAGH! BANNER",
    "legends": false,
    "role": "CHARACTER",
    "faction_keywords": [
@@ -2344,7 +2367,7 @@
    "notes": "Leader: the following units:, ■ Boyz, ■ Nobz, ■ Lootas, ■ Burna Boyz, ■ Tankbustas, FACTION"
   },
   {
-   "name": "WARBOSS",
+   "name": "WARBOSS IN MEGA ARMOUR",
    "legends": false,
    "role": "CHARACTER",
    "faction_keywords": [
@@ -3925,7 +3948,7 @@
    "notes": ""
   },
   {
-   "name": "NOBZ",
+   "name": "NOBZ ON WARBIKES",
    "legends": false,
    "role": "SUPER-HEAVY",
    "faction_keywords": [
@@ -4232,7 +4255,7 @@
    "notes": ""
   },
   {
-   "name": "WARBOSS",
+   "name": "WARBOSS ON WARBIKE",
    "legends": false,
    "role": "SUPER-HEAVY",
    "faction_keywords": [
@@ -9402,103 +9425,6 @@
    "notes": ""
   },
   {
-   "name": "BIG MEK WITH KUSTOM FORCE FIELD",
-   "legends": true,
-   "role": null,
-   "faction_keywords": [
-    "Big Mek with Kustom Force Field Orks"
-   ],
-   "keywords": [
-    "Infantry",
-    "Character",
-    "Grenades",
-    "Mek",
-    "Big Mek",
-    "FACTION KEYWORDS: Big Mek with Kustom Force Field Orks"
-   ],
-   "points": null,
-   "stats": {
-    "M": "6\"",
-    "T": "5",
-    "Sv": "4+",
-    "W": "4",
-    "Ld": "7+",
-    "OC": "1"
-   },
-   "unit_composition": [
-    "This model can be equipped with 1 grot helper. ■ 1 Big Mek with Kustom Force Field",
-    "Boyz",
-    "Burna Boyz",
-    "Tankbustas",
-    "Lootas",
-    "Nobz"
-   ],
-   "base_size": null,
-   "abilities": [
-    {
-     "name": "CORE",
-     "summary": "Leader",
-     "phase_tags": []
-    },
-    {
-     "name": "FACTION",
-     "summary": "Waaagh!",
-     "phase_tags": []
-    },
-    {
-     "name": "More Dakka",
-     "summary": "While this model is leading a unit, each time a model in that unit makes a ranged attack, re-roll a Hit roll of 1.",
-     "phase_tags": []
-    },
-    {
-     "name": "Kustom Force Field",
-     "summary": "While this model is leading a unit, models in that unit have a 5+ invulnerable save against ranged attacks. Once per battle, at the start of any phase, this model can overcharge its kustom force field. If it does, until the end of the phase, this invulnerable save is improved to 4+.",
-     "phase_tags": []
-    },
-    {
-     "name": "Grot Helper",
-     "summary": "Once per battle, the bearer can overcharge its kustom force field one additional time.",
-     "phase_tags": []
-    },
-    {
-     "name": "Designer’s Note",
-     "summary": "Place a Grot Helper token next to the bearer, removing it once this ability has been used.",
-     "phase_tags": []
-    }
-   ],
-   "wargear_options": [
-    "This model can be equipped with 1 grot helper. ■ 1 Big Mek with Kustom Force Field",
-    "Boyz",
-    "Burna Boyz",
-    "Tankbustas",
-    "Lootas",
-    "Nobz"
-   ],
-   "weapons": [
-    {
-     "name": "Slugga",
-     "type": "ranged",
-     "range": "12\"",
-     "a": "1",
-     "bs_ws": "5+",
-     "s": "4",
-     "ap": "0",
-     "d": "1",
-     "keywords": [
-      "PISTOL"
-     ]
-    }
-   ],
-   "strengths": [],
-   "weaknesses": [],
-   "target_priority_tags": [],
-   "threat_tags": [],
-   "mobility_tags": [],
-   "durability_tags": [],
-   "tau_counterplay": [],
-   "notes": ""
-  },
-  {
    "name": "CHINORK WARKOPTA",
    "legends": true,
    "role": null,
@@ -10191,98 +10117,6 @@
    "notes": ""
   },
   {
-   "name": "NOBZ ON WARBIKES",
-   "legends": true,
-   "role": null,
-   "faction_keywords": [
-    "KEYWORDS: Mounted",
-    "Speed Freeks",
-    "Grenades",
-    "Nobz on Warbikes Orks"
-   ],
-   "keywords": [
-    "Mounted",
-    "Speed Freeks",
-    "Grenades",
-    "Nobz on Warbikes Orks"
-   ],
-   "points": null,
-   "stats": {
-    "M": "12\"",
-    "T": "6",
-    "Sv": "4+",
-    "W": "4",
-    "Ld": "7+",
-    "OC": "2"
-   },
-   "unit_composition": [
-    "Any number of models can each be equipped with 1 slugga. ■ 3 Nobz on Warbikes",
-    "Any number of models can each have their choppa replaced with one of the following: Every model is equipped with: twin dakkagun; choppa; close"
-   ],
-   "base_size": null,
-   "abilities": [
-    {
-     "name": "FACTION",
-     "summary": "Waaagh!",
-     "phase_tags": []
-    },
-    {
-     "name": "Drive-by Krumpin'",
-     "summary": "Each time this unit Consolidates, each model in this unit can move up to 6\" instead of up to 3\".",
-     "phase_tags": []
-    }
-   ],
-   "wargear_options": [
-    "Any number of models can each be equipped with 1 slugga. ■ 3 Nobz on Warbikes",
-    "Any number of models can each have their choppa replaced with one of the following: Every model is equipped with: twin dakkagun; choppa; close"
-   ],
-   "weapons": [
-    {
-     "name": "Slugga",
-     "type": "ranged",
-     "range": "12\"",
-     "a": "1",
-     "bs_ws": "5+",
-     "s": "4",
-     "ap": "0",
-     "d": "1",
-     "keywords": [
-      "PISTOL"
-     ]
-    },
-    {
-     "name": "Twin dakkagun",
-     "type": "ranged",
-     "range": "18\"",
-     "a": "3",
-     "bs_ws": "5+",
-     "s": "5",
-     "ap": "0",
-     "d": "1",
-     "keywords": []
-    },
-    {
-     "name": "Close combat weapon",
-     "type": "melee",
-     "range": "Melee",
-     "a": "3",
-     "bs_ws": "3+",
-     "s": "5",
-     "ap": "0",
-     "d": "1",
-     "keywords": []
-    }
-   ],
-   "strengths": [],
-   "weaknesses": [],
-   "target_priority_tags": [],
-   "threat_tags": [],
-   "mobility_tags": [],
-   "durability_tags": [],
-   "tau_counterplay": [],
-   "notes": ""
-  },
-  {
    "name": "PAINBOY ON WARBIKE",
    "legends": true,
    "role": null,
@@ -10579,88 +10413,6 @@
    "tau_counterplay": [],
    "notes": "",
    "source": "Warhammer Legends"
-  },
-  {
-   "name": "WARBOSS ON WARBIKE",
-   "legends": true,
-   "role": null,
-   "faction_keywords": [
-    "KEYWORDS: Mounted",
-    "Character",
-    "Speed Freeks",
-    "Grenades",
-    "Warboss Orks"
-   ],
-   "keywords": [
-    "Mounted",
-    "Character",
-    "Speed Freeks",
-    "Grenades",
-    "Warboss Orks"
-   ],
-   "points": null,
-   "stats": {
-    "M": "12\"",
-    "T": "6",
-    "Sv": "4+",
-    "W": "7",
-    "Ld": "6+",
-    "OC": "2"
-   },
-   "unit_composition": [
-    "This model’s killsaw can be replaced with one of the following: ■ 1 Warboss on Warbike",
-    "Warbikers",
-    "Nobz on Warbikes"
-   ],
-   "base_size": null,
-   "abilities": [
-    {
-     "name": "CORE",
-     "summary": "Leader",
-     "phase_tags": []
-    },
-    {
-     "name": "FACTION",
-     "summary": "Waaagh!",
-     "phase_tags": []
-    },
-    {
-     "name": "Speedboss",
-     "summary": "While this model is leading a unit, each time a model in that unit makes a melee attack, add 1 to the Hit roll.",
-     "phase_tags": []
-    },
-    {
-     "name": "High-octane Fuel",
-     "summary": "Each time this model’s unit Advances, do not make an Advance roll for it. Instead, until the end of the phase, add 6\" to the Move characteristic of models in this model’s unit.",
-     "phase_tags": []
-    }
-   ],
-   "wargear_options": [
-    "This model’s killsaw can be replaced with one of the following: ■ 1 Warboss on Warbike",
-    "Warbikers",
-    "Nobz on Warbikes"
-   ],
-   "weapons": [
-    {
-     "name": "Twin dakkagun",
-     "type": "ranged",
-     "range": "18\"",
-     "a": "3",
-     "bs_ws": "5+",
-     "s": "5",
-     "ap": "0",
-     "d": "1",
-     "keywords": []
-    }
-   ],
-   "strengths": [],
-   "weaknesses": [],
-   "target_priority_tags": [],
-   "threat_tags": [],
-   "mobility_tags": [],
-   "durability_tags": [],
-   "tau_counterplay": [],
-   "notes": ""
   },
   {
    "name": "WARBUGGIES",

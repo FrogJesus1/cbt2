@@ -16,6 +16,7 @@ import logging
 import random
 import re
 import sys
+import threading
 from pathlib import Path
 from typing import Any
 
@@ -35,23 +36,152 @@ from data.combat_terminal.combat_math_engine import wound_target_from_raw
 
 # ─── Combat helpers ────────────────────────────────────────────────────────────
 
-def _parse_min_models(composition: list) -> int:
-    """Parse unit_composition text to extract minimum model count.
+def _parse_size_range(composition: list) -> tuple[int, int]:
+    """Parse unit_composition text -> (min_models, max_models).
 
-    Composition entries contain bullet markers (■ = \\u25a0) followed by a
-    model count like '■ 1 Shas' or a range '■ 0-2 Shas'.  Sum the minimums.
+    The composition already encodes the *legal range* - e.g. Kroot Carnivores is
+    '10-20 Kroot Carnivores' - so we read both ends: a range "<a>-<b> Name"
+    contributes (a, b); a plain "<n> Name" contributes (n, n). Counts are read
+    whether or not a bullet (■) is present, while the points table and
+    equipment / rules prose are skipped. `max` is never below `min`; both >= 1.
+    """
+    BULLET = "■"
+    PROSE = (
+        "equipped with", "can be equipped", "can replace", "replaced with",
+        "replace its", "for every", "this model", "this unit", "every model",
+        "transport", "the following",
+    )
+    total_min = 0
+    total_max = 0
+    for raw_line in (composition or []):
+        segments = raw_line.split(BULLET) if BULLET in raw_line else [raw_line]
+        for seg in segments:
+            seg = seg.strip()
+            if not seg:
+                continue
+            low = seg.lower()
+            if any(k in low for k in PROSE):
+                continue
+            if re.match(r"^\d+\s+models?\b", low):
+                continue
+            rng = re.match(r"^(\d+)\s*[-–]\s*(\d+)\s+[A-Z]", seg)
+            if rng:
+                total_min += int(rng.group(1))
+                total_max += int(rng.group(2))
+                continue
+            one = re.match(r"^(\d+)\s+[A-Z]", seg)
+            if one:
+                total_min += int(one.group(1))
+                total_max += int(one.group(1))
+    total_min = max(1, total_min)
+    total_max = max(total_min, total_max)
+    return total_min, total_max
+
+
+# ─── Squad-size override flag (--n / --models) ──────────────────────────────────
+
+def _size_flag_value(token: str) -> "int | None":
+    """Return the N from a squad-size override flag token, or None.
+
+    Recognised forms (after _extract_all_flags tokenisation):
+        n20  n:20   models20  models:20
+    Matched precisely so it never collides with a real modifier flag (e.g.
+    'nocover' must NOT read as size 'n'). Returns a positive int or None.
+    """
+    key = str(token).split(":")[0].lower()
+    base = None
+    if re.fullmatch(r"n\d+", key) or (key == "n" and ":" in str(token)):
+        base = "n"
+    elif re.fullmatch(r"models\d+", key) or (key == "models" and ":" in str(token)):
+        base = "models"
+    if base is None:
+        return None
+    n = _flags.flag_int(token, base, default=0)
+    return n if n > 0 else None
+
+
+def _extract_size_flags(flag_list: list) -> "tuple[int | None, list]":
+    """Split a flag list into (size_override_or_None, remaining_flags).
+
+    The last size flag wins. Size tokens are removed from the returned list so
+    they never reach validate_flags / the math / the modifier-toggle UI (size is
+    a structural quantity, not a combat modifier).
+    """
+    override = None
+    remaining = []
+    for f in (flag_list or []):
+        v = _size_flag_value(f)
+        if v is not None:
+            override = v
+        else:
+            remaining.append(f)
+    return override, remaining
+
+
+def _parse_min_models(composition: list) -> int:
+    """Parse unit_composition text to extract the minimum model count.
+
+    Dossiers are inconsistent: some entries bullet each model line with ■, but
+    many list models on plain lines ('1 Intercessor Sergeant' / '4-9
+    Intercessors'). Sum the minimum of every model entry, reading counts whether
+    or not a bullet is present, while skipping the points table and equipment /
+    rules prose. Returns at least 1.
     """
     BULLET = "\u25a0"
+    # Prose fragments that mark a segment as equipment / rules text, not a model
+    # entry. Many dossiers list models on plain (non-bulleted) lines, so we read
+    # counts regardless of bullet but exclude the points table and these.
+    PROSE = (
+        "equipped with", "can be equipped", "can replace", "replaced with",
+        "replace its", "for every", "this model", "this unit", "every model",
+        "transport", "the following",
+    )
     total = 0
-    for line in (composition or []):
-        if BULLET not in line:
-            continue
-        for part in line.split(BULLET)[1:]:
-            part = part.strip()
-            m = re.match(r"^(\d+)(?:-\d+)?\s+\w", part)
+    for raw_line in (composition or []):
+        # A line may pack several bullet-separated entries; split on the bullet
+        # so a leading equipment clause and a trailing model entry are judged
+        # apart. Lines with no bullet are treated as a single segment.
+        segments = raw_line.split(BULLET) if BULLET in raw_line else [raw_line]
+        for seg in segments:
+            seg = seg.strip()
+            if not seg:
+                continue
+            low = seg.lower()
+            if any(k in low for k in PROSE):
+                continue
+            # Points-table row: "<N> model(s)<tab/space><points>".
+            if re.match(r"^\d+\s+models?\b", low):
+                continue
+            # Model entries are proper nouns (capitalised); weapon options are
+            # lower-case ("1 killkannon") \u2014 so require an upper-case word after
+            # the count. A range ("4-9 Intercessors") contributes its minimum.
+            m = re.match(r"^(\d+)\s*[-\u2013]\s*\d+\s+[A-Z]", seg) or re.match(r"^(\d+)\s+[A-Z]", seg)
             if m:
                 total += int(m.group(1))
     return max(1, total)
+
+
+def _coerce_models(value, fallback: int = 1) -> int:
+    """Coerce a roster ``models`` value to a positive int — never raises.
+
+    Roster context comes from user-entered / parsed text, so the ``models``
+    field can be ``"3+"``, ``"10 models"``, ``None``, ``""`` or a float. A bare
+    ``int(value)`` on any of those crashed combat resolution (engine.py P1).
+    Extract the first integer; fall back to ``fallback`` (the dossier-min model
+    count) when there's no usable positive number.
+    """
+    if isinstance(value, bool):          # bool is an int subclass — exclude it
+        return fallback
+    if isinstance(value, (int, float)):
+        n = int(value)
+        return n if n > 0 else fallback
+    if value is None:
+        return fallback
+    m = re.search(r"\d+", str(value))
+    if not m:
+        return fallback
+    n = int(m.group())
+    return n if n > 0 else fallback
 
 
 def _baseline_wr(strength_str, toughness_str):
@@ -328,12 +458,34 @@ _UNIT_WEAPON_SUPPLEMENTS: dict = {
 
 class CombatTerminalEngine(EngineBase):
 
+    # Sentinel session id used by the CLI, the test-suite, and any caller that
+    # never declares a client token (everything routes to one shared session,
+    # exactly the pre-P0-2 behaviour).
+    _DEFAULT_SID = "_default"
+
     def __init__(self):
         self._loader = CombatTerminalLoader()
         self._loader.load()
 
-        # In-session state — persists for the server's lifetime
-        self._session: dict[str, Any] = {
+        # ── Per-client session state (P0-2) ──────────────────────────────────
+        # `_session` used to be a single dict mutated by every request, so two
+        # browser tabs (or two users on one deploy) corrupted each other's
+        # faction / disambiguation / last_combat / rosters.  State is now keyed
+        # by an opaque client/session token: each token gets its own isolated
+        # session dict.  The active token for the current request lives in a
+        # thread-local (FastAPI runs sync routes in a worker-thread pool, so a
+        # thread-local cleanly separates concurrent requests); callers that never
+        # set one fall back to a single shared default session.
+        self._sessions: dict[str, dict[str, Any]] = {}
+        self._session_locks: dict[str, threading.RLock] = {}
+        self._sessions_registry_lock = threading.Lock()
+        self._active = threading.local()
+        self._ensure_session(self._DEFAULT_SID)
+
+    @staticmethod
+    def _new_session() -> dict[str, Any]:
+        """Build a fresh, isolated session-state dict."""
+        return {
             "faction":        None,   # player's own faction
             "enemy_faction":  None,   # active enemy faction
             "turn":           0,      # current battle round
@@ -355,6 +507,51 @@ class CombatTerminalEngine(EngineBase):
             # discovered during actual use (not just static domain checks).
             "issue_log": [],
         }
+
+    # ─── Per-client session plumbing (P0-2) ───────────────────────────────────
+
+    def _ensure_session(self, sid: str) -> None:
+        """Create the session dict + lock for ``sid`` if it doesn't exist yet."""
+        if sid in self._sessions:
+            return
+        with self._sessions_registry_lock:
+            if sid not in self._sessions:
+                self._sessions[sid] = self._new_session()
+                self._session_locks[sid] = threading.RLock()
+
+    def _current_sid(self) -> str:
+        return getattr(self._active, "sid", None) or self._DEFAULT_SID
+
+    def set_session(self, sid: str | None) -> None:
+        """Bind the active session token for the current thread/request.
+
+        Called by the web layer at the start of every /exec and /query before
+        dispatch.  ``None``/empty falls back to the shared default session so the
+        CLI and direct callers keep working unchanged.
+        """
+        sid = (sid or self._DEFAULT_SID).strip() or self._DEFAULT_SID
+        self._ensure_session(sid)
+        self._active.sid = sid
+
+    def _active_lock(self) -> threading.RLock:
+        sid = self._current_sid()
+        self._ensure_session(sid)
+        return self._session_locks[sid]
+
+    @property
+    def _session(self) -> dict[str, Any]:
+        """The state dict for the current request's session token.
+
+        A property (not a plain attribute) so that the ~50 existing
+        ``self._session[...]`` reads/writes scattered through the engine
+        transparently resolve to the *active* client's isolated state.
+        """
+        sid = self._current_sid()
+        sess = self._sessions.get(sid)
+        if sess is None:
+            self._ensure_session(sid)
+            sess = self._sessions[sid]
+        return sess
 
     # ─── Session issue logger ─────────────────────────────────────────────────
 
@@ -763,6 +960,14 @@ class CombatTerminalEngine(EngineBase):
     # ─── Query dispatch ────────────────────────────────────────────────────────
 
     def query(self, command: str, params: dict | None = None) -> dict:
+        # Serialise requests within a single session so two in-flight requests
+        # from the same client can't tear _session reads/writes.  Different
+        # sessions hold different locks and run concurrently (per-client
+        # isolation is what actually fixes the cross-tab bleed — see __init__).
+        with self._active_lock():
+            return self._dispatch(command, params)
+
+    def _dispatch(self, command: str, params: dict | None = None) -> dict:
         params = params or {}
         dispatch = {
             "_select":     self._query_select,
@@ -1442,6 +1647,26 @@ class CombatTerminalEngine(EngineBase):
         all_attacker_flags = params.get("all_attacker_flags", None)
         all_defender_flags = params.get("all_defender_flags", None)
 
+        # ── Squad-size override (--n / --models) ─────────────────────────────
+        # Pull the size flag off each side and strip it from every flag list so
+        # it never reaches validate_flags, the math, or the modifier-toggle UI
+        # (size is a structural quantity, not a combat modifier). An explicit
+        # override is the highest-precedence source of model count (beats a
+        # loaded roster). On a rerun the override is restored from last_combat.
+        _att_size_flag, attacker_flags = _extract_size_flags(attacker_flags)
+        _def_size_flag, defender_flags = _extract_size_flags(defender_flags)
+        flags = [f for f in flags if _size_flag_value(f) is None]
+        if all_attacker_flags is not None:
+            all_attacker_flags = [f for f in all_attacker_flags if _size_flag_value(f) is None]
+        if all_defender_flags is not None:
+            all_defender_flags = [f for f in all_defender_flags if _size_flag_value(f) is None]
+        att_models_override = params.get("att_models_override")
+        def_models_override = params.get("def_models_override")
+        if att_models_override is None:
+            att_models_override = _att_size_flag
+        if def_models_override is None:
+            def_models_override = _def_size_flag
+
         if not attacker_raw or not defender_raw:
             return self._err("combat", "Usage: <attacker> vs <defender>  e.g. broadside vs intercessors")
 
@@ -1779,30 +2004,50 @@ class CombatTerminalEngine(EngineBase):
 
         # Model count — prefer roster entry (already resolved above),
         # then fall back to scanning the roster list, then dossier minimum.
-        att_models = _parse_min_models(att_unit.get("unit_composition", [])) if att_unit else 1
+        # `*_models_assumed` is True while the count is the dossier minimum (a
+        # guess) rather than an explicit roster squad size — surfaced as a note
+        # so the MC confidence isn't presented as authoritative for a size we
+        # assumed.  int(...) is replaced by _coerce_models so junk like "3+" or
+        # null in roster data can't crash combat resolution (P1).
+        att_min, att_max = _parse_size_range(att_unit.get("unit_composition", [])) if att_unit else (1, 1)
+        att_models = att_min
+        att_models_assumed = True
         if att_roster_entry and att_roster_entry.get("models"):
-            att_models = int(att_roster_entry["models"])
+            att_models = _coerce_models(att_roster_entry["models"], att_models)
+            att_models_assumed = False
         elif att_unit:
             _att_name = att_unit.get("name", "").lower()
             for _ru in self._session.get("roster_my", []):
                 _ru_name = (_ru.get("name") or "").lower()
                 if _ru_name and (_ru_name in _att_name or _att_name in _ru_name):
                     if _ru.get("models"):
-                        att_models = int(_ru["models"])
+                        att_models = _coerce_models(_ru["models"], att_models)
+                        att_models_assumed = False
                     break
+        # Explicit --n/--models override beats both the roster and the dossier.
+        if att_models_override is not None:
+            att_models = max(1, int(att_models_override))
+            att_models_assumed = False
 
         # Defender model count — drives BLAST minimum-3-attacks rule.
-        def_models = _parse_min_models(def_unit.get("unit_composition", [])) if def_unit else 1
+        def_min, def_max = _parse_size_range(def_unit.get("unit_composition", [])) if def_unit else (1, 1)
+        def_models = def_min
+        def_models_assumed = True
         if def_roster_entry and def_roster_entry.get("models"):
-            def_models = int(def_roster_entry["models"])
+            def_models = _coerce_models(def_roster_entry["models"], def_models)
+            def_models_assumed = False
         elif def_unit:
             _def_name = def_unit.get("name", "").lower()
             for _ru in self._session.get("roster_enemy", []):
                 _ru_name = (_ru.get("name") or "").lower()
                 if _ru_name and (_ru_name in _def_name or _def_name in _ru_name):
                     if _ru.get("models"):
-                        def_models = int(_ru["models"])
+                        def_models = _coerce_models(_ru["models"], def_models)
+                        def_models_assumed = False
                     break
+        if def_models_override is not None:
+            def_models = max(1, int(def_models_override))
+            def_models_assumed = False
 
         # ── Filter attacker weapons by roster loadout ────────────────────────
         # If a roster entry was selected (or auto-matched), only include
@@ -2013,6 +2258,54 @@ class CombatTerminalEngine(EngineBase):
         if def_crusade_notes:
             flag_notes.extend(def_crusade_notes)
 
+        # Model-count provenance (P1) — when a squad size is the dossier minimum
+        # (a guess) rather than an explicit roster count, per-squad damage and the
+        # MC confidence are only as good as that guess. Surface it instead of
+        # presenting an assumed size as authoritative. An explicit --n/--models
+        # override is shown with its legal range, and warned if outside it.
+        def _range_label(lo, hi):
+            return f"{lo}" if lo == hi else f"{lo}–{hi}"
+
+        for _side, _models, _ovr, _lo, _hi in (
+            ("Attacker", att_models, att_models_override, att_min, att_max),
+            ("Defender", def_models, def_models_override, def_min, def_max),
+        ):
+            if _ovr is None:
+                continue
+            rng_txt = _range_label(_lo, _hi)
+            if _models < _lo or _models > _hi:
+                flag_notes.append({
+                    "icon": "alert",
+                    "text": (f"{_side} size set to {_models} via --n — outside this unit's "
+                             f"legal range ({rng_txt}). Using {_models} anyway."),
+                })
+            else:
+                flag_notes.append({
+                    "icon": "target",
+                    "text": f"{_side} size set to {_models} model(s) via --n (range {rng_txt}).",
+                })
+
+        _assumed = []
+        if att_models_assumed and att_models > 1:
+            _assumed.append(f"attacker ×{att_models} (range {_range_label(att_min, att_max)})")
+        if def_models_assumed and def_models > 1:
+            _assumed.append(f"defender ×{def_models} (range {_range_label(def_min, def_max)})")
+        if _assumed:
+            flag_notes.append({
+                "icon": "alert",
+                "text": ("Model count assumed from dossier minimum (" + ", ".join(_assumed) +
+                         ") — set an exact size with --n N (e.g. `--n10`), or load a roster; "
+                         "per-squad damage scales with it."),
+            })
+        _blast_active = any(_flags.split_key(f) == "blast" for f in flags)
+        if _blast_active and def_models_assumed and def_models < 6:
+            flag_notes.append({
+                "icon": "alert",
+                "text": (f"BLAST needs a 6+ model target, but the defender size is assumed at "
+                         f"{def_models} (dossier minimum), so the minimum-3-attacks rule won't fire. "
+                         f"Load the enemy roster for an accurate count."),
+            })
+
         n_ranged = len([w for w in weapons if w["type"] != "melee"])
         n_melee  = len([w for w in weapons if w["type"] == "melee"])
         footer_parts = []
@@ -2187,6 +2480,10 @@ class CombatTerminalEngine(EngineBase):
             "all_defender_flags":    final_all_def,
             "active_attacker_flags": list(attacker_flags),
             "active_defender_flags": list(defender_flags),
+            # Squad-size overrides persist across reruns (they're stripped from
+            # the flag lists, so they must be carried explicitly).
+            "att_models_override":   att_models_override,
+            "def_models_override":   def_models_override,
         }
 
         # Build display names — annotate with nickname and/or leader
@@ -2217,6 +2514,15 @@ class CombatTerminalEngine(EngineBase):
                 "defender_flags":      list(defender_flags),
                 "all_attacker_flags":  final_all_att,
                 "all_defender_flags":  final_all_def,
+                # Squad sizes + legal ranges (for a size control / "×N (10–20)" chip)
+                "att_models":          att_models,
+                "def_models":          def_models,
+                "att_size_range":      [att_min, att_max],
+                "def_size_range":      [def_min, def_max],
+                "att_models_assumed":  att_models_assumed,
+                "def_models_assumed":  def_models_assumed,
+                "att_models_override": att_models_override,
+                "def_models_override": def_models_override,
                 "ranged":              math_result.get("ranged"),
                 "melee":               math_result.get("melee"),
                 "weapons":             weapons,
@@ -2304,6 +2610,9 @@ class CombatTerminalEngine(EngineBase):
             # Pass through full originals so they survive the next round too
             "all_attacker_flags":    all_att,
             "all_defender_flags":    all_def,
+            # Preserve any squad-size override across the rerun.
+            "att_models_override":   last.get("att_models_override"),
+            "def_models_override":   last.get("def_models_override"),
         }
 
         result = self._query_combat(combat_params)
@@ -2905,8 +3214,13 @@ class CombatTerminalEngine(EngineBase):
             explode = True
 
         # ── Roll ─────────────────────────────────────────────────────────────
+        # Dedicated RNG seeded from OS entropy — independent of the Monte Carlo
+        # sim's RNG (which is deterministically seeded) so a combat run can't
+        # correlate or pin the dice roller's output.
+        _dice_rng = random.Random()
+
         def roll_one(faces: int) -> int:
-            return random.randint(1, faces)
+            return _dice_rng.randint(1, faces)
 
         rolls: list[int] = []
         notes: list[str] = []
@@ -3595,41 +3909,14 @@ class CombatTerminalEngine(EngineBase):
             },
         ]
 
-        offensive_modifier_flags = [
-            {"flag": "--lethal",      "display": "[lethal]",     "desc": "Lethal Hits",                "effect": "Unmodified 6s to Hit auto-wound (skip wound roll, proceed to saves)"},
-            {"flag": "--twin",        "display": "[twin]",       "desc": "Twin-linked",                "effect": "Re-roll all failed wound rolls"},
-            {"flag": "--sus1",        "display": "[sus]",        "desc": "Sustained Hits 1",           "effect": "Critical hit (6+) generates 1 additional hit. Use --sus2, --sus3 for Sustained Hits 2/3"},
-            {"flag": "--dev",         "display": "[dev]",        "desc": "Devastating Wounds",         "effect": "Critical wounds (6+ on wound roll) bypass all saves (mortal wound equivalent)"},
-            {"flag": "--blast",       "display": "[blast]",      "desc": "Blast",                      "effect": "Minimum 3 attacks when targeting 6+ model units — defender model count required for full resolution"},
-            {"flag": "--rf",          "display": "[rf]",         "desc": "Rapid Fire (in range)",      "effect": "Rapid Fire N already baked into A count; flag signals in-half-range condition"},
-            {"flag": "--melta",       "display": "[melta]",      "desc": "Melta (in range)",           "effect": "Uses weapon's Melta N for +N flat damage. Override with --melta2, --melta:4 etc."},
-            {"flag": "--lance",       "display": "[lance]",      "desc": "Lance",                      "effect": "+1 to wound rolls (approximation — full rule applies vs VEHICLES/MONSTERS only)"},
-            {"flag": "--torrent",     "display": "[torrent]",    "desc": "Torrent",                    "effect": "Weapon auto-hits (no BS roll required); natural 6s on separate die still trigger crits"},
-            {"flag": "--heavy",       "display": "[heavy]",      "desc": "Heavy (Remained Stationary)","effect": "+1 to Hit rolls on weapons with the Heavy keyword"},
-            {"flag": "--eap",         "display": "[eap]",        "desc": "Extra AP +N (attacker)",     "effect": "Improves the weapon's Armour Penetration by N (AP-1 → AP-2). Forms: --eap, --eap2, --eap3. The many 'improve the Armour Penetration characteristic by 1' abilities/stratagems."},
-            {"flag": "--igncover",    "display": "[igncover]",   "desc": "Ignore Cover",               "effect": "Attacker ignores benefit of cover (standalone — --ml also includes this)"},
-            {"flag": "--ea1",         "display": "[ea1]",        "desc": "Extra Attacks +1",           "effect": "+1 extra attack per model before squad scaling (also: --ea2, --ea:3 etc.)"},
-            {"flag": "--ed1",         "display": "[ed1]",        "desc": "Extra Damage +1",            "effect": "+N flat damage per unsaved wound. Also: --ed2, --ed:3 etc."},
-            {"flag": "--rrhit",       "display": "[rrhit]",      "desc": "Re-roll Hits (all failed)",  "effect": "Re-roll all failed Hit rolls"},
-            {"flag": "--rrhit1",      "display": "[rrhit1]",     "desc": "Re-roll Hits (1s only)",     "effect": "Re-roll Hit rolls of 1"},
-            {"flag": "--rrwound1",    "display": "[rrwound1]",   "desc": "Re-roll Wounds (1s only)",   "effect": "Re-roll Wound rolls of 1 (--twin re-rolls ALL failed wounds)"},
-            {"flag": "--criton5",     "display": "[criton:5]",   "desc": "Crit Hits on 5+",            "effect": "Critical hits trigger on 5+ instead of 6+. Also: --criton4 etc."},
-            {"flag": "--critwound5",  "display": "[critwound:5]","desc": "Crit Wounds on 5+",          "effect": "Critical wounds trigger on 5+ instead of 6+. Also: --critwound4 etc."},
-        ]
-
-        defensive_modifier_flags = [
-            {"flag": "--cover",       "display": "[cover]",      "desc": "Target in cover",            "effect": "+1 to target armour saves (e.g. Sv3+ → Sv2+)"},
-            {"flag": "--stealth",     "display": "[stealth]",    "desc": "Stealth",                    "effect": "-1 to Hit rolls against this target (many faction abilities grant this)"},
-            {"flag": "--indirect",    "display": "[indirect]",   "desc": "Indirect Fire",              "effect": "-1 to Hit rolls AND target gets benefit of cover (+1 save)"},
-            {"flag": "--invuln4",     "display": "[invuln4]",    "desc": "Invulnerable Save Override", "effect": "Forces target invulnerable save to 4+. Also: --invuln5, --invuln6"},
-            {"flag": "--eapdef",      "display": "[eapdef]",     "desc": "Extra AP (defender)",        "effect": "Defender worsens the AP of incoming attacks by N (AP-2 → AP-1, e.g. Commander in Enforcer Battlesuit). Forms: --eapdef, --eapdef2. Place after vs on the defender."},
-            {"flag": "--fnp6",        "display": "[fnp:6]",      "desc": "Feel No Pain Override",      "effect": "Target gains/overrides Feel No Pain save to 6+. Also: --fnp5, --fnp:4 etc."},
-            {"flag": "--halfdmg",     "display": "[halfdmg]",    "desc": "Half Damage",                "effect": "Halves damage inflicted (e.g. Duty Eternal, damage reduction abilities)"},
-            {"flag": "--woundsplus1", "display": "[woundsplus1]","desc": "Target +N Wounds",           "effect": "Adds N to the target's Wounds characteristic, floored at 1 (e.g. Reinforced Hull). Negative forms reduce it: --woundsplus-1. Crusade defensive trait."},
-            {"flag": "--dmgreduce1",  "display": "[dmgreduce1]", "desc": "Damage Reduction",           "effect": "Reduces incoming damage by N per attack, final damage floored at 1 (e.g. Armour Plating). Alias: --dmgred1. Crusade defensive trait."},
-            {"flag": "--svplus1",     "display": "[svplus1]",    "desc": "Target +N Save",             "effect": "Improves the target's armour save rolls by N (better save)."},
-            {"flag": "--svminus1",    "display": "[svminus1]",   "desc": "Target -N Save",             "effect": "Worsens the target's armour save rolls by N (e.g. Shell Shocked scar)."},
-        ]
+        # Modifier-flag legend rows are generated from the single flag registry
+        # (flags.FLAG_SPECS) so the legend can never drift from the parsing /
+        # classification / note text the math actually uses. (Previously these
+        # were a hand-maintained second copy — a 5th place the ~40 flags had to be
+        # kept in lockstep.) A test asserts every registry flag appears here.
+        _legend_rows = _flags.legend_rows()
+        offensive_modifier_flags = _legend_rows["offensive"]
+        defensive_modifier_flags = _legend_rows["defensive"]
 
         faction_modifier_flags = [
             {"flag": "--oath",   "display": "[oath]",   "faction": "Space Marines",  "desc": "Oath of Moment",             "effect": "Re-roll ALL failed Hit and Wound rolls against the sworn target"},
@@ -3650,6 +3937,7 @@ class CombatTerminalEngine(EngineBase):
             "AP in dossiers is stored as unsigned integer — AP-2 is stored as 2. The save formula: effective_save = armour_save + AP.",
             "Blast minimum-3 attacks requires knowing the defender's squad size; currently uses dossier minimum composition.",
             "Rapid Fire attacks are baked in at full value — the --rf flag is informational only (no additional math effect).",
+            "Squad size: by default a unit fights at its dossier minimum. Override per combat with --n N (or --models N), e.g. `kroot carnivores --n20 vs intercessors`; put it after `vs` to size the defender. An explicit --n beats a loaded roster, persists through rerun, and warns if outside the unit's legal range.",
         ]
 
         return {

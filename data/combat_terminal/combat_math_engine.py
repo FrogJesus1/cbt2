@@ -397,8 +397,8 @@ def compute_attack_result(
     )
 
 
-def roll_d6() -> int:
-    return random.randint(1, 6)
+def roll_d6(rng=random) -> int:
+    return rng.randint(1, 6)
 
 
 _DICE_EXPR_RE = re.compile(r"(\d*)D(\d+)\s*([+-]\s*\d+)?", re.IGNORECASE)
@@ -433,12 +433,12 @@ def roll_dice_expression(expr, rng=random) -> Optional[int]:
     return sum(rng.randint(1, sides) for _ in range(count)) + mod
 
 
-def _passes_roll(target: int) -> bool:
-    return roll_d6() >= target
+def _passes_roll(target: int, rng=random) -> bool:
+    return roll_d6(rng) >= target
 
 
-def _reroll_mode(target: int, mode: str) -> Tuple[bool, int]:
-    first = roll_d6()
+def _reroll_mode(target: int, mode: str, rng=random) -> Tuple[bool, int]:
+    first = roll_d6(rng)
     if first >= target:
         return True, first
 
@@ -446,11 +446,11 @@ def _reroll_mode(target: int, mode: str) -> Tuple[bool, int]:
         return False, first
     if mode == "ones":
         if first == 1:
-            second = roll_d6()
+            second = roll_d6(rng)
             return second >= target, second
         return False, first
     if mode == "failed":
-        second = roll_d6()
+        second = roll_d6(rng)
         return second >= target, second
 
     raise ValueError(f"Unknown reroll mode: {mode}")
@@ -476,8 +476,13 @@ def monte_carlo_attack(
     attacks expression this many times per trial and sum (one volley per firing
     model), instead of pre-multiplying the expected value.
     """
-    if seed is not None:
-        random.seed(seed)
+    # Dedicated RNG per simulation — never touch the global `random` stream.
+    # Previously this did `random.seed(42)`, which clobbered the module-global
+    # RNG that the `dice` roller also draws from, so rolling a combat then
+    # rolling dice produced correlated results. A local Random keeps the
+    # seed=42 reproducibility of the confidence bands while staying independent
+    # (seed=None → seeded from OS entropy).
+    rng = random.Random(seed)
 
     mods = apply_tau_markerlights(apply_effects(base_mods, extra_effects))
 
@@ -504,7 +509,7 @@ def monte_carlo_attack(
             return attacks_fixed
         rolled = 0
         for _ in range(max(1, attacks_volleys)):
-            r = roll_dice_expression(weapon.attacks_expression)
+            r = roll_dice_expression(weapon.attacks_expression, rng)
             rolled += r if r is not None else weapon.attacks
         return int(max(0, round(rolled + mods.extra_attacks)))
 
@@ -513,7 +518,7 @@ def monte_carlo_attack(
         the weapon has variable damage."""
         if not sample_damage:
             return effective_damage
-        base = roll_dice_expression(weapon.damage_expression)
+        base = roll_dice_expression(weapon.damage_expression, rng)
         if base is None:
             base = weapon.damage
         return max(1.0, ((base + mods.flat_damage_bonus) * mods.damage_multiplier) - target.damage_reduction)
@@ -537,9 +542,9 @@ def monte_carlo_attack(
             # Torrent: auto-hits — roll a d6 only to check for crit
             if mods.use_torrent:
                 hit_success = True
-                natural_hit = roll_d6()
+                natural_hit = roll_d6(rng)
             else:
-                hit_success, natural_hit = _reroll_mode(hit_target, mods.reroll_hits)
+                hit_success, natural_hit = _reroll_mode(hit_target, mods.reroll_hits, rng)
             if not hit_success:
                 continue
 
@@ -555,7 +560,7 @@ def monte_carlo_attack(
             wounds_dev = 0
 
             for _ in range(max(0, rolled_hits)):
-                wound_success, natural_wound = _reroll_mode(wound_t, mods.reroll_wounds)
+                wound_success, natural_wound = _reroll_mode(wound_t, mods.reroll_wounds, rng)
                 if wound_success:
                     crit_wound = natural_wound >= mods.crit_wounds_on
                     if mods.devastating_wounds and crit_wound:
@@ -567,13 +572,13 @@ def monte_carlo_attack(
             for _ in range(wounds):
                 failed = True
                 if save_t is not None:
-                    failed = not _passes_roll(save_t)
+                    failed = not _passes_roll(save_t, rng)
                 if failed:
                     dmg = _roll_damage()
                     if target.feel_no_pain is not None:
                         prevented = 0
                         for _ in range(int(math.floor(dmg))):
-                            if _passes_roll(target.feel_no_pain):
+                            if _passes_roll(target.feel_no_pain, rng):
                                 prevented += 1
                         dmg = max(0, dmg - prevented)
                     damage_this_trial += dmg
@@ -590,7 +595,7 @@ def monte_carlo_attack(
                 if target.feel_no_pain is not None:
                     prevented = 0
                     for _ in range(int(math.floor(dmg))):
-                        if _passes_roll(target.feel_no_pain):
+                        if _passes_roll(target.feel_no_pain, rng):
                             prevented += 1
                     dmg = max(0, dmg - prevented)
                 damage_this_trial += dmg

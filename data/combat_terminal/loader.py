@@ -264,8 +264,14 @@ class CombatTerminalLoader:
             with open(dossier_path, encoding="utf-8") as f:
                 raw = json.load(f)
         except Exception as e:
-            self._errors.append(f"[{faction_key}] Failed to load {dossier_path.name}: {e}")
-            self._loaded_factions.add(faction_key)
+            # A parse/read failure must NOT mark the faction loaded — otherwise it
+            # is permanently empty and never retried, and every later lookup
+            # silently returns nothing. Leaving it unmarked lets a subsequent
+            # access try again (e.g. after the file is fixed). Dedupe the error so
+            # repeated retries don't spam the log.
+            msg = f"[{faction_key}] Failed to load {dossier_path.name}: {e}"
+            if msg not in self._errors:
+                self._errors.append(msg)
             return
 
         is_list = isinstance(raw, list)
@@ -1078,13 +1084,15 @@ class CombatTerminalLoader:
                     # Include stats for rich list display
                     stats = unit.get("stats", {}) if isinstance(unit.get("stats"), dict) else {}
                     results.append({
-                        "name":      unit.get("name", "?"),
-                        "faction":   faction_name,
-                        "T":         unit.get("T") or stats.get("T") or "—",
-                        "W":         unit.get("W") or stats.get("W") or "—",
-                        "Sv":        unit.get("Sv") or stats.get("Sv") or "—",
-                        "points":    unit.get("points") or unit.get("points_per_model") or "—",
-                        "abilities": unit.get("abilities", []),
+                        "name":       unit.get("name", "?"),
+                        "faction":    faction_name,
+                        "T":          unit.get("T") or stats.get("T") or "—",
+                        "W":          unit.get("W") or stats.get("W") or "—",
+                        "Sv":         unit.get("Sv") or stats.get("Sv") or "—",
+                        "points":     unit.get("points") or unit.get("points_per_model") or "—",
+                        "abilities":  unit.get("abilities", []),
+                        "legends":    bool(unit.get("legends")),
+                        "forgeworld": bool(unit.get("forgeworld")),
                     })
             return {"type": "units", "items": results}
 

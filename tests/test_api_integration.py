@@ -80,6 +80,40 @@ def test_exec_route_with_roster_context():
     assert r.json().get("ok") is True
 
 
+def test_sessions_are_isolated_by_token():
+    """P0-2: two clients (distinct session_id) must not see each other's session
+    state. Before the per-client session fix a single shared engine session let
+    one tab's faction / last_combat clobber another's."""
+    # Two different clients set two different factions + run two different combats.
+    _client.post(f"/api/engines/{ENGINE}/exec",
+                 json={"input": "faction tau", "session_id": "alpha"})
+    _client.post(f"/api/engines/{ENGINE}/exec",
+                 json={"input": "faction tyranids", "session_id": "beta"})
+    _client.post(f"/api/engines/{ENGINE}/exec",
+                 json={"input": "broadside vs intercessors", "session_id": "alpha"})
+    _client.post(f"/api/engines/{ENGINE}/exec",
+                 json={"input": "tervigon vs intercessors", "session_id": "beta"})
+
+    # `faction` with no argument echoes each client's *own* current faction.
+    a = _client.post(f"/api/engines/{ENGINE}/exec",
+                     json={"input": "faction", "session_id": "alpha"}).json()
+    b = _client.post(f"/api/engines/{ENGINE}/exec",
+                     json={"input": "faction", "session_id": "beta"}).json()
+    assert "tau" in str(a.get("data", "")).lower(), f"alpha lost its faction: {a}"
+    assert "tyranid" in str(b.get("data", "")).lower(), f"beta lost its faction: {b}"
+
+    # `rerun` re-executes each client's *own* last combat — proving last_combat
+    # didn't bleed across sessions.
+    ra = _client.post(f"/api/engines/{ENGINE}/exec",
+                      json={"input": "rerun", "session_id": "alpha"}).json()
+    rb = _client.post(f"/api/engines/{ENGINE}/exec",
+                      json={"input": "rerun", "session_id": "beta"}).json()
+    a_att = str(ra.get("data", {}).get("attacker_name", "")).lower()
+    b_att = str(rb.get("data", {}).get("attacker_name", "")).lower()
+    assert "broadside" in a_att, f"alpha's last_combat was clobbered: {a_att!r}"
+    assert "tervigon" in b_att, f"beta's last_combat was clobbered: {b_att!r}"
+
+
 def test_unknown_engine_returns_404():
     r = _client.post("/api/engines/does-not-exist/exec", json={"input": "x"})
     assert r.status_code == 404

@@ -3530,7 +3530,7 @@
    "notes": ""
   },
   {
-   "name": "TYRANID WARRIORS",
+   "name": "TYRANID WARRIORS WITH MELEE BIO-WEAPONS",
    "legends": false,
    "role": "INFANTRY",
    "faction_keywords": [
@@ -3609,7 +3609,7 @@
    "notes": ""
   },
   {
-   "name": "TYRANID WARRIORS",
+   "name": "TYRANID WARRIORS WITH RANGED BIO-WEAPONS",
    "legends": false,
    "role": "INFANTRY",
    "faction_keywords": [

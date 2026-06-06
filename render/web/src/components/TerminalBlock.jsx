@@ -1615,6 +1615,20 @@ function UnitListRich({ data = [], meta, onInject }) {
               onMouseLeave={e => { e.currentTarget.style.color = C.mid; }}
             >
               {unit.name}
+              {unit.legends && (
+                <span style={{
+                  color: C.amber, fontSize: "9px", fontWeight: 700, letterSpacing: "0.08em",
+                  border: `1px solid ${C.amber}`, borderRadius: "3px", padding: "0 4px",
+                  marginLeft: "8px", verticalAlign: "middle", opacity: 0.85,
+                }}>LEGENDS</span>
+              )}
+              {unit.forgeworld && (
+                <span style={{
+                  color: C.cyan, fontSize: "9px", fontWeight: 700, letterSpacing: "0.08em",
+                  border: `1px solid ${C.cyan}`, borderRadius: "3px", padding: "0 4px",
+                  marginLeft: "8px", verticalAlign: "middle", opacity: 0.85,
+                }}>FORGE WORLD</span>
+              )}
             </span>
 
             {/* Points */}

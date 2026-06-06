@@ -162,13 +162,20 @@ def create_report(
         "Category":   category or "general",
         "Subject":    subject,
         "Body":       body or subject,
-        "Command":    command or "",
-        "Faction":    faction or "",
         "ReportedBy": reported_by or "unknown",
         "Status":     "open",
         "CreatedAt":  now,
-        "ResolvedAt": "",
     }
+    # Optional fields are only sent when non-empty. Sending "" for a column that
+    # has been (re)typed as anything but text — e.g. ResolvedAt as a Date field —
+    # makes Airtable 422 ("Cannot parse date value \"\""). Omitting the key
+    # leaves the cell blank and is accepted by every field type, so the writer no
+    # longer depends on the exact column typing. ResolvedAt is intentionally left
+    # blank on create (the report isn't resolved yet).
+    if command:
+        fields["Command"] = command
+    if faction:
+        fields["Faction"] = faction
     _table().create(fields)
 
     return {
@@ -176,8 +183,8 @@ def create_report(
         "category":    fields["Category"],
         "subject":     subject,
         "body":        fields["Body"],
-        "command":     fields["Command"],
-        "faction":     fields["Faction"],
+        "command":     command or "",
+        "faction":     faction or "",
         "reported_by": fields["ReportedBy"],
         "status":      "open",
         "created_at":  now,

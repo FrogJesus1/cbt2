@@ -5,6 +5,8 @@
  * Each roster is tagged with who uploaded it and when.
  */
 
+import { getLastProfile } from "@/lib/profile";
+
 const API = "/api";
 
 /**
@@ -68,11 +70,17 @@ export async function uploadRoster(name, faction, content, uploadedBy) {
 }
 
 /**
- * Delete a shared roster by ID.
+ * Delete a shared roster by ID. Passes the current profile name as `requester`
+ * so the server can enforce uploader-only deletion. The name is not a secret,
+ * so a query param is fine here (unlike a PIN).
  */
-export async function deleteSharedRoster(rosterId) {
-  const res = await fetch(`${API}/rosters/${rosterId}`, { method: "DELETE" });
-  if (!res.ok) throw new Error("Failed to delete roster");
+export async function deleteSharedRoster(rosterId, requester = getLastProfile()) {
+  const qs = requester ? `?requester=${encodeURIComponent(requester)}` : "";
+  const res = await fetch(`${API}/rosters/${rosterId}${qs}`, { method: "DELETE" });
+  if (!res.ok) {
+    const err = await res.json().catch(() => ({}));
+    throw new Error(err.detail || "Failed to delete roster");
+  }
   return true;
 }
 

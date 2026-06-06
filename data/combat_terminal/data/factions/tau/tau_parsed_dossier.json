@@ -1078,7 +1078,7 @@
   },
   {
    "name": "AUN’SHI",
-   "legends": false,
+   "legends": true,
    "role": "CHARACTER",
    "faction_keywords": [
     "KEYWORDS: Infantry",
@@ -1164,7 +1164,7 @@
   },
   {
    "name": "AUN’VA",
-   "legends": false,
+   "legends": true,
    "role": "CHARACTER",
    "faction_keywords": [
     "– AUN’VA: Character",
@@ -1477,7 +1477,7 @@
    "notes": "Leader: the following unit:, ■ Crisis Battlesuits"
   },
   {
-   "name": "COMMANDER",
+   "name": "COMMANDER IN COLDSTAR BATTLESUIT",
    "legends": false,
    "role": "CHARACTER",
    "faction_keywords": [
@@ -1686,8 +1686,8 @@
    "notes": "Leader: the following unit:, ◦ 1 missile pod ◦ 1 missile pod ■ Crisis Battlesuits, ◦ 1 plasma rifle ◦ 1 plasma rifle, ◦ 1 shield generator* ◦ 1 shield generat"
   },
   {
-   "name": "COMMANDER",
-   "legends": false,
+   "name": "COMMANDER IN CRISIS BATTLESUIT",
+   "legends": true,
    "role": "CHARACTER",
    "faction_keywords": [
     "Commander in Crisis Battlesuit T’au Empire"
@@ -1883,7 +1883,7 @@
    "notes": "Leader: the following unit:, ◦ 1 missile pod ◦ 1 fusion blaster, ■ Crisis Battlesuits, ◦ 1 plasma rifle ◦ 1 missile pod, ◦ 1 shield generator* ◦ 1 plasma rifl"
   },
   {
-   "name": "COMMANDER",
+   "name": "COMMANDER IN ENFORCER BATTLESUIT",
    "legends": false,
    "role": "CHARACTER",
    "faction_keywords": [
@@ -2411,7 +2411,7 @@
   },
   {
    "name": "KROOT SHAPER",
-   "legends": false,
+   "legends": true,
    "role": "CHARACTER",
    "faction_keywords": [
     "KEYWORDS: Character",
@@ -2514,7 +2514,7 @@
   },
   {
    "name": "LONGSTRIKE",
-   "legends": false,
+   "legends": true,
    "role": "CHARACTER",
    "faction_keywords": [
     "KEYWORDS: Vehicle",
@@ -2845,11 +2845,12 @@
     "High durability — concentrate fire, Ion Accelerator or Railguns for AP-3+.",
     "T11 — only Ion Accelerator, Railguns, or AP-2+ volume attacks meaningful."
    ],
-   "notes": ""
+   "notes": "",
+   "forgeworld": true
   },
   {
    "name": "BARRACUDA",
-   "legends": false,
+   "legends": true,
    "role": "SUPER-HEAVY",
    "faction_keywords": [
     "KEYWORDS: Vehicle",
@@ -3234,11 +3235,12 @@
     "High durability — concentrate fire, Ion Accelerator or Railguns for AP-3+.",
     "T14 — only Ion Accelerator, Railguns, or AP-2+ volume attacks meaningful."
    ],
-   "notes": ""
+   "notes": "",
+   "forgeworld": true
   },
   {
    "name": "REMORA STEALTH DRONES",
-   "legends": false,
+   "legends": true,
    "role": "SUPER-HEAVY",
    "faction_keywords": [
     "KEYWORDS: Vehicle",
@@ -3352,7 +3354,7 @@
   },
   {
    "name": "R’VARNA BATTLESUIT",
-   "legends": false,
+   "legends": true,
    "role": "SUPER-HEAVY",
    "faction_keywords": [
     "KEYWORDS: Vehicle",
@@ -3669,11 +3671,12 @@
     "High durability — concentrate fire, Ion Accelerator or Railguns for AP-3+.",
     "T13 — only Ion Accelerator, Railguns, or AP-2+ volume attacks meaningful."
    ],
-   "notes": ""
+   "notes": "",
+   "forgeworld": true
   },
   {
    "name": "TETRAS",
-   "legends": false,
+   "legends": true,
    "role": "SUPER-HEAVY",
    "faction_keywords": [
     "KEYWORDS: Vehicle",
@@ -3962,11 +3965,12 @@
     "High durability — concentrate fire, Ion Accelerator or Railguns for AP-3+.",
     "T11 — only Ion Accelerator, Railguns, or AP-2+ volume attacks meaningful."
    ],
-   "notes": ""
+   "notes": "",
+   "forgeworld": true
   },
   {
    "name": "Y’VAHRA BATTLESUIT",
-   "legends": false,
+   "legends": true,
    "role": "SUPER-HEAVY",
    "faction_keywords": [
     "KEYWORDS: Vehicle",
@@ -4652,7 +4656,7 @@
   },
   {
    "name": "TACTICAL DRONES",
-   "legends": false,
+   "legends": true,
    "role": "INFANTRY",
    "faction_keywords": [
     "KEYWORDS: Drone",
@@ -7094,6 +7098,515 @@
     "Invulnerable save — volume of fire preferred over single high-AP shots."
    ],
    "notes": ""
+  },
+  {
+   "name": "KROOT LONE-SPEAR",
+   "legends": false,
+   "forgeworld": false,
+   "role": "CHARACTER",
+   "faction_keywords": [
+    "Infantry",
+    "Character",
+    "Lone Operative",
+    "Scouts",
+    "Stealth",
+    "Kroot",
+    "T’au Empire"
+   ],
+   "keywords": [
+    "Infantry",
+    "Character",
+    "Lone Operative",
+    "Scouts",
+    "Stealth",
+    "Kroot"
+   ],
+   "points": null,
+   "stats": {
+    "M": "12\"",
+    "T": "5",
+    "Sv": "5+",
+    "W": "6",
+    "Ld": "7+",
+    "OC": "2"
+   },
+   "unit_composition": [
+    "1 Kroot Lone-Spear",
+    "This model is equipped with: Kroot long gun; close combat weapon; Kalamandra’s bite."
+   ],
+   "base_size": null,
+   "abilities": [
+    {
+     "name": "CORE",
+     "summary": "Lone Operative, Scouts 7\", Stealth",
+     "phase_tags": []
+    },
+    {
+     "name": "Advanced Scouting",
+     "summary": "Each time this model makes a ranged attack that hits an enemy unit, until the end of the turn, each time another KROOT model from your army makes an attack that targets that enemy unit, you can re-roll the Hit roll.",
+     "phase_tags": []
+    },
+    {
+     "name": "Fire and Fade",
+     "summary": "In your Shooting phase, after this model has shot, if it is not within Engagement Range of any enemy units, it can make a Normal move of up to 6\". If it does, it cannot declare a charge this turn.",
+     "phase_tags": []
+    }
+   ],
+   "wargear_options": [],
+   "weapons": [
+    {
+     "name": "Blast javelin",
+     "type": "ranged",
+     "range": "18\"",
+     "a": "D6",
+     "bs_ws": "4+",
+     "s": "10",
+     "ap": "-2",
+     "d": "2",
+     "keywords": [
+      "ASSAULT",
+      "BLAST"
+     ]
+    },
+    {
+     "name": "Kroot long gun",
+     "type": "ranged",
+     "range": "36\"",
+     "a": "1",
+     "bs_ws": "3+",
+     "s": "6",
+     "ap": "-2",
+     "d": "3",
+     "keywords": [
+      "HEAVY",
+      "PRECISION"
+     ]
+    },
+    {
+     "name": "Close combat weapon",
+     "type": "melee",
+     "range": "Melee",
+     "a": "3",
+     "bs_ws": "3+",
+     "s": "4",
+     "ap": "0",
+     "d": "1",
+     "keywords": []
+    },
+    {
+     "name": "Hunting javelin",
+     "type": "melee",
+     "range": "Melee",
+     "a": "3",
+     "bs_ws": "3+",
+     "s": "4",
+     "ap": "-1",
+     "d": "1",
+     "keywords": [
+      "LANCE"
+     ]
+    },
+    {
+     "name": "Kalamandra’s bite",
+     "type": "melee",
+     "range": "Melee",
+     "a": "4",
+     "bs_ws": "4+",
+     "s": "5",
+     "ap": "-1",
+     "d": "1",
+     "keywords": [
+      "EXTRA ATTACKS"
+     ]
+    }
+   ],
+   "strengths": [],
+   "weaknesses": [],
+   "target_priority_tags": [],
+   "threat_tags": [],
+   "mobility_tags": [],
+   "durability_tags": [],
+   "tau_counterplay": [],
+   "notes": "Added from Wahapedia T’au Empire datasheets (current, 10th ed v1.2)."
+  },
+  {
+   "name": "KROOT FLESH SHAPER",
+   "legends": false,
+   "forgeworld": false,
+   "role": "CHARACTER",
+   "faction_keywords": [
+    "Infantry",
+    "Character",
+    "Leader",
+    "Kroot",
+    "Shaper",
+    "T’au Empire"
+   ],
+   "keywords": [
+    "Infantry",
+    "Character",
+    "Leader",
+    "Kroot",
+    "Shaper"
+   ],
+   "points": null,
+   "stats": {
+    "M": "7\"",
+    "T": "3",
+    "Sv": "6+",
+    "W": "3",
+    "Ld": "7+",
+    "OC": "1"
+   },
+   "unit_composition": [
+    "1 Kroot Flesh Shaper",
+    "This model is equipped with: Kroot scattergun; twin ritualistic blades."
+   ],
+   "base_size": null,
+   "abilities": [
+    {
+     "name": "CORE",
+     "summary": "Infiltrators, Leader, Scouts 7\", Stealth",
+     "phase_tags": []
+    },
+    {
+     "name": "Ritual Butchery",
+     "summary": "While this model is leading a unit, melee weapons equipped by models in that unit have the [SUSTAINED HITS 1] ability.",
+     "phase_tags": []
+    },
+    {
+     "name": "Rites of Feasting",
+     "summary": "While this model is leading a unit, models in that unit have the Feel No Pain 6+ ability. If that unit destroys one or more enemy units in the Fight phase, until the end of the battle that unit has Feel No Pain 5+ instead.",
+     "phase_tags": []
+    }
+   ],
+   "wargear_options": [],
+   "weapons": [
+    {
+     "name": "Kroot scattergun",
+     "type": "ranged",
+     "range": "12\"",
+     "a": "2",
+     "bs_ws": "4+",
+     "s": "4",
+     "ap": "0",
+     "d": "1",
+     "keywords": [
+      "ASSAULT"
+     ]
+    },
+    {
+     "name": "Twin ritualistic blades",
+     "type": "melee",
+     "range": "Melee",
+     "a": "4",
+     "bs_ws": "2+",
+     "s": "5",
+     "ap": "-1",
+     "d": "1",
+     "keywords": [
+      "TWIN-LINKED"
+     ]
+    }
+   ],
+   "strengths": [],
+   "weaknesses": [],
+   "target_priority_tags": [],
+   "threat_tags": [],
+   "mobility_tags": [],
+   "durability_tags": [],
+   "tau_counterplay": [],
+   "notes": "Added from Wahapedia T’au Empire datasheets (current, 10th ed v1.2)."
+  },
+  {
+   "name": "KROOT TRAIL SHAPER",
+   "legends": false,
+   "forgeworld": false,
+   "role": "CHARACTER",
+   "faction_keywords": [
+    "Infantry",
+    "Character",
+    "Leader",
+    "Kroot",
+    "Shaper",
+    "T’au Empire"
+   ],
+   "keywords": [
+    "Infantry",
+    "Character",
+    "Leader",
+    "Kroot",
+    "Shaper"
+   ],
+   "points": null,
+   "stats": {
+    "M": "7\"",
+    "T": "3",
+    "Sv": "6+",
+    "W": "3",
+    "Ld": "7+",
+    "OC": "1"
+   },
+   "unit_composition": [
+    "1 Kroot Trail Shaper",
+    "This model is equipped with: Kroot rifle; Shaper’s blade."
+   ],
+   "base_size": null,
+   "abilities": [
+    {
+     "name": "CORE",
+     "summary": "Infiltrators, Leader, Scouts 7\", Stealth",
+     "phase_tags": []
+    },
+    {
+     "name": "Trail Finding",
+     "summary": "Once per turn, when an enemy unit ends a Normal, Advance or Fall Back move within 9\" of this model’s unit, if this model’s unit is not within Engagement Range of any enemy units, it can make a Normal move of up to D6\".",
+     "phase_tags": []
+    },
+    {
+     "name": "Kroot Ambush",
+     "summary": "After both players have deployed, you can redeploy this model’s unit and one other friendly KROOT unit, optionally placing them into Strategic Reserves regardless of the usual limit.",
+     "phase_tags": []
+    }
+   ],
+   "wargear_options": [],
+   "weapons": [
+    {
+     "name": "Kroot rifle",
+     "type": "ranged",
+     "range": "24\"",
+     "a": "1",
+     "bs_ws": "4+",
+     "s": "4",
+     "ap": "0",
+     "d": "1",
+     "keywords": [
+      "RAPID FIRE 1"
+     ]
+    },
+    {
+     "name": "Shaper’s blade",
+     "type": "melee",
+     "range": "Melee",
+     "a": "4",
+     "bs_ws": "2+",
+     "s": "5",
+     "ap": "0",
+     "d": "1",
+     "keywords": []
+    }
+   ],
+   "strengths": [],
+   "weaknesses": [],
+   "target_priority_tags": [],
+   "threat_tags": [],
+   "mobility_tags": [],
+   "durability_tags": [],
+   "tau_counterplay": [],
+   "notes": "Added from Wahapedia T’au Empire datasheets (current, 10th ed v1.2)."
+  },
+  {
+   "name": "KROOT WAR SHAPER",
+   "legends": false,
+   "forgeworld": false,
+   "role": "CHARACTER",
+   "faction_keywords": [
+    "Infantry",
+    "Character",
+    "Leader",
+    "Kroot",
+    "Shaper",
+    "T’au Empire"
+   ],
+   "keywords": [
+    "Infantry",
+    "Character",
+    "Leader",
+    "Kroot",
+    "Shaper"
+   ],
+   "points": null,
+   "stats": {
+    "M": "7\"",
+    "T": "3",
+    "Sv": "6+",
+    "W": "3",
+    "Ld": "7+",
+    "OC": "1"
+   },
+   "unit_composition": [
+    "1 Kroot War Shaper",
+    "This model is equipped with: dart-bow and tri-blade; Kroot pistol; Shaper’s blade."
+   ],
+   "base_size": null,
+   "abilities": [
+    {
+     "name": "CORE",
+     "summary": "Infiltrators, Leader, Scouts 7\", Stealth",
+     "phase_tags": []
+    },
+    {
+     "name": "War Leader",
+     "summary": "Once per battle round, one unit from your army with this ability can use it when targeted with a Stratagem, reducing that use’s CP cost by 1CP.",
+     "phase_tags": []
+    },
+    {
+     "name": "Root of Honour",
+     "summary": "Once per battle, at the start of any phase, select one friendly KROOT unit that is Battle-shocked within 12\" of this model; that unit is no longer Battle-shocked.",
+     "phase_tags": []
+    }
+   ],
+   "wargear_options": [],
+   "weapons": [
+    {
+     "name": "Dart-bow and tri-blade",
+     "type": "ranged",
+     "range": "24\"",
+     "a": "D3+1",
+     "bs_ws": "4+",
+     "s": "4",
+     "ap": "0",
+     "d": "2",
+     "keywords": [
+      "ANTI-INFANTRY 3+",
+      "ASSAULT",
+      "HEAVY"
+     ]
+    },
+    {
+     "name": "Kroot pistol",
+     "type": "ranged",
+     "range": "12\"",
+     "a": "1",
+     "bs_ws": "4+",
+     "s": "4",
+     "ap": "0",
+     "d": "1",
+     "keywords": [
+      "PISTOL"
+     ]
+    },
+    {
+     "name": "Bladestave and prey-hook",
+     "type": "melee",
+     "range": "Melee",
+     "a": "4",
+     "bs_ws": "2+",
+     "s": "5",
+     "ap": "-1",
+     "d": "2",
+     "keywords": [
+      "LETHAL HITS"
+     ]
+    },
+    {
+     "name": "Shaper’s blade",
+     "type": "melee",
+     "range": "Melee",
+     "a": "4",
+     "bs_ws": "2+",
+     "s": "5",
+     "ap": "0",
+     "d": "1",
+     "keywords": []
+    }
+   ],
+   "strengths": [],
+   "weaknesses": [],
+   "target_priority_tags": [],
+   "threat_tags": [],
+   "mobility_tags": [],
+   "durability_tags": [],
+   "tau_counterplay": [],
+   "notes": "Added from Wahapedia T’au Empire datasheets (current, 10th ed v1.2)."
+  },
+  {
+   "name": "KROOTOX RAMPAGERS",
+   "legends": false,
+   "forgeworld": false,
+   "role": "MOUNTED",
+   "faction_keywords": [
+    "Mounted",
+    "Kroot",
+    "T’au Empire"
+   ],
+   "keywords": [
+    "Mounted",
+    "Kroot"
+   ],
+   "points": null,
+   "stats": {
+    "M": "7\"",
+    "T": "6",
+    "Sv": "5+",
+    "W": "5",
+    "Ld": "7+",
+    "OC": "2"
+   },
+   "unit_composition": [
+    "3-6 Krootox Rampagers",
+    "Every model is equipped with: Kroot pistol and hunting javelins; close combat weapon; Krootox fists."
+   ],
+   "base_size": null,
+   "abilities": [
+    {
+     "name": "CORE",
+     "summary": "Scouts 7\"",
+     "phase_tags": []
+    }
+   ],
+   "wargear_options": [],
+   "weapons": [
+    {
+     "name": "Kroot pistol and hunting javelins",
+     "type": "ranged",
+     "range": "12\"",
+     "a": "2",
+     "bs_ws": "4+",
+     "s": "4",
+     "ap": "0",
+     "d": "1",
+     "keywords": [
+      "ASSAULT",
+      "PISTOL"
+     ]
+    },
+    {
+     "name": "Close combat weapon",
+     "type": "melee",
+     "range": "Melee",
+     "a": "3",
+     "bs_ws": "3+",
+     "s": "4",
+     "ap": "-1",
+     "d": "1",
+     "keywords": [
+      "LANCE"
+     ]
+    },
+    {
+     "name": "Krootox fists",
+     "type": "melee",
+     "range": "Melee",
+     "a": "4",
+     "bs_ws": "3+",
+     "s": "6",
+     "ap": "-1",
+     "d": "2",
+     "keywords": [
+      "EXTRA ATTACKS",
+      "SUSTAINED HITS 1"
+     ]
+    }
+   ],
+   "strengths": [],
+   "weaknesses": [],
+   "target_priority_tags": [],
+   "threat_tags": [],
+   "mobility_tags": [],
+   "durability_tags": [],
+   "tau_counterplay": [],
+   "notes": "Added from Wahapedia T’au Empire datasheets (current, 10th ed v1.2)."
   }
  ],
  "weapons_index": {},

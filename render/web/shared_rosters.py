@@ -45,9 +45,19 @@ def _make_id(faction: str, name: str) -> str:
     return f"{slug}-{int(time.time())}"
 
 
+def _escape_formula_value(value: str) -> str:
+    """Escape a value for safe interpolation into an Airtable formula string.
+
+    Airtable formula string literals are single-quoted; a stray quote/backslash
+    in user-influenced input would otherwise break out of the literal.
+    """
+    return str(value).replace("\\", "\\\\").replace("'", r"\'")
+
+
 def _find_by_roster_id(table, roster_id: str) -> dict | None:
     """Find a roster record by RosterId. Returns raw Airtable record or None."""
-    records = table.all(formula=f"{{RosterId}} = '{roster_id}'")
+    safe = _escape_formula_value(roster_id)
+    records = table.all(formula=f"{{RosterId}} = '{safe}'")
     return records[0] if records else None
 
 
@@ -157,11 +167,22 @@ def save_roster(name: str, faction: str, content: str, uploaded_by: str) -> dict
 
 
 def delete_roster(roster_id: str, requester: str | None = None) -> bool:
-    """Delete a roster by id. Returns True if deleted."""
+    """Delete a roster by id. Returns True if deleted, False if not found.
+
+    Ownership: when the roster has a known uploader and a ``requester`` is
+    supplied, only that uploader may delete it — otherwise a ``PermissionError``
+    is raised.  Legacy rows with no/unknown uploader stay deletable so old data
+    isn't stranded (the deploy is trusted-friends; see BACKLOG for the limit).
+    """
     table = _get_table()
     record = _find_by_roster_id(table, roster_id)
     if not record:
         return False
+    owner = (record["fields"].get("UploadedBy") or "").strip()
+    if owner and owner.lower() != "unknown" and requester and requester != owner:
+        raise PermissionError(
+            f"This roster belongs to '{owner}' — only they can delete it."
+        )
     table.delete(record["id"])
     return True
 
