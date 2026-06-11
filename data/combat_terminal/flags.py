@@ -165,7 +165,7 @@ FLAG_SPECS: list[dict] = [
     {"base": "dev",        "parametric": False, "defensive": False, "note": _fixed("skull",     "Devastating Wounds — critical wounds bypass saves"),          "legend": "Devastating Wounds: crit wounds bypass saves"},
     {"base": "devastating","parametric": False, "defensive": False, "note": None,                                                                              "legend": "Devastating Wounds (alias of dev)"},
     {"base": "torrent",    "parametric": False, "defensive": False, "note": _fixed("target",    "Torrent — weapon auto-hits (no ballistic skill roll needed)"),"legend": "Torrent: weapon auto-hits"},
-    {"base": "lance",      "parametric": False, "defensive": False, "note": _fixed("star",      "Lance — +1 to Wound rolls (charged this turn)"),              "legend": "Lance: +1 to Wound rolls"},
+    {"base": "lance",      "parametric": False, "defensive": False, "note": _fixed("star",      "+1 to Wound for LANCE weapons (on the charge)"),              "legend": "+1 to Wound for LANCE weapons (on the charge)"},
     {"base": "heavy",      "parametric": False, "defensive": False, "note": _fixed("target",    "Heavy — Remained Stationary: Heavy weapons get +1 to Hit rolls"), "legend": "Heavy (stationary): +1 to Hit on Heavy weapons"},
     {"base": "oath",       "parametric": False, "defensive": False, "note": _fixed("star",      "Oath of Moment — re-roll all failed Hit and Wound rolls"),    "legend": "Oath of Moment: re-roll all failed Hit and Wound rolls"},
     {"base": "sus",        "parametric": True,  "defensive": False, "note": _n_sus,             "legend": "Sustained Hits N: crit hits add N extra hits"},

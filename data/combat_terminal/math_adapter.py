@@ -193,7 +193,7 @@ def _weapon_to_profile(w: dict) -> tuple[WeaponProfile, AttackModifiers]:
         elif kw == "LETHAL HITS":
             mods.lethal_hits = True
         elif kw == "LANCE":
-            mods.use_lance = True
+            mods.is_lance = True
         elif kw == "BLAST":
             mods.use_blast = True
         elif kw == "HEAVY":
@@ -392,10 +392,12 @@ def _apply_flags(flags: list, base_mods: "AttackModifiers", target: "TargetProfi
             base_mods.use_torrent = True
 
         elif key == "lance":
-            # Lance: +1 to wound roll (most impactful approximation without target keyword check)
-            base_mods.wound_bonus = max(base_mods.wound_bonus, 1)
-            if "Lance bonus applied" not in base_mods.active_effects:
-                base_mods.active_effects.append("Lance bonus applied")
+            # Lance (10e): +1 to Wound, but ONLY for weapons with the LANCE keyword
+            # (and only on the charge). Set the flag bit here; the +1 is gated on
+            # the per-weapon is_lance keyword bit in _run_ev / _run_mc / _run_total
+            # (mirrors the heavy pattern). Boolean-only change keeps the registry
+            # sync test green.
+            base_mods.use_lance = True
 
         # ── Wound modifiers ───────────────────────────────────────────────────
         elif key == "twin":
@@ -516,7 +518,9 @@ def _apply_flags(flags: list, base_mods: "AttackModifiers", target: "TargetProfi
                 try: melta_override = float(key[len("melta"):])
                 except ValueError: pass
             if melta_override is not None:
-                base_mods.melta_value = melta_override
+                # OVERRIDE the weapon's keyword Melta value — do NOT add to it
+                # (else weapon Melta 2 + --melta2 would stack to Melta 4).
+                base_mods.melta_override = melta_override
         elif key == "heavy":
             base_mods.use_heavy = True
 
@@ -742,6 +746,10 @@ def compute_combat(
 
     base_mods, target = _apply_flags(flags, base_mods, target)
 
+    # The real defender squad size (10e): MC kill buckets extend to it and the EV
+    # summary caps expected_kills at it — you can't kill more models than exist.
+    target.models = max(1, def_models)
+
     # Split weapons by type
     ranged_weapons, melee_weapons = [], []
     for w in attacker_unit.get("weapons", []):
@@ -771,11 +779,16 @@ def compute_combat(
                 if merged.use_rapid_fire and merged.rf_value > 0:
                     merged.extra_attacks += merged.rf_value
                 # ── Melta: only add flat damage bonus when within half range ─────
-                if merged.use_melta and merged.melta_value > 0:
-                    merged.flat_damage_bonus += merged.melta_value
+                if merged.use_melta:
+                    mv = merged.melta_override if merged.melta_override is not None else merged.melta_value
+                    if mv > 0:
+                        merged.flat_damage_bonus += mv
                 # ── Heavy: +1 to hit when unit Remained Stationary ──────────
                 if merged.use_heavy and merged.is_heavy:
                     merged.hit_bonus += 1
+                # ── Lance: +1 to Wound, only on LANCE-keyword weapons (on the charge) ─
+                if merged.use_lance and merged.is_lance:
+                    merged.wound_bonus += 1
                 # ── Blast (10e): +1 Attack per 5 models in the target unit ───────
                 # Added to extra_attacks (a per-model bonus, like RF) so the
                 # squad-scaling below applies it to every firing model.
@@ -805,6 +818,8 @@ def compute_combat(
 
         total_dmg   = sum(r.expected_damage for _, r in valid)
         total_kills = sum(r.expected_kills  for _, r in valid)
+        # 10e: cannot kill more models than the defending unit has.
+        total_kills = min(total_kills, max(1, def_models))
         n_weapons   = len(valid)
         kill_chance = None  # computed from MC below if available
 
@@ -874,9 +889,12 @@ def compute_combat(
                 # kill probability for the full weapon output. Falls back to None if MC offline.
                 "kill_chance_pct": _kill_chance_from_mc(mc_per_weapon.get(w.get("name", "?"))),
                 "overkill_waste_pct": (mc_per_weapon.get(w.get("name", "?")) or {}).get("overkill_waste_pct"),
-                # Raw roll targets — used for modifier delta colour-coding
+                # Raw roll targets — used for modifier delta colour-coding and so
+                # the math ledger reads the ENGINE's computed targets (incl. invuln,
+                # AP/save flags, cover gating) instead of re-deriving them.
                 "hit_target":    r.hit_target,
                 "wound_target":  r.wound_target,
+                "save_target":   r.save_target,
                 # MC variance metrics (if available)
                 "mc": mc_per_weapon.get(w.get("name", "?")),
             }
@@ -909,10 +927,15 @@ def compute_combat(
                 # Apply same RF, Melta, Heavy, and BLAST logic as _run_ev for consistency
                 if merged.use_rapid_fire and merged.rf_value > 0:
                     merged.extra_attacks += merged.rf_value
-                if merged.use_melta and merged.melta_value > 0:
-                    merged.flat_damage_bonus += merged.melta_value
+                if merged.use_melta:
+                    mv = merged.melta_override if merged.melta_override is not None else merged.melta_value
+                    if mv > 0:
+                        merged.flat_damage_bonus += mv
                 if merged.use_heavy and merged.is_heavy:
                     merged.hit_bonus += 1
+                # ── Lance: +1 to Wound, only on LANCE-keyword weapons (on the charge) ─
+                if merged.use_lance and merged.is_lance:
+                    merged.wound_bonus += 1
                 # Variable attacks (e.g. D6 shots) are sampled per firing model
                 # inside the MC loop via attacks_volleys; everything else keeps the
                 # pre-multiplied expected-value path.
@@ -1034,6 +1057,7 @@ def compute_sensitivity(
     target    = _unit_to_target(defender_unit)
     base_mods = AttackModifiers()
     base_mods, target = _apply_flags(flags or [], base_mods, target)
+    target.models = max(1, def_models)
 
     all_weapons = [w for w in attacker_unit.get("weapons", []) if isinstance(w, dict)]
     if not all_weapons:
@@ -1051,10 +1075,15 @@ def compute_sensitivity(
                 # Apply same RF / Melta / Heavy / BLAST rules as compute_combat
                 if merged.use_rapid_fire and merged.rf_value > 0:
                     merged.extra_attacks += merged.rf_value
-                if merged.use_melta and merged.melta_value > 0:
-                    merged.flat_damage_bonus += merged.melta_value
+                if merged.use_melta:
+                    mv = merged.melta_override if merged.melta_override is not None else merged.melta_value
+                    if mv > 0:
+                        merged.flat_damage_bonus += mv
                 if merged.use_heavy and merged.is_heavy:
                     merged.hit_bonus += 1
+                # ── Lance: +1 to Wound, only on LANCE-keyword weapons (on the charge) ─
+                if merged.use_lance and merged.is_lance:
+                    merged.wound_bonus += 1
                 # Blast (10e): +1 Attack per 5 target models (per-model bonus)
                 if merged.use_blast and def_models >= 5:
                     merged.extra_attacks += def_models // 5

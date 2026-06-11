@@ -125,15 +125,21 @@ class TestBaselineMath:
             "Target with invuln 4+ should take less damage than one with no invuln"
 
     def test_cover_increases_save(self):
-        """Cover (+1 save) should reduce damage against armoured targets."""
-        wp  = WeaponProfile("Bolter", attacks=2, skill=3, strength=4, ap=0, damage=1)
+        """Cover (+1 save) should reduce damage against armoured targets.
+
+        MM3 (2026-06-11): 10e Benefit of Cover gives NO bonus vs an AP0 attack on
+        a 3+ or better save, so this test now uses AP-1 (where cover legitimately
+        applies vs a 3+ model). A separate Sv4+ vs AP0 case below confirms cover
+        still helps lighter armour against AP0.
+        """
+        wp  = WeaponProfile("Bolter", attacks=2, skill=3, strength=4, ap=1, damage=1)
         tgt_open  = _make_target(t=4, sv=3)
         tgt_cover = _make_target(t=4, sv=3)
         tgt_cover.cover = True
         r_open  = compute_attack_result(wp, tgt_open)
         r_cover = compute_attack_result(wp, tgt_cover)
         assert r_cover.expected_damage < r_open.expected_damage, \
-            "Cover should reduce damage"
+            "Cover should reduce damage vs AP-1 on a 3+ save"
 
 
 # ─────────────────────────────────────────────────────────────────────────────
@@ -222,9 +228,13 @@ class TestApplyFlags:
         assert mods.use_torrent is True
 
     def test_lance_flag(self):
+        # MM6 (2026-06-11): --lance now sets the use_lance flag bit only; the +1
+        # to wound is gated on the per-weapon LANCE keyword (is_lance) at the math
+        # sites — it no longer buffs every weapon's wound_bonus unconditionally.
         mods, tgt = self._fresh()
         mods, tgt = _apply_flags(["lance"], mods, tgt)
-        assert mods.wound_bonus >= 1
+        assert mods.use_lance is True
+        assert mods.wound_bonus == 0
 
     def test_fnp_flag(self):
         mods, tgt = self._fresh()
@@ -456,9 +466,11 @@ class TestWeaponKeywordParsing:
         assert mods.use_torrent is True
 
     def test_lance_keyword(self):
+        # MM6 (2026-06-11): the LANCE keyword now sets the per-weapon is_lance bit
+        # (mirroring HEAVY → is_heavy); use_lance is the --lance flag bit.
         w = _make_weapon(keywords=["LANCE"])
         _, mods = _weapon_to_profile(w)
-        assert mods.use_lance is True
+        assert mods.is_lance is True
 
     def test_unknown_keyword_ignored(self):
         w = _make_weapon(keywords=["SOME UNKNOWN KEYWORD"])
@@ -662,7 +674,10 @@ class TestCrusadeDefensiveFlags:
         return compute_combat(self.ATT, self.DEF, flags)["ranged"]["expected_dmg"]
 
     def _kills(self, flags):
-        return compute_combat(self.ATT, self.DEF, flags)["ranged"]["expected_kills"]
+        # def_models=10: MM5 now caps expected_kills at the squad size, so a
+        # single-model default (def_models=1) would flatten both sides to 1.0 and
+        # hide the woundsplus differential. Use a large squad to keep kills uncapped.
+        return compute_combat(self.ATT, self.DEF, flags, def_models=10)["ranged"]["expected_kills"]
 
     def test_woundsplus_increases_target_wounds(self):
         # +2 wounds per model → harder to kill → fewer expected kills.
@@ -1129,6 +1144,179 @@ class TestTenthEdRulesFixes:
             f"criton+lethal EV {ev:.2f} and MC {mc:.2f} must describe the same universe"
 
 
+class TestRound3MedFixes:
+    """2026-06-11 round 3: MEDIUM 10e rules-fidelity cluster —
+    net ±1 modifier cap (MM1), torrent no crits (MM2), cover vs AP0 on 3+ (MM3),
+    real defender model count (MM5), melta override (MM7), lance gating (MM6)."""
+
+    def _tgt_unit(self, keywords=None, t=4, sv=4, w=1):
+        u = _make_unit(name="Target", weapons=[], t=t, sv=sv, w=w)
+        u["keywords"] = keywords or []
+        return u
+
+    # ── MM1: ±1 net modifier cap on hit and wound rolls ───────────────────────
+    def test_hit_net_modifier_cap(self):
+        # BS5+ with +3 to hit must cap at +1 → hits on 4+ (not 2+).
+        wp  = WeaponProfile("Gun", attacks=1, skill=5, strength=4, ap=0, damage=1)
+        tgt = _make_target(t=4, sv=4)
+        r = compute_attack_result(wp, tgt, AttackModifiers(hit_bonus=3))
+        assert r.hit_target == 4, f"net hit cap +1: BS5+ +3 → 4+, got {r.hit_target}"
+
+    def test_wound_net_modifier_cap(self):
+        # S4 vs T4 (4+) with +3 to wound must cap at +1 → wounds on 3+ (not 2+).
+        wp  = WeaponProfile("Gun", attacks=1, skill=4, strength=4, ap=0, damage=1)
+        tgt = _make_target(t=4, sv=4)
+        r = compute_attack_result(wp, tgt, AttackModifiers(wound_bonus=3))
+        assert r.wound_target == 3, f"net wound cap +1: 4+ with +3 → 3+, got {r.wound_target}"
+
+    def test_hit_net_cap_mc_matches_ev(self):
+        wp  = WeaponProfile("Gun", attacks=20, skill=5, strength=4, ap=0, damage=1)
+        tgt = TargetProfile("T", toughness=4, save=4, invulnerable_save=None, wounds=1)
+        mods = AttackModifiers(hit_bonus=3)
+        ev = compute_attack_result(wp, tgt, mods).expected_damage
+        mc = monte_carlo_attack(wp, tgt, mods, trials=8000, seed=42)["mean_damage"]
+        assert abs(mc - ev) / ev < 0.10, f"net-cap EV {ev:.2f} and MC {mc:.2f} must agree"
+
+    def test_flag_level_net_cap_equals_single_plus_one(self):
+        # ml + heavy + hitplus1 on a HEAVY weapon = three +1s → capped to one +1.
+        # Damage must equal the single-+1 (--ml alone) case.
+        w   = _make_weapon(name="HBolter", attacks="4", bs="4+", s=4, ap=0, d=1, keywords=["HEAVY"])
+        att = _make_unit(name="Squad", weapons=[w])
+        dfn = _make_unit(name="Tgt", t=4, sv=4, w=1)
+        triple = compute_combat(att, dfn, ["ml", "heavy", "hitplus1"])["ranged"]["expected_dmg"]
+        single = compute_combat(att, dfn, ["ml"])["ranged"]["expected_dmg"]
+        assert abs(triple - single) < 1e-9, \
+            f"three stacked +1s must equal one +1 (net cap): {triple} vs {single}"
+
+    # ── MM2: Torrent weapons cannot score Critical Hits ───────────────────────
+    def test_torrent_no_crit_hits_ev(self):
+        wp  = WeaponProfile("Flamer", attacks=6, skill=4, strength=4, ap=0, damage=1)
+        tgt = TargetProfile("T", toughness=4, save=4, invulnerable_save=None, wounds=1)
+        # Torrent + Sustained 1 + Lethal: crits never trigger, so exactly 6 hits.
+        mods = AttackModifiers(use_torrent=True, sustained_hits=1, lethal_hits=True)
+        r = compute_attack_result(wp, tgt, mods)
+        assert r.expected_hits == 6.0, f"torrent auto-hits, no crit sustained: {r.expected_hits}"
+        assert r.crit_hit_probability == 0.0, "torrent must score no critical hits"
+
+    def test_torrent_no_crit_ev_mc_agree(self):
+        wp  = WeaponProfile("Flamer", attacks=6, skill=4, strength=4, ap=0, damage=1)
+        tgt = TargetProfile("T", toughness=4, save=4, invulnerable_save=None, wounds=3)
+        mods = AttackModifiers(use_torrent=True, sustained_hits=1, lethal_hits=True)
+        ev = compute_attack_result(wp, tgt, mods).expected_damage
+        mc = monte_carlo_attack(wp, tgt, mods, trials=10000, seed=42)["mean_damage"]
+        assert abs(mc - ev) / ev < 0.10, f"torrent EV {ev:.2f} and MC {mc:.2f} must agree"
+
+    # ── MM3: Benefit of Cover gives no bonus vs AP0 on a 3+ or better save ────
+    def test_cover_no_bonus_vs_ap0_on_three_plus(self):
+        from data.combat_terminal.combat_math_engine import compute_save_target
+        wp  = WeaponProfile("Bolter", attacks=1, skill=3, strength=4, ap=0, damage=1)
+        tgt = TargetProfile("Marine", toughness=4, save=3, invulnerable_save=None,
+                            wounds=2, cover=True)
+        assert compute_save_target(tgt, wp, AttackModifiers()) == 3, \
+            "Sv3+ in cover vs AP0 must stay 3+ (no cover bonus)"
+
+    def test_cover_applies_vs_ap1_on_three_plus(self):
+        from data.combat_terminal.combat_math_engine import compute_save_target
+        wp  = WeaponProfile("Bolter", attacks=1, skill=3, strength=4, ap=1, damage=1)
+        tgt = TargetProfile("Marine", toughness=4, save=3, invulnerable_save=None,
+                            wounds=2, cover=True)
+        # AP-1 worsens save to 4+, cover pulls it back to 3+ (cover DOES apply vs AP1).
+        assert compute_save_target(tgt, wp, AttackModifiers()) == 3, \
+            "Sv3+ in cover vs AP-1: cover applies → 3+"
+
+    def test_cover_applies_vs_ap0_on_four_plus(self):
+        from data.combat_terminal.combat_math_engine import compute_save_target
+        wp  = WeaponProfile("Lasgun", attacks=1, skill=3, strength=3, ap=0, damage=1)
+        tgt = TargetProfile("Guard", toughness=3, save=4, invulnerable_save=None,
+                            wounds=1, cover=True)
+        # Sv4+ is worse than 3+, so the AP0 cover restriction does NOT apply → 3+.
+        assert compute_save_target(tgt, wp, AttackModifiers()) == 3, \
+            "Sv4+ in cover vs AP0: cover applies → 3+"
+
+    # ── MM5: target.models must be the real defender size ─────────────────────
+    def test_expected_kills_capped_at_def_models(self):
+        w   = _make_weapon(name="BigGun", attacks="10", bs="3+", s=8, ap=2, d="D3")
+        att = _make_unit(name="Squad", weapons=[w])
+        dfn = self._tgt_unit(t=4, sv=5, w=1)
+        r = compute_combat(att, dfn, [], att_models=1, def_models=5)["ranged"]
+        assert r["expected_kills"] <= 5, \
+            f"expected_kills must be capped at squad size (5): {r['expected_kills']}"
+
+    def test_kill_buckets_extend_past_one(self):
+        w   = _make_weapon(name="BigGun", attacks="10", bs="3+", s=8, ap=2, d="D3")
+        att = _make_unit(name="Squad", weapons=[w])
+        dfn = self._tgt_unit(t=4, sv=5, w=1)
+        r = compute_combat(att, dfn, [], att_models=1, def_models=5)
+        mc = r["per_weapon_dmg"]["BigGun"]["mc"]
+        buckets = mc["kill_bucket_probabilities"]
+        assert any(int(k) > 1 for k in buckets), \
+            f"MC kill buckets must extend past 1 for a 5-model squad: {list(buckets)}"
+
+    # ── MM7: --melta:N overrides, does not stack with weapon Melta ────────────
+    def test_melta_flag_overrides_keyword(self):
+        w   = _make_weapon(name="Multimelta", attacks="2", bs="3+", s=9, ap=4, d="D6", keywords=["MELTA 2"])
+        att = _make_unit(name="Squad", weapons=[w])
+        dfn = self._tgt_unit(t=9, sv=3, w=12)
+        # weapon Melta 2 + flag --melta2 must NOT become Melta 4 — identical to bare --melta.
+        override = compute_combat(att, dfn, ["melta2"], att_models=1)["ranged"]["expected_dmg"]
+        bare     = compute_combat(att, dfn, ["melta"],  att_models=1)["ranged"]["expected_dmg"]
+        assert abs(override - bare) < 1e-9, \
+            f"--melta2 on a MELTA 2 weapon must match bare --melta (no stacking): {override} vs {bare}"
+
+    def test_bare_melta_applies_keyword_value(self):
+        w   = _make_weapon(name="Multimelta", attacks="2", bs="3+", s=9, ap=4, d="D6", keywords=["MELTA 2"])
+        att = _make_unit(name="Squad", weapons=[w])
+        dfn = self._tgt_unit(t=9, sv=3, w=12)
+        on  = compute_combat(att, dfn, ["melta"], att_models=1)["ranged"]["expected_dmg"]
+        off = compute_combat(att, dfn, [],         att_models=1)["ranged"]["expected_dmg"]
+        assert on > off, f"bare --melta must still add the keyword's Melta 2: {on} vs {off}"
+
+    # ── MM6: --lance gated on the LANCE keyword ───────────────────────────────
+    def test_lance_flag_only_buffs_lance_weapons(self):
+        lance_w = _make_weapon(name="LanceWpn", attacks="6", bs="3+", s=6, ap=2, d=2, keywords=["LANCE"])
+        plain_w = _make_weapon(name="PlainWpn", attacks="6", bs="3+", s=6, ap=2, d=2)
+        att_l = _make_unit(name="L", weapons=[lance_w])
+        att_p = _make_unit(name="P", weapons=[plain_w])
+        dfn = self._tgt_unit(t=7, sv=3, w=3)
+        l_on  = compute_combat(att_l, dfn, ["lance"], att_models=1)["ranged"]["expected_dmg"]
+        l_off = compute_combat(att_l, dfn, [],        att_models=1)["ranged"]["expected_dmg"]
+        p_on  = compute_combat(att_p, dfn, ["lance"], att_models=1)["ranged"]["expected_dmg"]
+        p_off = compute_combat(att_p, dfn, [],        att_models=1)["ranged"]["expected_dmg"]
+        assert l_on > l_off, f"--lance must buff a LANCE weapon: {l_on} vs {l_off}"
+        assert abs(p_on - p_off) < 1e-9, \
+            f"--lance must NOT buff a non-LANCE weapon: {p_on} vs {p_off}"
+
+    # ── MM10: math ledger reads the engine's computed save_target ─────────────
+    def test_ledger_save_event_matches_engine_for_invuln_unit(self):
+        from data.combat_terminal.math_ledger import build_combat_ledger
+        from data.combat_terminal.math_adapter import _weapon_to_profile, _unit_to_target
+        from data.combat_terminal.combat_math_engine import compute_attack_result
+
+        w   = _make_weapon(name="Lascannon", attacks="3", bs="3+", s=9, ap=2, d=3)
+        att = _make_unit(name="Squad", weapons=[w])
+        dfn = _make_unit(name="Daemon", t=5, sv=3, w=3)
+        dfn["abilities"] = ["This model has a 4+ invulnerable save."]
+
+        res = compute_combat(att, dfn, [], att_models=1, def_models=3)
+
+        # Authoritative engine save target: AP-2 vs Sv3 → 5+, invuln 4+ wins → 4.
+        ar = compute_attack_result(_weapon_to_profile(w)[0], _unit_to_target(dfn))
+        assert ar.save_target == 4, f"engine save_target should be 4, got {ar.save_target}"
+        assert res["per_weapon_dmg"]["Lascannon"]["save_target"] == ar.save_target, \
+            "math_adapter must stamp the engine's save_target into per_weapon_dmg"
+
+        weapons = [{
+            "name": "Lascannon", "bs_ws": "3+", "strength": "9", "ap": "-2", "d": "3",
+            "hit_pct": res["per_weapon_dmg"]["Lascannon"]["hit_pct"],
+        }]
+        ledger = build_combat_ledger(att, dfn, [], res, weapons)
+        save_events = [ev for grp in ledger if grp.get("type") == "group"
+                       for ev in grp["events"] if ev.get("label") == "save_target"]
+        assert save_events, "ledger must contain a save_target event"
+        assert save_events[0]["result"] == f"{ar.save_target}+", \
+            f"ledger save event must reflect the engine's invuln-aware save_target: {save_events[0]['result']}"
+
+
 def _run_all() -> None:
     """Run all test classes and report results."""
     import traceback
@@ -1150,6 +1338,7 @@ def _run_all() -> None:
         TestKeywordVariantNormalisation,
         TestPerModelAttackBonusScaling,
         TestTenthEdRulesFixes,
+        TestRound3MedFixes,
     ]
 
     passed = 0

@@ -185,8 +185,10 @@ class AttackModifiers:
     rf_value: float = 0.0          # RF N parsed from keyword — added to extra_attacks only when use_rapid_fire
     use_melta: bool = False        # flag: signals weapon is within half range; Melta N applied conditionally
     melta_value: float = 0.0      # Melta N parsed from keyword — added to flat_damage_bonus only when use_melta
+    melta_override: Optional[int] = None  # --melta:N OVERRIDES the keyword value (does not stack); None = use melta_value
     use_blast: bool = False        # flag: Blast → +1 Attack per 5 models in the target unit (10e)
-    use_lance: bool = False        # flag: CLI resolves per-weapon Lance → +1 wound_bonus
+    use_lance: bool = False        # flag (--lance): unit charged this turn; LANCE weapons get +1 to wound
+    is_lance: bool = False         # per-weapon: weapon has the LANCE keyword
     use_heavy: bool = False        # flag: unit Remained Stationary; Heavy weapons get +1 to hit
     is_heavy: bool = False         # per-weapon: weapon has HEAVY keyword
 
@@ -300,9 +302,12 @@ def compute_save_target(target: TargetProfile, weapon: WeaponProfile, mods: Atta
     effective_ap = max(0, weapon.ap - mods.ap_modifier)
     armor_save = target.save
 
+    # 10e Benefit of Cover: a model gets no save improvement against an AP0
+    # attack if its Save characteristic is 3+ or better.
     cover_bonus = 0
     if target.cover and not mods.ignore_cover:
-        cover_bonus += 1
+        if not (effective_ap == 0 and target.save <= 3):
+            cover_bonus += 1
 
     # AP adds to the roll target the defender needs — more AP (more negative in 40K)
     # means a higher roll is required to save, so effective_ap is ADDED here.
@@ -337,17 +342,22 @@ def compute_attack_result(
     if raw_hit is None:
         raise ValueError(f"Invalid weapon skill for {weapon.name}: {weapon.skill}")
 
-    hit_target = clamp(raw_hit - mods.hit_bonus + mods.hit_penalty, 2, 6)
+    # 10e: cumulative modifiers to a hit roll are capped at net +1 / -1.
+    net_hit = clamp(mods.hit_bonus - mods.hit_penalty, -1, 1)
+    hit_target = clamp(raw_hit - net_hit, 2, 6)
     p_hit = success_probability(hit_target, reroll=mods.reroll_hits, crit_on=mods.crit_hits_on)
     p_crit_hit = crit_probability(hit_target, reroll=mods.reroll_hits, crit_on=mods.crit_hits_on)
 
-    # Torrent: weapon auto-hits — no BS roll needed; crits still trigger on natural 6s
+    # Torrent: weapon auto-hits — no hit roll is made, so there are NO Critical
+    # Hits (10e). Sustained Hits / Lethal Hits therefore never trigger.
     if mods.use_torrent:
         p_hit = 1.0
-        p_crit_hit = 1 / 6.0
+        p_crit_hit = 0.0
 
     base_wound_target = wound_target(weapon.strength, target.toughness)
-    final_wound_target = clamp(base_wound_target - mods.wound_bonus + mods.wound_penalty, 2, 6)
+    # 10e: cumulative modifiers to a wound roll are capped at net +1 / -1.
+    net_wound = clamp(mods.wound_bonus - mods.wound_penalty, -1, 1)
+    final_wound_target = clamp(base_wound_target - net_wound, 2, 6)
 
     # Anti-X N+ (keyword-gated vs this target): an unmodified wound roll of N+
     # is a CRITICAL wound (10e) — it both auto-succeeds and triggers crit-wound
@@ -546,8 +556,11 @@ def monte_carlo_attack(
     if raw_hit is None:
         raise ValueError(f"Invalid weapon skill for {weapon.name}: {weapon.skill}")
 
-    hit_target = clamp(raw_hit - mods.hit_bonus + mods.hit_penalty, 2, 6)
-    wound_t = clamp(wound_target(weapon.strength, target.toughness) - mods.wound_bonus + mods.wound_penalty, 2, 6)
+    # 10e: cumulative hit/wound modifiers capped at net +1 / -1 (mirrors EV path).
+    net_hit = clamp(mods.hit_bonus - mods.hit_penalty, -1, 1)
+    hit_target = clamp(raw_hit - net_hit, 2, 6)
+    net_wound = clamp(mods.wound_bonus - mods.wound_penalty, -1, 1)
+    wound_t = clamp(wound_target(weapon.strength, target.toughness) - net_wound, 2, 6)
 
     # Anti-X N+ (keyword-gated): N+ wound rolls are CRITICAL wounds (10e) —
     # they auto-succeed and the crit-wound threshold drops to N.
@@ -608,16 +621,16 @@ def monte_carlo_attack(
 
         attacks = _sample_attacks()
         for _ in range(attacks):
-            # Torrent: auto-hits — roll a d6 only to check for crit
+            # Torrent: auto-hits — no hit roll is made, so no Critical Hits (10e).
             if mods.use_torrent:
                 hit_success = True
-                natural_hit = roll_d6(rng)
+                natural_hit = 0
             else:
                 hit_success, natural_hit = _reroll_mode(hit_roll_target, mods.reroll_hits, rng)
             if not hit_success:
                 continue
 
-            crit_hit = natural_hit >= mods.crit_hits_on
+            crit_hit = (not mods.use_torrent) and (natural_hit >= mods.crit_hits_on)
             # sustained_hits may be a float EV (dice-valued keyword, e.g. "SUSTAINED
             # HITS D3" → 2.0) — round per crit so the hit count stays integral.
             pending_hits = 1 + (int(round(mods.sustained_hits)) if crit_hit else 0)

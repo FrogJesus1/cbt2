@@ -209,7 +209,10 @@ def build_combat_ledger(
 
     # Active modifier notes
     active_flags = [f.split(":")[0] for f in flags]
-    if "cover" in active_flags and def_Sv is not None:
+    # Cover is ignored when the attacker has Markerlights/Ignores Cover — don't
+    # print a cover-bonus note the math didn't actually apply.
+    cover_ignored = any(fl in active_flags for fl in ("ml", "igncover", "nocover"))
+    if "cover" in active_flags and def_Sv is not None and not cover_ignored:
         cover_save = def_Sv - 1  # cover improves save by 1
         ledger.log(
             system="profile",
@@ -330,16 +333,28 @@ def build_combat_ledger(
                 importance="high",
             )
 
-        # Save roll
-        # Note: this reconstruction is an approximation of the full
-        # compute_save_target() logic.  Invulnerable saves, save bonuses/
-        # penalties, and AP modifiers from flags may change the effective
-        # target used in the actual probability chain.
-        if fail_save is not None and def_Sv is not None:
+        # Save roll — prefer the ENGINE's computed save_target (stamped into the
+        # per-weapon result), so the ledger can never contradict the actual
+        # probability chain: invuln saves (incl. ability-detected), save/AP flags
+        # (svplus/eap), and the 10e cover gating are all already baked in. The
+        # old re-derivation runs only as a fallback for results lacking the stamp.
+        logged_save = False
+        if fail_save is not None and "save_target" in pw:
+            stamped_sv = pw.get("save_target")
+            ledger.log(
+                system="ballistics",
+                label="save_target",
+                formula="save_target = engine min(armour ± AP/save mods, invuln)",
+                inputs={"Sv": f"{def_Sv}+" if def_Sv is not None else "?",
+                        "AP": f"−{ap_int}" if ap_int else "0"},
+                result=(f"{stamped_sv}+" if stamped_sv is not None else "no save (auto-fail)"),
+            )
+            logged_save = True
+        elif fail_save is not None and def_Sv is not None:
+            # Fallback re-derivation (no stamped target available).
             effective_sv = def_Sv + ap_int
-            if "cover" in active_flags:
+            if "cover" in active_flags and not cover_ignored:
                 effective_sv = max(2, effective_sv - 1)
-            # Check for invuln override (from combat result if available)
             invuln_note = ""
             invuln_val = None
             for flg in active_flags:
@@ -361,11 +376,13 @@ def build_combat_ledger(
                 inputs={"Sv": f"{def_Sv}+", "AP": f"−{ap_int}" if ap_int else "0"},
                 result=f"{effective_sv}+{invuln_note}",
             )
+            logged_save = True
+        if logged_save:
             ledger.log(
                 system="ballistics",
                 label="p_fail_save",
                 formula="p_fail_save = (7 − save_target) / 6",
-                inputs={"save_target": effective_sv},
+                inputs={"fail_save_pct": _fmt_pct(fail_save)},
                 result=_fmt_pct(fail_save),
                 importance="high",
             )
