@@ -2049,6 +2049,18 @@ class CombatTerminalEngine(EngineBase):
             def_models = max(1, int(def_models_override))
             def_models_assumed = False
 
+        # ── MM11: fold an attached defender leader into the target unit size ──
+        # A leader joins the unit, so it counts toward the unit's model count
+        # (Blast targets it; it can be killed). Its individual defensive profile
+        # (W/Sv/invuln, and any ability it grants the unit) is NOT separately
+        # modelled here — attacks resolve against the bodyguard profile — so this
+        # is a unit-size correction only, surfaced as a note below.
+        def_leader_in_target = None
+        if def_leader_unit and def_leader_unit is not def_unit:
+            _ldr_models = _parse_min_models(def_leader_unit.get("unit_composition", [])) or 1
+            def_models += max(1, _ldr_models)
+            def_leader_in_target = def_leader_unit.get("name", "leader")
+
         # ── Filter attacker weapons by roster loadout ────────────────────────
         # If a roster entry was selected (or auto-matched), only include
         # the weapons that are actually in that loadout.
@@ -2246,6 +2258,14 @@ class CombatTerminalEngine(EngineBase):
                 "text": (f"Attached leader “{att_leader_missing}” has no datasheet in the "
                          f"dossier — its weapons are NOT included. Add the unit to the "
                          f"faction dossier to include it."),
+            })
+        if def_leader_in_target:
+            flag_notes.append({
+                "icon": "shield",
+                "text": (f"Defender leader “{def_leader_in_target}” is counted in the unit's "
+                         f"model size (Blast scaling + kill cap). Its own defensive profile "
+                         f"(W/Sv/invuln and any ability it grants) is not separately modelled — "
+                         f"attacks resolve against the bodyguard profile."),
             })
         for f in flags:
             note = _flags.note_for(f)

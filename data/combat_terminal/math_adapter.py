@@ -332,6 +332,89 @@ def _merge_mods(weapon: AttackModifiers, base: AttackModifiers) -> AttackModifie
     return merged
 
 
+# ─── Multi-profile weapons (10e: pick ONE profile) ──────────────────────────────
+
+# Profile separator used in dossier weapon names: a spaced en/em-dash or hyphen,
+# e.g. "Black Sword – strike" / "– sweep", "Plasma pistol - standard" / "- supercharge".
+_PROFILE_SEP_RE = re.compile(r"\s+[–—-]\s+")
+
+
+def _profile_base(name: str) -> Optional[str]:
+    """If a weapon name is one profile of a multi-profile weapon, return the
+    shared base ('black sword' from 'Black Sword – strike'); else None."""
+    parts = _PROFILE_SEP_RE.split(str(name).strip(), maxsplit=1)
+    if len(parts) == 2 and parts[0].strip() and parts[1].strip():
+        return parts[0].strip().lower()
+    return None
+
+
+def _collapse_multiprofile(weapon_list, base_mods, target, att_models, def_models):
+    """10e: a weapon with several profiles (strike/sweep, standard/supercharge)
+    is fired with ONE chosen profile, not all of them.  Group entries by shared
+    base name and keep only the best profile vs THIS target, so the summed totals
+    don't double-count the same physical weapon.
+
+    "Best" = highest expected *kills* at the real squad size (with raw expected
+    damage as a tiebreaker), so a high-damage strike profile doesn't get picked
+    over a many-attacks sweep profile when its extra damage would only be wasted
+    overkill on low-wound models.
+
+    Singletons (a weapon whose other profiles aren't present) pass through
+    unchanged.  Runs before the EV and MC passes so both see the same choice.
+    """
+    groups: dict = {}
+    for w in weapon_list:
+        if not isinstance(w, dict):
+            continue
+        base = _profile_base(w.get("name", ""))
+        if base is not None:
+            groups.setdefault(base, []).append(w)
+
+    if not any(len(v) > 1 for v in groups.values()):
+        return weapon_list   # nothing to collapse
+
+    def _score(w) -> tuple:
+        try:
+            wp, wmods = _weapon_to_profile(w)
+            merged = _merge_mods(wmods, base_mods)
+            if merged.use_rapid_fire and merged.rf_value > 0:
+                merged.extra_attacks += merged.rf_value
+            if merged.use_melta:
+                mv = merged.melta_override if merged.melta_override is not None else merged.melta_value
+                if mv > 0:
+                    merged.flat_damage_bonus += mv
+            if merged.use_heavy and merged.is_heavy:
+                merged.hit_bonus += 1
+            if merged.use_lance and merged.is_lance:
+                merged.wound_bonus += 1
+            if merged.use_blast and def_models >= 5:
+                merged.extra_attacks += def_models // 5
+            if att_models > 1 and not w.get("_no_multiply"):
+                wp.attacks = wp.attacks * att_models
+                if merged.extra_attacks:
+                    merged.extra_attacks *= att_models
+            r = compute_attack_result(wp, target, base_mods=merged)
+            return (r.expected_kills, r.expected_damage)   # kills first, damage tiebreak
+        except Exception:
+            return (-1.0, -1.0)
+
+    chosen = {b: (max(v, key=_score) if len(v) > 1 else v[0]) for b, v in groups.items()}
+
+    out, emitted = [], set()
+    for w in weapon_list:
+        if not isinstance(w, dict):
+            out.append(w)
+            continue
+        base = _profile_base(w.get("name", ""))
+        if base is None:
+            out.append(w)
+        elif base not in emitted:
+            out.append(chosen[base])
+            emitted.add(base)
+        # else: a non-chosen profile of an already-emitted group → drop
+    return out
+
+
 # ─── Public API ────────────────────────────────────────────────────────────────
 
 def _suffix_int(flag: str, key: str, base: str, default: int = 1) -> int:
@@ -761,6 +844,12 @@ def compute_combat(
         )
         (melee_weapons if is_melee else ranged_weapons).append(w)
 
+    # 10e (MM9): collapse multi-profile weapons (strike/sweep, standard/super-
+    # charge) to their single best-EV profile so the same weapon isn't summed
+    # twice. Done before the EV and MC passes so both agree on the choice.
+    ranged_weapons = _collapse_multiprofile(ranged_weapons, base_mods, target, att_models, def_models)
+    melee_weapons  = _collapse_multiprofile(melee_weapons,  base_mods, target, att_models, def_models)
+
     # Per-weapon failures are collected here (not silently dropped) so the engine
     # can log them to the issue log and the UI can flag the result as degraded.
     weapon_errors: list[dict] = []
@@ -1060,6 +1149,8 @@ def compute_sensitivity(
     target.models = max(1, def_models)
 
     all_weapons = [w for w in attacker_unit.get("weapons", []) if isinstance(w, dict)]
+    # MM9: collapse multi-profile weapons to one profile (same rule as compute_combat).
+    all_weapons = _collapse_multiprofile(all_weapons, base_mods, target, att_models, def_models)
     if not all_weapons:
         return []
 

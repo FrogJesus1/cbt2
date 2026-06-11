@@ -209,6 +209,36 @@ def test_n_override_persists_through_rerun_and_warns_out_of_range():
     assert "outside" in texts and "10–20" in texts, "out-of-range override must warn"
 
 
+def test_defender_attached_leader_counts_in_unit_size():
+    """MM11: an attached defender leader is folded into the target unit's model
+    count (Blast scaling + kill cap) and surfaced with a transparency note."""
+    e = _engine()
+    e.set_session("mm11")
+    e.exec("faction space marines")
+
+    # No leader → bare squad size.
+    e.sync_roster_context({"opponent_units": [
+        {"name": "Sternguard Veteran Squad", "models": 5, "is_leader": False},
+    ]})
+    d0 = e.exec("sternguard veteran squad vs sternguard veteran squad")["data"]
+    base = d0["def_models"]
+    assert base == 5, f"bare squad should be 5 models, got {base}"
+
+    # Captain attached to that squad → unit size grows by the leader's model.
+    e.sync_roster_context({"opponent_units": [
+        {"name": "Sternguard Veteran Squad", "models": 5, "is_leader": False},
+        {"name": "Captain", "is_leader": True,
+         "attached_to": "Sternguard Veteran Squad", "attached_idx": 0},
+    ]})
+    d1 = e.exec("sternguard veteran squad vs sternguard veteran squad")["data"]
+    assert d1["def_models"] == base + 1, \
+        f"attached leader must add to the unit size: {d1['def_models']} vs {base}"
+    assert "CAPTAIN" in (d1.get("defender_name") or "").upper(), \
+        "leader should be shown in the defender display name"
+    texts = " ".join(n.get("text", "") for n in (d1.get("flag_notes") or []))
+    assert "counted in the unit" in texts, "MM11 must surface a leader-size note"
+
+
 def test_legend_covers_every_registry_flag():
     """Legend dedup (#3): the `legend` command's modifier-flag rows are generated
     from flags.FLAG_SPECS, so every registry flag must appear in the legend

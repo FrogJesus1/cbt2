@@ -330,6 +330,114 @@ def compute_save_target(target: TargetProfile, weapon: WeaponProfile, mods: Atta
     return min(candidates)
 
 
+_DMG_DICE_RE = re.compile(r"(\d*)D(\d+)\s*([+-]\s*\d+)?", re.IGNORECASE)
+
+
+def _damage_outcomes(weapon: WeaponProfile) -> List[Tuple[float, float]]:
+    """Possible base-damage values and their probabilities for one wound.
+
+    Flat damage → a single (value, 1.0).  Variable damage (D3, D6, 2D6+1) →
+    the full enumerated distribution, so the kill math can account for the
+    discrete wounds-per-model threshold rather than collapsing to the mean.
+    """
+    if weapon.damage_is_variable and weapon.damage_expression:
+        s = str(weapon.damage_expression).strip()
+        m = _DMG_DICE_RE.search(s)
+        if m:
+            from itertools import product
+            count = int(m.group(1)) if m.group(1) else 1
+            sides = int(m.group(2))
+            mod   = int((m.group(3) or "0").replace(" ", ""))
+            # Guard against pathological expressions (keeps enumeration bounded).
+            if 1 <= count <= 4 and 2 <= sides <= 20:
+                dist: Dict[float, float] = {}
+                p_each = 1.0 / (sides ** count)
+                for roll in product(range(1, sides + 1), repeat=count):
+                    v = sum(roll) + mod
+                    dist[v] = dist.get(v, 0.0) + p_each
+                return sorted(dist.items())
+    return [(weapon.damage, 1.0)]
+
+
+def _survivor_distribution(
+    weapon: WeaponProfile, mods: AttackModifiers, target: TargetProfile
+) -> Dict[int, float]:
+    """Per-wound surviving-damage distribution after damage modifiers and 10e
+    Feel No Pain (rolled per damage point).  Returns {surviving_points: prob}.
+
+    Mirrors exactly what monte_carlo_attack samples per unsaved wound, so the EV
+    kill count and the MC mean agree.
+    """
+    q = 1.0
+    if target.feel_no_pain is not None:
+        q = 1.0 - success_probability(target.feel_no_pain, reroll="none")
+    dist: Dict[int, float] = {}
+    for base, pb in _damage_outcomes(weapon):
+        eff = max(1.0, ((base + mods.flat_damage_bonus) * mods.damage_multiplier) - target.damage_reduction)
+        d = int(round(eff))
+        if q >= 1.0 - 1e-12:
+            dist[d] = dist.get(d, 0.0) + pb
+        else:
+            for s in range(d + 1):
+                dist[s] = dist.get(s, 0.0) + pb * math.comb(d, s) * (q ** s) * ((1 - q) ** (d - s))
+    return dist
+
+
+def _expected_kills(
+    expected_unsaved: float,
+    weapon: WeaponProfile,
+    mods: AttackModifiers,
+    target: TargetProfile,
+) -> float:
+    """Expected models destroyed by ``expected_unsaved`` unsaved wounds (10e).
+
+    Models three effects the old EV ignored, and that diverged up to ~30% from
+    Monte Carlo on multi-damage weapons vs Feel No Pain:
+      * Feel No Pain is rolled PER DAMAGE POINT, not once per wound.
+      * a model needs ``wounds`` surviving points to die (discrete threshold).
+      * overkill is wasted — damage does not spill to the next model.
+
+    A small Markov chain over the current model's remaining HP gives the
+    steady-state kill rate per wound; expected kills = rate × expected_unsaved.
+    """
+    W = max(1, int(target.wounds))
+    if expected_unsaved <= 0:
+        return 0.0
+    S = _survivor_distribution(weapon, mods, target)
+    if not S:
+        return 0.0
+
+    def p_ge(h: int) -> float:
+        return sum(p for s, p in S.items() if s >= h)
+
+    # A single surviving point can kill a 1-wound model — no accumulation needed.
+    if W == 1:
+        return expected_unsaved * p_ge(1)
+
+    states = list(range(1, W + 1))            # remaining HP of the current model
+    trans: Dict[int, Dict[int, float]] = {h: {} for h in states}
+    for h in states:
+        for s, ps in S.items():
+            if ps <= 0:
+                continue
+            nh = W if s >= h else h - s        # kill → fresh model (overkill wasted)
+            trans[h][nh] = trans[h].get(nh, 0.0) + ps
+
+    pi = {h: 1.0 / W for h in states}          # power-iterate to stationary dist
+    for _ in range(1000):
+        nxt = {h: 0.0 for h in states}
+        for h in states:
+            for nh, p in trans[h].items():
+                nxt[nh] += pi[h] * p
+        if sum(abs(nxt[h] - pi[h]) for h in states) < 1e-12:
+            pi = nxt
+            break
+        pi = nxt
+
+    kill_rate = sum(pi[h] * p_ge(h) for h in states)
+    return expected_unsaved * kill_rate
+
+
 def compute_attack_result(
     weapon: WeaponProfile,
     target: TargetProfile,
@@ -416,21 +524,12 @@ def compute_attack_result(
         fnp_success = success_probability(target.feel_no_pain, reroll="none")
         expected_damage *= (1 - fnp_success)
 
-    # Kill calculation with overkill correction.
-    # In 40K, excess damage on a model is wasted — it doesn't spill to the next model.
-    # Each unsaved wound can kill at most 1 model.  When effective_damage > target.wounds,
-    # the useful fraction of each wound's damage is (wounds / effective_damage).
-    wounds_per_model = max(1, target.wounds)
-    if effective_damage <= wounds_per_model:
-        # Low-damage weapons: multiple wounds needed per kill, no overkill waste
-        expected_kills = expected_damage / wounds_per_model
-    else:
-        # High-damage weapons: each unsaved wound kills exactly 1 model (excess wasted)
-        # Apply FNP-adjusted unsaved wound count directly
-        expected_kills = expected_unsaved
-        if target.feel_no_pain is not None:
-            fnp_success_rate = success_probability(target.feel_no_pain, reroll="none")
-            expected_kills *= (1 - fnp_success_rate)
+    # Kill calculation (MM4, 10e-accurate): models the discrete wounds-per-model
+    # threshold, wasted overkill (damage does not spill between models), and Feel
+    # No Pain rolled PER DAMAGE POINT.  The old two-branch formula applied a single
+    # FNP roll per whole wound and diverged up to ~30% from Monte Carlo on D3/D6
+    # damage vs FNP; this shares the MC's per-wound model so the two agree.
+    expected_kills = _expected_kills(expected_unsaved, weapon, mods, target)
 
     notes = []
     if mods.use_markerlights:

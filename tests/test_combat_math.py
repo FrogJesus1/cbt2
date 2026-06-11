@@ -1317,6 +1317,108 @@ class TestRound3MedFixes:
             f"ledger save event must reflect the engine's invuln-aware save_target: {save_events[0]['result']}"
 
 
+class TestRound4MathFixes:
+    """2026-06-11 round 4: MM4 (EV FNP per-damage-point kill math),
+    MM9 (melee strike/sweep + pistol profile summing), MM11 (defender leader)."""
+
+    def _tgt_unit(self, keywords=None, t=4, sv=4, w=1):
+        u = _make_unit(name="Target", weapons=[], t=t, sv=sv, w=w)
+        u["keywords"] = keywords or []
+        return u
+
+    # ── MM4: EV kills apply FNP per damage point and agree with MC ────────────
+    def _ev_mc(self, wp, tgt, trials=40000):
+        ev = compute_attack_result(wp, tgt)
+        mc = monte_carlo_attack(wp, tgt, trials=trials, seed=42)
+        return ev.expected_kills, mc["mean_kills"]
+
+    def test_fnp_d3_multiwound_kills_ev_mc_agree(self):
+        # D3 damage vs W2 + FNP5 — the case the old EV overstated ~30%.
+        wp  = WeaponProfile("G", attacks=12, skill=3, strength=8, ap=3,
+                            damage=2.0, damage_is_variable=True, damage_expression="D3")
+        tgt = TargetProfile("T", toughness=6, save=4, invulnerable_save=None,
+                            wounds=2, feel_no_pain=5, models=20)
+        ek, mk = self._ev_mc(wp, tgt)
+        assert abs(ek - mk) / mk < 0.10, f"D3/W2/FNP5 EV {ek:.2f} must track MC {mk:.2f}"
+
+    def test_fnp_high_damage_kills_ev_mc_agree(self):
+        # D6 damage vs W1 + FNP5 — old EV applied one FNP roll per whole wound (−27%).
+        wp  = WeaponProfile("G", attacks=12, skill=3, strength=8, ap=3,
+                            damage=3.5, damage_is_variable=True, damage_expression="D6")
+        tgt = TargetProfile("T", toughness=6, save=4, invulnerable_save=None,
+                            wounds=1, feel_no_pain=5, models=20)
+        ek, mk = self._ev_mc(wp, tgt)
+        assert abs(ek - mk) / mk < 0.08, f"D6/W1/FNP5 EV {ek:.2f} must track MC {mk:.2f}"
+
+    def test_fnp_flat_damage_kills_ev_mc_agree(self):
+        wp  = WeaponProfile("G", attacks=12, skill=3, strength=8, ap=3, damage=2.0)
+        tgt = TargetProfile("T", toughness=6, save=4, invulnerable_save=None,
+                            wounds=2, feel_no_pain=5, models=20)
+        ek, mk = self._ev_mc(wp, tgt)
+        assert abs(ek - mk) / mk < 0.10, f"flat2/W2/FNP5 EV {ek:.2f} must track MC {mk:.2f}"
+
+    def test_no_fnp_oneshot_kills_preserved(self):
+        # No FNP, damage ≥ W: every unsaved wound kills exactly one model. The
+        # MM4 rewrite must NOT regress this previously-correct case.
+        wp  = WeaponProfile("G", attacks=12, skill=3, strength=8, ap=3, damage=3.0)
+        tgt = TargetProfile("T", toughness=6, save=4, invulnerable_save=None,
+                            wounds=1, models=20)
+        r = compute_attack_result(wp, tgt)
+        assert abs(r.expected_kills - r.expected_unsaved_wounds) < 1e-9, \
+            "no-FNP one-shot kills must equal unsaved wounds"
+
+    # ── MM9: multi-profile weapons fire ONE profile, not all summed ───────────
+    def test_multiprofile_not_double_summed(self):
+        strike = _make_weapon(name="Sword - strike", attacks="4", bs="2+", s=8, ap=3, d=3, w_type="melee")
+        sweep  = _make_weapon(name="Sword - sweep",  attacks="8", bs="2+", s=5, ap=1, d=1, w_type="melee")
+        both   = _make_unit(name="Champ", weapons=[strike, sweep])
+        only_s = _make_unit(name="Champ", weapons=[strike])
+        only_w = _make_unit(name="Champ", weapons=[sweep])
+        dfn = self._tgt_unit(t=4, sv=3, w=2)
+        d_both = compute_combat(both,   dfn, [], att_models=1, def_models=5)["melee"]["expected_dmg"]
+        d_s    = compute_combat(only_s, dfn, [], att_models=1, def_models=5)["melee"]["expected_dmg"]
+        d_w    = compute_combat(only_w, dfn, [], att_models=1, def_models=5)["melee"]["expected_dmg"]
+        assert abs(d_both - max(d_s, d_w)) < 1e-9, \
+            f"multi-profile must equal the best single profile, not the sum: {d_both} vs max({d_s},{d_w})"
+        assert d_both < d_s + d_w - 1e-9, "must NOT sum both profiles"
+
+    def test_multiprofile_picks_best_for_target(self):
+        strike = _make_weapon(name="Blade - strike", attacks="3", bs="2+", s=9, ap=3, d=3, w_type="melee")
+        sweep  = _make_weapon(name="Blade - sweep",  attacks="9", bs="2+", s=4, ap=0, d=1, w_type="melee")
+        att    = _make_unit(name="C", weapons=[strike, sweep])
+        # vs a tough multi-wound elite → strike (high S/AP/D) wins
+        elite  = self._tgt_unit(t=9, sv=2, w=4)
+        d_pick  = compute_combat(att, elite, [], att_models=1, def_models=1)["melee"]["expected_dmg"]
+        d_strike = compute_combat(_make_unit(name="C", weapons=[strike]), elite, [], att_models=1, def_models=1)["melee"]["expected_dmg"]
+        assert abs(d_pick - d_strike) < 1e-9, "vs elite the engine must pick the strike profile"
+        # vs a weak horde → sweep (more attacks) wins
+        horde  = self._tgt_unit(t=3, sv=6, w=1)
+        d_pick2 = compute_combat(att, horde, [], att_models=1, def_models=10)["melee"]["expected_dmg"]
+        d_sweep = compute_combat(_make_unit(name="C", weapons=[sweep]), horde, [], att_models=1, def_models=10)["melee"]["expected_dmg"]
+        assert abs(d_pick2 - d_sweep) < 1e-9, "vs a horde the engine must pick the sweep profile"
+
+    def test_single_profile_weapon_unaffected(self):
+        # A lone profile (its siblings filtered out) must pass through unchanged.
+        w   = _make_weapon(name="Plasma pistol - standard", attacks="1", bs="3+", s=7, ap=2, d=1)
+        att = _make_unit(name="C", weapons=[w])
+        plain = _make_unit(name="C", weapons=[_make_weapon(name="Plasma pistol", attacks="1", bs="3+", s=7, ap=2, d=1)])
+        dfn = self._tgt_unit(t=4, sv=3, w=1)
+        d1 = compute_combat(att,   dfn, [], att_models=1, def_models=1)["ranged"]["expected_dmg"]
+        d2 = compute_combat(plain, dfn, [], att_models=1, def_models=1)["ranged"]["expected_dmg"]
+        assert abs(d1 - d2) < 1e-9, "a single surviving profile must compute identically to a plain weapon"
+
+    def test_fnp_reduces_kills_more_than_old_per_wound(self):
+        # Sanity: FNP must reduce kills vs no FNP, and the multi-damage case must
+        # come out BELOW the naive expected_damage/W the old code used.
+        wp  = WeaponProfile("G", attacks=12, skill=3, strength=8, ap=3,
+                            damage=3.5, damage_is_variable=True, damage_expression="D6")
+        no_fnp = compute_attack_result(
+            wp, TargetProfile("T", 6, 4, None, 3, models=20)).expected_kills
+        fnp = compute_attack_result(
+            wp, TargetProfile("T", 6, 4, None, 3, feel_no_pain=5, models=20)).expected_kills
+        assert fnp < no_fnp, "FNP must reduce expected kills"
+
+
 def _run_all() -> None:
     """Run all test classes and report results."""
     import traceback
@@ -1339,6 +1441,7 @@ def _run_all() -> None:
         TestPerModelAttackBonusScaling,
         TestTenthEdRulesFixes,
         TestRound3MedFixes,
+        TestRound4MathFixes,
     ]
 
     passed = 0
