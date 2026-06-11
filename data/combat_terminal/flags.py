@@ -176,7 +176,7 @@ FLAG_SPECS: list[dict] = [
     {"base": "critwound",  "parametric": True,  "defensive": False, "note": _n_critwound,       "legend": "Critical wounds on N+ instead of 6+"},
 
     # ── Offensive: attacks / damage / AP ────────────────────────────────────────
-    {"base": "blast",      "parametric": False, "defensive": False, "note": _fixed("skull",     "Blast — makes minimum 3 attacks against units of 6+ models"), "legend": "Blast: min 3 attacks vs 6+ model units"},
+    {"base": "blast",      "parametric": False, "defensive": False, "note": _fixed("skull",     "Blast — +1 Attack per 5 models in the target unit"), "legend": "Blast: +1 attack per 5 target models"},
     {"base": "rf",         "parametric": False, "defensive": False, "note": _fixed("lightning", "Rapid Fire — +attacks equal to weapon's Rapid Fire value within half range"), "legend": "Rapid Fire (within half range)"},
     {"base": "melta",      "parametric": False, "defensive": False, "note": _fixed("skull",     "Melta — +damage equal to weapon's Melta value within half range"), "legend": "Melta (within half range): +N damage"},
     {"base": "ea",         "parametric": True,  "defensive": False, "note": _n_ea,              "legend": "Extra attacks +N per model"},

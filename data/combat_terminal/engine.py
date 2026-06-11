@@ -2029,7 +2029,7 @@ class CombatTerminalEngine(EngineBase):
             att_models = max(1, int(att_models_override))
             att_models_assumed = False
 
-        # Defender model count — drives BLAST minimum-3-attacks rule.
+        # Defender model count — drives the BLAST +1-attack-per-5-models rule.
         def_min, def_max = _parse_size_range(def_unit.get("unit_composition", [])) if def_unit else (1, 1)
         def_models = def_min
         def_models_assumed = True
@@ -2298,12 +2298,12 @@ class CombatTerminalEngine(EngineBase):
                          "per-squad damage scales with it."),
             })
         _blast_active = any(_flags.split_key(f) == "blast" for f in flags)
-        if _blast_active and def_models_assumed and def_models < 6:
+        if _blast_active and def_models_assumed and def_models < 5:
             flag_notes.append({
                 "icon": "alert",
-                "text": (f"BLAST needs a 6+ model target, but the defender size is assumed at "
-                         f"{def_models} (dossier minimum), so the minimum-3-attacks rule won't fire. "
-                         f"Load the enemy roster for an accurate count."),
+                "text": (f"BLAST grants +1 attack per 5 target models, but the defender size is "
+                         f"assumed at {def_models} (dossier minimum), so no bonus applies. "
+                         f"Load the enemy roster or set --n for an accurate count."),
             })
 
         n_ranged = len([w for w in weapons if w["type"] != "melee"])
@@ -2316,7 +2316,7 @@ class CombatTerminalEngine(EngineBase):
 
         # ── Run combat math ──────────────────────────────────────────────────
         # att_models: multiplies per-model attack counts by squad size.
-        # def_models: used by BLAST minimum-3-attacks rule (rule applies vs 6+ model units).
+        # def_models: used by the BLAST rule (+1 attack per 5 models in the target unit).
         #
         # Pass a copy of att_unit with weapons filtered to the roster loadout
         # (plus leader weapons) so the math engine only computes for equipped weapons.
@@ -3935,8 +3935,8 @@ class CombatTerminalEngine(EngineBase):
             "Dmg and Kills are EXPECTED VALUES — the average result over many simulations. Monte Carlo (5,000 trials) provides the distribution.",
             "Squad attacks: A column shows per-model attacks; parenthetical value (e.g. 2 (6)) shows total for the whole squad.",
             "AP in dossiers is stored as unsigned integer — AP-2 is stored as 2. The save formula: effective_save = armour_save + AP.",
-            "Blast minimum-3 attacks requires knowing the defender's squad size; currently uses dossier minimum composition.",
-            "Rapid Fire attacks are baked in at full value — the --rf flag is informational only (no additional math effect).",
+            "Blast (+1 attack per 5 target models) requires knowing the defender's squad size; currently uses dossier minimum composition unless a roster or --n sets it.",
+            "Rapid Fire: the weapon's RF value is added per firing model only when --rf (within half range) is active.",
             "Squad size: by default a unit fights at its dossier minimum. Override per combat with --n N (or --models N), e.g. `kroot carnivores --n20 vs intercessors`; put it after `vs` to size the defender. An explicit --n beats a loaded roster, persists through rerun, and warns if outside the unit's legal range.",
         ]
 

@@ -48,7 +48,11 @@ def parse_roll_value(value: str | int | None) -> Optional[int]:
 
 
 def success_probability(target: int, reroll: str = "none", crit_on: int = 6) -> float:
-    target = clamp(target, 2, 6)
+    # 10e: critical rolls (unmodified crit_on+) ALWAYS succeed, even when the
+    # modified target is higher — e.g. BS 6+ with crits on 5+ hits on 5s and 6s.
+    # crit_on defaults to 6, so callers without a crit concept (save rolls) are
+    # unaffected: targets are clamped to 2–6 and min(target, 6) is a no-op.
+    target = min(clamp(target, 2, 6), clamp(crit_on, 2, 6))
     base_successes = max(0, 7 - target)
     p_success = base_successes / 6.0
 
@@ -71,7 +75,9 @@ def crit_probability(target: int, reroll: str = "none", crit_on: int = 6) -> flo
     if reroll == "ones":
         return base_crit + (1 / 6.0) * base_crit
     if reroll == "failed":
-        p_success = success_probability(target, reroll="none")
+        # Pass crit_on through: a crit below the modified target still succeeds,
+        # so it is never rerolled — p_fail must use the crit-aware success prob.
+        p_success = success_probability(target, reroll="none", crit_on=crit_on)
         p_fail = 1 - p_success
         return base_crit + p_fail * base_crit
     raise ValueError(f"Unknown reroll mode: {reroll}")
@@ -144,6 +150,7 @@ class TargetProfile:
     feel_no_pain: Optional[int] = None
     damage_reduction: int = 0
     cover: bool = False
+    keywords: List[str] = field(default_factory=list)  # defender keywords — gate Anti-X
 
 
 @dataclass
@@ -178,13 +185,17 @@ class AttackModifiers:
     rf_value: float = 0.0          # RF N parsed from keyword — added to extra_attacks only when use_rapid_fire
     use_melta: bool = False        # flag: signals weapon is within half range; Melta N applied conditionally
     melta_value: float = 0.0      # Melta N parsed from keyword — added to flat_damage_bonus only when use_melta
-    use_blast: bool = False        # flag: CLI resolves per-weapon Blast → minimum 3 attacks vs 6+ model units
+    use_blast: bool = False        # flag: Blast → +1 Attack per 5 models in the target unit (10e)
     use_lance: bool = False        # flag: CLI resolves per-weapon Lance → +1 wound_bonus
     use_heavy: bool = False        # flag: unit Remained Stationary; Heavy weapons get +1 to hit
     is_heavy: bool = False         # per-weapon: weapon has HEAVY keyword
 
     use_torrent: bool = False      # auto-detected: weapon auto-hits (no BS roll needed)
-    anti_wound_target: Optional[int] = None  # Auto/manual: Anti-X N+ overrides wound target
+    anti_wound_target: Optional[int] = None  # Manual/unconditional: Anti N+ regardless of target keywords
+    # Keyword-gated Anti-X entries parsed from the weapon: list of (keyword, N).
+    # Resolved vs the defender's keywords at compute time (10e: Anti-FLY only
+    # applies against FLY units) — see resolve_anti_threshold().
+    anti_entries: List[Any] = field(default_factory=list)
 
     use_overwatch: int = 0         # 0 = normal, 6 = overwatch (hits on 6+), 5 = hits on 5+
 
@@ -208,6 +219,40 @@ class AttackResult:
     expected_damage: float
     expected_kills: float
     notes: List[str] = field(default_factory=list)
+
+
+def _target_keyword_tokens(target: TargetProfile) -> set:
+    """Uppercased word tokens from the defender's keyword list.  Tokenising on
+    whitespace survives the dossier parse artifacts ('KEYWORDS: Vehicle',
+    merged tails like 'Broadside T'au Empire')."""
+    tokens: set = set()
+    for k in (target.keywords or []):
+        for tok in str(k).upper().replace(",", " ").split():
+            tokens.add(tok.strip(":"))
+    return tokens
+
+
+def resolve_anti_threshold(mods: AttackModifiers, target: TargetProfile) -> Optional[int]:
+    """Effective Anti-X N+ threshold against THIS target, or None.
+
+    10e: Anti-KEYWORD N+ only applies when the target has the matching keyword.
+    Keyword-gated entries come from ``mods.anti_entries``; a directly-set
+    ``mods.anti_wound_target`` (manual/legacy path) applies unconditionally.
+    Returns the best (lowest) applicable threshold.
+    """
+    candidates: List[int] = []
+    if mods.anti_wound_target is not None:
+        candidates.append(int(mods.anti_wound_target))
+    if mods.anti_entries:
+        tokens = _target_keyword_tokens(target)
+        for entry in mods.anti_entries:
+            try:
+                kw, t = entry
+            except (TypeError, ValueError):
+                continue
+            if str(kw).upper() in tokens:
+                candidates.append(int(t))
+    return min(candidates) if candidates else None
 
 
 def apply_tau_markerlights(mods: AttackModifiers) -> AttackModifiers:
@@ -304,11 +349,16 @@ def compute_attack_result(
     base_wound_target = wound_target(weapon.strength, target.toughness)
     final_wound_target = clamp(base_wound_target - mods.wound_bonus + mods.wound_penalty, 2, 6)
 
-    # Anti-X N+: wound rolls of N+ always succeed — take the better of S-vs-T and Anti threshold
-    if mods.anti_wound_target is not None:
-        final_wound_target = clamp(min(final_wound_target, mods.anti_wound_target), 2, 6)
-    p_wound_roll_success = success_probability(final_wound_target, reroll=mods.reroll_wounds, crit_on=mods.crit_wounds_on)
-    p_crit_wound = crit_probability(final_wound_target, reroll=mods.reroll_wounds, crit_on=mods.crit_wounds_on)
+    # Anti-X N+ (keyword-gated vs this target): an unmodified wound roll of N+
+    # is a CRITICAL wound (10e) — it both auto-succeeds and triggers crit-wound
+    # effects (Devastating Wounds), so the crit threshold drops to N as well.
+    crit_wounds_eff = mods.crit_wounds_on
+    anti_t = resolve_anti_threshold(mods, target)
+    if anti_t is not None:
+        final_wound_target = clamp(min(final_wound_target, anti_t), 2, 6)
+        crit_wounds_eff = min(crit_wounds_eff, anti_t)
+    p_wound_roll_success = success_probability(final_wound_target, reroll=mods.reroll_wounds, crit_on=crit_wounds_eff)
+    p_crit_wound = crit_probability(final_wound_target, reroll=mods.reroll_wounds, crit_on=crit_wounds_eff)
 
     save_target = compute_save_target(target, weapon, mods)
     p_fail_save = 1.0 if save_target is None else (1 - success_probability(save_target, reroll="none"))
@@ -476,6 +526,12 @@ def monte_carlo_attack(
     attacks expression this many times per trial and sum (one volley per firing
     model), instead of pre-multiplying the expected value.
     """
+    # trials=0 is the adapter's "MC disabled" sentinel — it must short-circuit
+    # in the caller (math_adapter._run_mc), never reach the simulation (the
+    # kill-probability division and statistics.mean would both blow up).
+    if trials <= 0:
+        raise ValueError(f"monte_carlo_attack requires trials >= 1 (got {trials})")
+
     # Dedicated RNG per simulation — never touch the global `random` stream.
     # Previously this did `random.seed(42)`, which clobbered the module-global
     # RNG that the `dice` roller also draws from, so rolling a combat then
@@ -492,8 +548,21 @@ def monte_carlo_attack(
 
     hit_target = clamp(raw_hit - mods.hit_bonus + mods.hit_penalty, 2, 6)
     wound_t = clamp(wound_target(weapon.strength, target.toughness) - mods.wound_bonus + mods.wound_penalty, 2, 6)
-    if mods.anti_wound_target is not None:
-        wound_t = clamp(min(wound_t, mods.anti_wound_target), 2, 6)
+
+    # Anti-X N+ (keyword-gated): N+ wound rolls are CRITICAL wounds (10e) —
+    # they auto-succeed and the crit-wound threshold drops to N.
+    crit_wounds_eff = mods.crit_wounds_on
+    anti_t = resolve_anti_threshold(mods, target)
+    if anti_t is not None:
+        wound_t = clamp(min(wound_t, anti_t), 2, 6)
+        crit_wounds_eff = min(crit_wounds_eff, anti_t)
+
+    # Critical rolls always succeed (10e) — the roll target a die must meet is
+    # the better of the modified target and the crit threshold, mirroring
+    # success_probability in the EV path.
+    hit_roll_target   = min(hit_target, clamp(mods.crit_hits_on, 2, 6))
+    wound_roll_target = min(wound_t, clamp(crit_wounds_eff, 2, 6))
+
     save_t = compute_save_target(target, weapon, mods)
 
     # Fixed (EV) attack count — used when the weapon's attacks are not variable.
@@ -544,12 +613,14 @@ def monte_carlo_attack(
                 hit_success = True
                 natural_hit = roll_d6(rng)
             else:
-                hit_success, natural_hit = _reroll_mode(hit_target, mods.reroll_hits, rng)
+                hit_success, natural_hit = _reroll_mode(hit_roll_target, mods.reroll_hits, rng)
             if not hit_success:
                 continue
 
             crit_hit = natural_hit >= mods.crit_hits_on
-            pending_hits = 1 + (mods.sustained_hits if crit_hit else 0)
+            # sustained_hits may be a float EV (dice-valued keyword, e.g. "SUSTAINED
+            # HITS D3" → 2.0) — round per crit so the hit count stays integral.
+            pending_hits = 1 + (int(round(mods.sustained_hits)) if crit_hit else 0)
 
             auto_wounds = 1 if (mods.lethal_hits and crit_hit) else 0
             rolled_hits = pending_hits - auto_wounds
@@ -560,9 +631,9 @@ def monte_carlo_attack(
             wounds_dev = 0
 
             for _ in range(max(0, rolled_hits)):
-                wound_success, natural_wound = _reroll_mode(wound_t, mods.reroll_wounds, rng)
+                wound_success, natural_wound = _reroll_mode(wound_roll_target, mods.reroll_wounds, rng)
                 if wound_success:
-                    crit_wound = natural_wound >= mods.crit_wounds_on
+                    crit_wound = natural_wound >= crit_wounds_eff
                     if mods.devastating_wounds and crit_wound:
                         wounds_dev += 1
                     else:

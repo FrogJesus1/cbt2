@@ -442,7 +442,8 @@ class TestWeaponKeywordParsing:
     def test_anti_keyword(self):
         w = _make_weapon(keywords=["ANTI-INFANTRY 4+"])
         _, mods = _weapon_to_profile(w)
-        assert mods.anti_wound_target == 4
+        # Keyword Anti is stored gated: (keyword, N), resolved vs the defender
+        assert ("INFANTRY", 4) in mods.anti_entries
 
     def test_blast_keyword(self):
         w = _make_weapon(keywords=["BLAST"])
@@ -888,6 +889,246 @@ class TestMonteCarloVariance:
         assert r["std_dev_damage"] >= 0
 
 
+class TestKeywordVariantNormalisation:
+    """Dossier keyword spelling variants (underscores, spaced hyphens, dice
+    values) must parse identically to the canonical forms — ~500 real weapon
+    instances use them (2026-06-10 scan, MC1)."""
+
+    def test_underscore_devastating_wounds(self):
+        _, mods = _weapon_to_profile(_make_weapon(keywords=["DEVASTATING_WOUNDS"]))
+        assert mods.devastating_wounds is True
+
+    def test_underscore_lethal_hits(self):
+        _, mods = _weapon_to_profile(_make_weapon(keywords=["LETHAL_HITS"]))
+        assert mods.lethal_hits is True
+
+    def test_underscore_twin_linked(self):
+        _, mods = _weapon_to_profile(_make_weapon(keywords=["TWIN_LINKED"]))
+        assert mods.reroll_wounds == "failed"
+
+    def test_spaced_hyphen_twin_linked(self):
+        _, mods = _weapon_to_profile(_make_weapon(keywords=["TWIN -LINKED"]))
+        assert mods.reroll_wounds == "failed"
+
+    def test_underscore_rapid_fire(self):
+        _, mods = _weapon_to_profile(_make_weapon(keywords=["RAPID_FIRE_2"]))
+        assert mods.rf_value >= 2.0
+
+    def test_underscore_sustained_hits(self):
+        _, mods = _weapon_to_profile(_make_weapon(keywords=["SUSTAINED_HITS_1"]))
+        assert mods.sustained_hits == 1
+
+    def test_underscore_anti(self):
+        _, mods = _weapon_to_profile(_make_weapon(keywords=["ANTI_FLY_2+"]))
+        assert ("FLY", 2) in mods.anti_entries
+
+    def test_underscore_melta(self):
+        _, mods = _weapon_to_profile(_make_weapon(keywords=["MELTA_2"]))
+        assert mods.melta_value >= 2.0
+
+    def test_ignores_cover_wired(self):
+        for form in ("IGNORES COVER", "IGNORES_COVER"):
+            _, mods = _weapon_to_profile(_make_weapon(keywords=[form]))
+            assert mods.ignore_cover is True, form
+
+    def test_dice_valued_sustained_hits(self):
+        _, mods = _weapon_to_profile(_make_weapon(keywords=["SUSTAINED HITS D3"]))
+        assert abs(mods.sustained_hits - 2.0) < 1e-9  # D3 EV
+
+    def test_bare_sustained_hits(self):
+        _, mods = _weapon_to_profile(_make_weapon(keywords=["SUSTAINED HITS"]))
+        assert mods.sustained_hits == 1
+
+    def test_dice_valued_rapid_fire(self):
+        _, mods = _weapon_to_profile(_make_weapon(keywords=["RAPID FIRE D6"]))
+        assert abs(mods.rf_value - 3.5) < 1e-9  # D6 EV
+
+    def test_canonical_forms_still_parse(self):
+        """Regression guard: original space/hyphen forms unaffected."""
+        _, m1 = _weapon_to_profile(_make_weapon(keywords=["DEVASTATING WOUNDS"]))
+        _, m2 = _weapon_to_profile(_make_weapon(keywords=["TWIN-LINKED"]))
+        _, m3 = _weapon_to_profile(_make_weapon(keywords=["ANTI-INFANTRY 4+"]))
+        assert m1.devastating_wounds is True
+        assert m2.reroll_wounds == "failed"
+        assert ("INFANTRY", 4) in m3.anti_entries
+
+    def test_dice_sustained_does_not_crash_mc(self):
+        """Float sustained_hits (D3 EV) must survive the MC integer hit loop."""
+        w   = _make_weapon(name="Dice Gun", attacks="4", keywords=["SUSTAINED HITS D3"])
+        att = _make_unit(name="Squad", weapons=[w])
+        tgt = _make_unit(name="Target", weapons=[])
+        r   = compute_combat(att, tgt, [], att_models=1)
+        assert r["simulation"]["status"] == "ACTIVE"
+        assert r["ranged"]["expected_dmg"] > 0
+
+
+class TestPerModelAttackBonusScaling:
+    """RF N raises the Attacks characteristic of EVERY firing model, and --ea is
+    documented per-model — both must scale with squad size (2026-06-10 scan, MC2/MH3)."""
+
+    def _unit(self, weapons):
+        return _make_unit(name="Squad", weapons=weapons)
+
+    def _tgt(self):
+        # sv=4 → per-attack chain 0.5×0.5×0.5 = 0.125: products round cleanly
+        # to 2dp, so exact-ratio assertions aren't distorted by display rounding.
+        return _make_unit(name="Target", weapons=[], sv=4)
+
+    def test_rapid_fire_scales_per_model(self):
+        """10-model A1 RF1 squad in half range fires 20 attacks → exactly 2× no-rf damage."""
+        w   = _make_weapon(name="Pulse Rifle", attacks="1", keywords=["RAPID FIRE 1"])
+        att = self._unit([w])
+        no_rf = compute_combat(att, self._tgt(), [],     att_models=10)["ranged"]["expected_dmg"]
+        rf    = compute_combat(att, self._tgt(), ["rf"], att_models=10)["ranged"]["expected_dmg"]
+        assert abs(rf / no_rf - 2.0) < 0.01, f"RF1 on A1 ×10 models should double damage, got ×{rf/no_rf:.3f}"
+
+    def test_rapid_fire_squad_equals_n_times_single(self):
+        w   = _make_weapon(name="Pulse Rifle", attacks="1", keywords=["RAPID FIRE 1"])
+        att = self._unit([w])
+        one = compute_combat(att, self._tgt(), ["rf"], att_models=1)["ranged"]["expected_dmg"]
+        ten = compute_combat(att, self._tgt(), ["rf"], att_models=10)["ranged"]["expected_dmg"]
+        assert abs(ten / one - 10.0) < 0.01, f"10-model RF squad should deal 10× a single model, got ×{ten/one:.3f}"
+
+    def test_ea_flag_scales_per_model(self):
+        """5-model A2 squad with --ea1 fires 15 attacks → exactly 1.5× baseline."""
+        w    = _make_weapon(name="Gun", attacks="2")
+        att  = self._unit([w])
+        base = compute_combat(att, self._tgt(), [],      att_models=5)["ranged"]["expected_dmg"]
+        ea   = compute_combat(att, self._tgt(), ["ea1"], att_models=5)["ranged"]["expected_dmg"]
+        assert abs(ea / base - 1.5) < 0.01, f"--ea1 on A2 ×5 models should be 1.5×, got ×{ea/base:.3f}"
+
+    def test_no_multiply_weapon_rf_not_scaled(self):
+        """A unit-level weapon (_no_multiply) gets its RF bonus once, not ×models."""
+        w   = _make_weapon(name="Turret", attacks="2", keywords=["RAPID FIRE 2"], no_multiply=True)
+        att = self._unit([w])
+        one  = compute_combat(att, self._tgt(), ["rf"], att_models=1)["per_weapon_dmg"]["Turret"]["dmg"]
+        five = compute_combat(att, self._tgt(), ["rf"], att_models=5)["per_weapon_dmg"]["Turret"]["dmg"]
+        assert abs(five / one - 1.0) < 0.05, f"_no_multiply RF weapon must not scale, got ×{five/one:.2f}"
+
+    def test_mc_mean_tracks_ev_with_rf_scaling(self):
+        """MC and EV must agree on the scaled attack count (10-model RF squad)."""
+        w   = _make_weapon(name="Pulse Rifle", attacks="1", keywords=["RAPID FIRE 1"])
+        att = self._unit([w])
+        r   = compute_combat(att, self._tgt(), ["rf"], att_models=10)
+        ev  = r["ranged"]["expected_dmg"]
+        mc  = r["per_weapon_dmg"]["Pulse Rifle"]["mc"]["mean_damage"]
+        assert abs(mc - ev) / ev < 0.10, f"MC mean {mc:.2f} should track EV {ev:.2f}"
+
+
+class TestTenthEdRulesFixes:
+    """2026-06-10 round 2: MC-disable crash path (MC3), Anti-X keyword gating +
+    crit-wound threshold (MH1/MH2), 10e Blast (MH4), crit auto-success (MH5)."""
+
+    def _tgt_unit(self, keywords=None, t=4, sv=4, w=1):
+        u = _make_unit(name="Target", weapons=[], t=t, sv=sv, w=w)
+        u["keywords"] = keywords or []
+        return u
+
+    # ── MC3: set_mc_trials(0) must degrade cleanly, not crash ─────────────────
+    def test_mc_disabled_clean_fallback(self):
+        from data.combat_terminal.math_adapter import set_mc_trials
+        att = _make_unit(name="Squad", weapons=[_make_weapon(name="Gun")])
+        try:
+            set_mc_trials(0)
+            r = compute_combat(att, self._tgt_unit(), [], att_models=1)
+        finally:
+            set_mc_trials(5000)
+        assert r["simulation"]["status"] == "OFFLINE"
+        assert r["ranged"]["expected_dmg"] > 0          # EV numbers survive
+        assert r["ranged"]["kill_chance_pct"] is None   # MC-derived stat absent
+
+    # ── MH1: Anti-X only applies vs targets with the matching keyword ─────────
+    def test_anti_requires_matching_keyword(self):
+        wp   = WeaponProfile("Missiles", attacks=4, skill=4, strength=4, ap=0, damage=1)
+        mods = AttackModifiers(anti_entries=[("FLY", 2)])
+        ground = TargetProfile("Tank", toughness=10, save=3, invulnerable_save=None,
+                               wounds=10, keywords=["KEYWORDS: Vehicle", "Tracked"])
+        flyer  = TargetProfile("Jet",  toughness=10, save=3, invulnerable_save=None,
+                               wounds=10, keywords=["KEYWORDS: Vehicle", "Fly"])
+        r_ground = compute_attack_result(wp, ground, mods)
+        r_fly    = compute_attack_result(wp, flyer,  mods)
+        assert r_ground.wound_target == 6, "S4 vs T10 without matching keyword: anti must NOT apply"
+        assert r_fly.wound_target == 2,    "Anti-FLY 2+ must apply vs a FLY target"
+        assert r_fly.expected_damage > r_ground.expected_damage * 2
+
+    def test_manual_anti_wound_target_unconditional(self):
+        """A directly-set anti_wound_target (manual/legacy path) ignores keywords."""
+        wp   = WeaponProfile("Gun", attacks=4, skill=4, strength=4, ap=0, damage=1)
+        mods = AttackModifiers(anti_wound_target=3)
+        tank = TargetProfile("Tank", toughness=10, save=3, invulnerable_save=None,
+                             wounds=10, keywords=["Vehicle"])
+        assert compute_attack_result(wp, tank, mods).wound_target == 3
+
+    # ── MH2: Anti N+ lowers the critical-wound threshold (Anti+Dev combo) ─────
+    def test_anti_lowers_crit_wound_threshold_with_dev(self):
+        wp   = WeaponProfile("Haywire", attacks=6, skill=3, strength=4, ap=0, damage=2)
+        tank = TargetProfile("Tank", toughness=10, save=2, invulnerable_save=None,
+                             wounds=12, keywords=["Vehicle"])
+        r_dev  = compute_attack_result(wp, tank, AttackModifiers(devastating_wounds=True))
+        r_anti = compute_attack_result(wp, tank, AttackModifiers(
+            devastating_wounds=True, anti_entries=[("VEHICLE", 2)]))
+        # vs a 2+ save: anti 2+ makes (nearly) every wound a save-bypassing crit
+        assert r_anti.expected_damage > r_dev.expected_damage * 3, \
+            f"Anti-2+ + Dev should dwarf Dev alone vs 2+ save: {r_anti.expected_damage} vs {r_dev.expected_damage}"
+
+    def test_anti_crit_threshold_ev_mc_agree(self):
+        wp   = WeaponProfile("Haywire", attacks=6, skill=3, strength=4, ap=0, damage=2)
+        tank = TargetProfile("Tank", toughness=10, save=2, invulnerable_save=None,
+                             wounds=12, keywords=["Vehicle"])
+        mods = AttackModifiers(devastating_wounds=True, anti_entries=[("VEHICLE", 2)])
+        ev = compute_attack_result(wp, tank, mods).expected_damage
+        mc = monte_carlo_attack(wp, tank, mods, trials=8000, seed=42)["mean_damage"]
+        assert abs(mc - ev) / ev < 0.10, f"EV {ev:.2f} and MC {mc:.2f} must agree"
+
+    # ── MH4: Blast = +1 Attack per 5 models in the target unit (10e) ──────────
+    # damage=4 vs T4/Sv4+ at BS4+ → exactly 0.5 dmg per attack: clean ratios.
+    def _blast_unit(self, attacks):
+        w = _make_weapon(name="Frag", attacks=attacks, damage=4, keywords=["BLAST"])
+        return _make_unit(name="Squad", weapons=[w])
+
+    def test_blast_plus_one_per_five_models(self):
+        att = self._blast_unit("4")
+        d1  = compute_combat(att, self._tgt_unit(), [], att_models=1, def_models=1)["ranged"]["expected_dmg"]
+        d5  = compute_combat(att, self._tgt_unit(), [], att_models=1, def_models=5)["ranged"]["expected_dmg"]
+        d10 = compute_combat(att, self._tgt_unit(), [], att_models=1, def_models=10)["ranged"]["expected_dmg"]
+        assert abs(d5 / d1 - 5/4)  < 0.02, f"vs 5 models: 4→5 attacks, got ×{d5/d1:.3f}"
+        assert abs(d10 / d1 - 6/4) < 0.02, f"vs 10 models: 4→6 attacks, got ×{d10/d1:.3f}"
+
+    def test_blast_no_nine_ed_minimum_three_floor(self):
+        att = self._blast_unit("1")
+        d1 = compute_combat(att, self._tgt_unit(), [], att_models=1, def_models=1)["ranged"]["expected_dmg"]
+        d5 = compute_combat(att, self._tgt_unit(), [], att_models=1, def_models=5)["ranged"]["expected_dmg"]
+        d6 = compute_combat(att, self._tgt_unit(), [], att_models=1, def_models=6)["ranged"]["expected_dmg"]
+        # 10e: A1 vs 5 models → 2 attacks (old rule gave nothing below 6 models)
+        assert abs(d5 / d1 - 2.0) < 0.02, f"A1 blast vs 5 models should double, got ×{d5/d1:.3f}"
+        # 10e: A1 vs 6 models → 2 attacks (old 9e floor forced 3)
+        assert abs(d6 / d1 - 2.0) < 0.02, f"A1 blast vs 6 models is 2 attacks not the 9e min-3, got ×{d6/d1:.3f}"
+
+    def test_blast_bonus_scales_per_firing_model(self):
+        att = self._blast_unit("4")
+        one   = compute_combat(att, self._tgt_unit(), [], att_models=1, def_models=10)["ranged"]["expected_dmg"]
+        three = compute_combat(att, self._tgt_unit(), [], att_models=3, def_models=10)["ranged"]["expected_dmg"]
+        assert abs(three / one - 3.0) < 0.02, f"Blast bonus applies per firing model, got ×{three/one:.3f}"
+
+    # ── MH5: critical rolls auto-succeed even below the modified target ───────
+    def test_crit_below_target_auto_hits_ev(self):
+        wp   = WeaponProfile("Gun", attacks=6, skill=6, strength=4, ap=0, damage=1)
+        tgt  = TargetProfile("T", toughness=4, save=4, invulnerable_save=None, wounds=1)
+        r = compute_attack_result(wp, tgt, AttackModifiers(crit_hits_on=5))
+        assert abs(r.hit_probability - 2/6) < 1e-9, \
+            f"BS6+ with crits on 5+ must hit on 5s AND 6s: p={r.hit_probability}"
+
+    def test_criton_lethal_ev_mc_agree(self):
+        wp   = WeaponProfile("Gun", attacks=6, skill=6, strength=4, ap=0, damage=1)
+        tgt  = TargetProfile("T", toughness=8, save=4, invulnerable_save=None, wounds=3)
+        mods = AttackModifiers(crit_hits_on=5, lethal_hits=True)
+        ev = compute_attack_result(wp, tgt, mods).expected_damage
+        mc = monte_carlo_attack(wp, tgt, mods, trials=10000, seed=42)["mean_damage"]
+        assert ev > 0
+        assert abs(mc - ev) / ev < 0.10, \
+            f"criton+lethal EV {ev:.2f} and MC {mc:.2f} must describe the same universe"
+
+
 def _run_all() -> None:
     """Run all test classes and report results."""
     import traceback
@@ -906,6 +1147,9 @@ def _run_all() -> None:
         TestWoundTableSync,
         TestFlagRegistrySync,
         TestMonteCarloVariance,
+        TestKeywordVariantNormalisation,
+        TestPerModelAttackBonusScaling,
+        TestTenthEdRulesFixes,
     ]
 
     passed = 0

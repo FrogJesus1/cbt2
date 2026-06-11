@@ -139,9 +139,26 @@ def _parse_ap(val) -> int:
 
 
 def _normalise_keywords(raw) -> list[str]:
-    if isinstance(raw, str):
-        return [k.strip().upper() for k in raw.split(",") if k.strip()]
-    return [str(k).upper().strip() for k in (raw or [])]
+    """Uppercase + canonicalise keyword spelling variants.
+
+    Dossier keywords arrive in several forms the matcher must treat as one:
+    underscores ("DEVASTATING_WOUNDS", "RAPID_FIRE_2"), stray spaces around
+    hyphens ("TWIN -LINKED"), and doubled whitespace.  Canonical form:
+    single-spaced words, no underscores, tight hyphens ("TWIN-LINKED").
+    """
+    items = raw.split(",") if isinstance(raw, str) else (raw or [])
+    out = []
+    for k in items:
+        s = str(k).upper().replace("_", " ")
+        s = re.sub(r"\s*-\s*", "-", s)     # "TWIN -LINKED" → "TWIN-LINKED"
+        s = re.sub(r"\s+", " ", s).strip()
+        if s:
+            out.append(s)
+    return out
+
+
+# Value part of parametric keywords: "2", "D3", "D6+1", "2D6" …
+_KW_VAL = r"(\d+D\d+(?:[+-]\d+)?|D\d+(?:[+-]\d+)?|\d+)"
 
 
 # ─── Dossier → engine types ────────────────────────────────────────────────────
@@ -171,7 +188,7 @@ def _weapon_to_profile(w: dict) -> tuple[WeaponProfile, AttackModifiers]:
             mods.devastating_wounds = True
         elif kw == "TORRENT":
             mods.use_torrent = True
-        elif kw == "TWIN-LINKED":
+        elif kw in ("TWIN-LINKED", "TWIN LINKED"):
             mods.reroll_wounds = "failed"
         elif kw == "LETHAL HITS":
             mods.lethal_hits = True
@@ -181,28 +198,39 @@ def _weapon_to_profile(w: dict) -> tuple[WeaponProfile, AttackModifiers]:
             mods.use_blast = True
         elif kw == "HEAVY":
             mods.is_heavy = True
+        elif kw == "IGNORES COVER":
+            mods.ignore_cover = True
+        elif kw == "SUSTAINED HITS":
+            # Bare keyword (rare parse artifact) — treat as Sustained Hits 1
+            mods.sustained_hits = 1
         else:
-            m = re.search(r"SUSTAINED HITS\s+(\d+)", kw)
+            m = re.search(rf"SUSTAINED HITS\s+{_KW_VAL}", kw)
             if m:
-                mods.sustained_hits = int(m.group(1))
+                # Dice values (D3 etc.) collapse to their EV; the EV math uses it
+                # as a multiplier and the MC rounds it per crit.
+                val, _, _ = _expected_dice(m.group(1))
+                mods.sustained_hits = val
                 continue
-            m = re.search(r"RAPID FIRE\s+(\d+)", kw)
+            m = re.search(rf"RAPID FIRE\s+{_KW_VAL}", kw)
             if m:
                 # Store RF N in rf_value — only added to extra_attacks when
                 # use_rapid_fire=True (i.e. the --rf flag signals within-half-range).
-                mods.rf_value += float(m.group(1))
+                val, _, _ = _expected_dice(m.group(1))
+                mods.rf_value += val
                 continue
-            m = re.search(r"MELTA\s+(\d+)", kw)
+            m = re.search(rf"MELTA\s+{_KW_VAL}", kw)
             if m:
                 # Store Melta N in melta_value — only added to flat_damage_bonus
                 # when use_melta=True (i.e. the --melta flag signals within-half-range).
-                mods.melta_value += float(m.group(1))
+                val, _, _ = _expected_dice(m.group(1))
+                mods.melta_value += val
                 continue
-            m = re.search(r"ANTI-\S+\s+(\d+)\+", kw)
+            m = re.search(r"ANTI[\s-]+(\S+)\s+(\d+)\+", kw)
             if m:
-                t = int(m.group(1))
-                if mods.anti_wound_target is None or t < mods.anti_wound_target:
-                    mods.anti_wound_target = t
+                # Keyword-gated (10e): Anti-FLY only applies vs FLY units.
+                # Stored as (keyword, N) and resolved against the defender's
+                # keywords at compute time via resolve_anti_threshold().
+                mods.anti_entries.append((m.group(1).upper(), int(m.group(2))))
 
     wp = WeaponProfile(
         name              = w.get("name", "Unknown"),
@@ -250,6 +278,7 @@ def _unit_to_target(unit: dict) -> TargetProfile:
         invulnerable_save = invuln,
         wounds            = wounds,
         models            = 1,
+        keywords          = [str(k) for k in (unit.get("keywords") or [])],
     )
 
 
@@ -331,7 +360,7 @@ def _apply_flags(flags: list, base_mods: "AttackModifiers", target: "TargetProfi
         twin        — Twin-linked: re-roll all failed wound rolls
         sustained / sustained1 / sustained:N  — Sustained Hits N: crit hits add N extra hits
         dev / devastating — Devastating Wounds: crit wounds bypass all saves
-        blast       — Blast: flag; adapter notes minimum-3-attacks semantic
+        blast       — Blast: flag; +1 Attack per 5 models in the target unit (10e)
         rf          — Rapid Fire: within half range; adds RF N to extra attacks
         melta       — Melta: within half range; adds Melta N to flat damage bonus
         torrent     — Torrent: weapon auto-hits (no BS roll)
@@ -465,7 +494,7 @@ def _apply_flags(flags: list, base_mods: "AttackModifiers", target: "TargetProfi
 
         # ── Blast / Rapid Fire ────────────────────────────────────────────────
         # Blast:  use_blast is set here (flag side) and also auto-detected in
-        #         _weapon_to_profile (keyword side).  The minimum-3-attacks rule
+        #         _weapon_to_profile (keyword side).  The +1-per-5-models rule
         #         is applied in _run_ev / _run_mc after merging, using def_models.
         # Rapid Fire: rf_value is stored per-weapon in _weapon_to_profile and
         #         carried through _merge_mods.  The --rf flag (within half range)
@@ -697,8 +726,8 @@ def compute_combat(
     att_models: number of models in the attacking unit (from unit_composition).
                 Weapon attacks are multiplied by this unless the weapon carries
                 _no_multiply=True (e.g. support turrets — 1 per unit, not 1 per model).
-    def_models: number of models in the defending unit.  Used for BLAST
-                minimum-3-attacks rule (only applies vs units of 6+ models).
+    def_models: number of models in the defending unit.  Used for the BLAST
+                rule (+1 Attack per 5 models in the target unit, 10e).
 
     Returns:
         {
@@ -747,12 +776,19 @@ def compute_combat(
                 # ── Heavy: +1 to hit when unit Remained Stationary ──────────
                 if merged.use_heavy and merged.is_heavy:
                     merged.hit_bonus += 1
-                # ── Blast: minimum 3 per-model attacks vs 6+ model units ─────────
-                if merged.use_blast and def_models >= 6:
-                    wp.attacks = max(wp.attacks, 3.0)
+                # ── Blast (10e): +1 Attack per 5 models in the target unit ───────
+                # Added to extra_attacks (a per-model bonus, like RF) so the
+                # squad-scaling below applies it to every firing model.
+                if merged.use_blast and def_models >= 5:
+                    merged.extra_attacks += def_models // 5
                 # Scale attacks by squad size — skip for unit-level weapons (e.g. support turrets)
                 if att_models > 1 and not w.get("_no_multiply"):
                     wp.attacks = wp.attacks * att_models
+                    # extra_attacks is per-model (RF N raises the weapon's Attacks
+                    # characteristic on EVERY firing model; --ea is documented
+                    # per-model) — scale it with the squad like base attacks.
+                    if merged.extra_attacks:
+                        merged.extra_attacks *= att_models
                 result = compute_attack_result(wp, target, base_mods=merged)
                 out.append((w, result))
             except Exception as exc:
@@ -809,7 +845,8 @@ def compute_combat(
         summary = {
             "expected_dmg":       round(total_dmg,   2),
             "expected_kills":     round(total_kills,  2),
-            "kill_chance_pct":    round(kill_chance,  1),
+            # None when MC is offline (kill chance is an MC-derived stat)
+            "kill_chance_pct":    round(kill_chance, 1) if kill_chance is not None else None,
             "avg_dmg_per_attack": round(total_dmg / n_weapons, 2),
             "overkill_waste_pct": overkill_pct,
             "swinginess":         swinginess_cv,
@@ -857,6 +894,12 @@ def compute_combat(
 
     def _run_mc(weapon_list: list, category: str) -> None:
         nonlocal mc_error
+        # MC disabled (set_mc_trials(0)) → clean deterministic fallback:
+        # leave mc_per_weapon empty so the simulation block reports OFFLINE
+        # while the EV numbers still come through.
+        if _MC_TRIALS <= 0:
+            mc_error = "Monte Carlo disabled (trials=0)"
+            return
         for w in weapon_list:
             if not isinstance(w, dict):
                 continue
@@ -875,15 +918,21 @@ def compute_combat(
                 # pre-multiplied expected-value path.
                 sample_attacks = bool(wp.attacks_is_variable and wp.attacks_expression)
                 volleys = 1
-                if merged.use_blast and def_models >= 6:
-                    wp.attacks = max(wp.attacks, 3.0)
-                    sample_attacks = False  # Blast min-3 floor uses the EV path
+                # Blast (10e): flat +1 Attack per 5 target models — a per-model
+                # bonus via extra_attacks, so variable attacks can stay sampled.
+                if merged.use_blast and def_models >= 5:
+                    merged.extra_attacks += def_models // 5
                 # Scale attacks by squad size — skip for unit-level weapons
                 if att_models > 1 and not w.get("_no_multiply"):
                     if sample_attacks:
                         volleys = att_models     # one expression roll per model
                     else:
                         wp.attacks = wp.attacks * att_models
+                    # Per-model attack bonuses (RF N / --ea) scale with the squad.
+                    # _sample_attacks adds extra_attacks once after all volleys,
+                    # so scaling here is correct for both branches.
+                    if merged.extra_attacks:
+                        merged.extra_attacks *= att_models
                 mc_result = monte_carlo_attack(
                     wp, target, base_mods=merged,
                     trials=_MC_TRIALS, seed=_MC_SEED,
@@ -1006,10 +1055,14 @@ def compute_sensitivity(
                     merged.flat_damage_bonus += merged.melta_value
                 if merged.use_heavy and merged.is_heavy:
                     merged.hit_bonus += 1
-                if merged.use_blast and def_models >= 6:
-                    wp.attacks = max(wp.attacks, 3.0)
+                # Blast (10e): +1 Attack per 5 target models (per-model bonus)
+                if merged.use_blast and def_models >= 5:
+                    merged.extra_attacks += def_models // 5
                 if att_models > 1 and not w.get("_no_multiply"):
                     wp.attacks = wp.attacks * att_models
+                    # Per-model attack bonuses (RF N / --ea) scale with the squad
+                    if merged.extra_attacks:
+                        merged.extra_attacks *= att_models
                 result = compute_attack_result(wp, target, merged)
                 total += result.expected_damage
             except Exception as exc:
