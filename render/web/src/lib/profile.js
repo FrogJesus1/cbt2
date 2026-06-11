@@ -12,7 +12,12 @@ const PROFILE_KEY = "ct_profile";  // localStorage key for last-used profile nam
 
 export async function fetchProfiles() {
   const res = await fetch(`${API}/profiles`);
-  if (!res.ok) throw new Error("Failed to fetch profiles");
+  if (!res.ok) {
+    // Surface the real upstream reason (e.g. Airtable token/table/perms) so a
+    // store outage isn't mistaken for "you have no profiles" / data loss.
+    const err = await res.json().catch(() => ({}));
+    throw new Error(err.detail || "Failed to fetch profiles");
+  }
   const data = await res.json();
   return data.profiles;
 }

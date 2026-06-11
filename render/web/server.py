@@ -40,7 +40,10 @@ ROOT = Path(__file__).parent.parent.parent
 sys.path.insert(0, str(ROOT))
 
 from data._base import EngineBase
-from render.web.profiles import list_profiles, create_profile, login as profile_login, save_state, delete_profile
+from render.web.profiles import (
+    list_profiles, create_profile, login as profile_login, save_state, delete_profile,
+    health_check as profiles_health_check, ProfileStoreError, _airtable_message,
+)
 from render.web.shared_rosters import (
     list_all_rosters, list_rosters_grouped, get_roster as get_shared_roster,
     find_roster_by_name as find_shared_roster, save_roster as save_shared_roster,
@@ -275,33 +278,54 @@ def create_app(config: dict) -> FastAPI:
 
     # ── Profile routes ─────────────────────────────────────────────────────────
 
+    @app.get("/api/profiles/health")
+    def api_profiles_health():
+        # One-request diagnosis of the Airtable profile store — reports whether
+        # the token/base/table are reachable and how many profiles exist. Lets an
+        # opaque "profiles vanished / can't create" outage be pinpointed instantly.
+        return profiles_health_check()
+
     @app.get("/api/profiles")
     def api_list_profiles():
-        return {"profiles": list_profiles()}
+        try:
+            return {"profiles": list_profiles()}
+        except Exception as e:
+            # A read failure must NOT look like "you have no profiles" (which would
+            # imply data loss). Surface it as an explicit upstream error.
+            raise HTTPException(status_code=502,
+                                detail=f"Profile store unavailable: {_airtable_message(e)}")
 
     @app.post("/api/profiles")
     def api_create_profile(body: ProfileCreateBody):
         try:
-            profile = create_profile(body.name, body.pin)
-            return profile
-        except ValueError as e:
+            return create_profile(body.name, body.pin)
+        except ValueError as e:                      # user error (dup name / invalid)
             raise HTTPException(status_code=400, detail=str(e))
+        except ProfileStoreError as e:               # Airtable rejected/unreachable
+            raise HTTPException(status_code=502, detail=str(e))
+        except Exception as e:                       # any other store failure
+            raise HTTPException(status_code=502,
+                                detail=f"Could not create profile: {_airtable_message(e)}")
 
     @app.post("/api/profiles/login")
     def api_login(body: ProfileLoginBody):
         try:
-            profile = profile_login(body.name, body.pin)
-            return profile
+            return profile_login(body.name, body.pin)
         except ValueError as e:
             raise HTTPException(status_code=401, detail=str(e))
+        except Exception as e:
+            raise HTTPException(status_code=502,
+                                detail=f"Profile store unavailable: {_airtable_message(e)}")
 
     @app.post("/api/profiles/state")
     def api_save_state(body: ProfileStateBody):
         try:
-            profile = save_state(body.name, body.state)
-            return profile
+            return save_state(body.name, body.state)
         except ValueError as e:
             raise HTTPException(status_code=404, detail=str(e))
+        except Exception as e:
+            raise HTTPException(status_code=502,
+                                detail=f"Could not save profile state: {_airtable_message(e)}")
 
     @app.delete("/api/profiles/{name}")
     def api_delete_profile(name: str, body: ProfileDeleteBody | None = None):
@@ -313,6 +337,9 @@ def create_app(config: dict) -> FastAPI:
             return {"ok": True}
         except ValueError as e:
             raise HTTPException(status_code=400, detail=str(e))
+        except Exception as e:
+            raise HTTPException(status_code=502,
+                                detail=f"Could not delete profile: {_airtable_message(e)}")
 
     # ── Shared roster routes ─────────────────────────────────────────────────
 

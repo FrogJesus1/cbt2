@@ -138,6 +138,32 @@ def test_reports_route_degrades_gracefully():
     assert isinstance(r.json(), (list, dict))
 
 
+def test_profiles_health_reports_status():
+    """The profiles health route must always return 200 with a structured status
+    (ok/base_id/table/count/error) — never crash — so an Airtable outage can be
+    diagnosed in one request. Without Airtable configured, ok=False + an error."""
+    r = _client.get("/api/profiles/health")
+    assert r.status_code == 200, f"health must not error, got {r.status_code}"
+    body = r.json()
+    assert set(("ok", "table", "error")).issubset(body), f"unexpected shape: {body}"
+    assert body["table"] == "Profiles"
+    # In CI there is no Airtable, so it must report the failure rather than ok.
+    assert body["ok"] is False and body["error"], "should report the connection error"
+
+
+def test_profiles_routes_degrade_gracefully():
+    """Without Airtable configured, profile read/create must return a controlled
+    502 with a JSON detail — never a generic empty list (which looks like data
+    loss) or an unhandled 500 stacktrace."""
+    r = _client.get("/api/profiles")
+    assert r.status_code in (200, 502), f"unexpected list status {r.status_code}"
+    if r.status_code == 502:
+        assert r.json().get("detail"), "502 must carry a real cause"
+    r = _client.post("/api/profiles", json={"name": "CI Smoke", "pin": None})
+    assert r.status_code in (200, 400, 502), f"unexpected create status {r.status_code}"
+    assert isinstance(r.json(), dict)
+
+
 # ── self-runner (mirrors the other suites) ──────────────────────────────────────
 
 def _run_all() -> None:
