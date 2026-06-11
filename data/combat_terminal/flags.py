@@ -89,7 +89,7 @@ def _n_invuln(f):
     return _note("diamond", f"Invulnerable save active — {flag_value_str(f, 'invuln')}+ invuln overrides armour save")
 
 def _n_ea(f):
-    return _note("zap", f"+{flag_value_str(f, 'ea', default='')} extra attack(s) per model")
+    return _note("zap", f"+{flag_value_str(f, 'ea', default='1')} extra attack(s) per model")
 
 def _n_ed(f):
     base = "dmgplus" if split_key(f).startswith("dmgplus") else "ed"

@@ -540,7 +540,9 @@ def _apply_flags(flags: list, base_mods: "AttackModifiers", target: "TargetProfi
                 if ":" in f:
                     n = float(f.split(":")[1])
                 else:
-                    n = float(re.sub(r'^ea', '', key) or 0)
+                    # Bare --ea defaults to +1 (matches --sus and the flag
+                    # legend). The embedded form --eaN parses N from the key.
+                    n = float(re.sub(r'^ea', '', key) or 1)
                 base_mods.extra_attacks += n
             except (ValueError, TypeError):
                 pass

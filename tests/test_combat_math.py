@@ -172,6 +172,12 @@ class TestApplyFlags:
         mods, tgt = _apply_flags(["ea1"], mods, tgt)
         assert mods.extra_attacks == 1.0
 
+    def test_ea_flag_no_value_defaults_to_one(self):
+        # Bare --ea (token "ea", no number) must add +1, not 0.
+        mods, tgt = self._fresh()
+        mods, tgt = _apply_flags(["ea"], mods, tgt)
+        assert mods.extra_attacks == 1.0
+
     def test_ea_flag_colon(self):
         mods, tgt = self._fresh()
         mods, tgt = _apply_flags(["ea:3"], mods, tgt)
