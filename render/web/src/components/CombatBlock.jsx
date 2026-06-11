@@ -200,8 +200,19 @@ export function CombatBlock({ data, onSubmit }) {
   const enabledRanged      = enabledWeapons.filter(w => w.type !== "melee");
   const enabledMelee       = enabledWeapons.filter(w => w.type === "melee");
 
-  // Build adjusted ranged/melee data objects.  Recalculates expected_dmg
-  // and expected_kills from enabled weapons; other MC fields stay from the server.
+  // Build adjusted ranged/melee data objects.  Recalculates the values that are
+  // simple functions of the per-weapon numbers we already have on the client:
+  //   expected_dmg        — sum of enabled weapons' dmg
+  //   expected_kills      — sum of enabled weapons' kills
+  //   overkill_waste_pct  — dmg-weighted average of enabled weapons' overkill,
+  //                         exactly how the server computes it (math_adapter
+  //                         _summarize_ev). Without this it stayed frozen at the
+  //                         all-weapons value when a weapon was toggled off.
+  //   avg_dmg_per_attack  — server reports total_dmg / weapon_count; keep it
+  //                         consistent with the enabled set.
+  // kill_chance_pct and squad_wipe_pct need the joint MC kill distribution
+  // (product across weapons), which we can't faithfully recombine from the
+  // per-weapon summaries here, so those stay from the server (documented gap).
   function adjustedData(serverData, enabledSet) {
     if (!serverData || !disabledWeapons.size) return serverData;
     if (!enabledSet.length) {
@@ -214,7 +225,17 @@ export function CombatBlock({ data, onSubmit }) {
     }
     const adjustedDmg   = enabledSet.reduce((sum, w) => sum + (w.dmg ?? 0), 0);
     const adjustedKills = enabledSet.reduce((sum, w) => sum + (w.kills ?? 0), 0);
-    return { ...serverData, expected_dmg: adjustedDmg, expected_kills: adjustedKills };
+    // dmg-weighted overkill across the enabled weapons (matches server formula)
+    const adjustedOverkill = adjustedDmg > 0
+      ? enabledSet.reduce((sum, w) => sum + (w.overkill_pct ?? 0) * (w.dmg ?? 0), 0) / adjustedDmg
+      : 0;
+    return {
+      ...serverData,
+      expected_dmg:       adjustedDmg,
+      expected_kills:     adjustedKills,
+      overkill_waste_pct: Math.round(adjustedOverkill * 10) / 10,
+      avg_dmg_per_attack: Math.round((adjustedDmg / enabledSet.length) * 100) / 100,
+    };
   }
 
   const rangedAdj = adjustedData(ranged, enabledRanged);
