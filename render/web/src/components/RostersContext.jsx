@@ -19,6 +19,7 @@ import {
 import {
   fetchRostersGrouped, uploadRoster, deleteSharedRoster, labelify,
 } from "@/lib/shared-rosters";
+import { getSessionId } from "@/lib/session";
 import { Pattern } from "@/components/ui/file-upload";
 
 // ─── Colour palette ──────────────────────────────────────────────────────────
@@ -919,7 +920,11 @@ export function RostersContext({ engineId, onExec, onInject, theme, profileName,
       const res = await fetch(`/api/engines/${engineId}/exec`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ input: "session" }),
+        // MUST send the same per-tab session_id the Terminal uses (App.jsx
+        // handleExec). The engine keys all roster/faction state by this token;
+        // without it this poll reads a different (empty) session, so a roster
+        // loaded via the Terminal shows as "No roster loaded" here.
+        body: JSON.stringify({ input: "session", session_id: getSessionId() }),
       });
       if (res.ok) {
         const result = await res.json();
