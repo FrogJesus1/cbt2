@@ -58,6 +58,83 @@ function kwAbbrev(kw) {
   return upper.replace(/\s+/g, "").slice(0, 2);
 }
 
+// ─── Conditional (situational) keywords ────────────────────────────────────
+// These are parsed off the weapon but only apply when the player declares the
+// situation (stationary / within half range / on the charge). They map to a
+// flag the engine gates on. Rendered as click-to-apply chips: crossed-out when
+// inactive, lit when active. Everything else (Lethal, Twin, Dev, Sustained,
+// Torrent, Ignores Cover, Blast, Anti, …) is always-on and shown as a static
+// lit badge — never clickable, so additive keywords like Sustained can't stack.
+
+const CONDITIONAL_KW = [
+  { needle: "RAPID FIRE", flag: "rf",    hint: "within half range" },
+  { needle: "MELTA",      flag: "melta", hint: "within half range" },
+  { needle: "HEAVY",      flag: "heavy", hint: "if you Remained Stationary" },
+  { needle: "LANCE",      flag: "lance", hint: "on the charge" },
+];
+
+function conditionalFor(kw) {
+  const u = kw.toUpperCase();
+  for (const c of CONDITIONAL_KW) if (u.startsWith(c.needle)) return c;
+  return null;
+}
+
+// ─── Keyword badge — static (always-on) or interactive (conditional) ────────
+
+function KeywordBadge({ kw, activeFlags, onToggleFlag }) {
+  const cond  = conditionalFor(kw);
+  const label = kwAbbrev(kw);
+
+  // Always-on keyword (or no toggle handler available) → static lit badge.
+  if (!cond || !onToggleFlag) {
+    return (
+      <span
+        title={cond ? `${kw} — situational (apply via the modifier bar)` : `${kw} — applied automatically`}
+        onClick={(e) => e.stopPropagation()}
+        style={{
+          fontSize:      "9px",
+          color:         C.amber,
+          border:        `1px solid ${C.bordermid}`,
+          background:    `${C.amber}14`,
+          padding:       "0 3px",
+          letterSpacing: "0.04em",
+          flexShrink:    0,
+          lineHeight:    "14px",
+        }}
+      >
+        {label}
+      </span>
+    );
+  }
+
+  const active = !!activeFlags && activeFlags.has(cond.flag);
+
+  return (
+    <span
+      title={active
+        ? `${kw} — applied. Click to remove (${cond.hint})`
+        : `${kw} — situational. Click to apply ${cond.hint}`}
+      onClick={(e) => { e.stopPropagation(); onToggleFlag(cond.flag, !active); }}
+      style={{
+        fontSize:       "9px",
+        color:          active ? C.cyan : C.dim,
+        border:         `1px ${active ? "solid" : "dashed"} ${active ? C.cyan : C.border}`,
+        background:     active ? `${C.cyan}1f` : "transparent",
+        padding:        "0 3px",
+        letterSpacing:  "0.04em",
+        flexShrink:     0,
+        lineHeight:     "14px",
+        cursor:         "pointer",
+        opacity:        active ? 1 : 0.55,
+        textDecoration: active ? "none" : "line-through",
+        userSelect:     "none",
+      }}
+    >
+      {label}
+    </span>
+  );
+}
+
 // ─── AP delta helper ───────────────────────────────────────────────────────
 // In 40K, more-negative AP is better.  Red is only correct when a modifier has
 // degraded AP from its base (ap_delta: "worse").  For raw values, derive a
@@ -174,7 +251,7 @@ function StatCell({ value, delta, reason, dim = false }) {
 
 // ─── Single weapon row ─────────────────────────────────────────────────────
 
-function WeaponRow({ w, disabled, onToggle }) {
+function WeaponRow({ w, disabled, onToggle, activeFlags, onToggleFlag }) {
   // Build the attacks display:  "2 (4)"  or just  "2"  or the raw string
   let attacksDisplay = w.shots ?? "—";
   if (w.shots_total != null) {
@@ -219,21 +296,12 @@ function WeaponRow({ w, disabled, onToggle }) {
             {w.name}
           </span>
           {!disabled && (w.keywords || []).map((kw, i) => (
-            <span
+            <KeywordBadge
               key={i}
-              title={kw}
-              style={{
-                fontSize:      "9px",
-                color:         C.amber,
-                border:        `1px solid ${C.bordermid}`,
-                padding:       "0 3px",
-                letterSpacing: "0.04em",
-                flexShrink:    0,
-                lineHeight:    "14px",
-              }}
-            >
-              {kwAbbrev(kw)}
-            </span>
+              kw={kw}
+              activeFlags={activeFlags}
+              onToggleFlag={onToggleFlag}
+            />
           ))}
           {disabled && (
             <span style={{
@@ -312,7 +380,7 @@ const HEADER_STYLE = {
   fontWeight:    600,
 };
 
-function WeaponSection({ title, weapons, disabledWeapons, onToggle }) {
+function WeaponSection({ title, weapons, disabledWeapons, onToggle, activeFlags, onToggleFlag }) {
   if (!weapons || weapons.length === 0) return null;
 
   return (
@@ -340,6 +408,8 @@ function WeaponSection({ title, weapons, disabledWeapons, onToggle }) {
           w={w}
           disabled={disabledWeapons?.has(w.name)}
           onToggle={onToggle}
+          activeFlags={activeFlags}
+          onToggleFlag={onToggleFlag}
         />
       ))}
     </>
@@ -348,11 +418,16 @@ function WeaponSection({ title, weapons, disabledWeapons, onToggle }) {
 
 // ─── WeaponStatsTable ──────────────────────────────────────────────────────
 
-export function WeaponStatsTable({ weapons = [], disabledWeapons, onToggleWeapon }) {
+export function WeaponStatsTable({ weapons = [], disabledWeapons, onToggleWeapon, activeFlags = [], onToggleFlag }) {
   const ranged = weapons.filter(w => w.type !== "melee");
   const melee  = weapons.filter(w => w.type === "melee");
 
   if (!weapons.length) return null;
+
+  // Active flag base-names (e.g. "heavy") as a Set, for conditional chip state.
+  const activeFlagSet = new Set(
+    (activeFlags || []).map(f => String(f).split(":")[0].toLowerCase())
+  );
 
   // Only show model-count note when > 1 model
   const models = weapons[0]?.models ?? 1;
@@ -409,12 +484,16 @@ export function WeaponStatsTable({ weapons = [], disabledWeapons, onToggleWeapon
               weapons={ranged}
               disabledWeapons={disabledWeapons}
               onToggle={onToggleWeapon}
+              activeFlags={activeFlagSet}
+              onToggleFlag={onToggleFlag}
             />
             <WeaponSection
               title="Melee Weapons"
               weapons={melee}
               disabledWeapons={disabledWeapons}
               onToggle={onToggleWeapon}
+              activeFlags={activeFlagSet}
+              onToggleFlag={onToggleFlag}
             />
           </tbody>
         </table>

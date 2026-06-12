@@ -2482,8 +2482,30 @@ class CombatTerminalEngine(EngineBase):
         # command.  On reruns they are the currently-active subsets.
         # all_attacker_flags / all_defender_flags preserve the full original set
         # across reruns so the UI can show dimmed tokens for inactive modifiers.
-        final_all_att = all_attacker_flags if all_attacker_flags is not None else list(attacker_flags)
-        final_all_def = all_defender_flags if all_defender_flags is not None else list(defender_flags)
+        final_all_att = list(all_attacker_flags) if all_attacker_flags is not None else list(attacker_flags)
+        final_all_def = list(all_defender_flags) if all_defender_flags is not None else list(defender_flags)
+
+        # ── Seed conditional weapon keywords into the attacker flag universe ──
+        # Heavy / Rapid Fire / Melta / Lance are situational: the engine parses
+        # them off the weapon profile but only applies the bonus when the matching
+        # flag is set (Remained Stationary / within half range / on the charge —
+        # see math_adapter._run_ev gating).  Seeding them here as INACTIVE flags
+        # lets the UI render them as crossed-out, click-to-apply chips and lets
+        # `rerun --heavy` (etc.) be accepted — rerun only restores flags already
+        # present in this universe.  They are NEVER auto-activated; the player
+        # opts in.  Always-on keywords (Lethal, Twin, Sustained, …) are applied
+        # straight from the weapon and are deliberately NOT seeded as flags (in
+        # particular Sustained is additive — re-adding it as a flag would stack).
+        _COND_KW_TO_FLAG = (("rapid fire", "rf"), ("melta", "melta"),
+                            ("heavy", "heavy"), ("lance", "lance"))
+        _existing_att_names = {f.split(":")[0].lower() for f in final_all_att}
+        for _w in weapons:
+            for _kw in (_w.get("keywords") or []):
+                _kwl = str(_kw).strip().lower()
+                for _needle, _flag in _COND_KW_TO_FLAG:
+                    if _kwl.startswith(_needle) and _flag not in _existing_att_names:
+                        final_all_att.append(_flag)
+                        _existing_att_names.add(_flag)
 
         # Store last_combat for rerun support (includes roster entries so
         # reruns preserve the specific loadout selection).

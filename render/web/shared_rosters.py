@@ -34,6 +34,64 @@ def _get_table():
     return api.table(base_id, "SharedRosters")
 
 
+# ─── Error surfacing + health ──────────────────────────────────────────────────
+
+class RosterStoreError(RuntimeError):
+    """Raised when the Airtable roster store is unreachable or rejects an op.
+
+    Lets the API layer map a store outage to a 502 carrying the *real* Airtable
+    cause, instead of letting it fall through as a generic 500 or — worse — be
+    swallowed into a misleading "Roster not found" on the client.
+    """
+
+
+def _airtable_message(exc: Exception) -> str:
+    """Best-effort human-readable detail from a pyairtable/HTTP error.
+
+    Mirrors profiles._airtable_message so a roster outage reports the same kind of
+    actionable cause (INVALID_PERMISSIONS, NOT_FOUND, auth, missing env, …).
+    """
+    msg = str(exc).strip()
+    resp = getattr(exc, "response", None)
+    if resp is not None:
+        try:
+            body = resp.json()
+            err = body.get("error", body)
+            if isinstance(err, dict):
+                msg = f"{err.get('type', '')}: {err.get('message', '')}".strip(": ") or msg
+            else:
+                msg = str(err) or msg
+            msg = f"Airtable {resp.status_code}: {msg}"
+        except Exception:
+            txt = (getattr(resp, "text", "") or "")[:300]
+            msg = f"Airtable {resp.status_code}: {txt or msg}"
+    return msg or "Unknown Airtable error"
+
+
+def health_check() -> dict:
+    """Diagnose the roster store without raising.
+
+    Returns {ok, base_id, table, count|None, error|None}.  Hit via
+    GET /api/rosters/health to see at a glance whether the Airtable token, base
+    id, and SharedRosters table are reachable — turns an opaque "can't load any
+    roster" outage into a one-request answer.
+    """
+    base_id = os.environ.get("AIRTABLE_BASE_ID", "")
+    info = {"ok": False, "base_id": base_id or None, "table": "SharedRosters",
+            "count": None, "error": None}
+    try:
+        table = _get_table()
+        recs = table.all(max_records=1)
+        info["ok"] = True
+        try:
+            info["count"] = len(table.all(fields=[]))
+        except Exception:
+            info["count"] = len(recs)
+    except Exception as exc:
+        info["error"] = _airtable_message(exc)
+    return info
+
+
 # ─── Helpers ──────────────────────────────────────────────────────────────────
 
 def _slugify(s: str) -> str:

@@ -48,6 +48,7 @@ from render.web.shared_rosters import (
     list_all_rosters, list_rosters_grouped, get_roster as get_shared_roster,
     find_roster_by_name as find_shared_roster, save_roster as save_shared_roster,
     delete_roster as delete_shared_roster, update_roster_content,
+    health_check as rosters_health_check, _airtable_message as _roster_airtable_message,
 )
 from render.web import crusade_store
 from render.web import reports as reports_store
@@ -343,15 +344,34 @@ def create_app(config: dict) -> FastAPI:
 
     # ── Shared roster routes ─────────────────────────────────────────────────
 
+    @app.get("/api/rosters/health")
+    def api_rosters_health():
+        # One-request diagnosis of the Airtable roster store (same base as
+        # profiles). Reports whether the token/base/SharedRosters table are
+        # reachable and how many rosters exist — so an opaque "can't load any
+        # roster" outage can be pinpointed instantly.
+        return rosters_health_check()
+
     @app.get("/api/rosters")
     def api_list_rosters(grouped: bool = False):
-        if grouped:
-            return {"rosters": list_rosters_grouped()}
-        return {"rosters": list_all_rosters()}
+        # A read failure must NOT look like "you have no rosters" (which reads as
+        # data loss and makes load impossible with no reason given). Surface the
+        # real Airtable cause as an explicit upstream error instead.
+        try:
+            if grouped:
+                return {"rosters": list_rosters_grouped()}
+            return {"rosters": list_all_rosters()}
+        except Exception as e:
+            raise HTTPException(status_code=502,
+                                detail=f"Roster store unavailable: {_roster_airtable_message(e)}")
 
     @app.get("/api/rosters/{roster_id}")
     def api_get_roster(roster_id: str):
-        roster = get_shared_roster(roster_id)
+        try:
+            roster = get_shared_roster(roster_id)
+        except Exception as e:
+            raise HTTPException(status_code=502,
+                                detail=f"Roster store unavailable: {_roster_airtable_message(e)}")
         if not roster:
             raise HTTPException(status_code=404, detail="Roster not found")
         return roster
@@ -359,14 +379,25 @@ def create_app(config: dict) -> FastAPI:
     @app.post("/api/rosters/find")
     def api_find_roster(body: dict):
         name = body.get("name", "")
-        roster = find_shared_roster(name)
+        # Separate "store is down" (502, real cause) from "genuinely not found"
+        # (404). Previously any Airtable error fell through as a 500 that the
+        # client showed as a misleading "Roster not found".
+        try:
+            roster = find_shared_roster(name)
+        except Exception as e:
+            raise HTTPException(status_code=502,
+                                detail=f"Roster store unavailable: {_roster_airtable_message(e)}")
         if not roster:
             raise HTTPException(status_code=404, detail=f"Roster '{name}' not found")
         return roster
 
     @app.post("/api/rosters")
     def api_upload_roster(body: RosterUploadBody):
-        roster = save_shared_roster(body.name, body.faction, body.content, body.uploaded_by)
+        try:
+            roster = save_shared_roster(body.name, body.faction, body.content, body.uploaded_by)
+        except Exception as e:
+            raise HTTPException(status_code=502,
+                                detail=f"Could not save roster: {_roster_airtable_message(e)}")
         return roster
 
     @app.delete("/api/rosters/{roster_id}")

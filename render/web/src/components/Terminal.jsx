@@ -25,7 +25,7 @@ import {
 } from "@/lib/vfs";
 import {
   uploadRoster, findRosterByName, deleteSharedRoster,
-  fetchRosters, fetchRostersGrouped, fetchRoster,
+  fetchRosters, fetchRostersGrouped, fetchRoster, fetchRosterHealth,
   labelify,
 } from "@/lib/shared-rosters";
 import { THEME_REGISTRY, ALL_THEME_IDS } from "@/data/themeRegistry";
@@ -1103,6 +1103,20 @@ export function Terminal({
 
     // ── Priority 8.7: roster commands ────────────────────────────────────────
     // All roster commands are handled client-side via shared roster API.
+
+    // roster health / rosters health — diagnose the Airtable roster store
+    if (tokens[0] === "roster" || tokens[0] === "rosters") {
+      if (tokens[1] === "health" || tokens[1] === "doctor" || tokens[1] === "status") {
+        const h = await fetchRosterHealth();
+        const lines = h.ok
+          ? `ROSTER STORE OK — table ${h.table} on base ${h.base_id || "?"} reachable; ${h.count ?? "?"} roster(s) stored.`
+          : `ROSTER STORE UNAVAILABLE — ${h.error || "unknown error"}\n` +
+            `base ${h.base_id || "(AIRTABLE_BASE_ID not set)"}, table ${h.table || "SharedRosters"}.\n` +
+            `This is the same Airtable base as profiles — check AIRTABLE_TOKEN / AIRTABLE_BASE_ID on the server.`;
+        emitSystem(trimmed, lines);
+        return;
+      }
+    }
 
     // rosters / list roster / list rosters
     if (

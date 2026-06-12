@@ -192,6 +192,14 @@ export function CombatBlock({ data, onSubmit }) {
     });
   }, []);
 
+  // ── Conditional keyword chips (Heavy / Rapid Fire / Melta / Lance) ──────
+  // Unlike the weapon on/off toggle (a client-side display adjustment), applying
+  // a conditional keyword changes the actual hit/wound/damage math, so it has to
+  // re-run the engine. Reuse the same `rerun --flag` path the modifier bar uses.
+  const handleToggleFlag = useCallback((flag, nowActive) => {
+    onSubmit?.(nowActive ? `rerun --${flag}` : `rerun --${flag} null`);
+  }, [onSubmit]);
+
   // ── Adjusted aggregates when weapons are disabled ──────────────────────
   // Sum per-weapon dmg for enabled weapons only and override the server total.
   // Kill% and other MC metrics can't easily be recomputed client-side, so we
@@ -271,6 +279,8 @@ export function CombatBlock({ data, onSubmit }) {
         weapons={weapons}
         disabledWeapons={disabledWeapons}
         onToggleWeapon={handleToggleWeapon}
+        activeFlags={attacker_flags}
+        onToggleFlag={handleToggleFlag}
       />
 
       {/* Two-column row — equal 50/50 split.

@@ -256,6 +256,40 @@ def test_legend_covers_every_registry_flag():
     assert "lethal" in off and "lethal" not in deff
 
 
+def test_conditional_weapon_keywords_seeded_inactive_and_toggleable():
+    """Situational weapon keywords (Heavy / Rapid Fire / Melta / Lance) are seeded
+    into the attacker flag universe as INACTIVE so the UI can show click-to-apply
+    chips and `rerun --<flag>` is accepted. They are never auto-activated, and
+    always-on keywords (Lethal, etc.) are NOT seeded as flags (Sustained is
+    additive — seeding it would let a click stack it)."""
+    e = _engine()
+    e.set_session("cond_kw")
+    e.exec("faction death guard")
+    # Plagueburst Crawler carries a Rothail volley gun (RAPID FIRE 3).
+    # Self-vs keeps both names inside the active faction so neither disambiguates.
+    d = e.exec("plagueburst crawler vs plagueburst crawler")["data"]
+    assert "rf" in d["all_attacker_flags"], "Rapid Fire weapon must seed 'rf' into the flag universe"
+    assert "rf" not in d["attacker_flags"], "seeded conditional flag must start INACTIVE"
+    # Always-on keywords must NOT be seeded as toggleable flags.
+    for always_on in ("lethal", "sus", "sustained", "blast", "dev", "twin"):
+        assert always_on not in d["all_attacker_flags"], \
+            f"always-on keyword '{always_on}' must not be seeded as a flag (stacking risk)"
+
+    def _rothail(data):
+        return next((w for w in data["weapons"] if "Rothail" in w["name"]), {})
+
+    base_dmg = _rothail(d).get("dmg")
+    # Applying it via rerun activates the flag and raises that weapon's damage.
+    r = e.exec("rerun --rf")["data"]
+    assert "rf" in r["attacker_flags"], "rerun --rf must activate the seeded flag"
+    assert r["all_attacker_flags"].count("rf") == 1, "flag universe must not duplicate on rerun"
+    assert _rothail(r).get("dmg") > base_dmg, "Rapid Fire must raise the weapon's damage when applied"
+    # Toggling back off restores the baseline (no residual double-count).
+    r2 = e.exec("rerun --rf null")["data"]
+    assert "rf" not in r2["attacker_flags"]
+    assert _rothail(r2).get("dmg") == base_dmg
+
+
 # ── self-runner (mirrors the other suites) ──────────────────────────────────────
 
 def _run_all() -> None:

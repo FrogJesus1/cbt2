@@ -15,9 +15,18 @@ const API = "/api";
  */
 export async function fetchRosters() {
   const res = await fetch(`${API}/rosters`);
-  if (!res.ok) throw new Error("Failed to fetch rosters");
+  if (!res.ok) throw new Error(await _errorDetail(res, "Failed to fetch rosters"));
   const data = await res.json();
   return data.rosters;
+}
+
+/** Pull the server's real error detail (FastAPI {detail}) for a failed response. */
+async function _errorDetail(res, fallback) {
+  try {
+    const body = await res.json();
+    if (body && body.detail) return body.detail;
+  } catch { /* not JSON */ }
+  return `${fallback} (HTTP ${res.status})`;
 }
 
 /**
@@ -49,8 +58,27 @@ export async function findRosterByName(name) {
     headers: { "Content-Type": "application/json" },
     body: JSON.stringify({ name }),
   });
-  if (!res.ok) return null;
+  // 404 = genuinely not found → null (caller shows "not found").
+  // Anything else (502 store outage, 500) → throw the REAL cause so the user
+  // sees "Roster store unavailable: Airtable 401 …" instead of a false
+  // "Roster not found" that hides an Airtable/connection problem.
+  if (res.status === 404) return null;
+  if (!res.ok) throw new Error(await _errorDetail(res, "Roster store error"));
   return res.json();
+}
+
+/**
+ * Diagnose the roster store (Airtable). Returns {ok, base_id, table, count, error}.
+ * Never throws — surfaces the cause in the `error` field for display.
+ */
+export async function fetchRosterHealth() {
+  try {
+    const res = await fetch(`${API}/rosters/health`);
+    if (!res.ok) return { ok: false, error: await _errorDetail(res, "Health check failed") };
+    return res.json();
+  } catch (e) {
+    return { ok: false, error: String(e?.message || e) };
+  }
 }
 
 /**
