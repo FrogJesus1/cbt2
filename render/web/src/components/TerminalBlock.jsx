@@ -566,7 +566,11 @@ const LEGEND_TABS = [
 ];
 
 function TerminalLegendBlock({ data }) {
-  const [activeTab, setActiveTab] = useState("stat_columns");
+  // `default_tab` lets the engine pick the opening tab — e.g. the "modifiers"
+  // alias opens straight on Modifier Flags instead of Stat Columns.
+  const validTabs = LEGEND_TABS.map(t => t.key);
+  const initialTab = validTabs.includes(data?.default_tab) ? data.default_tab : "stat_columns";
+  const [activeTab, setActiveTab] = useState(initialTab);
   const {
     stat_columns              = [],
     probability_chain         = [],

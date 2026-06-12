@@ -854,7 +854,10 @@ class CombatTerminalEngine(EngineBase):
             return ("rerun", {"mods": rest})
 
         elif canonical == "legend":
-            return ("legend", {})
+            # When invoked via the "modifiers" alias, open the glossary on the
+            # Modifier Flags tab instead of the default Stat Columns tab.
+            default_tab = "modifier_flags" if first in ("modifiers", "modifier") else None
+            return ("legend", {"default_tab": default_tab})
 
         elif canonical == "detachment":
             return ("detachment", {"faction": rest})
@@ -3987,6 +3990,7 @@ class CombatTerminalEngine(EngineBase):
             "command":     "legend",
             "result_type": "legend",
             "data": {
+                "default_tab":               params.get("default_tab"),
                 "stat_columns":              stat_columns,
                 "probability_chain":         probability_chain,
                 "offensive_modifier_flags":  offensive_modifier_flags,

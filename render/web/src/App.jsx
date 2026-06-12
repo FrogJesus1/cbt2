@@ -42,7 +42,7 @@ import { CrusadeContext }   from "@/components/CrusadeContext";
 
 import { DiagnosticsPage }  from "@/components/DiagnosticsPage";
 import { ProfileGate }      from "@/components/ProfileGate";
-import { THEME_REGISTRY, ALL_THEME_IDS, MENU_THEME_IDS } from "@/data/themeRegistry";
+import { THEME_REGISTRY, ALL_THEME_IDS } from "@/data/themeRegistry";
 import { saveProfileState, collectCurrentState, clearLastProfile } from "@/lib/profile";
 import { getSessionId } from "@/lib/session";
 
@@ -59,9 +59,45 @@ function readStoredTheme() {
 
 // ─── Context config ───────────────────────────────────────────────────────────
 
-const VISIBLE_CONTEXTS = ["main", "units", "rosters", "crusade", "rules"];  // settings hidden
-const CONTEXT_LABELS   = { main: "MAIN", units: "UNITS", rosters: "ROSTERS", crusade: "CRUSADE", rules: "RULES" };
-const CONTEXT_NAV_CMD  = { main: "home",  units: "units",  rosters: "rosters",  crusade: "crusade",  rules: "rules" };
+// Simple top-level tabs (each injects its nav command). Rosters and Settings
+// are dropdowns and are rendered separately below.
+const SIMPLE_TABS = [
+  { id: "main",  label: "COMBAT SIM", cmd: "home"  },
+  { id: "units", label: "UNITS",      cmd: "units" },
+];
+const RULES_TAB = { id: "rules", label: "RULES", cmd: "rules" };
+
+// ─── Dropdown menu item ─────────────────────────────────────────────────────────
+// Shared row for the Rosters / Settings nav dropdowns.
+
+function MenuItem({ label, hint, active = false, onClick }) {
+  return (
+    <button
+      onClick={onClick}
+      className="w-full text-left px-3 py-2 transition-colors flex flex-col"
+      style={{
+        backgroundColor: active ? "rgba(var(--ct-glow-rgb),0.06)" : "transparent",
+        borderBottom:    "1px solid var(--ct-bg-panel)",
+        fontFamily:      "monospace",
+      }}
+      onMouseEnter={e => { if (!active) e.currentTarget.style.backgroundColor = "var(--ct-bg-panel)"; }}
+      onMouseLeave={e => { if (!active) e.currentTarget.style.backgroundColor = "transparent"; }}
+    >
+      <span style={{
+        color:         active ? "var(--ct-primary)" : "var(--ct-primary-mid)",
+        fontSize:      "12px",
+        letterSpacing: "0.08em",
+      }}>
+        {active ? "● " : ""}{label}
+      </span>
+      {hint && (
+        <span style={{ color: "var(--ct-primary-dim)", fontSize: "10px", opacity: 0.7, marginTop: "1px" }}>
+          {hint}
+        </span>
+      )}
+    </button>
+  );
+}
 
 // ─── Boot lines ───────────────────────────────────────────────────────────────
 
@@ -385,11 +421,15 @@ function AppInner({ profile, onLogout }) {
 
   const [buildHash, setBuildHash] = useState(null);  // git short hash from /api/version
   const [themeOpen, setThemeOpen] = useState(false);
+  const [rostersOpen,  setRostersOpen]  = useState(false);
+  const [settingsOpen, setSettingsOpen] = useState(false);
   const [rosterUploadMode, setRosterUploadMode] = useState(null); // null | "player" | "enemy"
 
-  const historyRef = useRef(null);
-  const themeRef   = useRef(null);
-  const cmdBarRef  = useRef(null);
+  const historyRef  = useRef(null);
+  const themeRef    = useRef(null);
+  const rostersRef  = useRef(null);
+  const settingsRef = useRef(null);
+  const cmdBarRef   = useRef(null);
 
   // ── Load engines + version ────────────────────────────────────────────────
 
@@ -478,6 +518,12 @@ function AppInner({ profile, onLogout }) {
       if (themeRef.current && !themeRef.current.contains(e.target)) {
         setThemeOpen(false);
       }
+      if (rostersRef.current && !rostersRef.current.contains(e.target)) {
+        setRostersOpen(false);
+      }
+      if (settingsRef.current && !settingsRef.current.contains(e.target)) {
+        setSettingsOpen(false);
+      }
     };
     document.addEventListener("mousedown", handler);
     return () => document.removeEventListener("mousedown", handler);
@@ -487,17 +533,28 @@ function AppInner({ profile, onLogout }) {
   // non-interactive content so the user can always keep typing.
   // Skips buttons, inputs, selects, textareas, links, and [contenteditable]
   // so built-in browser behaviour for those elements is never disrupted.
+  //
+  // IMPORTANT: this listens on `mouseup` (not `mousedown`) and bails out when
+  // the user has an active text selection. Stealing focus into the command bar
+  // collapses any document selection, which previously made it impossible to
+  // select and copy text (e.g. unit names) anywhere in the app.
   useEffect(() => {
     const SKIP_TAGS = new Set(["INPUT", "TEXTAREA", "SELECT", "BUTTON", "A", "LABEL"]);
     const handler = (e) => {
       const tag = e.target?.tagName ?? "";
       const editable = e.target?.isContentEditable;
       if (SKIP_TAGS.has(tag) || editable) return;
-      // Small defer so the click handler on the target fires first
-      setTimeout(() => cmdBarRef.current?.focus(), 0);
+      // Defer so the selection is finalised before we inspect it.
+      setTimeout(() => {
+        const sel = window.getSelection?.();
+        // Don't grab focus mid-selection — that would wipe the highlight and
+        // break copy. Only refocus on a plain click with nothing selected.
+        if (sel && !sel.isCollapsed && sel.toString().length > 0) return;
+        cmdBarRef.current?.focus();
+      }, 0);
     };
-    document.addEventListener("mousedown", handler);
-    return () => document.removeEventListener("mousedown", handler);
+    document.addEventListener("mouseup", handler);
+    return () => document.removeEventListener("mouseup", handler);
   }, []);
 
   // ── Exec handler ─────────────────────────────────────────────────────────
@@ -706,6 +763,15 @@ function AppInner({ profile, onLogout }) {
     cmdBarRef.current?.populateInput(cmd);
   }, []);
 
+  // ── Open a terminal-output command in the MAIN terminal ──────────────────
+  // Used by Settings-menu items (command list, math mode, aliases) so their
+  // output always lands in the main terminal regardless of the current view.
+  const openInMain = useCallback((cmd) => {
+    setActiveContext("main");
+    setPendingCommands(prev => ({ ...prev, main: cmd }));
+    setCmdBarLoading(true);
+  }, []);
+
   // ── History jump ─────────────────────────────────────────────────────────
 
   // handleHistoryJump kept for potential future use (scroll to a stream entry)
@@ -820,26 +886,153 @@ function AppInner({ profile, onLogout }) {
           )}
         </div>
 
-        {/* Context tabs — clicking injects the nav command */}
-        {VISIBLE_CONTEXTS.map(ctx => {
-          const active = activeContext === ctx;
+        {/* Simple context tabs — clicking injects the nav command */}
+        {SIMPLE_TABS.map(tab => {
+          const active = activeContext === tab.id;
           return (
             <button
-              key={ctx}
-              onClick={() => cmdBarRef.current?.animateAndSubmit(CONTEXT_NAV_CMD[ctx])}
-              className="flex items-center px-5 transition-colors"
+              key={tab.id}
+              onClick={() => cmdBarRef.current?.animateAndSubmit(tab.cmd)}
+              className="flex items-center px-4 transition-colors"
               style={{
                 color:         active ? "var(--ct-primary)" : "var(--ct-primary-dim)",
                 borderBottom:  active ? "2px solid var(--ct-primary)" : "2px solid transparent",
                 boxShadow:     active ? "inset 0 -1px 8px rgba(var(--ct-glow-rgb),0.1)" : "none",
-                letterSpacing: "0.12em",
+                letterSpacing: "0.1em",
                 fontSize:      "13px",
               }}
             >
-              {CONTEXT_LABELS[ctx]}
+              {tab.label}
             </button>
           );
         })}
+
+        {/* ROSTERS dropdown — clicking opens a menu (Rosters / Crusade) */}
+        <div ref={rostersRef} className="relative flex items-stretch">
+          {(() => {
+            const active = activeContext === "rosters" || activeContext === "crusade";
+            return (
+              <button
+                onClick={() => { setRostersOpen(v => !v); setSettingsOpen(false); }}
+                className="flex items-center gap-1.5 px-4 transition-colors"
+                style={{
+                  color:         active || rostersOpen ? "var(--ct-primary)" : "var(--ct-primary-dim)",
+                  borderBottom:  active ? "2px solid var(--ct-primary)" : "2px solid transparent",
+                  boxShadow:     active ? "inset 0 -1px 8px rgba(var(--ct-glow-rgb),0.1)" : "none",
+                  letterSpacing: "0.1em",
+                  fontSize:      "13px",
+                }}
+                title="Rosters & Crusade tracking"
+              >
+                ROSTERS
+                <span style={{ fontSize: "8px" }}>{rostersOpen ? "▲" : "▼"}</span>
+              </button>
+            );
+          })()}
+
+          {rostersOpen && (
+            <div
+              className="absolute left-0 top-full z-50"
+              style={{
+                backgroundColor: "var(--ct-bg-dark)",
+                border:          "1px solid var(--ct-border)",
+                borderTop:       "none",
+                minWidth:        "190px",
+              }}
+            >
+              <MenuItem
+                label="Rosters"
+                hint="armies + crusade info"
+                active={activeContext === "rosters"}
+                onClick={() => { setRostersOpen(false); cmdBarRef.current?.animateAndSubmit("rosters"); }}
+              />
+              <MenuItem
+                label="Crusade"
+                hint="campaign tracking"
+                active={activeContext === "crusade"}
+                onClick={() => { setRostersOpen(false); cmdBarRef.current?.animateAndSubmit("crusade"); }}
+              />
+            </div>
+          )}
+        </div>
+
+        {/* RULES tab */}
+        {(() => {
+          const active = activeContext === RULES_TAB.id;
+          return (
+            <button
+              onClick={() => cmdBarRef.current?.animateAndSubmit(RULES_TAB.cmd)}
+              className="flex items-center px-4 transition-colors"
+              style={{
+                color:         active ? "var(--ct-primary)" : "var(--ct-primary-dim)",
+                borderBottom:  active ? "2px solid var(--ct-primary)" : "2px solid transparent",
+                boxShadow:     active ? "inset 0 -1px 8px rgba(var(--ct-glow-rgb),0.1)" : "none",
+                letterSpacing: "0.1em",
+                fontSize:      "13px",
+              }}
+            >
+              {RULES_TAB.label}
+            </button>
+          );
+        })()}
+
+        {/* SETTINGS dropdown — Diagnostics / Command List / Math Mode / Aliases */}
+        <div ref={settingsRef} className="relative flex items-stretch">
+          {(() => {
+            const active = activeContext === "diag" || activeContext === "settings";
+            return (
+              <button
+                onClick={() => { setSettingsOpen(v => !v); setRostersOpen(false); }}
+                className="flex items-center gap-1.5 px-4 transition-colors"
+                style={{
+                  color:         active || settingsOpen ? "var(--ct-primary)" : "var(--ct-primary-dim)",
+                  borderBottom:  active ? "2px solid var(--ct-primary)" : "2px solid transparent",
+                  boxShadow:     active ? "inset 0 -1px 8px rgba(var(--ct-glow-rgb),0.1)" : "none",
+                  letterSpacing: "0.1em",
+                  fontSize:      "13px",
+                }}
+                title="Settings, diagnostics & reference"
+              >
+                SETTINGS
+                <span style={{ fontSize: "8px" }}>{settingsOpen ? "▲" : "▼"}</span>
+              </button>
+            );
+          })()}
+
+          {settingsOpen && (
+            <div
+              className="absolute left-0 top-full z-50"
+              style={{
+                backgroundColor: "var(--ct-bg-dark)",
+                border:          "1px solid var(--ct-border)",
+                borderTop:       "none",
+                minWidth:        "230px",
+              }}
+            >
+              <MenuItem
+                label="Diagnostics"
+                hint="engine health dashboard"
+                active={activeContext === "diag"}
+                onClick={() => { setSettingsOpen(false); cmdBarRef.current?.animateAndSubmit("diag"); }}
+              />
+              <MenuItem
+                label="Command List"
+                hint="stat keys & modifier flags"
+                onClick={() => { setSettingsOpen(false); openInMain("modifiers"); }}
+              />
+              <MenuItem
+                label="Math Mode"
+                hint="Monte Carlo / EV settings"
+                onClick={() => { setSettingsOpen(false); openInMain("mathmode"); }}
+              />
+              <MenuItem
+                label="Aliases"
+                hint="learned spelling shortcuts"
+                onClick={() => { setSettingsOpen(false); openInMain("aliases"); }}
+              />
+            </div>
+          )}
+        </div>
 
         {/* Spacer */}
         <div className="flex-1" />
@@ -847,8 +1040,8 @@ function AppInner({ profile, onLogout }) {
         {/* Engine status pill */}
         {activeEngine && (
           <div
-            className="flex items-center gap-2 px-4"
-            style={{ color: "var(--ct-primary-dim)", borderLeft: "1px solid var(--ct-border)", fontSize: "13px" }}
+            className="flex items-center gap-2 px-3"
+            style={{ color: "var(--ct-primary-dim)", borderLeft: "1px solid var(--ct-border)", fontSize: "12px" }}
           >
             <span
               className="rounded-full"
@@ -864,36 +1057,7 @@ function AppInner({ profile, onLogout }) {
           </div>
         )}
 
-        {/* Context indicator — shows active context (settings shows "SETTINGS" dim badge) */}
-        {activeContext === "settings" && (
-          <div
-            className="flex items-center px-4 font-mono"
-            style={{ color: "var(--ct-border)", borderLeft: "1px solid var(--ct-border)", fontSize: "11px", letterSpacing: "0.16em" }}
-          >
-            SETTINGS
-          </div>
-        )}
-
-        {/* DIAG tab — visible and clickable when active; navigable via `diag` command */}
-        <button
-          onClick={() => cmdBarRef.current?.animateAndSubmit("diag")}
-          className="flex items-center px-4 transition-colors"
-          style={{
-            color:         activeContext === "diag" ? "#ffa328" : "var(--ct-primary-dim)",
-            borderBottom:  activeContext === "diag" ? "2px solid #ffa328" : "2px solid transparent",
-            boxShadow:     activeContext === "diag" ? "inset 0 -1px 8px rgba(255,163,40,0.08)" : "none",
-            letterSpacing: "0.12em",
-            fontSize:      "13px",
-            borderLeft:    "1px solid var(--ct-border)",
-            background:    "transparent",
-            fontFamily:    "monospace",
-          }}
-          title="Engine Diagnostics — type 'diag' to open"
-        >
-          DIAG
-        </button>
-
-        {/* Theme selector dropdown */}
+        {/* Theme selector dropdown — small icon, lists every theme */}
         <div
           ref={themeRef}
           className="relative flex items-stretch"
@@ -901,11 +1065,10 @@ function AppInner({ profile, onLogout }) {
         >
           <button
             onClick={() => setThemeOpen(v => !v)}
-            className="flex items-center gap-2 px-4 transition-colors"
+            className="flex items-center justify-center px-3 transition-colors"
             style={{
               color:         themeOpen ? "var(--ct-primary)" : "var(--ct-primary-dim)",
-              letterSpacing: "0.1em",
-              fontSize:      "13px",
+              fontSize:      "15px",
               background:    themeOpen ? "rgba(var(--ct-glow-rgb),0.04)" : "transparent",
               fontFamily:    "monospace",
             }}
@@ -924,7 +1087,7 @@ function AppInner({ profile, onLogout }) {
                 minWidth:        "200px",
               }}
             >
-              {MENU_THEME_IDS.map(id => {
+              {ALL_THEME_IDS.map(id => {
                 const t      = THEME_REGISTRY[id];
                 const active = theme === id;
                 return (
