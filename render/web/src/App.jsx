@@ -40,8 +40,9 @@ import { RulesContext }     from "@/components/RulesContext";
 import { RostersContext }   from "@/components/RostersContext";
 import { CrusadeContext }   from "@/components/CrusadeContext";
 
-import { DiagnosticsPage }  from "@/components/DiagnosticsPage";
+import { SettingsPage }     from "@/components/SettingsPage";
 import { ProfileGate }      from "@/components/ProfileGate";
+import { expandAliases, readAliases, writeAliases } from "@/lib/aliases";
 import { THEME_REGISTRY, ALL_THEME_IDS } from "@/data/themeRegistry";
 import { saveProfileState, collectCurrentState, clearLastProfile } from "@/lib/profile";
 import { getSessionId } from "@/lib/session";
@@ -99,18 +100,6 @@ function MenuItem({ label, hint, active = false, onClick }) {
     </button>
   );
 }
-
-// ─── Boot lines ───────────────────────────────────────────────────────────────
-
-const SETTINGS_BOOT_LINES = [
-  "╔══════════════════════════════════════════════════════════════╗",
-  "║  SETTINGS  ·  Hidden Configuration Terminal                  ║",
-  "╚══════════════════════════════════════════════════════════════╝",
-  "",
-  "  status    — engine status and loaded data summary",
-  "  help       — full command reference",
-  "",
-];
 
 // ─── Global command bar ───────────────────────────────────────────────────────
 //
@@ -404,6 +393,9 @@ function AppInner({ profile, onLogout }) {
   const [commands,       setCommands]       = useState([]);
   const [apiError,       setApiError]       = useState(null);
   const [activeContext,  setActiveContext]  = useState("main");
+  // Settings sub-tab (Diagnostics / Command List / Math Mode / Aliases) — the
+  // SETTINGS nav dropdown sets this directly instead of injecting commands.
+  const [settingsTab,    setSettingsTab]    = useState("diagnostics");
   const [historyOpen,    setHistoryOpen]    = useState(false);
   const [scrollToId,     setScrollToId]     = useState(null);
   const [cmdBarLoading,  setCmdBarLoading]  = useState(false);
@@ -418,8 +410,6 @@ function AppInner({ profile, onLogout }) {
     units:    null,
     rosters:  null,
     rules:    null,
-    settings: null,
-    diag:     null,
   });
 
   const [buildHash, setBuildHash] = useState(null);  // git short hash from /api/version
@@ -672,19 +662,50 @@ function AppInner({ profile, onLogout }) {
   // the user is currently — this is the authoritative routing point.
 
   const handleGlobalCommand = useCallback((cmd) => {
-    const tokens = cmd.trim().toLowerCase().split(/\s+/);
+    // F1: expand user aliases first, so every downstream route sees the full command.
+    cmd = expandAliases(cmd);
+    const trimmed = cmd.trim();
+
+    // F1: `alias <short> <expands to…>` creates/updates a user alias, then shows it.
+    const aliasCreate = trimmed.match(/^alias\s+(\S+)\s+(.+)$/i);
+    if (aliasCreate) {
+      const short = aliasCreate[1].toLowerCase();
+      writeAliases([...readAliases().filter(a => a.alias.toLowerCase() !== short),
+                    { alias: short, cmd: aliasCreate[2].trim() }]);
+      setActiveContext("settings");
+      setSettingsTab("aliases");
+      return;
+    }
+
+    const tokens = trimmed.toLowerCase().split(/\s+/);
+
+    // Settings sub-tab routing — single-word commands land on the Settings page's
+    // tab (replaces the old hidden settings terminal + standalone diag context).
+    const SETTINGS_TABS = { settings: null, diag: "diagnostics", diagnostics: "diagnostics",
+                            commands: "commands", aliases: "aliases", alias: "aliases" };
+    if (tokens.length === 1 && Object.prototype.hasOwnProperty.call(SETTINGS_TABS, tokens[0])) {
+      setActiveContext("settings");
+      const t = SETTINGS_TABS[tokens[0]];
+      if (t) setSettingsTab(t);
+      return;
+    }
+
+    // `rule <term>` / `rules <term>` → seed the Rules browser search (typed lookups
+    // live in the browser; the engine rule_block path stays intact for terminals).
+    if ((tokens[0] === "rule" || tokens[0] === "rules") && tokens.length >= 2) {
+      setActiveContext("rules");
+      setPendingCommands(prev => ({ ...prev, rules: cmd }));
+      return;
+    }
 
     // Nav commands — resolve at App level so they work from any context,
-    // including non-terminal contexts like DIAG and DEMO that can't consume
-    // pending commands.
+    // including non-terminal contexts that can't consume pending commands.
     const NAV_CMD_MAP = {
       home: "main", h: "main",
       units: "units", u: "units",
       rosters: "rosters", c: "rosters",
       crusade: "crusade", cr: "crusade", campaign: "crusade",
-      rules: "rules", r: "rules",
-      diag: "diag",
-      settings: "settings",
+      rules: "rules", r: "rules", rule: "rules",
     };
     if (NAV_CMD_MAP[tokens[0]] !== undefined) {
       setActiveContext(NAV_CMD_MAP[tokens[0]]);
@@ -692,9 +713,9 @@ function AppInner({ profile, onLogout }) {
       return;
     }
 
-    // Non-terminal contexts (rosters, diag) don't have a Terminal to consume
-    // pending commands — route to main terminal instead to prevent hang.
-    const NON_TERMINAL = new Set(["rosters", "crusade", "diag"]);
+    // Non-terminal contexts (rosters, crusade, settings, rules) have no Terminal
+    // to consume pending commands — route to the main terminal to prevent a hang.
+    const NON_TERMINAL = new Set(["rosters", "crusade", "settings", "rules"]);
     const isNonTerminal = NON_TERMINAL.has(activeContext);
 
     // One-shot commands that need no visible output — route to main terminal
@@ -746,7 +767,13 @@ function AppInner({ profile, onLogout }) {
   // Terminal resolves `units`, `rules`, etc. → calls this with the view id.
 
   const handleNavigate = useCallback((view) => {
-    const knownContexts = ["main", "units", "rosters", "crusade", "rules", "settings", "diag"];
+    // `diag` now lives inside Settings → Diagnostics (no standalone context).
+    if (view === "diag") {
+      setActiveContext("settings");
+      setSettingsTab("diagnostics");
+      return;
+    }
+    const knownContexts = ["main", "units", "rosters", "crusade", "rules", "settings"];
     if (knownContexts.includes(view)) {
       setActiveContext(view);
     }
@@ -764,15 +791,6 @@ function AppInner({ profile, onLogout }) {
   // ── Edit command — fill bar without submitting ──────────────────────────
   const handleEditCommand = useCallback((cmd) => {
     cmdBarRef.current?.populateInput(cmd);
-  }, []);
-
-  // ── Open a terminal-output command in the MAIN terminal ──────────────────
-  // Used by Settings-menu items (command list, math mode, aliases) so their
-  // output always lands in the main terminal regardless of the current view.
-  const openInMain = useCallback((cmd) => {
-    setActiveContext("main");
-    setPendingCommands(prev => ({ ...prev, main: cmd }));
-    setCmdBarLoading(true);
   }, []);
 
   // ── History jump ─────────────────────────────────────────────────────────
@@ -1002,7 +1020,7 @@ function AppInner({ profile, onLogout }) {
         {/* SETTINGS dropdown — Diagnostics / Command List / Math Mode / Aliases */}
         <div ref={settingsRef} className="relative flex items-stretch">
           {(() => {
-            const active = activeContext === "diag" || activeContext === "settings";
+            const active = activeContext === "settings";
             return (
               <button
                 onClick={() => { setSettingsOpen(v => !v); setRostersOpen(false); }}
@@ -1035,23 +1053,26 @@ function AppInner({ profile, onLogout }) {
               <MenuItem
                 label="Diagnostics"
                 hint="engine health dashboard"
-                active={activeContext === "diag"}
-                onClick={() => { setSettingsOpen(false); cmdBarRef.current?.animateAndSubmit("diag"); }}
+                active={activeContext === "settings" && settingsTab === "diagnostics"}
+                onClick={() => { setSettingsOpen(false); setActiveContext("settings"); setSettingsTab("diagnostics"); }}
               />
               <MenuItem
                 label="Command List"
-                hint="stat keys & modifier flags"
-                onClick={() => { setSettingsOpen(false); openInMain("modifiers"); }}
+                hint="full command reference"
+                active={activeContext === "settings" && settingsTab === "commands"}
+                onClick={() => { setSettingsOpen(false); setActiveContext("settings"); setSettingsTab("commands"); }}
               />
               <MenuItem
                 label="Math Mode"
-                hint="Monte Carlo / EV settings"
-                onClick={() => { setSettingsOpen(false); openInMain("mathmode"); }}
+                hint="edition · Monte Carlo / EV"
+                active={activeContext === "settings" && settingsTab === "math"}
+                onClick={() => { setSettingsOpen(false); setActiveContext("settings"); setSettingsTab("math"); }}
               />
               <MenuItem
                 label="Aliases"
-                hint="learned spelling shortcuts"
-                onClick={() => { setSettingsOpen(false); openInMain("aliases"); }}
+                hint="command shortcuts"
+                active={activeContext === "settings" && settingsTab === "aliases"}
+                onClick={() => { setSettingsOpen(false); setActiveContext("settings"); setSettingsTab("aliases"); }}
               />
             </div>
           )}
@@ -1340,22 +1361,14 @@ function AppInner({ profile, onLogout }) {
           />
         </div>
 
-        {/* SETTINGS context (hidden — no tab) */}
+        {/* SETTINGS context — 4 sub-tabs (Diagnostics embeds DiagnosticsPage) */}
         <div style={panelStyle("settings")}>
-          <Terminal
-            {...sharedTerminalProps}
-            contextId="settings"
-            pendingCommand={pendingCommands.settings}
-            onPendingCommandConsumed={makeConsumed("settings")}
-            contextBootLines={SETTINGS_BOOT_LINES}
+          <SettingsPage
+            engineId={activeEngineId}
+            activeTab={settingsTab}
+            onTab={setSettingsTab}
+            onInject={handleAnimatedInject}
           />
-        </div>
-
-        {/* DEMO context (legacy — accessible via `demo` command) */}
-
-        {/* DIAG context — Engine Diagnostics dashboard (accessible via `diag` command or DIAG tab) */}
-        <div style={panelStyle("diag")}>
-          <DiagnosticsPage engineId={activeEngineId} />
         </div>
 
       </div>

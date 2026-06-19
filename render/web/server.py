@@ -17,6 +17,8 @@ Routes:
   POST /api/engines/{name}/query      → execute a query
   POST /api/engines/{name}/exec       → execute raw input string (web console)
   GET  /api/engines/{name}/commands   → all command tokens (for autocomplete)
+  GET  /api/rules                      → full core-rules dataset (Rules browser)
+  GET  /api/keywords                   → keyword dictionary (+ math_relevant flags)
   GET  /api/version                    → git commit hash + server start time
 """
 
@@ -52,6 +54,60 @@ from render.web.shared_rosters import (
 )
 from render.web import crusade_store
 from render.web import reports as reports_store
+
+
+# ─── Rules reference data (rules.json + keyword_dictionary.json) ───────────────
+# Served read-only to the Rules browser (Phase 6 — Decision G1). The rules
+# dataset is the engine's single source of truth; we expose it directly so the
+# browser stays in sync rather than bundling a stale copy. Loaded once + cached.
+
+_RULES_DATA_DIR = ROOT / "data" / "combat_terminal" / "data" / "rules"
+_rules_reference_cache: dict | None = None
+
+
+def _load_rules_reference() -> dict:
+    """Load + cache rules.json and keyword_dictionary.json as wire-ready lists.
+
+    Each rule keeps its `id`; each keyword gains a `key`. Failures degrade to
+    empty lists (so the browser shows "no rules" rather than 500-ing).
+    """
+    global _rules_reference_cache
+    if _rules_reference_cache is not None:
+        return _rules_reference_cache
+
+    rules_list: list[dict] = []
+    rules_meta: dict = {}
+    keywords_list: list[dict] = []
+    keywords_meta: dict = {}
+    phrase_mappings: dict = {}
+
+    try:
+        raw = json.loads((_RULES_DATA_DIR / "rules.json").read_text())
+        rules_meta = raw.get("_meta", {}) or {}
+        for rid, r in (raw.get("rules", {}) or {}).items():
+            if isinstance(r, dict):
+                rules_list.append({"id": r.get("id", rid), **r})
+    except Exception:
+        pass
+
+    try:
+        raw = json.loads((_RULES_DATA_DIR / "keyword_dictionary.json").read_text())
+        keywords_meta = raw.get("_meta", {}) or {}
+        phrase_mappings = raw.get("phrase_mappings", {}) or {}
+        for key, k in (raw.get("keywords", {}) or {}).items():
+            if isinstance(k, dict):
+                keywords_list.append({"key": key, **k})
+    except Exception:
+        pass
+
+    _rules_reference_cache = {
+        "rules": rules_list,
+        "rules_meta": rules_meta,
+        "keywords": keywords_list,
+        "keywords_meta": keywords_meta,
+        "phrase_mappings": phrase_mappings,
+    }
+    return _rules_reference_cache
 
 
 # ─── Engine registry ───────────────────────────────────────────────────────────
@@ -451,6 +507,25 @@ def create_app(config: dict) -> FastAPI:
             return {"factions": []}
         factions = sorted(engine._loader._units.keys())
         return {"factions": factions}
+
+    # ── Rules reference (Phase 6 — Rules browser) ──
+    # The full rules + keyword dataset, served read-only. Single source of
+    # truth so the browser never drifts from the engine's data.
+
+    @app.get("/api/rules")
+    def api_rules():
+        data = _load_rules_reference()
+        return {"_meta": data["rules_meta"], "count": len(data["rules"]), "rules": data["rules"]}
+
+    @app.get("/api/keywords")
+    def api_keywords():
+        data = _load_rules_reference()
+        return {
+            "_meta": data["keywords_meta"],
+            "count": len(data["keywords"]),
+            "keywords": data["keywords"],
+            "phrase_mappings": data["phrase_mappings"],
+        }
 
     @app.post("/api/rosters/detect-faction")
     def api_detect_faction(body: dict):
