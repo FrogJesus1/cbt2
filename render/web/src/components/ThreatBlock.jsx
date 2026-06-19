@@ -32,93 +32,37 @@ import { ThreatCardRow }    from "./threat/ThreatCardRow";
 import { DetachmentBlock }  from "./threat/DetachmentBlock";
 import { StratagemList }    from "./threat/StratagemList";
 import { StrategicNotes }   from "./threat/StrategicNotes";
-import { C }                from "./threat/shared";
+import { C, SectionHeader } from "./threat/shared";
 
-// ─── Faction header bar ───────────────────────────────────────────────────
+// ─── Faction title ────────────────────────────────────────────────────────
+// Mockup: Chakra near-white faction name + gold "THREAT ASSESSMENT" tag +
+// right-aligned "N units catalogued".
 
 function FactionHeader({ factionLabel, unitCount, stub }) {
   return (
-    <div style={{
-      display:       "flex",
-      alignItems:    "center",
-      justifyContent:"space-between",
-      padding:       "10px 14px",
-      background:    C.panel,
-      border:        `1px solid ${C.bordermid}`,
-      borderBottom:  `2px solid ${C.red}`,
-      marginBottom:  "6px",
-    }}>
-
-      <div style={{ display: "flex", alignItems: "center", gap: "12px" }}>
-        {/* Faction label */}
+    <div style={{ display: "flex", alignItems: "baseline", gap: "12px", marginBottom: "16px", flexWrap: "wrap" }}>
+      <span className="ct-display" style={{ color: C.text, fontSize: "21px", fontWeight: 700, letterSpacing: "0.02em" }}>
+        {(factionLabel || "Unknown Faction").toUpperCase()}
+      </span>
+      <span style={{ color: C.accent, fontSize: "11px", letterSpacing: "0.16em", textTransform: "uppercase" }}>
+        Threat Assessment
+      </span>
+      {stub && (
         <span style={{
-          color:         C.red,
-          fontSize:      "15px",
-          fontWeight:    700,
-          letterSpacing: "0.1em",
-          textTransform: "uppercase",
-          textShadow:    `0 0 8px ${C.red}50`,
-        }}>
-          {factionLabel || "Unknown Faction"}
-        </span>
-
-        {/* Threat report badge */}
-        <span style={{
-          color:         C.dim,
+          color:         C.amber,
           fontSize:      "9px",
           fontWeight:    700,
-          letterSpacing: "0.16em",
-          border:        `1px solid ${C.border}`,
+          letterSpacing: "0.12em",
+          border:        `1px solid ${C.amber}50`,
           padding:       "1px 6px",
+          background:    `${C.amber}0c`,
         }}>
-          THREAT REPORT
+          ⚠ STUB
         </span>
-      </div>
-
-      <div style={{ display: "flex", alignItems: "center", gap: "10px" }}>
-        {stub && (
-          <span style={{
-            color:         C.amber,
-            fontSize:      "9px",
-            fontWeight:    700,
-            letterSpacing: "0.12em",
-            border:        `1px solid ${C.amber}50`,
-            padding:       "1px 6px",
-            background:    `${C.amber}0c`,
-          }}>
-            ⚠ STUB
-          </span>
-        )}
-        <span style={{ color: C.dim, fontSize: "11px", fontFamily: "monospace" }}>
-          {unitCount} unit{unitCount !== 1 ? "s" : ""}
-        </span>
-      </div>
-
-    </div>
-  );
-}
-
-// ─── Section divider ──────────────────────────────────────────────────────
-
-function SectionDivider({ label }) {
-  return (
-    <div style={{
-      display:    "flex",
-      alignItems: "center",
-      gap:        "10px",
-      margin:     "10px 0 6px",
-    }}>
-      <div style={{ height: "1px", background: C.border, flex: 1 }} />
-      <span style={{
-        color:         C.dim,
-        fontSize:      "9px",
-        fontWeight:    700,
-        letterSpacing: "0.2em",
-        flexShrink:    0,
-      }}>
-        {label}
+      )}
+      <span style={{ marginLeft: "auto", color: C.dim, fontSize: "10px", letterSpacing: "0.08em" }}>
+        {unitCount} unit{unitCount !== 1 ? "s" : ""} catalogued
       </span>
-      <div style={{ height: "1px", background: C.border, flex: 1 }} />
     </div>
   );
 }
@@ -170,10 +114,10 @@ export function ThreatBlock({ data, meta, onSubmit, onInject }) {
         detachment={active_detachment}
       />
 
-      {/* ── Threat list ── */}
+      {/* ── Threat index ── */}
       {units.length > 0 && (
-        <>
-          <SectionDivider label="UNIT THREAT LIST" />
+        <div style={{ marginTop: "12px" }}>
+          <SectionHeader accent={C.text} hint="click a unit to expand">Threat Index</SectionHeader>
           <div style={{ display: "flex", flexDirection: "column", gap: "2px" }}>
             {units.map((unit, i) => (
               <ThreatCardRow
@@ -185,35 +129,36 @@ export function ThreatBlock({ data, meta, onSubmit, onInject }) {
               />
             ))}
           </div>
-        </>
+        </div>
       )}
 
-      {/* ── Group Block 2: Intel ── */}
-      {(detachments.length > 0 || stratagems.length > 0 || strategic_notes.length > 0) && (
-        <>
-          <SectionDivider label="INTEL" />
+      {/* ── Intel: detachment rules + stratagems ── */}
+      {(detachments.length > 0 || stratagems.length > 0) && (
+        <div style={{ marginTop: "18px" }}>
+          <SectionHeader accent={C.text}>Intel</SectionHeader>
           <div style={{ display: "flex", flexDirection: "column", gap: "6px" }}>
-
             {(detachments.length > 0) && (
               <DetachmentBlock
                 detachments={detachments}
                 activeDetachment={active_detachment}
               />
             )}
-
             {(stratagems.length > 0) && (
               <StratagemList
                 stratagems={stratagems}
                 activeDetachment={active_detachment}
               />
             )}
-
-            {(strategic_notes.length > 0) && (
-              <StrategicNotes notes={strategic_notes} />
-            )}
-
           </div>
-        </>
+        </div>
+      )}
+
+      {/* ── Strategic notes ── */}
+      {strategic_notes.length > 0 && (
+        <div style={{ marginTop: "18px" }}>
+          <SectionHeader accent={C.text}>Strategic Notes</SectionHeader>
+          <StrategicNotes notes={strategic_notes} />
+        </div>
       )}
 
     </div>

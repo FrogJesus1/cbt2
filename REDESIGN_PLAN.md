@@ -2,7 +2,7 @@
 
 **Source:** `design_handoff_combat_terminal_redesign/` (16 `.dc.html` mockups + README spec)
 **Target:** existing React/Vite app in `render/web/src/`
-**Status:** Phases 0–2 COMPLETE & validated. Phases 3–7 pending. Decisions A/B/C/H resolved (A: exact mockup look, kept themeable · B: solid bar variant · C: mobile out of scope · H: 11TH ED cosmetic).
+**Status:** Phases 0–3 COMPLETE & validated. Phases 4–7 pending. Decisions A/B/C/H resolved (A: exact mockup look, kept themeable · B: solid bar variant · C: mobile out of scope · H: 11TH ED cosmetic).
 **Drafted:** 2026-06-18 · Updated: 2026-06-19
 
 ---
@@ -143,7 +143,17 @@ Dependency order. Each phase ends with a verification gate (§5). Phases 3–7 a
 
 ---
 
-### Phase 3 — Spec + Threat *(mostly restyle)*
+### Phase 3 — Spec + Threat ✅ COMPLETE (2026-06-19)
+
+**Shipped:** *Foundation* — `SectionHeader` gained an optional `hint` prop; new `factionColor()` resolver in `shared/colors.js` (slug/label → `--ct-faction-*` var, default green); `THREAT_COLORS.low` → `C.label` (#84907f, now themeable instead of #5f6b62); `spec/shared` + `threat/shared` `Bar` wrappers default to **solid**; both shared modules now export a local Chakra-Petch gold 10px `SectionTitle` (in-card label) — the global `constants.SectionTitle` is left untouched so combat is unaffected.
+*Spec datasheet* — `SpecBannerCard` name faction-tinted (Chakra 22px + glow), subtitle `Faction · <green>pts</green> · Role`, squared ★ button; `StatLine` ratings → solid bars + mockup palette (Dur cyan / Mob green / Obj gold / FP red / Melee orange) + Chakra stat boxes; `WeaponsPanel` any-negative-AP green, `▸ Ranged`(green)/`▸ Melee`(gold) Chakra headers, near-white weapon names, compact dim column headers; `CombatRadarChart` axes reordered to mockup order (DUR→MOB→OBJ→FIRE→MEL) + axis colors aligned to the ratings palette; `KeywordsBar` gains a "KEYWORDS" label + rounded chips. **New `components/SpecShortlistRail.jsx`** — the 190px named **★ MY UNITS** rail (header + count, faction-dot rows click-to-jump + `✕` remove, italic empty state) replaces the 44px abbreviated sidebar in `UnitsContext` and is always visible in the units context.
+*Threat [faction]* — `FactionHeader` → Chakra near-white name + gold "THREAT ASSESSMENT" + "N units catalogued" (dropped the red bar/badge); `ThreatBlock` section dividers → hazard `SectionHeader`s (THREAT INDEX +hint / INTEL / STRATEGIC NOTES, split so detachments/stratagems stay under INTEL); `ThreatCardRow` expanded body → **slim teaser** (threat metrics + profile + top counter + "↳ run threat X for the full dossier" hint) instead of the full inline `ThreatCard`; `ThreatSummary` skew/dist bar tracks → `C.track` + radius (dropped the footer hint, tightened grid to 1 : 1.6 : 1); `StrategicNotes` → left-accent callout rows (⚠ red / ◉ gold / › cyan), card+title wrapper removed.
+*Threat [unit]* — `ThreatBanner` gains a 4px level accent bar + center align + Chakra name; `MetricBars`/`CounterBlock` bars now solid; `CounterBlock` "Counter Picks" → green Chakra label + light-green counter names; keyword chips → dim-cyan + rounded; `EnhancementBadge` accepts `{name,effect}` or a string with a right-aligned italic effect + themeable gold badge.
+*Reuse honored:* no router / no `?unit=`; uses existing `ct_starred_units` (not the mockup's `ct_units_shortlist`); all colors flow through `C.*`/CSS vars (only fixed non-semantic value is the melee orange `#ff8a3d`).
+
+**Verified:** esbuild parse of all 20 changed/new files + full import-graph bundle from `App.jsx` (and the `SpecBlock`/`ThreatBlock`/`ThreatCard`/`UnitsContext` subtrees) resolve clean, no errors. **159 Python tests pass** (loader + combat math) — no `.py` touched, so the suite is unaffected by construction. Live `vite build`/browser screenshot still pending on the dev machine (sandbox mount limit); holistic visual pass scheduled after all phases land.
+
+### Phase 3 — Spec + Threat *(mostly restyle)* — original spec below
 
 **Spec Unit** — `SpecBlock.jsx` + `spec/*`. Layout already matches the mockup.
 - **Already done:** real SVG radar (`CombatRadarChart.jsx` — the "must be real SVG" requirement is **already met**), keyword hover-popovers, stat line, weapons table, abilities, star/shortlist persistence (`ct_starred_units`).

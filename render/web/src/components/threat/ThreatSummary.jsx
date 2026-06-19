@@ -70,7 +70,7 @@ function SkewPanel({ skewLabel = "Mixed", skewBreakdown = [] }) {
   };
 
   return (
-    <Card style={{ ...CARD_STYLE, flex: "2 1 0" }}>
+    <Card style={{ ...CARD_STYLE, flex: "1.6 1 0" }}>
       <CardContent style={CARD_PAD}>
         <SectionTitle>Army Composition</SectionTitle>
 
@@ -92,8 +92,8 @@ function SkewPanel({ skewLabel = "Mixed", skewBreakdown = [] }) {
                     {b.count}
                   </span>
                 </div>
-                <div style={{ position: "relative", height: "4px", background: C.ghost }}>
-                  <div style={{ position: "absolute", left: 0, top: 0, height: "100%", width: `${pct}%`, background: color }} />
+                <div style={{ position: "relative", height: "4px", background: C.track, borderRadius: "2px", overflow: "hidden" }}>
+                  <div style={{ position: "absolute", left: 0, top: 0, height: "100%", width: `${pct}%`, background: color, borderRadius: "2px" }} />
                 </div>
               </div>
             );
@@ -203,18 +203,14 @@ function ThreatDistChart({ threatDist = {}, unitCount = 0 }) {
           {bars.map(({ label, count, color, pct }) => (
             <div key={label} style={{ display: "grid", gridTemplateColumns: "60px 1fr 48px", alignItems: "center", gap: "10px" }}>
               <span style={{ color, fontSize: "10px", fontWeight: 700, letterSpacing: "0.12em" }}>{label}</span>
-              <div style={{ position: "relative", height: "8px", background: C.ghost }}>
-                <div style={{ position: "absolute", left: 0, top: 0, height: "100%", width: `${pct}%`, background: color, transition: "width 0.4s" }} />
+              <div style={{ position: "relative", height: "8px", background: C.track, borderRadius: "3px", overflow: "hidden" }}>
+                <div style={{ position: "absolute", left: 0, top: 0, height: "100%", width: `${pct}%`, background: color, borderRadius: "3px", transition: "width 0.4s" }} />
               </div>
               <span style={{ color, fontSize: "11px", fontFamily: "monospace", textAlign: "right" }}>
                 {count} <span style={{ color: C.dim, fontSize: "10px" }}>({pct}%)</span>
               </span>
             </div>
           ))}
-        </div>
-
-        <div style={{ marginTop: "10px", borderTop: `1px solid ${C.border}`, paddingTop: "8px", color: C.dim, fontSize: "10px", letterSpacing: "0.06em" }}>
-          ⚡ Threat distribution based on unit analysis — use 'combat' for detailed probability math
         </div>
       </CardContent>
     </Card>

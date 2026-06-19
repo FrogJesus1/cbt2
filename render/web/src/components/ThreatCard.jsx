@@ -115,9 +115,10 @@ function KeywordChips({ keywords = [], onSubmit }) {
               key={i}
               onClick={() => onSubmit?.(`search ${kw}`)}
               style={{
-                color:         onSubmit ? C.cyan : C.label,
+                color:         C.cyan,
                 fontSize:      "11px",
-                border:        `1px solid ${onSubmit ? C.cyan + "50" : C.border}`,
+                border:        `1px solid ${C.cyan}40`,
+                borderRadius:  "3px",
                 padding:       "2px 8px",
                 cursor:        onSubmit ? "pointer" : "default",
                 letterSpacing: "0.04em",
@@ -158,9 +159,9 @@ function AbilityRow({ ab, onSubmit, isLast }) {
       >
         <span style={{ color: C.amber, fontSize: "11px", flexShrink: 0 }}>◆</span>
         <span style={{
-          color:      C.mid,
+          color:      C.textMid,
           fontWeight: 600,
-          fontSize:   "12px",
+          fontSize:   "13px",
           flex:       1,
         }}>
           {name}
@@ -210,23 +211,36 @@ function AbilitiesPanel({ abilities = [], onSubmit }) {
 
 function EnhancementBadge({ enhancement }) {
   if (!enhancement) return null;
+
+  // Accept either a bare name string or { name, effect } / { name, description }.
+  const name   = typeof enhancement === "string" ? enhancement : (enhancement.name || "");
+  const effect = typeof enhancement === "string" ? null
+    : (enhancement.effect || enhancement.description || enhancement.text || null);
+  if (!name) return null;
+
   return (
     <div style={{
-      display:    "flex",
-      alignItems: "center",
-      gap:        "8px",
-      padding:    "8px 14px",
-      border:     `1px solid ${C.bordermid}`,
-      background: C.panel,
-      fontSize:   "12px",
+      display:      "flex",
+      alignItems:   "center",
+      gap:          "10px",
+      padding:      "11px 16px",
+      border:       `1px solid ${C.accent}40`,
+      background:   `${C.accent}0c`,
+      borderRadius: "5px",
+      fontSize:     "12px",
     }}>
       <span style={{ fontSize: "14px" }}>⚡</span>
-      <span style={{ color: C.amber, fontWeight: 600, textTransform: "uppercase", fontSize: "10px", letterSpacing: "0.12em" }}>
+      <span className="ct-display" style={{ color: C.accent, fontWeight: 700, fontSize: "9px", letterSpacing: "0.14em" }}>
         Enhancement
       </span>
-      <span style={{ color: C.mid }}>
-        {enhancement}
+      <span style={{ color: C.textMid }}>
+        {name}
       </span>
+      {effect && (
+        <span style={{ marginLeft: "auto", color: C.dim, fontSize: "10px", fontStyle: "italic" }}>
+          {effect}
+        </span>
+      )}
     </div>
   );
 }

@@ -40,7 +40,7 @@ function CounterRow({ counter, onInject, onSubmit, isLast }) {
         <span
           onClick={handleClick ?? undefined}
           style={{
-            color:        clickable ? C.green : C.mid,
+            color:        clickable ? C.improved : C.bodyDim,
             fontWeight:   600,
             fontSize:     "12px",
             cursor:       clickable ? "pointer" : "default",
@@ -88,7 +88,7 @@ export function CounterBlock({ counters = [], onInject, onSubmit }) {
   return (
     <Card style={CARD_STYLE}>
       <CardContent style={CARD_PAD}>
-        <SectionTitle>Counter Picks</SectionTitle>
+        <SectionTitle style={{ color: C.green }}>Counter Picks</SectionTitle>
 
         {counters.length === 0 ? (
           <div style={{ color: C.dim, fontSize: "12px" }}>

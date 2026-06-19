@@ -1,101 +1,81 @@
 /**
  * StrategicNotes
  *
- * Tips and warnings panel derived from threat analysis.
- * Each note has a type ("warning" | "tip" | "focus") and a text string.
+ * Tips and warnings derived from threat analysis. Each note has a type
+ * ("warning" | "focus" | "tip") and a text string, rendered as a left-accent
+ * callout row (mockup): coloured left border + faint tinted fill + an icon and
+ * an uppercase label.
  *
- * Visual language:
- *   warning → red   icon ⚠  prefix "WARNING"
- *   tip     → cyan  icon 💡  prefix "TIP"
- *   focus   → amber icon 🎯  prefix "FOCUS"
+ *   warning → red   ⚠
+ *   focus   → gold  ◉
+ *   tip     → cyan  ›
+ *
+ * The "STRATEGIC NOTES" section header is rendered by the parent (ThreatBlock)
+ * as a hazard SectionHeader, so this component emits only the rows.
  *
  * Props:
- *   notes  — array of { type: "warning"|"tip"|"focus", text: string }
+ *   notes  — array of { type: "warning"|"focus"|"tip", text: string }
  */
 
-import { C, CARD_STYLE, CARD_PAD, SectionTitle, Card, CardContent } from "./shared";
-
-// ─── Note type config ─────────────────────────────────────────────────────
+import { C } from "./shared";
 
 const NOTE_CONFIG = {
-  warning: { icon: "⚠",  label: "WARNING", color: C.red,   bg: `${C.red}0c`   },
-  tip:     { icon: "💡", label: "TIP",     color: C.cyan,  bg: `${C.cyan}08`  },
-  focus:   { icon: "🎯", label: "FOCUS",   color: C.amber, bg: `${C.amber}08` },
+  warning: { icon: "⚠", label: "WARNING", color: C.danger },
+  focus:   { icon: "◉", label: "FOCUS",   color: C.accent },
+  tip:     { icon: "›", label: "TIP",     color: C.cyan   },
 };
 
-// ─── Single note row ──────────────────────────────────────────────────────
-
-function NoteRow({ note, isLast }) {
+function NoteRow({ note }) {
   const cfg = NOTE_CONFIG[note.type] ?? NOTE_CONFIG.tip;
 
   return (
     <div style={{
       display:      "flex",
-      gap:          "10px",
+      gap:          "11px",
       alignItems:   "flex-start",
-      padding:      "8px 10px",
-      marginBottom: isLast ? 0 : "4px",
-      background:   cfg.bg,
-      border:       `1px solid ${cfg.color}20`,
+      padding:      "9px 13px",
+      background:   `${cfg.color}0f`,
+      border:       `1px solid ${cfg.color}33`,
+      borderLeft:   `2px solid ${cfg.color}`,
+      borderRadius: "3px",
     }}>
-
-      {/* Icon */}
-      <span style={{ fontSize: "13px", flexShrink: 0, lineHeight: "1.4", marginTop: "1px" }}>
+      <span style={{ color: cfg.color, fontSize: "12px", flexShrink: 0, marginTop: "1px", lineHeight: "1.4" }}>
         {cfg.icon}
       </span>
-
-      <div style={{ flex: 1 }}>
-        {/* Type label */}
+      <div>
         <span style={{
           color:         cfg.color,
           fontSize:      "9px",
           fontWeight:    700,
           letterSpacing: "0.16em",
-          marginRight:   "6px",
+          marginRight:   "8px",
         }}>
           {cfg.label}
         </span>
-
-        {/* Note text */}
-        <span style={{
-          color:      C.label,
-          fontSize:   "12px",
-          lineHeight: "1.6",
-        }}>
+        <span style={{ color: C.bodyDim, fontSize: "12px", lineHeight: "1.6" }}>
           {note.text}
         </span>
       </div>
-
     </div>
   );
 }
 
-// ─── StrategicNotes ───────────────────────────────────────────────────────
-
 export function StrategicNotes({ notes = [] }) {
   const validNotes = notes.filter(n => n && n.text);
 
-  return (
-    <Card style={CARD_STYLE}>
-      <CardContent style={CARD_PAD}>
-        <SectionTitle>Strategic Notes</SectionTitle>
+  if (validNotes.length === 0) {
+    return (
+      <div style={{ color: C.dim, fontSize: "12px" }}>
+        No strategic notes available for this faction.
+      </div>
+    );
+  }
 
-        {validNotes.length === 0 ? (
-          <div style={{ color: C.dim, fontSize: "12px" }}>
-            No strategic notes available for this faction.
-          </div>
-        ) : (
-          <div>
-            {validNotes.map((note, i) => (
-              <NoteRow
-                key={i}
-                note={note}
-                isLast={i === validNotes.length - 1}
-              />
-            ))}
-          </div>
-        )}
-      </CardContent>
-    </Card>
+  return (
+    <div style={{ display: "flex", flexDirection: "column", gap: "6px" }}>
+      {validNotes.map((note, i) => (
+        <NoteRow key={i} note={note} />
+      ))}
+    </div>
   );
 }

@@ -1,11 +1,12 @@
 /**
  * ThreatCardRow
  *
- * One collapsible row in the threat card list.
+ * One collapsible row in the threat index.
  * Collapsed:  unit name + threat badge + 3 micro metric bars (Threat/Dur/Dmg)
- * Expanded:   full ThreatCard + CounterBlock side-by-side (reuses ThreatCard.jsx)
+ * Expanded:   slim teaser — threat metrics + profile + top counter + a
+ *             "run threat <unit>" hint that opens the full single-unit dossier.
  *
- * HIGH threat units start expanded. MEDIUM and LOW start collapsed.
+ * All units start collapsed; click a row to expand.
  *
  * Props:
  *   unitData  — threat_card data shape (same as ThreatCard expects)
@@ -14,15 +15,20 @@
  */
 
 import { useState } from "react";
-import { ThreatCard } from "../ThreatCard";
-import { C, THREAT_COLORS, THREAT_LABELS, METRICS } from "./shared";
+import { C, THREAT_COLORS, THREAT_LABELS, METRICS, Bar } from "./shared";
+
+// Profile stat order for the slim expanded teaser
+const PROFILE_ORDER = ["T", "Sv", "W", "M", "OC"];
+
+// Small dim uppercase label used inside the expanded teaser
+const MINI_LABEL = { fontSize: "9px", letterSpacing: "0.12em", color: C.dim, textTransform: "uppercase", marginBottom: "9px" };
 
 // ─── Micro bar — compact 3px bar for collapsed header ─────────────────────
 
 function MicroBar({ pct, color }) {
   return (
-    <div style={{ position: "relative", width: "48px", height: "3px", background: C.ghost, flexShrink: 0 }}>
-      <div style={{ position: "absolute", left: 0, top: 0, height: "100%", width: `${Math.min(100, pct)}%`, background: color }} />
+    <div style={{ position: "relative", width: "46px", height: "3px", background: C.track, borderRadius: "2px", overflow: "hidden", flexShrink: 0 }}>
+      <div style={{ position: "absolute", left: 0, top: 0, height: "100%", width: `${Math.min(100, pct)}%`, background: color, borderRadius: "2px" }} />
     </div>
   );
 }
@@ -118,6 +124,78 @@ function CollapsedHeader({ unitData, index, open, onToggle, onInject }) {
   );
 }
 
+// ─── Slim expanded teaser ──────────────────────────────────────────────────
+// Metrics + profile + top counter + a "run threat <unit>" hint to open the
+// full single-unit dossier. (The full dossier is the threat <unit> view.)
+
+function SlimExpanded({ unitData, onInject }) {
+  const { name = "", metrics = {}, profile = {}, counters = [] } = unitData;
+  const profileKeys = PROFILE_ORDER.filter(k => k in profile);
+  const topCounter  = counters[0];
+
+  return (
+    <div>
+      <div style={{ display: "grid", gridTemplateColumns: "1.4fr 1fr", gap: "16px" }}>
+
+        {/* Threat metrics */}
+        <div>
+          <div style={MINI_LABEL}>Threat Metrics</div>
+          {METRICS.map(({ key, label, color }) => {
+            const score = Math.min(100, Math.max(0, Number(metrics[key] ?? 0)));
+            return (
+              <div key={key} style={{ display: "grid", gridTemplateColumns: "46px 1fr 28px", alignItems: "center", gap: "9px", marginBottom: "7px" }}>
+                <span style={{ fontSize: "10px", color: C.bodyDim }}>{label}</span>
+                <Bar pct={score} color={color} height={6} />
+                <span style={{ fontSize: "10px", color, textAlign: "right", fontWeight: 700 }}>{score}</span>
+              </div>
+            );
+          })}
+        </div>
+
+        {/* Profile + top counter */}
+        <div>
+          {profileKeys.length > 0 && (
+            <>
+              <div style={MINI_LABEL}>Profile</div>
+              <div style={{ display: "grid", gridTemplateColumns: `repeat(${profileKeys.length},1fr)`, border: `1px solid ${C.border}`, marginBottom: "12px" }}>
+                {profileKeys.map((k, i) => (
+                  <div key={k} style={{ textAlign: "center", padding: "7px 2px", borderRight: i < profileKeys.length - 1 ? `1px solid ${C.border}` : "none" }}>
+                    <div style={{ fontSize: "8px", color: C.label, letterSpacing: "0.1em", fontWeight: 700 }}>{k}</div>
+                    <div style={{ fontSize: "14px", color: C.green, fontWeight: 700, marginTop: "3px" }}>{String(profile[k])}</div>
+                  </div>
+                ))}
+              </div>
+            </>
+          )}
+          {topCounter && (
+            <>
+              <div style={MINI_LABEL}>Top Counter</div>
+              <div style={{ display: "flex", justifyContent: "space-between", alignItems: "baseline", marginBottom: "4px" }}>
+                <span style={{ fontSize: "11px", color: C.green, fontWeight: 600 }}>{topCounter.name}</span>
+                <span style={{ fontSize: "11px", color: C.green, fontWeight: 700 }}>{Math.round(Number(topCounter.score ?? 0))}</span>
+              </div>
+              <Bar pct={Math.min(100, Math.max(0, Number(topCounter.score ?? 0)))} color={C.green} height={5} />
+            </>
+          )}
+        </div>
+      </div>
+
+      {/* Run hint → opens the full dossier */}
+      <div style={{ marginTop: "11px", fontSize: "10px", color: C.dim, fontStyle: "italic" }}>
+        ↳ run{" "}
+        <span
+          onClick={onInject ? () => onInject(`threat ${name}`) : undefined}
+          style={{ color: C.green, cursor: onInject ? "pointer" : "default", fontStyle: "normal" }}
+          title={onInject ? `Run: threat ${name}` : undefined}
+        >
+          threat {name}
+        </span>{" "}
+        for the full dossier
+      </div>
+    </div>
+  );
+}
+
 // ─── ThreatCardRow ────────────────────────────────────────────────────────
 
 export function ThreatCardRow({ unitData, index, onSubmit, onInject }) {
@@ -143,10 +221,10 @@ export function ThreatCardRow({ unitData, index, onSubmit, onInject }) {
         onInject={onInject}
       />
 
-      {/* Expanded body */}
+      {/* Expanded body — slim teaser (full dossier via "run threat <unit>") */}
       {open && (
         <div style={{ padding: "12px 14px", borderTop: `1px solid ${lvlColor}20` }}>
-          <ThreatCard data={unitData} onSubmit={onSubmit} onInject={onInject} />
+          <SlimExpanded unitData={unitData} onInject={onInject} />
         </div>
       )}
 

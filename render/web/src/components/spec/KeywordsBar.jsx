@@ -95,6 +95,7 @@ function KeywordChip({ keyword, faction, onSubmit }) {
           color:         hovered ? C.amber : (onSubmit ? C.cyan : C.label),
           fontSize:      "11px",
           border:        `1px solid ${hovered ? C.amber + "70" : (onSubmit ? C.cyan + "50" : C.border)}`,
+          borderRadius:  "3px",
           padding:       "3px 9px",
           cursor:        onSubmit ? "pointer" : "default",
           letterSpacing: "0.04em",
@@ -199,7 +200,13 @@ export function KeywordsBar({ keywords = [], onSubmit, faction }) {
   return (
     <Card style={{ ...CARD_STYLE, overflow: "visible" }}>
       <CardContent style={{ ...CARD_PAD, paddingTop: "9px", paddingBottom: "9px", overflow: "visible" }}>
-        <div style={{ display: "flex", flexWrap: "wrap", gap: "6px", overflow: "visible" }}>
+        <div style={{ display: "flex", flexWrap: "wrap", gap: "6px", alignItems: "center", overflow: "visible" }}>
+          <span style={{
+            fontSize: "9px", letterSpacing: "0.12em", color: C.dim,
+            textTransform: "uppercase", marginRight: "2px",
+          }}>
+            Keywords
+          </span>
           {clean.map((kw, i) => (
             <KeywordChip key={i} keyword={kw} faction={faction} onSubmit={onSubmit} />
           ))}

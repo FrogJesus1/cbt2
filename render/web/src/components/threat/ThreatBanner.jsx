@@ -20,28 +20,34 @@ export function ThreatBanner({ name = "", threatLevel = "medium", onInject }) {
   return (
     <Card style={{
       ...CARD_STYLE,
-      border:    `1px solid ${lvlColor}40`,
-      boxShadow: `inset 0 0 0 1px ${C.border}, 0 0 12px ${lvlColor}10`,
+      border:    `1px solid ${lvlColor}48`,
+      boxShadow: `inset 0 0 0 1px ${C.border}, 0 0 14px ${lvlColor}10`,
     }}>
       <CardContent style={{
         ...CARD_PAD,
         display:    "flex",
-        alignItems: "baseline",
+        alignItems: "center",
         gap:        "14px",
-        fontSize:   "20px",
         lineHeight: "1.3",
       }}>
 
+        {/* Threat-level accent bar */}
+        <span style={{ width: "4px", height: "30px", background: lvlColor, borderRadius: "2px", flexShrink: 0 }} />
+
         {/* Unit name — clickable to run spec lookup */}
         <span
+          className="ct-display"
           onClick={() => onInject?.(`spec ${name}`)}
           style={{
-            color:      lvlColor,
-            fontWeight: 700,
-            textShadow: `0 0 10px ${lvlColor}50`,
-            flex:       1,
-            cursor:     onInject ? "pointer" : "default",
-            userSelect: "none",
+            color:         lvlColor,
+            fontSize:      "22px",
+            fontWeight:    700,
+            letterSpacing: "0.03em",
+            textShadow:    `0 0 12px ${lvlColor}40`,
+            flex:          1,
+            minWidth:      0,
+            cursor:        onInject ? "pointer" : "default",
+            userSelect:    "none",
           }}
           title={onInject ? `Look up: spec ${name}` : undefined}
         >
@@ -55,9 +61,9 @@ export function ThreatBanner({ name = "", threatLevel = "medium", onInject }) {
           fontWeight:    700,
           letterSpacing: "0.18em",
           border:        `1px solid ${lvlColor}60`,
-          padding:       "2px 8px",
+          padding:       "3px 9px",
           background:    `${lvlColor}12`,
-          alignSelf:     "center",
+          borderRadius:  "3px",
           flexShrink:    0,
         }}>
           {lvlLabel} THREAT

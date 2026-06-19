@@ -79,7 +79,7 @@ export function SpecBlock({ data, meta, onSubmit, onInject, starredUnits, onTogg
       )}
 
       {/* 1. Banner */}
-      <SpecBannerCard title={title} subtitle={subtitle} onInject={onInject} isStarred={isStarred} onToggleStar={onToggleStar} />
+      <SpecBannerCard title={title} subtitle={subtitle} faction={meta?.faction} onInject={onInject} isStarred={isStarred} onToggleStar={onToggleStar} />
 
       {/* 2. Keywords — full width, directly below banner */}
       {/* faction from meta scopes click commands to this unit's faction */}

@@ -21,7 +21,7 @@ export const CARD_PAD = { padding: "14px 16px" };
 // Chakra-Petch uppercase label + a gold hazard rule that fills the row.
 // The redesign's standard section divider (replaces bare SectionTitle).
 
-export function SectionHeader({ children, accent = C.accent, style }) {
+export function SectionHeader({ children, accent = C.accent, hint, style }) {
   return (
     <div style={{ display: "flex", alignItems: "center", gap: "10px", marginBottom: "12px", ...style }}>
       <span
@@ -30,6 +30,11 @@ export function SectionHeader({ children, accent = C.accent, style }) {
       >
         {children}
       </span>
+      {hint && (
+        <span style={{ color: C.dim, fontSize: "9px", letterSpacing: "0.04em", flexShrink: 0, fontFamily: "monospace" }}>
+          {hint}
+        </span>
+      )}
       <span className="ct-hazard" />
     </div>
   );

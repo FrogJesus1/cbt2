@@ -52,3 +52,21 @@ export const C = {
   factionAeldari: "var(--ct-faction-aeldari)",
   factionDG:      "var(--ct-faction-dg)",
 };
+
+// ─── Faction → tag colour resolver ──────────────────────────────────────────
+// Maps a faction slug or display label (e.g. "tau", "T'au Empire",
+// "space_marines") to its themeable tag colour. Falls back to the primary
+// green so unknown factions still render cleanly. Used by the Spec banner
+// name tint, Units DB tags, and the MY UNITS rail dots.
+
+export function factionColor(faction) {
+  if (!faction) return C.green;
+  const s = String(faction).toLowerCase().replace(/[^a-z]/g, "");
+  if (s.includes("spacemarine") || s.includes("adeptusastartes") || s === "sm") return C.factionSM;
+  if (s.includes("tau"))                                                          return C.factionTau;
+  if (s.includes("necron"))                                                       return C.factionNecron;
+  if (s.includes("ork"))                                                          return C.factionOrk;
+  if (s.includes("aeldari") || s.includes("eldar"))                               return C.factionAeldari;
+  if (s.includes("deathguard") || s === "dg")                                     return C.factionDG;
+  return C.green;
+}

@@ -4,8 +4,8 @@
  * Pure-SVG spider / radar chart for the 5 combat rating axes.
  * No recharts — direct SVG for full terminal aesthetic control.
  *
- * Axis order (clockwise from top):
- *   DURABILITY → FIREPOWER → MELEE → OBJ CTRL → MOBILITY
+ * Axis order (clockwise from top, matches the Spec mockup):
+ *   DURABILITY → MOBILITY → OBJ CTRL → FIREPOWER → MELEE
  *
  * Props:
  *   ratings   — { durability, mobility, obj_control, firepower, melee_threat }
@@ -18,19 +18,19 @@
 import { C, SectionTitle } from "./shared";
 
 // ─── Axis definitions ────────────────────────────────────────────────────────
-// Ordered clockwise from 12-o'clock for best visual separation of role types:
+// Ordered clockwise from 12-o'clock (matches the Spec mockup):
 //   Top    = Durability   (defensive bulk)
-//   UR     = Firepower    (ranged offence)
-//   LR     = Melee        (close-combat offence)
-//   LL     = Obj Control  (board presence)
-//   UL     = Mobility     (speed)
+//   UR     = Mobility     (speed)
+//   LR     = Obj Control  (board presence)
+//   LL     = Firepower    (ranged offence)
+//   UL     = Melee        (close-combat offence)
 
 const AXES = [
   { key: "durability",   label: "DURABILITY",  color: "var(--ct-bar-alt)",  shortLabel: "DUR" },
-  { key: "firepower",    label: "FIREPOWER",   color: "#ff3b3b",             shortLabel: "FP"  },
-  { key: "melee_threat", label: "MELEE",       color: "#ff6b2b",             shortLabel: "ML"  },
-  { key: "obj_control",  label: "OBJ CTRL",    color: "#ffa328",             shortLabel: "OC"  },
   { key: "mobility",     label: "MOBILITY",    color: "var(--ct-primary)",   shortLabel: "MOB" },
+  { key: "obj_control",  label: "OBJ CTRL",    color: "var(--ct-accent)",    shortLabel: "OBJ" },
+  { key: "firepower",    label: "FIREPOWER",   color: "var(--ct-danger)",    shortLabel: "FP"  },
+  { key: "melee_threat", label: "MELEE",       color: "#ff8a3d",             shortLabel: "MEL" },
 ];
 
 const N_AXES = AXES.length;

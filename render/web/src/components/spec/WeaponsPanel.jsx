@@ -59,32 +59,35 @@ export function normalizeWeapon(w) {
 const GRID = "1fr 72px 52px 72px 52px 52px 58px";
 const COLS = ["Weapon", "Range", "A", "BS/WS", "S", "AP", "D"];
 
-// AP color — in 40K more-negative AP is better (AP-4 > AP-1 > AP 0).
-// Never use red for raw AP values; red is reserved for modifiers that degrade.
+// AP color — in 40K any armour penetration is good (more-negative is better).
+// Mockup: any negative AP renders green; AP 0 neutral; never red (red is for
+// modifiers that degrade a stat, handled elsewhere).
 function apColor(cell) {
   const n = parseInt(String(cell ?? ""), 10);
-  if (isNaN(n) || n === 0) return C.label;  // AP 0 = no penetration, neutral
-  if (n <= -3) return C.green;              // AP -3 or better = strong armor pierce
-  return C.mid;                             // AP -1 / -2 = moderate, positive-leaning
+  if (isNaN(n))  return C.bodyDim;
+  if (n < 0)     return C.improved;  // armour pierce → green
+  if (n === 0)   return C.label;     // AP 0 = neutral
+  return C.bodyDim;                  // positive (rare)
 }
 
+// Columns (1-indexed): 1 Range · 2 A · 3 BS/WS · 4 S · 5 AP · 6 D
 function cellColor(i, cell) {
-  if (i === 0) return C.mid;
-  if (i === 5) return apColor(cell);  // AP column — graduated positive
-  if (i === 6) return C.cyan;         // D = cyan
-  return C.label;
+  if (i === 1) return C.label;        // Range — muted
+  if (i === 5) return apColor(cell);  // AP
+  if (i === 6) return C.cyan;         // Damage
+  return C.bodyDim;                   // A / skill / S
 }
 
 function TableHeader() {
   return (
-    <div style={{ display: "grid", gridTemplateColumns: GRID, marginBottom: "6px" }}>
+    <div style={{ display: "grid", gridTemplateColumns: GRID, marginBottom: "5px", paddingBottom: "5px", borderBottom: `1px solid ${C.border}` }}>
       {COLS.map((col, i) => (
         <div key={col} style={{
-          color:         C.label,
-          fontSize:      "13px",
+          color:         C.dim,
+          fontSize:      "9px",
           fontWeight:    700,
           textTransform: "uppercase",
-          letterSpacing: "0.09em",
+          letterSpacing: "0.08em",
           textAlign:     i === 0 ? "left" : "center",
           paddingRight:  i === 0 ? "12px" : "0",
         }}>
@@ -180,7 +183,7 @@ function WeaponRow({ w }) {
         gap:         "4px",
         paddingRight: "12px",
       }}>
-        <span style={{ color: w._drone ? C.cyan : C.mid, fontSize: "14px", lineHeight: "1.4" }}>
+        <span style={{ color: w._drone ? C.cyan : C.textMid, fontSize: "13px", lineHeight: "1.4" }}>
           {w.name === null || w.name === undefined ? "—" : String(w.name)}
         </span>
         {keywords.map((kw, i) => (
@@ -202,15 +205,17 @@ function WeaponRow({ w }) {
   );
 }
 
-export function WeaponSection({ title, weapons }) {
+export function WeaponSection({ title, weapons, color = C.green }) {
   if (!weapons.length) return null;
   return (
     <div>
-      <SectionTitle>{title}</SectionTitle>
+      <div className="ct-display" style={{ color, fontSize: "9px", letterSpacing: "0.14em", marginBottom: "6px" }}>
+        ▸ {title}
+      </div>
       <TableHeader />
-      <div style={{ borderTop: `1px solid ${C.border}` }}>
+      <div>
         {weapons.map((w, i) => (
-          <div key={i} style={{ borderBottom: i < weapons.length - 1 ? `1px solid ${C.border}` : "none" }}>
+          <div key={i} style={{ borderBottom: i < weapons.length - 1 ? `1px solid ${C.hairline}` : "none" }}>
             <WeaponRow w={w} />
           </div>
         ))}
@@ -230,8 +235,8 @@ export function WeaponsPanelContent({ weapons = [] }) {
 
   return (
     <div style={{ display: "flex", flexDirection: "column", gap: "14px" }}>
-      <WeaponSection title="Ranged Weapons" weapons={ranged} />
-      <WeaponSection title="Melee Weapons"  weapons={melee}  />
+      <WeaponSection title="Ranged" weapons={ranged} color={C.green}  />
+      <WeaponSection title="Melee"  weapons={melee}  color={C.accent} />
     </div>
   );
 }

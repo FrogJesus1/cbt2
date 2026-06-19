@@ -24,26 +24,26 @@ function StatBox({ statKey, value, isLast }) {
     <div style={{
       flex:        "1",
       textAlign:   "center",
-      padding:     "16px 10px",
+      padding:     "13px 4px",
       borderRight: isLast ? "none" : `1px solid ${C.border}`,
     }}>
       <div style={{
         color:         C.label,
-        fontSize:      "13px",
+        fontSize:      "10px",
         fontWeight:    700,
-        letterSpacing: "0.14em",
+        letterSpacing: "0.12em",
         textTransform: "uppercase",
-        marginBottom:  "8px",
       }}>
         {statKey}
       </div>
       <div style={{
         color:      C.green,
-        fontSize:   "34px",
+        fontSize:   "28px",
         fontWeight: 700,
-        fontFamily: "monospace",
+        fontFamily: "'Chakra Petch', 'IBM Plex Mono', monospace",
         lineHeight: 1,
-        textShadow: `0 0 10px ${C.green}60`,
+        marginTop:  "6px",
+        textShadow: `0 0 8px ${C.green}50`,
       }}>
         {value !== undefined && value !== null ? String(value) : "—"}
       </div>
@@ -53,13 +53,15 @@ function StatBox({ statKey, value, isLast }) {
 
 // ─── Rating display ───────────────────────────────────────────────────────
 
+// Mockup palette: Durability cyan · Mobility green · Obj Control gold ·
+// Firepower red · Melee orange. Themeable vars where a semantic token exists.
 const RATING_ORDER = ["durability", "mobility", "obj_control", "firepower", "melee_threat"];
 const RATING_META  = {
-  durability:   { label: "Durability",  color: "var(--ct-bar-alt)" },
-  mobility:     { label: "Mobility",    color: "var(--ct-primary)" },
-  obj_control:  { label: "Obj Control", color: "#ffa328" },
-  firepower:    { label: "Firepower",   color: "#ff3b3b" },
-  melee_threat: { label: "Melee",       color: "#ff6b2b" },
+  durability:   { label: "Durability",  color: "var(--ct-bar-alt)" },  // cyan
+  mobility:     { label: "Mobility",    color: "var(--ct-primary)" },  // green
+  obj_control:  { label: "Obj Control", color: "var(--ct-accent)"  },  // gold
+  firepower:    { label: "Firepower",   color: "var(--ct-danger)"  },  // red
+  melee_threat: { label: "Melee",       color: "#ff8a3d" },            // orange
 };
 
 function RatingRow({ ratingKey, data }) {
@@ -67,11 +69,11 @@ function RatingRow({ ratingKey, data }) {
   const score = data?.score ?? 0;
   return (
     <div>
-      <div style={{ display: "flex", justifyContent: "space-between", marginBottom: "5px" }}>
-        <span style={{ color: C.label, fontSize: "13px", fontWeight: 600, letterSpacing: "0.06em" }}>
+      <div style={{ display: "flex", justifyContent: "space-between", marginBottom: "4px" }}>
+        <span style={{ color: C.bodyDim, fontSize: "11px", letterSpacing: "0.04em" }}>
           {meta.label}
         </span>
-        <span style={{ color: meta.color, fontSize: "13px", fontWeight: 700 }}>
+        <span style={{ color: meta.color, fontSize: "11px", fontWeight: 700 }}>
           {data?.label || `${Math.round(score * 100)}%`}
         </span>
       </div>
@@ -126,7 +128,7 @@ export function StatLine({ stats = {}, ratings = {}, weapons = [] }) {
 
       {/* Right column: combat ratings + spider chart stacked */}
       {hasRatings && (
-        <div style={{ flex: "0 0 275px", display: "flex", flexDirection: "column", gap: "6px" }}>
+        <div style={{ flex: "0 0 290px", display: "flex", flexDirection: "column", gap: "6px" }}>
 
           {/* Ratings bar card */}
           <Card style={{ ...CARD_STYLE }}>

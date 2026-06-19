@@ -7,6 +7,7 @@
 
 import { useState, useRef, useCallback } from "react";
 import { Terminal } from "./Terminal";
+import { SpecShortlistRail } from "./SpecShortlistRail";
 
 // ─── Starred units persistence ──────────────────────────────────────────────
 
@@ -121,79 +122,12 @@ export function UnitsContext({
           />
         </div>
 
-        {/* ── Starred units sidebar ── */}
-        {starredUnits.length > 0 && (
-          <div
-            style={{
-              width:           "44px",
-              flexShrink:      0,
-              borderLeft:      `1px solid ${C.border}`,
-              backgroundColor: "var(--ct-bg-dark)",
-              display:         "flex",
-              flexDirection:   "column",
-              alignItems:      "center",
-              paddingTop:      "8px",
-              gap:             "2px",
-              overflowY:       "auto",
-              scrollbarWidth:  "none",
-            }}
-          >
-            {/* Header */}
-            <div style={{
-              color:         C.amber,
-              fontSize:      "9px",
-              fontWeight:    700,
-              letterSpacing: "0.1em",
-              textTransform: "uppercase",
-              writingMode:   "vertical-rl",
-              textOrientation: "mixed",
-              padding:       "4px 0 8px",
-              userSelect:    "none",
-            }}>
-              ★
-            </div>
-
-            {/* Starred unit tabs */}
-            {starredUnits.map((name) => {
-              const abbr = name.split(/\s+/).map(w => w.slice(0, 3)).join("").slice(0, 6).toUpperCase();
-              return (
-                <button
-                  key={name}
-                  onClick={() => handleStarClick(name)}
-                  title={name}
-                  style={{
-                    writingMode:     "vertical-rl",
-                    textOrientation: "mixed",
-                    background:      "transparent",
-                    border:          `1px solid ${C.border}`,
-                    color:           C.mid,
-                    fontSize:        "10px",
-                    fontFamily:      "inherit",
-                    fontWeight:      600,
-                    letterSpacing:   "0.06em",
-                    padding:         "8px 4px",
-                    cursor:          "pointer",
-                    userSelect:      "none",
-                    whiteSpace:      "nowrap",
-                    transition:      "all 0.1s",
-                  }}
-                  onMouseEnter={e => {
-                    e.currentTarget.style.borderColor = C.amber;
-                    e.currentTarget.style.color       = C.amber;
-                    e.currentTarget.style.background  = "rgba(255,163,40,0.06)";
-                  }}
-                  onMouseLeave={e => {
-                    e.currentTarget.style.borderColor = C.border;
-                    e.currentTarget.style.color       = C.mid;
-                    e.currentTarget.style.background  = "transparent";
-                  }}
-                >
-                  {abbr}
-                </button>
-              );
-            })}
-          </div>
-        )}
+        {/* ── MY UNITS quick-jump rail ── */}
+        <SpecShortlistRail
+          starredUnits={starredUnits}
+          onJump={handleStarClick}
+          onRemove={toggleStar}
+        />
       </div>
     </div>
   );
