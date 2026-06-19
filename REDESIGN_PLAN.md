@@ -2,7 +2,7 @@
 
 **Source:** `design_handoff_combat_terminal_redesign/` (16 `.dc.html` mockups + README spec)
 **Target:** existing React/Vite app in `render/web/src/`
-**Status:** Phases 0–3 COMPLETE & validated. Phases 4–7 pending. Decisions A/B/C/H resolved (A: exact mockup look, kept themeable · B: solid bar variant · C: mobile out of scope · H: 11TH ED cosmetic).
+**Status:** Phases 0–4 COMPLETE & validated. Phases 5–7 pending. Decisions A/B/C/H resolved (A: exact mockup look, kept themeable · B: solid bar variant · C: mobile out of scope · H: 11TH ED cosmetic).
 **Drafted:** 2026-06-18 · Updated: 2026-06-19
 
 ---
@@ -168,7 +168,17 @@ Dependency order. Each phase ends with a verification gate (§5). Phases 3–7 a
 
 ---
 
-### Phase 4 — Units Database *(the one big new build)*
+### Phase 4 — Units Database ✅ COMPLETE (2026-06-19)
+
+**Shipped:** the headline interactive screen. `UnitListRich` lifted out of `TerminalBlock.jsx` into **new `components/UnitListRich.jsx`** and rebuilt to the `List Units` mockup, plus **new `components/UnitListFilters.jsx`** (the left rail). The block now renders a bordered "UNIT DATABASE" panel in the stream: title + search + **★ Shortlist (N)** toggle → `236px 1fr` grid of [filter rail | results]. *Filter rail* — Faction select (options derived from the factions actually in the payload), **Roster filter** (real saved rosters via `fetchRosters`; on select fetches the roster and runs the existing `parseRosterUnits` to resolve member names, all defensively wrapped → fails to a no-op "All units" if the store is offline or the shape is odd), **Points min/max sliders** (bounds derived from the result set, step 5, null-points units always pass), **Keyword chips** (cyan, AND-matched), **Role chips** (green, OR-matched), Reset. *Results* — "N of M units" + ★ SHORTLIST VIEW badge + SORT dropdown (Points ↓/↑ · Name · Wounds ↓, nulls sort last); rows recreate the mockup exactly (★ star, name, faction-tinted tag, role, cyan rule chips capped at 6 +N, M/T/Sv/W/OC stat strip, Chakra points hero) ; `⊘` empty state; **results area scrolls internally (max 560px)** so a 1300-row `list units` stays a sane block and the rail stays put. Row click → `onInject('spec <name>')` (no router, no `?unit=`). **Star binds to the real `ct_starred_units` string[]** — prop-threaded in the Units context (keeps the ★ MY UNITS rail in sync), else self-managed via localStorage + the `ct-state-changed` event in any other context. Faction tints flow through `factionColor()` + `color-mix` (themeable; degrades to plain text colour if unsupported). Mockup's `ct_units_shortlist` / `route()` / fake `units()` ignored per constraints.
+
+**One additive data line (Phase-1 precedent):** `loader.get_list` units branch now also surfaces per-unit `M`, `OC`, `role`, and `keywords` (aggregated, de-noised combat-rule keywords harvested from `weapons[].keywords` — underscore/threshold/die variants merged, mashed entries split, platform noise dropped: 67 raw → 34 clean). Purely additive keys; the CLI `unit_list_rich` renderer reads only name/T/W/legends/forgeworld, so it's unaffected.
+
+**Verified:** esbuild parse of all 3 changed/new JS files + full import-graph bundle from `App.jsx` **and** the `UnitListRich` subtree (resolves `@/lib/shared-rosters` + `@/lib/rosterParse`) — clean, **no warnings**. **159 Python tests pass** (loader + combat math) after the additive `get_list` change. Live `vite build`/browser screenshot still pending on the dev machine (sandbox mount limit); a faithful static HTML preview at the exact default-theme tokens was generated for eyeballing. Holistic visual pass scheduled after all phases land.
+
+**Deferred / noted:** roster-membership matching is by normalised exact name (best-effort; under-matches rather than crashes if a roster's unit names diverge from DB canon). Logged to `BACKLOG.md`. Also logged: a pre-existing Phase-3 `SpecBannerCard` `textShadow: \`…${nameColor}55\`` no-op (can't append alpha hex to a `var()`), for the visual fix pass.
+
+### Phase 4 — Units Database *(the one big new build)* — original spec below
 
 **Target:** `UnitListRich` is currently **inline in `TerminalBlock.jsx`** (no filtering UI — units are filtered by typing commands).
 

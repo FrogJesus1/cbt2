@@ -48,6 +48,57 @@ def _normalise(s: str) -> str:
     return "".join(c for c in nfd if unicodedata.category(c) != "Mn").lower()
 
 
+# Weapon-keyword tokens that are platform/profile artifacts rather than the
+# combat-rule keywords the Units DB filters on. Dropped from the aggregated list.
+_KW_NOISE = frozenset({"PISTOL", "ONE SHOT", "EXTRA ATTACKS", "MELEE"})
+
+
+def _unit_rule_keywords(unit: dict) -> list[str]:
+    """Aggregate the distinct combat-rule keywords carried by a unit's weapons.
+
+    Used by the rich unit list (Units DB filter chips + per-row rule chips).
+    Weapon keyword arrays look like ["RAPID FIRE 2"], ["ANTI-FLY 2+"],
+    ["DEVASTATING WOUNDS"], occasionally prefixed with a stray "KEYWORDS:".
+    We normalise to the bare rule (strip the trailing numeric/threshold token and
+    any "KEYWORDS:" artifact), uppercase, drop platform-noise tokens, and return
+    a sorted unique list. Purely additive — never raises on odd shapes.
+    """
+    out: set[str] = set()
+    for w in (unit.get("weapons") or []):
+        if not isinstance(w, dict):
+            continue
+        kws = w.get("keywords")
+        if isinstance(kws, str):
+            kws = [kws]
+        for kw in (kws or []):
+            raw = str(kw).strip()
+            if not raw:
+                continue
+            # Strip a stray "KEYWORDS:" label artifact from the parser.
+            raw = re.sub(r"^keywords:\s*", "", raw, flags=re.IGNORECASE)
+            # Some entries mash two keywords together ("IGNORES COVER. TORRENT") —
+            # split on sentence punctuation so each becomes its own chip.
+            for piece in re.split(r"[.;,]", raw):
+                s = piece
+                # Underscored variants ("DEVASTATING_WOUNDS", "RAPID_FIRE_2") → spaces,
+                # so they merge with the space-delimited form.
+                s = s.replace("_", " ")
+                # Strip a trailing rating token — number ("RAPID FIRE 2"), threshold
+                # ("ANTI-FLY 2+"), or die value ("SUSTAINED HITS D3", "...D3+3") — so the
+                # rated and bare forms merge into one filter chip.
+                s = re.sub(r"\s+D?\d+\+?\d*$", "", s)
+                # Collapse whitespace, normalise " -" spacing, uppercase.
+                s = re.sub(r"\s+", " ", s).replace(" -", "-").strip().upper()
+                # Canonicalise hyphenated families so underscore/space variants merge
+                # ("ANTI INFANTRY" -> "ANTI-INFANTRY", "TWIN LINKED" -> "TWIN-LINKED").
+                s = re.sub(r"^ANTI ", "ANTI-", s)
+                if s == "TWIN LINKED":
+                    s = "TWIN-LINKED"
+                if s and s not in _KW_NOISE:
+                    out.add(s)
+    return sorted(out)
+
+
 class CombatTerminalLoader:
 
     # Category tags whose `name` field is the tag type and `summary` is the ability name.
@@ -1087,10 +1138,14 @@ class CombatTerminalLoader:
                     results.append({
                         "name":       unit.get("name", "?"),
                         "faction":    faction_name,
+                        "role":       unit.get("role") or "",
+                        "M":          unit.get("M") or stats.get("M") or "—",
                         "T":          unit.get("T") or stats.get("T") or "—",
-                        "W":          unit.get("W") or stats.get("W") or "—",
                         "Sv":         unit.get("Sv") or stats.get("Sv") or "—",
+                        "W":          unit.get("W") or stats.get("W") or "—",
+                        "OC":         unit.get("OC") or stats.get("OC") or "—",
                         "points":     unit.get("points") or unit.get("points_per_model") or "—",
+                        "keywords":   _unit_rule_keywords(unit),
                         "abilities":  unit.get("abilities", []),
                         "legends":    bool(unit.get("legends")),
                         "forgeworld": bool(unit.get("forgeworld")),
