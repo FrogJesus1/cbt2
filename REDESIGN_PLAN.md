@@ -2,7 +2,7 @@
 
 **Source:** `design_handoff_combat_terminal_redesign/` (16 `.dc.html` mockups + README spec)
 **Target:** existing React/Vite app in `render/web/src/`
-**Status:** Phases 0–1 COMPLETE & validated. Phases 2–7 pending. Decisions A/B/C/H resolved (A: exact mockup look, kept themeable · B: solid bar variant · C: mobile out of scope · H: 11TH ED cosmetic).
+**Status:** Phases 0–2 COMPLETE & validated. Phases 3–7 pending. Decisions A/B/C/H resolved (A: exact mockup look, kept themeable · B: solid bar variant · C: mobile out of scope · H: 11TH ED cosmetic).
 **Drafted:** 2026-06-18 · Updated: 2026-06-19
 
 ---
@@ -124,7 +124,13 @@ Dependency order. Each phase ends with a verification gate (§5). Phases 3–7 a
 
 ---
 
-### Phase 2 — Combat Home + landing
+### Phase 2 — Combat Home + landing ✅ COMPLETE (2026-06-19)
+
+**Shipped:** new `components/CombatHome.jsx` — the mockup landing recreated as the `main` empty-state. Hero (⚡ COMBAT TERMINAL + tagline + right-aligned **live** readouts: `● MC ACTIVE`/`● DETERMINISTIC`/`○ OFFLINE` from `/api/engines/{id}/status` `simulation_mode`+`ready`, and `N factions` from `/api/factions`) → **Quick Start** `SectionHeader` (accent=text label + gold hazard rule) + 3-col grid of 6 cards (Run Combat/Unit Datasheet/Threat/Unit Database/Rosters/Rules), each runs its example command via `onRun`→`handleAnimatedInject` (no router, no mockup `route()`/`run()`) → **Command History** panel hydrated from App's `cmdHistory` (`ct_cmd_history`) with ★ pin, click-to-edit (populate bar), `▸ Run` (animate+submit), ✕ delete, and a "No history yet" empty state. Type badges derive COMBAT(green)/THREAT(red)/SPEC(cyan)/CMD(dim) from the input. `Terminal.jsx`: replaced the old inline QUICK START guide with `<CombatHome/>` under the existing `contextId==="main" && stream.length===0` gate (first result swaps Home → stream; `clear` brings Home back), threaded `cmdHistory`/`onHistoryStar`/`onHistoryDelete` props (reusing `onInject`/`onEdit`), and suppressed the ASCII boot splash while Home shows (the hero is the banner). `App.jsx`: passes `cmdHistory`+`handleHistoryStar`+`handleHistoryDelete` to the main Terminal. Fully themeable (all `C.*`/CSS vars; only the two decorative card-glyph tints — Rosters purple `#a78bdb`, Rules slate `#8fb0c4` — are intentionally fixed, non-semantic).
+
+**Decision (Home swap):** resolved per the plan's recommendation — **Home IS the `main` empty-state**; it lives exactly where the old quick-start guide did, so the existing stream gate handles the swap with zero new state. Not asked as a fork (pre-resolved + architecturally natural).
+
+**Verified:** esbuild parse of all 3 changed files (CombatHome new, Terminal, App) + full local import-graph bundle from `App.jsx` resolves clean, **no warnings**. **159 Python tests pass** (loader + combat math) — no `.py` touched, so the suite is unaffected by construction. Live `vite build`/browser screenshot still pending on the dev machine (sandbox mount limit). A faithful static HTML preview at the exact default-theme tokens was generated for eyeballing.
 
 **Target:** the `main` context. Today it boots into an empty terminal stream.
 

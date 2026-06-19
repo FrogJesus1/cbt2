@@ -1290,6 +1290,9 @@ function AppInner({ profile, onLogout }) {
               onScrollComplete={() => setScrollToId(null)}
               pendingCommand={pendingCommands.main}
               onPendingCommandConsumed={makeConsumed("main")}
+              cmdHistory={cmdHistory}
+              onHistoryStar={handleHistoryStar}
+              onHistoryDelete={handleHistoryDelete}
             />
           ) : (
             <div

@@ -19,6 +19,7 @@
 
 import { useState, useEffect, useRef, useCallback } from "react";
 import { TerminalBlock } from "./TerminalBlock";
+import { CombatHome } from "./CombatHome";
 import {
   listCampaigns, createCampaign, getCampaign, getCampaignCount,
   slugify,
@@ -185,6 +186,10 @@ export function Terminal({
   starredUnits,    // string[] — names of starred units (for spec star toggle)
   onToggleStar,    // (unitName: string) → void — toggle star on a unit
   profileName,     // string — logged-in user's name (for shared roster uploads)
+  // ── Combat Home (main empty-state) — supplied only to the main terminal ──
+  cmdHistory,      // [{ key, input, starred, streamId }] — ct_cmd_history (App state)
+  onHistoryStar,   // (key) → void — pin/unpin a history entry
+  onHistoryDelete, // (key) → void — remove a history entry
 }) {
   const [stream,         setStream]         = useState([]);
   const [cmdHist,        setCmdHist]        = useState([]);
@@ -1604,108 +1609,35 @@ export function Terminal({
           reader.readAsText(file);
         }}
       >
-        {/* Boot splash */}
-        <div className="space-y-0 mb-3">
-          {(contextBootLines || BOOT_LINES).map((line, i) => (
-            <div
-              key={`boot-${i}`}
-              className="font-mono whitespace-pre leading-6"
-              style={{
-                color:    i < 3 ? "var(--ct-primary-mid)" : "var(--ct-primary-dim)",
-                fontSize: "14px",
-              }}
-            >
-              {line || "\u00A0"}
-            </div>
-          ))}
-        </div>
-
-        {/* Quick-start guide \u2014 main context only, hidden once commands are entered */}
-        {contextId === "main" && stream.length === 0 && (() => {
-          const cmdStyle = {
-            color: "var(--ct-accent, var(--ct-primary-bright))",
-            cursor: "pointer",
-            background: "rgba(var(--ct-glow-rgb),0.06)",
-            padding: "2px 8px",
-            borderRadius: "3px",
-            border: "1px solid rgba(var(--ct-glow-rgb),0.15)",
-          };
-          const labelStyle = {
-            color: "var(--ct-primary-dim)",
-            fontSize: "11px",
-            letterSpacing: "0.04em",
-            display: "block",
-            marginBottom: "3px",
-          };
-          return (
-            <div
-              style={{
-                border:       "1px solid var(--ct-border)",
-                borderRadius: "6px",
-                padding:      "14px 18px",
-                marginBottom: "16px",
-                background:   "var(--ct-bg-dark)",
-                fontSize:     "13px",
-                fontFamily:   "var(--ct-font-mono, monospace)",
-                color:        "var(--ct-primary-dim)",
-                lineHeight:   "1.6",
-              }}
-            >
-              <div style={{ color: "var(--ct-primary-mid)", fontWeight: 600, marginBottom: "12px", fontSize: "13px", letterSpacing: "0.1em" }}>
-                QUICK START
+        {/* Boot splash \u2014 hidden on the Combat Home landing (the hero is the banner there) */}
+        {!(contextId === "main" && stream.length === 0) && (
+          <div className="space-y-0 mb-3">
+            {(contextBootLines || BOOT_LINES).map((line, i) => (
+              <div
+                key={`boot-${i}`}
+                className="font-mono whitespace-pre leading-6"
+                style={{
+                  color:    i < 3 ? "var(--ct-primary-mid)" : "var(--ct-primary-dim)",
+                  fontSize: "14px",
+                }}
+              >
+                {line || "\u00A0"}
               </div>
+            ))}
+          </div>
+        )}
 
-              {/* Example commands */}
-              <div style={{ display: "flex", flexDirection: "column", gap: "10px", marginBottom: "12px" }}>
-
-                <div>
-                  <span style={labelStyle}>Compare units</span>
-                  <span onClick={() => onInject?.("crisis suits vs terminators")} style={cmdStyle}>
-                    crisis suits vs terminators
-                  </span>
-                </div>
-
-                <div>
-                  <span style={labelStyle}>Look up a datasheet</span>
-                  <span onClick={() => onInject?.("spec riptide")} style={cmdStyle}>
-                    spec riptide
-                  </span>
-                </div>
-
-                <div>
-                  <span style={labelStyle}>Add modifiers to combat</span>
-                  <span style={{ ...cmdStyle, cursor: "default" }}>
-                    crisis suits vs terminators --cover --lethal
-                  </span>
-                </div>
-
-                <div>
-                  <span style={labelStyle}>See all available modifiers</span>
-                  <span onClick={() => onInject?.("modifiers")} style={cmdStyle}>
-                    modifiers
-                  </span>
-                </div>
-
-              </div>
-
-              {/* Divider */}
-              <div style={{ borderBottom: "1px solid var(--ct-border)", opacity: 0.3, margin: "10px 0" }} />
-
-              {/* Tips */}
-              <div style={{ color: "var(--ct-primary-dim)", fontSize: "12px", opacity: 0.8, lineHeight: "1.8" }}>
-                <div>
-                  Click on <span style={{ color: "var(--ct-primary-bright)" }}>modifiers</span> or <span style={{ color: "var(--ct-primary-bright)" }}>weapon profiles</span> in results to hide them.
-                </div>
-                <div>
-                  Click the <span style={{ color: "var(--ct-primary-bright)" }}>edit icon</span> on any past command to tweak and re-run it.
-                </div>
-                <div>
-                  Type <span onClick={() => onInject?.("clear")} style={{ ...cmdStyle, fontSize: "12px", padding: "1px 6px" }}>clear</span> to reset the terminal.
-                </div>
-              </div>
-            </div>
-          );
-        })()}
+        {/* Combat Home landing \u2014 main context only, replaced by the stream on first result */}
+        {contextId === "main" && stream.length === 0 && (
+          <CombatHome
+            engineId={engineId}
+            cmdHistory={cmdHistory || []}
+            onRun={onInject}
+            onEdit={onEdit}
+            onHistoryStar={onHistoryStar}
+            onHistoryDelete={onHistoryDelete}
+          />
+        )}
 
         {/* Command + result stream */}
         <div className="space-y-0">
