@@ -12,10 +12,11 @@
  *   → Back to dashboard
  */
 
-import { useState, useEffect, useCallback, useRef } from "react";
+import { useState, useEffect, useCallback, useRef, useMemo } from "react";
 import {
   listCampaigns, getCampaignCount,
 } from "@/lib/vfs";
+import { parseRosterUnits } from "@/lib/rosterParse";
 import {
   fetchRostersGrouped, uploadRoster, deleteSharedRoster, labelify,
 } from "@/lib/shared-rosters";
@@ -24,7 +25,8 @@ import { Pattern } from "@/components/ui/file-upload";
 
 // ─── Colour palette ──────────────────────────────────────────────────────────
 
-import { C } from "./shared/colors";
+import { C, factionColor } from "./shared/colors";
+import { SectionHeader } from "./shared/constants";
 
 // ─── Clickable chip ──────────────────────────────────────────────────────────
 
@@ -50,29 +52,6 @@ function ActionChip({ label, onClick, color = C.cyan, hoverColor = C.green, disa
     >
       {label}
     </span>
-  );
-}
-
-// ─── Section header ──────────────────────────────────────────────────────────
-
-function SectionHeader({ title, subtitle }) {
-  return (
-    <div style={{
-      display: "flex", alignItems: "baseline", gap: "10px", marginBottom: "8px",
-    }}>
-      <span style={{
-        color: C.amber, fontWeight: 700, fontSize: "13px",
-        textTransform: "uppercase", letterSpacing: "0.1em",
-        fontFamily: "monospace",
-      }}>
-        {title}
-      </span>
-      {subtitle && (
-        <span style={{ color: C.dim, fontSize: "11px", fontFamily: "monospace" }}>
-          {subtitle}
-        </span>
-      )}
-    </div>
   );
 }
 
@@ -221,24 +200,24 @@ function ArmyPanel({ roster, side, onUpload, onInject }) {
 
   return (
     <div style={{
-      flex: 1, padding: "10px 14px", background: C.panel,
-      border: `1px solid ${C.border}`, minWidth: "200px",
+      padding: "12px 14px", background: C.panel, borderRadius: "5px",
+      border: `1px solid ${hasUnits ? sideColor + "55" : C.border}`,
+      minWidth: "200px",
+      boxShadow: hasUnits ? `inset 2px 0 0 ${sideColor}` : "none",
     }}>
       <div style={{
         display: "flex", justifyContent: "space-between", alignItems: "baseline",
-        marginBottom: "8px", paddingBottom: "6px", borderBottom: `1px solid ${C.border}`,
+        marginBottom: "8px", paddingBottom: "8px", borderBottom: `1px solid ${C.border}`,
       }}>
         <div style={{ display: "flex", alignItems: "center", gap: "8px" }}>
-          <span style={{
+          <span className="ct-display" style={{
             color: sideColor, fontSize: "9px", letterSpacing: "0.16em",
-            textTransform: "uppercase", border: `1px solid ${sideColor}50`,
-            padding: "1px 5px", fontFamily: "monospace",
+            border: `1px solid ${sideColor}50`, padding: "2px 5px",
           }}>
             {side}
           </span>
-          <span style={{
-            color: C.green, fontWeight: 700, fontSize: "13px",
-            textTransform: "uppercase", letterSpacing: "0.06em", fontFamily: "monospace",
+          <span className="ct-display" style={{
+            color: name ? C.text : C.dim, fontSize: "14px", letterSpacing: "0.04em",
           }}>
             {name || "—"}
           </span>
@@ -432,26 +411,173 @@ function ArmyPanel({ roster, side, onUpload, onInject }) {
   );
 }
 
+// ─── Upload step rail ────────────────────────────────────────────────────────
+// Visual progress indicator: PASTE → DETAILS → LOAD → DONE.
+
+const UPLOAD_STAGES = ["PASTE", "DETAILS", "LOAD", "DONE"];
+
+function StepRail({ active }) {
+  return (
+    <div style={{ display: "flex", alignItems: "center", gap: "6px", marginBottom: "16px", flexWrap: "wrap" }}>
+      {UPLOAD_STAGES.map((label, i) => {
+        const done = i < active, cur = i === active;
+        const color = cur ? C.green : done ? C.cyan : C.dim;
+        return (
+          <div key={label} style={{ display: "flex", alignItems: "center", gap: "6px" }}>
+            <span className="ct-display" style={{
+              fontSize: "9px", letterSpacing: "0.12em", color,
+              border: `1px solid ${cur ? C.green + "70" : done ? C.cyan + "40" : C.border}`,
+              padding: "2px 8px", borderRadius: "3px",
+              background: cur ? "var(--ct-bg-dark)" : "transparent",
+            }}>
+              {done ? "✓ " : ""}{label}
+            </span>
+            {i < UPLOAD_STAGES.length - 1 && <span style={{ color: C.border, fontSize: "10px" }}>›</span>}
+          </div>
+        );
+      })}
+    </div>
+  );
+}
+
+// ─── Unit-review editor ──────────────────────────────────────────────────────
+// On the Details step, the pasted roster is parsed (shared parseRosterUnits) so
+// the user can set per-unit nicknames and leader→bodyguard attachments before
+// loading. Edits persist via the existing /api/rosters/save-metadata endpoint
+// (same `# @nickname:` / `# @attach:` line format the dashboard uses) — no new
+// data store. Leader status is shown as parsed (derived from the CharN: prefix).
+
+function UnitReview({ units, nicks, attach, onNick, onAttach }) {
+  const bodyguards = units.map((u, i) => ({ u, i })).filter(({ u }) => !u.is_leader);
+  return (
+    <div style={{ marginTop: "4px" }}>
+      <div style={{ color: C.dim, fontSize: "10px", fontFamily: "monospace", letterSpacing: "0.08em", marginBottom: "6px" }}>
+        REVIEW UNITS <span style={{ color: C.border }}>· {units.length}</span>
+      </div>
+      <div style={{
+        maxHeight: "240px", overflowY: "auto", border: `1px solid ${C.border}`,
+        background: C.bgDark, padding: "6px 8px",
+        display: "flex", flexDirection: "column", gap: "3px",
+      }}>
+        {units.map((u, i) => (
+          <div key={i} style={{ display: "flex", alignItems: "center", gap: "8px", padding: "2px 0" }}>
+            <span style={{
+              color: u.is_leader ? C.amber : C.mid, fontSize: "12px", fontFamily: "monospace",
+              fontWeight: u.is_leader ? 600 : 400, flex: "1 1 40%", minWidth: 0,
+              whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis",
+            }}>
+              {u.is_leader ? "★ " : ""}{u.models > 1 ? `${u.models}× ` : ""}{u.name}
+            </span>
+            <input
+              value={nicks[i] || ""}
+              onChange={e => onNick(i, e.target.value)}
+              placeholder="nickname"
+              maxLength={20}
+              style={{
+                flex: "0 0 110px", background: C.bg, color: C.green,
+                border: `1px solid ${C.border}`, fontSize: "11px", fontFamily: "monospace",
+                padding: "2px 6px", outline: "none",
+              }}
+            />
+            {u.is_leader ? (
+              <select
+                value={attach[i] ?? ""}
+                onChange={e => onAttach(i, e.target.value)}
+                style={{
+                  flex: "0 0 130px", background: C.bg, color: attach[i] != null ? C.cyan : C.dim,
+                  border: `1px solid ${C.border}`, fontSize: "11px", fontFamily: "monospace",
+                  padding: "2px 4px", outline: "none", cursor: "pointer",
+                }}
+              >
+                <option value="">— attach to —</option>
+                {bodyguards.map(({ u: bg, i: bgIdx }) => (
+                  <option key={bgIdx} value={bgIdx}>{bg.name}{nicks[bgIdx] ? ` (${nicks[bgIdx]})` : ""}</option>
+                ))}
+              </select>
+            ) : (
+              <span style={{ flex: "0 0 130px" }} />
+            )}
+          </div>
+        ))}
+      </div>
+    </div>
+  );
+}
+
 // ─── Inline upload flow ─────────────────────────────────────────────────────
 //
-// Steps: paste → faction (if unsure) → name → role (player/enemy/save)
+// Steps: paste → faction (if unsure) → name+review → role → done
+//   onLoad(name, role)  → load now, keep the flow open for the Done confirmation
+//   onComplete()        → close the flow and return to the dashboard
 
-function UploadFlow({ mode, engineId, profileName, onComplete, onCancel }) {
-  const [step, setStep]             = useState("paste");   // paste | faction | name | role
+function UploadFlow({ mode, engineId, profileName, onLoad, onComplete, onCancel }) {
+  const [step, setStep]             = useState("paste");   // paste | faction | name | role | done
   const [content, setContent]       = useState(null);
   const [faction, setFaction]       = useState(null);
   const [allFactions, setAllFactions] = useState([]);
   const [rosterName, setRosterName] = useState("");
   const [error, setError]           = useState(null);
   const [saving, setSaving]         = useState(false);
+  const [reviewNicks, setReviewNicks]   = useState({});   // idx → nickname
+  const [reviewAttach, setReviewAttach] = useState({});   // leaderIdx → bodyguardIdx
+  const [loadedRole, setLoadedRole]     = useState(null); // for the Done step
   const pasteRef  = useRef(null);
   const nameRef   = useRef(null);
+
+  // Parse the pasted roster for the review editor (graceful [] if unparseable).
+  const parsedUnits = useMemo(
+    () => (content ? parseRosterUnits({ faction: faction || "", content }) : []),
+    [content, faction]
+  );
+
+  const railActive = step === "paste" ? 0
+    : (step === "faction" || step === "name") ? 1
+    : step === "role" ? 2 : 3;
 
   // Auto-focus
   useEffect(() => {
     if (step === "paste")   setTimeout(() => pasteRef.current?.focus(), 50);
     if (step === "name")    setTimeout(() => nameRef.current?.focus(), 50);
   }, [step]);
+
+  // Seed the review editor from parsed metadata once we reach the Details step.
+  useEffect(() => {
+    if (step !== "name" || parsedUnits.length === 0) return;
+    setReviewNicks(prev => {
+      if (Object.keys(prev).length) return prev;
+      const n = {};
+      parsedUnits.forEach((u, i) => { if (u.nickname) n[i] = u.nickname; });
+      return n;
+    });
+    setReviewAttach(prev => {
+      if (Object.keys(prev).length) return prev;
+      const a = {};
+      parsedUnits.forEach((u, i) => { if (u.is_leader && u.attached_idx != null) a[i] = u.attached_idx; });
+      return a;
+    });
+  }, [step, parsedUnits]);
+
+  const setNick = (idx, val) =>
+    setReviewNicks(p => { const n = { ...p }; if (val) n[idx] = val; else delete n[idx]; return n; });
+  const setAttach = (idx, val) =>
+    setReviewAttach(p => { const a = { ...p }; if (val === "") delete a[idx]; else a[idx] = parseInt(val, 10); return a; });
+
+  // Assemble + persist review metadata via the existing endpoint (best-effort).
+  const persistReview = (name) => {
+    const lines = [];
+    for (const [idx, nick] of Object.entries(reviewNicks)) {
+      if (nick && nick.trim()) lines.push(`# @nickname:${idx}:${nick.trim()}`);
+    }
+    for (const [lead, bg] of Object.entries(reviewAttach)) {
+      if (bg != null && bg !== "") lines.push(`# @attach:${lead}:${bg}`);
+    }
+    if (!lines.length) return;
+    fetch("/api/rosters/save-metadata", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ name, metadata: lines.join("\n") }),
+    }).catch(() => {}); // localStorage/dashboard remains the fallback
+  };
 
   // Detect faction from content
   async function processContent(text) {
@@ -537,6 +663,7 @@ function UploadFlow({ mode, engineId, profileName, onComplete, onCancel }) {
     setError(null);
     try {
       await uploadRoster(name, faction, content, profileName || "unknown");
+      persistReview(name);            // best-effort nickname/attach metadata
       setStep("role");
       setSaving(false);
     } catch (err) {
@@ -545,9 +672,13 @@ function UploadFlow({ mode, engineId, profileName, onComplete, onCancel }) {
     }
   }
 
-  // Handle role selection
+  // Handle role selection — load now (if applicable) and advance to the Done
+  // confirmation. The flow stays open so the user sees the outcome.
   function handleRole(role) {
-    onComplete?.(rosterName.trim(), faction, role); // role: "player" | "enemy" | "save"
+    const name = rosterName.trim();
+    setLoadedRole(role);             // role: "player" | "enemy" | "save"
+    if (role === "player" || role === "enemy") onLoad?.(name, role);
+    setStep("done");
   }
 
   const F = { fontFamily: "monospace" };
@@ -565,8 +696,9 @@ function UploadFlow({ mode, engineId, profileName, onComplete, onCancel }) {
   if (step === "paste") {
     return (
       <div style={boxStyle}>
+        <StepRail active={railActive} />
         <div style={headerStyle}>
-          <span style={titleStyle}>UPLOAD ROSTER</span>
+          <span className="ct-display" style={titleStyle}>UPLOAD ROSTER</span>
           <ActionChip label="cancel" onClick={onCancel} color={C.dim} />
         </div>
 
@@ -604,8 +736,9 @@ function UploadFlow({ mode, engineId, profileName, onComplete, onCancel }) {
   if (step === "faction") {
     return (
       <div style={boxStyle}>
+        <StepRail active={railActive} />
         <div style={headerStyle}>
-          <span style={titleStyle}>SELECT FACTION</span>
+          <span className="ct-display" style={titleStyle}>SELECT FACTION</span>
           <ActionChip label="cancel" onClick={onCancel} color={C.dim} />
         </div>
         <div style={{ color: C.dim, fontSize: "11px", marginBottom: "10px" }}>
@@ -659,12 +792,14 @@ function UploadFlow({ mode, engineId, profileName, onComplete, onCancel }) {
   if (step === "name") {
     return (
       <div style={boxStyle}>
+        <StepRail active={railActive} />
         <div style={headerStyle}>
-          <span style={titleStyle}>NAME THIS ROSTER</span>
+          <span className="ct-display" style={titleStyle}>ROSTER DETAILS</span>
           <ActionChip label="cancel" onClick={onCancel} color={C.dim} />
         </div>
-        <div style={{ color: C.dim, fontSize: "11px", marginBottom: "10px" }}>
-          Faction: <span style={{ color: C.amber }}>{labelify(faction)}</span>
+        <div style={{ color: C.dim, fontSize: "11px", marginBottom: "10px", display: "flex", alignItems: "center", gap: "6px" }}>
+          <span style={{ width: "7px", height: "7px", borderRadius: "50%", background: factionColor(faction) }} />
+          Faction: <span style={{ color: C.accent }}>{labelify(faction)}</span>
         </div>
         <form onSubmit={handleNameSubmit} style={{ display: "flex", gap: "8px" }}>
           <input
@@ -686,8 +821,14 @@ function UploadFlow({ mode, engineId, profileName, onComplete, onCancel }) {
             color: C.green, padding: "8px 14px", fontSize: "12px",
             ...F, letterSpacing: "0.1em", cursor: saving ? "wait" : "pointer",
             opacity: saving ? 0.4 : 1,
-          }}>{saving ? "…" : "SAVE"}</button>
+          }}>{saving ? "…" : "SAVE & LOAD"}</button>
         </form>
+        {parsedUnits.length > 0 && (
+          <UnitReview
+            units={parsedUnits} nicks={reviewNicks} attach={reviewAttach}
+            onNick={setNick} onAttach={setAttach}
+          />
+        )}
         {error && <div style={{ color: C.red, fontSize: "12px", marginTop: "8px" }}>{error}</div>}
       </div>
     );
@@ -698,20 +839,44 @@ function UploadFlow({ mode, engineId, profileName, onComplete, onCancel }) {
   if (step === "role") {
     return (
       <div style={boxStyle}>
+        <StepRail active={railActive} />
         <div style={headerStyle}>
-          <span style={titleStyle}>ROSTER SAVED</span>
+          <span className="ct-display" style={titleStyle}>LOAD ROSTER</span>
         </div>
         <div style={{ color: C.green, fontSize: "12px", marginBottom: "4px" }}>
-          ✓ {rosterName} ({labelify(faction)}) uploaded
+          ✓ {rosterName} ({labelify(faction)}) saved to the library
         </div>
         <div style={{ color: C.dim, fontSize: "11px", marginBottom: "14px" }}>
-          Load this roster now?
+          Bring it into the current battle?
         </div>
         <div style={{ display: "flex", gap: "8px" }}>
           <ActionChip label="load as player" onClick={() => handleRole("player")} color={C.cyan} />
           <ActionChip label="load as enemy" onClick={() => handleRole("enemy")} color={C.amber} />
           <ActionChip label="just save" onClick={() => handleRole("save")} color={C.dim} />
         </div>
+      </div>
+    );
+  }
+
+  // ── Step 5: Done ────────────────────────────────────────────────────────
+  if (step === "done") {
+    const loaded = loadedRole === "player" || loadedRole === "enemy";
+    const tint = loadedRole === "player" ? C.cyan : loadedRole === "enemy" ? C.amber : C.green;
+    return (
+      <div style={boxStyle}>
+        <StepRail active={railActive} />
+        <div style={headerStyle}>
+          <span className="ct-display" style={titleStyle}>DONE</span>
+        </div>
+        <div className="ct-display" style={{ color: tint, fontSize: "16px", marginBottom: "8px", letterSpacing: "0.04em" }}>
+          ✓ {loaded ? `LOADED AS ${loadedRole.toUpperCase()}` : "SAVED TO LIBRARY"}
+        </div>
+        <div style={{ color: C.dim, fontSize: "11px", marginBottom: "16px", lineHeight: 1.6 }}>
+          {loaded
+            ? <><span style={{ color: C.text }}>{rosterName}</span> is now the {loadedRole} army. Run a <span style={{ color: C.green }}>combat</span> command to use it.</>
+            : <><span style={{ color: C.text }}>{rosterName}</span> is in the shared library. Load it any time from the dashboard.</>}
+        </div>
+        <ActionChip label="← back to rosters" onClick={() => onComplete?.()} color={C.green} />
       </div>
     );
   }
@@ -765,7 +930,7 @@ function SavedRostersSection({ onInject, onRefresh, refreshKey }) {
 
   return (
     <div>
-      <SectionHeader title="Shared Rosters" subtitle={loading ? "loading…" : `${rosterCount} saved`} />
+      <SectionHeader hint={loading ? "loading…" : `${rosterCount} saved`}>SHARED ROSTERS</SectionHeader>
 
       {!loading && rosterCount === 0 && (
         <div style={{ color: C.dim, fontSize: "13px", fontFamily: "monospace", marginBottom: "8px" }}>
@@ -796,7 +961,11 @@ function SavedRostersSection({ onInject, onRefresh, refreshKey }) {
                   <span style={{ color: C.dim, fontSize: "10px", width: "10px", textAlign: "center" }}>
                     {isOpen ? "▾" : "▸"}
                   </span>
-                  <span style={{ color: isOpen ? C.amber : C.mid, flex: 1, fontWeight: 600 }}>
+                  <span style={{
+                    width: "7px", height: "7px", borderRadius: "50%",
+                    background: factionColor(faction), flexShrink: 0,
+                  }} />
+                  <span style={{ color: isOpen ? C.accent : C.mid, flex: 1, fontWeight: 600 }}>
                     {labelify(faction)}
                   </span>
                   <span style={{
@@ -862,7 +1031,7 @@ function CampaignsSection({ onInject }) {
 
   return (
     <div>
-      <SectionHeader title="Campaigns" subtitle={`${campaignCount} saved`} />
+      <SectionHeader hint={`${campaignCount} saved`}>CAMPAIGNS</SectionHeader>
       {campaignCount === 0 ? (
         <div style={{ color: C.dim, fontSize: "13px", fontFamily: "monospace", marginBottom: "8px" }}>
           No campaigns yet.
@@ -951,15 +1120,20 @@ export function RostersContext({ engineId, onExec, onInject, theme, profileName,
     setTimeout(() => { fetchSession(); setTick(t => t + 1); }, 600);
   }, [onInject, fetchSession]);
 
-  // Upload complete — handle role choice
-  const handleUploadComplete = useCallback((name, faction, role) => {
-    setUploadMode(null);
+  // Load a freshly-uploaded roster into the battle, but keep the upload flow
+  // open so it can show its Done confirmation.
+  const handleUploadLoad = useCallback((name, role) => {
     setTick(t => t + 1);
     if (role === "player" || role === "enemy") {
       handleInject(`set roster ${role} ${name}`);
     }
-    // "save" → just close, roster is already saved server-side
   }, [handleInject]);
+
+  // Close the upload flow and return to the dashboard.
+  const handleUploadDone = useCallback(() => {
+    setUploadMode(null);
+    setTick(t => t + 1);
+  }, []);
 
   const handleRefresh = useCallback(() => { setTick(t => t + 1); }, []);
 
@@ -974,19 +1148,18 @@ export function RostersContext({ engineId, onExec, onInject, theme, profileName,
       <div style={{ flex: 1, overflow: "auto", padding: "16px 24px 24px" }}>
 
         <div style={{
-          border: "1px solid var(--ct-border)", borderRadius: "6px",
-          padding: "12px 16px", marginBottom: "16px",
-          background: "var(--ct-bg-dark)", fontSize: "12px",
-          fontFamily: "var(--ct-font-mono, monospace)",
-          color: "var(--ct-primary-dim)", lineHeight: "1.7",
+          borderLeft: `2px solid ${C.cyan}`,
+          padding: "8px 14px", marginBottom: "16px",
+          background: C.bgDark, fontSize: "11px",
+          fontFamily: "monospace", color: C.dim, lineHeight: "1.7",
         }}>
-          <div style={{ color: "var(--ct-primary-mid)", fontWeight: 600, marginBottom: "6px", fontSize: "12px" }}>
-            ⚠ UNDER CONSTRUCTION — BUGS LIKELY
+          <div style={{ color: C.cyan, fontSize: "10px", letterSpacing: "0.08em", marginBottom: "3px" }} className="ct-display">
+            ◉ ROSTER-SCOPED COMBAT
           </div>
-          <div style={{ marginBottom: "4px" }}>
-            When a roster is loaded (player or enemy), all combat commands use only the weapons and profiles in that roster.
+          <div>
+            With a roster loaded, combat commands use only the weapons and profiles in that roster.
+            Clear it to see every possible matchup.
           </div>
-          <div>Remove a roster to see all possible weapon profiles and matchups.</div>
         </div>
 
         {/* Upload flow (replaces dashboard) */}
@@ -996,7 +1169,8 @@ export function RostersContext({ engineId, onExec, onInject, theme, profileName,
               mode={uploadMode}
               engineId={engineId}
               profileName={profileName}
-              onComplete={handleUploadComplete}
+              onLoad={handleUploadLoad}
+              onComplete={handleUploadDone}
               onCancel={() => setUploadMode(null)}
             />
           </div>
@@ -1005,8 +1179,11 @@ export function RostersContext({ engineId, onExec, onInject, theme, profileName,
         {/* Dashboard (hidden during upload) */}
         {!uploadMode && (
           <>
-            <SectionHeader title="Active Armies" />
-            <div style={{ display: "flex", gap: "10px", flexWrap: "wrap", marginBottom: "24px" }}>
+            <SectionHeader>ACTIVE ARMIES</SectionHeader>
+            <div style={{
+              display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(280px, 1fr))",
+              gap: "12px", marginBottom: "24px",
+            }}>
               <ArmyPanel roster={myRoster}    side="PLAYER" onUpload={setUploadMode} onInject={handleInject} />
               <ArmyPanel roster={enemyRoster} side="ENEMY"  onUpload={setUploadMode} onInject={handleInject} />
             </div>

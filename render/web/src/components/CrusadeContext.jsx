@@ -11,7 +11,7 @@ import { useState, useEffect, useCallback } from "react";
 import {
   listCampaigns, getCampaign, createCampaign, deleteCampaign, labelify,
 } from "@/lib/crusade";
-import { C } from "./shared/colors";
+import { C, factionColor } from "./shared/colors";
 import { OrderOfBattle } from "./crusade/OrderOfBattle";
 import { MusterPanel } from "./crusade/MusterPanel";
 import { BattleTracker } from "./crusade/BattleTracker";
@@ -48,14 +48,16 @@ function ActionChip({ label, onClick, color = C.cyan, hoverColor = C.green, disa
 
 function SectionHeader({ title, subtitle }) {
   return (
-    <div style={{ display: "flex", alignItems: "baseline", gap: "10px", marginBottom: "10px" }}>
-      <span style={{
-        color: C.amber, fontWeight: 700, fontSize: "13px",
-        textTransform: "uppercase", letterSpacing: "0.1em", fontFamily: "monospace",
-      }}>
+    <div style={{ display: "flex", alignItems: "center", gap: "10px", marginBottom: "12px" }}>
+      <span className="ct-display" style={{ color: C.accent, fontSize: "12px", letterSpacing: "0.14em", flexShrink: 0 }}>
         {title}
       </span>
-      {subtitle && <span style={{ color: C.dim, fontSize: "11px", fontFamily: "monospace" }}>{subtitle}</span>}
+      {subtitle && (
+        <span style={{ color: C.dim, fontSize: "9px", letterSpacing: "0.04em", flexShrink: 0, fontFamily: "monospace" }}>
+          {subtitle}
+        </span>
+      )}
+      <span className="ct-hazard" />
     </div>
   );
 }
@@ -182,7 +184,7 @@ function CampaignCard({ campaign, onOpen, onDelete }) {
 function StatBlock({ label, value, color = C.green }) {
   return (
     <div style={{ textAlign: "center", minWidth: "70px" }}>
-      <div style={{ color, fontSize: "20px", fontFamily: "monospace", fontWeight: 700 }}>{value}</div>
+      <div className="ct-display" style={{ color, fontSize: "22px", letterSpacing: "0.02em" }}>{value}</div>
       <div style={{ color: C.dim, fontSize: "9px", fontFamily: "monospace", letterSpacing: "0.1em", textTransform: "uppercase" }}>{label}</div>
     </div>
   );
@@ -259,6 +261,7 @@ function CampaignStats({ campaign, units }) {
 function CampaignDetail({ campaign, onBack, onReload, onError, engineId, onInject }) {
   const units = campaign.units || [];
   const activeBattle = campaign.state?.active_battle || null;
+  const crusadePoints = units.reduce((s, u) => s + (u.crusade_points || 0), 0);
   const [muster, setMuster] = useState(false);
   const [phase, setPhase] = useState("tracking");   // "tracking" | "post" (active battle only)
   const [tally, setTally] = useState(null);          // tracker → post-battle hand-off
@@ -277,13 +280,21 @@ function CampaignDetail({ campaign, onBack, onReload, onError, engineId, onInjec
   return (
     <div style={{ display: "flex", flexDirection: "column", gap: "18px" }}>
       {/* Header */}
-      <div style={{ border: `1px solid ${C.border}`, background: C.panel, padding: "16px 18px" }}>
+      <div style={{ border: `1px solid ${C.border}`, borderRadius: "5px", background: C.panel, padding: "16px 18px" }}>
         <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", gap: "16px" }}>
           <div>
-            <div style={{ color: C.amber, fontSize: "18px", fontWeight: 700, fontFamily: "monospace", letterSpacing: "0.04em" }}>
-              {campaign.name}
+            <div style={{ display: "flex", alignItems: "center", gap: "10px" }}>
+              <span className="ct-display" style={{ color: C.text, fontSize: "20px", letterSpacing: "0.03em" }}>
+                {campaign.name}
+              </span>
+              {activeBattle && (
+                <span className="ct-display" style={{ color: C.red, fontSize: "9px", letterSpacing: "0.12em", border: `1px solid ${C.red}55`, padding: "2px 6px" }}>
+                  ◉ IN BATTLE
+                </span>
+              )}
             </div>
-            <div style={{ color: C.dim, fontSize: "12px", fontFamily: "monospace", marginTop: "4px" }}>
+            <div style={{ color: C.dim, fontSize: "12px", fontFamily: "monospace", marginTop: "5px", display: "flex", alignItems: "center", gap: "6px" }}>
+              <span style={{ width: "7px", height: "7px", borderRadius: "50%", background: factionColor(campaign.faction) }} />
               {labelify(campaign.faction)} · Owner: {campaign.owner}
             </div>
           </div>
@@ -296,6 +307,7 @@ function CampaignDetail({ campaign, onBack, onReload, onError, engineId, onInjec
         </div>
         <div style={{ display: "flex", gap: "22px", marginTop: "16px", flexWrap: "wrap" }}>
           <StatBlock label="Req. Points" value={campaign.rp} color={C.cyan} />
+          <StatBlock label="Crusade Pts" value={crusadePoints} color={crusadePoints >= 0 ? C.yellow : C.red} />
           <StatBlock label="Supply Limit" value={campaign.supply_limit} />
           <StatBlock label="Battles" value={campaign.battle_count} />
           <StatBlock label="Wins" value={campaign.wins} color={C.green} />
@@ -324,17 +336,26 @@ function CampaignDetail({ campaign, onBack, onReload, onError, engineId, onInjec
         />
       ) : null}
 
-      {/* Campaign stats dashboard (between battles) */}
-      {!activeBattle && units.length > 0 && (
-        <CampaignStats campaign={campaign} units={units} />
-      )}
-
-      {/* Order of Battle — editable */}
-      <OrderOfBattle campaign={campaign} units={units} onReload={onReload} onError={onError} />
-
-      {/* Requisition actions (between battles only) */}
-      {!activeBattle && (
-        <RPActions campaign={campaign} units={units} onReload={onReload} onError={onError} />
+      {/* Between-battles dashboard — 2-col (Order of Battle + requisition |
+          campaign stats sidebar). During an active battle the OOB renders
+          full-width below the tracker instead. */}
+      {!activeBattle && units.length > 0 ? (
+        <div style={{ display: "grid", gridTemplateColumns: "minmax(0, 1fr) 320px", gap: "18px", alignItems: "start" }}>
+          <div style={{ display: "flex", flexDirection: "column", gap: "18px", minWidth: 0 }}>
+            <OrderOfBattle campaign={campaign} units={units} onReload={onReload} onError={onError} />
+            <RPActions campaign={campaign} units={units} onReload={onReload} onError={onError} />
+          </div>
+          <div style={{ minWidth: 0 }}>
+            <CampaignStats campaign={campaign} units={units} />
+          </div>
+        </div>
+      ) : (
+        <>
+          <OrderOfBattle campaign={campaign} units={units} onReload={onReload} onError={onError} />
+          {!activeBattle && (
+            <RPActions campaign={campaign} units={units} onReload={onReload} onError={onError} />
+          )}
+        </>
       )}
 
       {/* Battle history */}
@@ -430,7 +451,7 @@ export function CrusadeContext({ profileName, engineId, onInject }) {
     <div style={{ height: "100%", overflow: "auto", padding: "20px 22px", fontFamily: "monospace" }}>
       <div style={{ display: "flex", alignItems: "baseline", justifyContent: "space-between", marginBottom: "18px" }}>
         <div>
-          <span style={{ color: C.amber, fontSize: "16px", fontWeight: 700, letterSpacing: "0.14em" }}>◈ CRUSADE</span>
+          <span className="ct-display" style={{ color: C.accent, fontSize: "16px", letterSpacing: "0.16em" }}>◈ CRUSADE</span>
           <span style={{ color: C.dim, fontSize: "11px", marginLeft: "12px" }}>Campaign tracker</span>
         </div>
         {view === "list" && (

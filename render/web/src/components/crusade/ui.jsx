@@ -32,19 +32,22 @@ export function ActionChip({ label, onClick, color = C.cyan, hoverColor = C.gree
   );
 }
 
+// Hazard-rule section header (redesign foundation): Chakra-Petch gold label +
+// optional subtitle hint + a gold hazard rule that fills the row, with optional
+// right-aligned actions.
 export function SectionHeader({ title, subtitle, right }) {
   return (
-    <div style={{ display: "flex", alignItems: "baseline", justifyContent: "space-between", marginBottom: "10px" }}>
-      <div style={{ display: "flex", alignItems: "baseline", gap: "10px" }}>
-        <span style={{
-          color: C.amber, fontWeight: 700, fontSize: "13px",
-          textTransform: "uppercase", letterSpacing: "0.1em", fontFamily: "monospace",
-        }}>
-          {title}
+    <div style={{ display: "flex", alignItems: "center", gap: "10px", marginBottom: "12px" }}>
+      <span className="ct-display" style={{ color: C.accent, fontSize: "12px", letterSpacing: "0.14em", flexShrink: 0 }}>
+        {title}
+      </span>
+      {subtitle && (
+        <span style={{ color: C.dim, fontSize: "9px", letterSpacing: "0.04em", flexShrink: 0, fontFamily: "monospace" }}>
+          {subtitle}
         </span>
-        {subtitle && <span style={{ color: C.dim, fontSize: "11px", fontFamily: "monospace" }}>{subtitle}</span>}
-      </div>
-      {right || null}
+      )}
+      <span className="ct-hazard" />
+      {right ? <span style={{ flexShrink: 0 }}>{right}</span> : null}
     </div>
   );
 }
@@ -66,22 +69,38 @@ export const labelStyle = {
   letterSpacing: "0.1em", textTransform: "uppercase", marginBottom: "4px", display: "block",
 };
 
-/** Coloured rank badge (◈ glyph + rank name). */
+// ─── Rank colour + display label ───────────────────────────────────────────
+// Single source of truth for rank tinting (OOB rows, badges). The server stores
+// the entry rank as "Fresh"; the redesign shows it as "Battle-ready" (display
+// only — the stored value is untouched). Legendary gets the handoff purple.
+
+export const RANK_COLORS = {
+  "Fresh":           C.dim,
+  "Blooded":         C.mid,
+  "Battle-hardened": C.cyan,
+  "Heroic":          C.accent,
+  "Legendary":       "#a78bdb",
+};
+
+export function rankColor(rank) {
+  return RANK_COLORS[rank] || C.mid;
+}
+
+/** Display label for a stored rank ("Fresh" → "Battle-ready"). */
+export function rankLabel(rank) {
+  return rank === "Fresh" ? "Battle-ready" : (rank || "Battle-ready");
+}
+
+/** Coloured rank badge (◈ glyph + display label). */
 export function RankBadge({ rank }) {
-  const tier = {
-    "Fresh": C.dim,
-    "Blooded": C.mid,
-    "Battle-hardened": C.cyan,
-    "Heroic": C.amber,
-    "Legendary": C.yellow,
-  }[rank] || C.mid;
+  const tier = rankColor(rank);
   return (
     <span style={{
       color: tier, fontSize: "10px", fontFamily: "monospace",
       border: `1px solid ${tier}55`, padding: "1px 6px",
       letterSpacing: "0.06em", whiteSpace: "nowrap",
     }}>
-      ◈ {rank}
+      ◈ {rankLabel(rank)}
     </span>
   );
 }

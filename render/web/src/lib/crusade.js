@@ -180,24 +180,40 @@ export async function importUnits(campaignId, parsedUnits, opts = {}) {
     await Promise.all(existing.map((u) => deleteUnit(u.id).catch(() => {})));
   }
 
-  // Build a duplicate-detection set of name|nickname (lowercased).
-  const seen = new Set();
+  // Count units ALREADY in the OOB, keyed by name|nickname. In "skip" mode a
+  // parsed unit is skipped only while a matching pre-existing unit remains
+  // unconsumed — so a roster with N identical squads (e.g. 3× Kroot Carnivores)
+  // imports all N on a fresh OOB, and re-importing the same roster tops up to N
+  // without duplicating. (Previous bug: a name-only Set collapsed every repeated
+  // datasheet within a single roster, silently dropping legitimate duplicates.)
+  const existingCounts = new Map();
   if (mode === "skip") {
     for (const u of existing) {
-      seen.add(`${(u.unit_name || "").toLowerCase()}|${(u.nickname || "").toLowerCase()}`);
+      const key = _unitKey(u.unit_name, u.nickname);
+      existingCounts.set(key, (existingCounts.get(key) || 0) + 1);
     }
   }
 
-  return _importLoop(campaignId, parsedUnits, seen, mode);
+  return _importLoop(campaignId, parsedUnits, existingCounts, mode);
 }
 
-async function _importLoop(campaignId, parsedUnits, seen, mode) {
+/** Lowercased duplicate-detection key for a unit (name + nickname). */
+export function _unitKey(name, nickname) {
+  return `${(name || "").toLowerCase()}|${(nickname || "").toLowerCase()}`;
+}
+
+async function _importLoop(campaignId, parsedUnits, existingCounts, mode) {
   let added = 0;
   let skipped = 0;
   for (const pu of parsedUnits) {
-    const key = `${(pu.name || "").toLowerCase()}|${(pu.nickname || "").toLowerCase()}`;
-    if (mode === "skip" && seen.has(key)) { skipped += 1; continue; }
-    seen.add(key);
+    const key = _unitKey(pu.name, pu.nickname);
+    // Skip only against unconsumed pre-existing copies; identical units within
+    // this roster do NOT skip each other.
+    if (mode === "skip" && (existingCounts.get(key) || 0) > 0) {
+      existingCounts.set(key, existingCounts.get(key) - 1);
+      skipped += 1;
+      continue;
+    }
 
     const created = await createUnit(campaignId, {
       unit_name: pu.name,

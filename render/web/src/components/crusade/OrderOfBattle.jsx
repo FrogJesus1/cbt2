@@ -9,9 +9,9 @@
 
 import { useState } from "react";
 import { C } from "../shared/colors";
-import { ActionChip, SectionHeader, RankBadge, inputStyle, labelStyle } from "./ui";
+import { ActionChip, SectionHeader, RankBadge, rankColor, inputStyle, labelStyle } from "./ui";
 import { CrusadeCard } from "./CrusadeCard";
-import { createUnit, updateUnit, deleteUnit, importUnits } from "@/lib/crusade";
+import { createUnit, updateUnit, deleteUnit, importUnits, _unitKey } from "@/lib/crusade";
 import { parseRosterUnits } from "@/lib/rosterParse";
 
 // ─── Supply gauge ──────────────────────────────────────────────────────────────
@@ -86,9 +86,21 @@ function ImportFlow({ campaign, existing, onImported, onCancel, onError }) {
   const [parsed, setParsed] = useState(null);  // null | unit[]
   const [busy, setBusy] = useState(false);
 
-  const existingKeys = new Set(
-    existing.map((u) => `${(u.unit_name || "").toLowerCase()}|${(u.nickname || "").toLowerCase()}`)
-  );
+  // Count-aware skip preview: a parsed unit is only flagged as a duplicate
+  // while a matching unit already in the OOB remains unconsumed. Multiple
+  // identical units within the pasted roster are NOT flagged against each other,
+  // mirroring importUnits()'s count-based dedup.
+  const existingCounts = new Map();
+  for (const u of existing) {
+    const key = _unitKey(u.unit_name, u.nickname);
+    existingCounts.set(key, (existingCounts.get(key) || 0) + 1);
+  }
+  const dupFlags = (parsed || []).map((u) => {
+    const key = _unitKey(u.name, u.nickname);
+    const remaining = existingCounts.get(key) || 0;
+    if (remaining > 0) { existingCounts.set(key, remaining - 1); return true; }
+    return false;
+  });
 
   const doParse = () => {
     const units = parseRosterUnits({ faction: campaign.faction, content: text });
@@ -145,7 +157,7 @@ function ImportFlow({ campaign, existing, onImported, onCancel, onError }) {
               </div>
               <div style={{ display: "flex", flexDirection: "column", gap: "2px", marginBottom: "12px", maxHeight: "220px", overflow: "auto" }}>
                 {parsed.map((u, i) => {
-                  const dup = existingKeys.has(`${u.name.toLowerCase()}|${(u.nickname || "").toLowerCase()}`);
+                  const dup = dupFlags[i];
                   return (
                     <div key={i} style={{ display: "flex", justifyContent: "space-between", fontFamily: "monospace", fontSize: "12px", padding: "2px 0", opacity: dup ? 0.45 : 1 }}>
                       <span style={{ color: u.is_leader ? C.amber : C.mid }}>
@@ -175,26 +187,42 @@ function ImportFlow({ campaign, existing, onImported, onCancel, onError }) {
 // ─── Unit row ───────────────────────────────────────────────────────────────────
 
 function UnitRow({ unit, onClick }) {
+  const tier = rankColor(unit.rank);
+  const died = !!unit.died;
   return (
     <div
       onClick={onClick}
       style={{
-        border: `1px solid ${C.border}`, background: C.panel, padding: "8px 12px",
+        borderRadius: "5px",
+        border: `1px solid ${died ? C.border : tier + "44"}`,
+        borderLeft: `3px solid ${died ? C.red : tier}`,
+        background: C.panel, padding: "8px 12px",
         display: "flex", justifyContent: "space-between", alignItems: "center",
         gap: "10px", cursor: "pointer", transition: "border-color 0.1s",
+        opacity: died ? 0.55 : 1,
       }}
-      onMouseEnter={(e) => { e.currentTarget.style.borderColor = C.bordermid; }}
-      onMouseLeave={(e) => { e.currentTarget.style.borderColor = C.border; }}
+      onMouseEnter={(e) => { e.currentTarget.style.borderColor = died ? C.bordermid : tier + "88"; }}
+      onMouseLeave={(e) => { e.currentTarget.style.borderColor = died ? C.border : tier + "44"; }}
     >
       <div style={{ display: "flex", alignItems: "center", gap: "10px", flex: 1, minWidth: 0 }}>
-        <span style={{ color: unit.is_leader ? C.amber : C.green, fontSize: "13px", fontFamily: "monospace", fontWeight: unit.is_leader ? 600 : 400, whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }}>
-          {unit.marked_for_greatness ? "★ " : ""}{unit.nickname || unit.unit_name}
+        <span style={{
+          color: died ? C.dim : (unit.is_leader ? C.amber : C.text), fontSize: "13px", fontFamily: "monospace",
+          fontWeight: unit.is_leader ? 600 : 400, whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis",
+          textDecoration: died ? "line-through" : "none",
+        }}>
+          {unit.marked_for_greatness && !died ? "★ " : ""}{unit.nickname || unit.unit_name}
         </span>
         {unit.nickname && (
           <span style={{ color: C.dim, fontSize: "11px", fontFamily: "monospace", whiteSpace: "nowrap" }}>{unit.unit_name}</span>
         )}
-        <RankBadge rank={unit.rank} />
-        <span style={{ color: C.amber, fontSize: "10px", fontFamily: "monospace" }}>{unit.xp} XP</span>
+        {died ? (
+          <span className="ct-display" style={{ color: C.red, fontSize: "9px", letterSpacing: "0.12em", border: `1px solid ${C.red}55`, padding: "1px 5px" }}>
+            ✝ SLAIN
+          </span>
+        ) : (
+          <RankBadge rank={unit.rank} />
+        )}
+        <span style={{ color: died ? C.dim : C.amber, fontSize: "10px", fontFamily: "monospace" }}>{unit.xp} XP</span>
         {unit.attached_to && (
           <span style={{ color: C.dim, fontSize: "10px", fontFamily: "monospace" }}>→ {unit.attached_to}</span>
         )}

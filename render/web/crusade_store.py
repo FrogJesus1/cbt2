@@ -77,6 +77,8 @@ TABLE_SPECS = {
         {"name": "CrusadePoints", "type": "number", "options": {"precision": 0}},
         {"name": "MarkedForGreatness", "type": "checkbox",
          "options": {"icon": "check", "color": "greenBright"}},
+        {"name": "Died", "type": "checkbox",
+         "options": {"icon": "check", "color": "redBright"}},
         {"name": "UpdatedAt", "type": "singleLineText"},
     ],
     BATTLES_TABLE: [
@@ -289,6 +291,7 @@ def _record_to_unit(record: dict) -> dict:
         "scars":            scars,
         "crusade_points":   int(f.get("CrusadePoints", len(honours) - len(scars)) or 0),
         "marked_for_greatness": bool(f.get("MarkedForGreatness", False)),
+        "died":             bool(f.get("Died", False)),
         "updated_at":       f.get("UpdatedAt"),
         "_record_id":       record["id"],
     }
@@ -435,6 +438,7 @@ _UNIT_FIELD_MAP = {
     "battles_fought": "BattlesFought", "battles_survived": "BattlesSurvived",
     "enemy_kills": "EnemyKills", "honours": "Honours", "scars": "Scars",
     "crusade_points": "CrusadePoints", "marked_for_greatness": "MarkedForGreatness",
+    "died": "Died",
 }
 _UNIT_JSON_FIELDS = {"loadout", "honours", "scars"}
 
@@ -452,8 +456,10 @@ def update_unit(unit_id: str, updates: dict) -> dict | None:
         if key in _UNIT_JSON_FIELDS and not isinstance(value, str):
             value = json.dumps(value)
         fields[air] = value
-    # Keep CrusadePoints derived from honours/scars when either changes.
-    if "honours" in updates or "scars" in updates:
+    # Keep CrusadePoints derived from honours/scars when either changes — unless
+    # the caller is explicitly hand-writing crusade_points (Crusade edit-mode,
+    # Decision D2 manual override), in which case the supplied value wins.
+    if ("honours" in updates or "scars" in updates) and "crusade_points" not in updates:
         merged = _record_to_unit(record)
         honours = updates.get("honours", merged["honours"])
         scars = updates.get("scars", merged["scars"])
@@ -462,7 +468,16 @@ def update_unit(unit_id: str, updates: dict) -> dict | None:
         except TypeError:
             pass
     fields["UpdatedAt"] = _now()
-    table.update(record["id"], fields)
+    try:
+        table.update(record["id"], fields)
+    except Exception:
+        # A base provisioned before the `Died` field was added will 422 on it.
+        # Drop just that field and retry so the rest of the edit still saves.
+        if "Died" in fields:
+            fields.pop("Died", None)
+            table.update(record["id"], fields)
+        else:
+            raise
     return get_unit(unit_id)
 
 
