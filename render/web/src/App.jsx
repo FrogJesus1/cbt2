@@ -45,6 +45,7 @@ import { ProfileGate }      from "@/components/ProfileGate";
 import { THEME_REGISTRY, ALL_THEME_IDS } from "@/data/themeRegistry";
 import { saveProfileState, collectCurrentState, clearLastProfile } from "@/lib/profile";
 import { getSessionId } from "@/lib/session";
+import { useEdition } from "@/hooks/useEdition";
 
 // ─── Theme persistence helpers ─────────────────────────────────────────────────
 // Active theme is stored in localStorage so it survives page reloads.
@@ -337,7 +338,7 @@ const CommandBar = forwardRef(function CommandBar(
       >
         <span
           className={`ct-glow-sm select-none shrink-0 ${animating ? "animate-pulse" : ""}`}
-          style={{ color: animating ? "#ffa328" : noMatch ? "#ff3b3b" : "var(--ct-primary)", fontSize: "20px", transition: "color 0.15s" }}
+          style={{ color: animating ? "var(--ct-accent)" : noMatch ? "var(--ct-danger)" : "var(--ct-primary)", fontSize: "20px", transition: "color 0.15s" }}
         >
           ›
         </span>
@@ -350,7 +351,7 @@ const CommandBar = forwardRef(function CommandBar(
           placeholder={animating ? "" : "enter command…"}
           className="flex-1 bg-transparent outline-none font-mono"
           style={{
-            color:      animating ? "#ffa32899" : noMatch ? "#ff3b3b" : "var(--ct-primary)",
+            color:      animating ? "var(--ct-accent)" : noMatch ? "var(--ct-danger)" : "var(--ct-primary)",
             fontSize:   "15px",
             caretColor: animating ? "transparent" : "var(--ct-primary)",
             transition: "color 0.15s",
@@ -367,7 +368,7 @@ const CommandBar = forwardRef(function CommandBar(
           </span>
         )}
         {animating && (
-          <span className="shrink-0 font-mono" style={{ color: "#ffa32870", fontSize: "11px", letterSpacing: "0.15em" }}>
+          <span className="shrink-0 font-mono" style={{ color: "var(--ct-accent)", opacity: 0.7, fontSize: "11px", letterSpacing: "0.15em" }}>
             INJECT
           </span>
         )}
@@ -408,6 +409,8 @@ function AppInner({ profile, onLogout }) {
   const [cmdBarLoading,  setCmdBarLoading]  = useState(false);
   // Initialise from localStorage so the last-active theme is restored on reload
   const [theme, setTheme] = useState(readStoredTheme);
+  // Rules edition (10th/11th) — shell-level, design-only, rendered sitewide
+  const { label: editionLabel, labelLong: editionLabelLong, toggleEdition } = useEdition();
 
   // Per-context pending command queue
   const [pendingCommands, setPendingCommands] = useState({
@@ -830,62 +833,82 @@ function AppInner({ profile, onLogout }) {
     <div
       className="flex flex-col h-full overflow-hidden"
       style={{
-        width:      "100%",
-        maxWidth:   "960px",
-        background: "var(--ct-bg)",
+        width:        "100%",
+        maxWidth:     "960px",
+        background:   "var(--ct-bg)",
+        border:       "1px solid var(--ct-border)",
+        borderRadius: "3px",
       }}
     >
 
-      {/* ── Nav bar ── */}
+      {/* ── Chrome bar (status dot · title · version + edition) ── */}
+      <div
+        className="shrink-0 flex items-center gap-2.5 select-none"
+        style={{
+          padding:         "8px 14px",
+          backgroundColor: "var(--ct-bg-dark)",
+          borderBottom:    "1px solid var(--ct-border)",
+        }}
+      >
+        <span
+          title={isReady ? "Engine online" : "Engine offline"}
+          style={{
+            width: "7px", height: "7px", borderRadius: "50%", flexShrink: 0,
+            backgroundColor: isReady ? "var(--ct-primary)" : "var(--ct-danger)",
+            boxShadow:       isReady ? "0 0 7px var(--ct-primary)" : "0 0 7px var(--ct-danger)",
+          }}
+        />
+        <span className="ct-display" style={{ color: "var(--ct-text)", fontSize: "12px", letterSpacing: "0.16em" }}>
+          COMBAT TERMINAL
+        </span>
+
+        <div className="flex-1" />
+
+        {profile?.name && (
+          <span
+            title={`Logged in as ${profile.name} — click to switch profile`}
+            onClick={onLogout}
+            className="ct-display"
+            style={{
+              color: "var(--ct-primary-dim)", fontSize: "9px", letterSpacing: "0.12em",
+              cursor: "pointer", marginRight: "4px",
+            }}
+          >
+            {profile.name} ⏏
+          </span>
+        )}
+
+        <span
+          className="ct-display"
+          title={buildHash && buildHash !== "unknown" ? `Build: ${buildHash}` : ""}
+          style={{ color: "var(--ct-primary-dim)", fontSize: "9px", letterSpacing: "0.1em", fontWeight: 500 }}
+        >
+          v2.0{buildHash && buildHash !== "unknown" ? ` · ${buildHash}` : ""}
+        </span>
+        <button
+          onClick={toggleEdition}
+          className="ct-display"
+          title="Rules edition (display-only) — click to switch"
+          style={{
+            fontSize: "8px", letterSpacing: "0.1em", color: "var(--ct-primary)",
+            border: "1px solid rgba(var(--ct-glow-rgb),0.4)",
+            background: "rgba(var(--ct-glow-rgb),0.1)",
+            padding: "2px 7px", borderRadius: "3px", cursor: "pointer",
+          }}
+        >
+          {editionLabel}
+        </button>
+      </div>
+
+      {/* ── Nav bar (tabs) ── */}
       <nav
         className="shrink-0 flex items-stretch font-mono select-none"
         style={{
           borderBottom:    "1px solid var(--ct-border)",
           backgroundColor: "var(--ct-bg-dark)",
-          minHeight:       "42px",
+          minHeight:       "40px",
         }}
       >
-        {/* Logo + build hash */}
-        <div
-          className="flex items-center gap-3 px-4 shrink-0 ct-glow-sm"
-          style={{ color: "var(--ct-primary)", borderRight: "1px solid var(--ct-border)" }}
-        >
-          <span style={{ letterSpacing: "0.18em", fontSize: "14px", fontWeight: 700 }}>
-            ⚡ COMBAT TERMINAL
-          </span>
-          <span
-            title={buildHash && buildHash !== "unknown" ? `Build: ${buildHash}` : ""}
-            style={{
-              color:         "var(--ct-primary-dim)",
-              fontSize:      "10px",
-              letterSpacing: "0.08em",
-              fontFamily:    "monospace",
-              opacity:       0.7,
-            }}
-          >
-            v2.0{buildHash && buildHash !== "unknown" ? ` · ${buildHash}` : ""}
-          </span>
-          {profile?.name && (
-            <span
-              title={`Logged in as ${profile.name} — click to switch profile`}
-              onClick={onLogout}
-              style={{
-                color:         "var(--ct-primary-dim)",
-                fontSize:      "10px",
-                letterSpacing: "0.08em",
-                fontFamily:    "monospace",
-                opacity:       0.6,
-                cursor:        "pointer",
-                borderLeft:    "1px solid var(--ct-border)",
-                paddingLeft:   "8px",
-                marginLeft:    "4px",
-              }}
-            >
-              {profile.name} ⏏
-            </span>
-          )}
-        </div>
-
         {/* Simple context tabs — clicking injects the nav command */}
         {SIMPLE_TABS.map(tab => {
           const active = activeContext === tab.id;
@@ -893,13 +916,13 @@ function AppInner({ profile, onLogout }) {
             <button
               key={tab.id}
               onClick={() => cmdBarRef.current?.animateAndSubmit(tab.cmd)}
-              className="flex items-center px-4 transition-colors"
+              className="flex items-center px-4 transition-colors ct-display"
               style={{
-                color:         active ? "var(--ct-primary)" : "var(--ct-primary-dim)",
+                color:         active ? "var(--ct-text)" : "var(--ct-primary-dim)",
                 borderBottom:  active ? "2px solid var(--ct-primary)" : "2px solid transparent",
                 boxShadow:     active ? "inset 0 -1px 8px rgba(var(--ct-glow-rgb),0.1)" : "none",
-                letterSpacing: "0.1em",
-                fontSize:      "13px",
+                letterSpacing: "0.12em",
+                fontSize:      "12px",
               }}
             >
               {tab.label}
@@ -914,13 +937,13 @@ function AppInner({ profile, onLogout }) {
             return (
               <button
                 onClick={() => { setRostersOpen(v => !v); setSettingsOpen(false); }}
-                className="flex items-center gap-1.5 px-4 transition-colors"
+                className="flex items-center gap-1.5 px-4 transition-colors ct-display"
                 style={{
-                  color:         active || rostersOpen ? "var(--ct-primary)" : "var(--ct-primary-dim)",
+                  color:         active ? "var(--ct-text)" : rostersOpen ? "var(--ct-primary)" : "var(--ct-primary-dim)",
                   borderBottom:  active ? "2px solid var(--ct-primary)" : "2px solid transparent",
                   boxShadow:     active ? "inset 0 -1px 8px rgba(var(--ct-glow-rgb),0.1)" : "none",
-                  letterSpacing: "0.1em",
-                  fontSize:      "13px",
+                  letterSpacing: "0.12em",
+                  fontSize:      "12px",
                 }}
                 title="Rosters & Crusade tracking"
               >
@@ -962,13 +985,13 @@ function AppInner({ profile, onLogout }) {
           return (
             <button
               onClick={() => cmdBarRef.current?.animateAndSubmit(RULES_TAB.cmd)}
-              className="flex items-center px-4 transition-colors"
+              className="flex items-center px-4 transition-colors ct-display"
               style={{
-                color:         active ? "var(--ct-primary)" : "var(--ct-primary-dim)",
+                color:         active ? "var(--ct-text)" : "var(--ct-primary-dim)",
                 borderBottom:  active ? "2px solid var(--ct-primary)" : "2px solid transparent",
                 boxShadow:     active ? "inset 0 -1px 8px rgba(var(--ct-glow-rgb),0.1)" : "none",
-                letterSpacing: "0.1em",
-                fontSize:      "13px",
+                letterSpacing: "0.12em",
+                fontSize:      "12px",
               }}
             >
               {RULES_TAB.label}
@@ -983,13 +1006,13 @@ function AppInner({ profile, onLogout }) {
             return (
               <button
                 onClick={() => { setSettingsOpen(v => !v); setRostersOpen(false); }}
-                className="flex items-center gap-1.5 px-4 transition-colors"
+                className="flex items-center gap-1.5 px-4 transition-colors ct-display"
                 style={{
-                  color:         active || settingsOpen ? "var(--ct-primary)" : "var(--ct-primary-dim)",
+                  color:         active ? "var(--ct-text)" : settingsOpen ? "var(--ct-primary)" : "var(--ct-primary-dim)",
                   borderBottom:  active ? "2px solid var(--ct-primary)" : "2px solid transparent",
                   boxShadow:     active ? "inset 0 -1px 8px rgba(var(--ct-glow-rgb),0.1)" : "none",
-                  letterSpacing: "0.1em",
-                  fontSize:      "13px",
+                  letterSpacing: "0.12em",
+                  fontSize:      "12px",
                 }}
                 title="Settings, diagnostics & reference"
               >
@@ -1037,25 +1060,7 @@ function AppInner({ profile, onLogout }) {
         {/* Spacer */}
         <div className="flex-1" />
 
-        {/* Engine status pill */}
-        {activeEngine && (
-          <div
-            className="flex items-center gap-2 px-3"
-            style={{ color: "var(--ct-primary-dim)", borderLeft: "1px solid var(--ct-border)", fontSize: "12px" }}
-          >
-            <span
-              className="rounded-full"
-              style={{
-                width: "6px", height: "6px",
-                backgroundColor: isReady ? "#39ff14" : "#ff3b3b",
-                boxShadow:       isReady ? "0 0 4px #39ff14" : "0 0 4px #ff3b3b",
-              }}
-            />
-            <span style={{ letterSpacing: "0.1em" }}>
-              {isReady ? "ONLINE" : "OFFLINE"}
-            </span>
-          </div>
-        )}
+        {/* Engine status now shown as the chrome-bar dot (top-left). */}
 
         {/* Theme selector dropdown — small icon, lists every theme */}
         <div
@@ -1067,14 +1072,18 @@ function AppInner({ profile, onLogout }) {
             onClick={() => setThemeOpen(v => !v)}
             className="flex items-center justify-center px-3 transition-colors"
             style={{
-              color:         themeOpen ? "var(--ct-primary)" : "var(--ct-primary-dim)",
-              fontSize:      "15px",
-              background:    themeOpen ? "rgba(var(--ct-glow-rgb),0.04)" : "transparent",
-              fontFamily:    "monospace",
+              background: themeOpen ? "rgba(var(--ct-glow-rgb),0.04)" : "transparent",
             }}
             title="Switch theme"
           >
-            ◐
+            <span
+              style={{
+                width: "13px", height: "13px", borderRadius: "50%",
+                background: "var(--ct-primary)",
+                border: "1px solid var(--ct-border-bright)",
+                boxShadow: "0 0 6px rgba(var(--ct-glow-rgb),0.6)",
+              }}
+            />
           </button>
 
           {themeOpen && (
@@ -1346,6 +1355,27 @@ function AppInner({ profile, onLogout }) {
           <DiagnosticsPage engineId={activeEngineId} />
         </div>
 
+      </div>
+
+      {/* ── Footer strip (version · edition) ── */}
+      <div
+        className="shrink-0 flex items-center justify-between select-none"
+        style={{
+          padding:         "5px 14px",
+          backgroundColor: "var(--ct-bg-dark)",
+          borderTop:       "1px solid var(--ct-border)",
+        }}
+      >
+        <span className="ct-display" style={{ color: "var(--ct-primary-dim)", fontSize: "8px", letterSpacing: "0.14em" }}>
+          COMBAT TERMINAL · v2.0
+        </span>
+        <span
+          className="ct-display"
+          style={{ color: "var(--ct-primary-dim)", fontSize: "8px", letterSpacing: "0.14em", display: "flex", alignItems: "center", gap: "5px" }}
+        >
+          <span style={{ width: "5px", height: "5px", borderRadius: "50%", background: "var(--ct-primary)", boxShadow: "0 0 5px var(--ct-primary)" }} />
+          {editionLabelLong} · 40K RULES ENGINE
+        </span>
       </div>
 
       {/* ── Global persistent command bar ── */}

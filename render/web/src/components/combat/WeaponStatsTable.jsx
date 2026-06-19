@@ -389,17 +389,16 @@ function WeaponSection({ title, weapons, disabledWeapons, onToggle, activeFlags,
       <tr>
         <td
           colSpan={8}
+          className="ct-display"
           style={{
-            padding:       "8px 2px 4px",
-            color:         C.amber,
+            padding:       "9px 2px 5px",
+            color:         C.accent,
             fontSize:      "10px",
             letterSpacing: "0.14em",
-            textTransform: "uppercase",
-            fontWeight:    700,
-            borderTop:     `1px solid ${C.bordermid}`,
+            borderTop:     `1px solid ${C.border}`,
           }}
         >
-          — {title} —
+          ▸ {title}
         </td>
       </tr>
       {weapons.map((w, i) => (
@@ -442,9 +441,9 @@ export function WeaponStatsTable({ weapons = [], disabledWeapons, onToggleWeapon
     <Card style={CARD_STYLE}>
       <CardContent style={CARD_PAD}>
         <div style={{ display: "flex", alignItems: "baseline", gap: "12px", marginBottom: "10px" }}>
-          <SectionTitle style={{ marginBottom: 0, paddingBottom: 0, borderBottom: "none" }}>
+          <span className="ct-display" style={{ color: C.accent, fontSize: "12px", letterSpacing: "0.14em" }}>
             Weapon Specs
-          </SectionTitle>
+          </span>
           {modelNote && (
             <span style={{ color: C.dim, fontSize: "10px", letterSpacing: "0.05em" }}>
               {modelNote}
@@ -480,7 +479,7 @@ export function WeaponStatsTable({ weapons = [], disabledWeapons, onToggleWeapon
           </thead>
           <tbody>
             <WeaponSection
-              title="Ranged Weapons"
+              title="Ranged"
               weapons={ranged}
               disabledWeapons={disabledWeapons}
               onToggle={onToggleWeapon}
@@ -488,7 +487,7 @@ export function WeaponStatsTable({ weapons = [], disabledWeapons, onToggleWeapon
               onToggleFlag={onToggleFlag}
             />
             <WeaponSection
-              title="Melee Weapons"
+              title="Melee"
               weapons={melee}
               disabledWeapons={disabledWeapons}
               onToggle={onToggleWeapon}

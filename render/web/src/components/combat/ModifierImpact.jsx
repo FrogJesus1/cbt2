@@ -9,7 +9,7 @@
  */
 
 import { Card, CardContent } from "@/components/ui/card";
-import { C, CARD_STYLE, CARD_PAD, SectionTitle } from "./shared";
+import { C, CARD_STYLE, CARD_PAD, SectionHeader } from "./shared";
 import { GraphListBlock } from "./GraphListBlock";
 
 export function ModifierImpact({ modifiers }) {
@@ -22,7 +22,7 @@ export function ModifierImpact({ modifiers }) {
   return (
     <Card style={CARD_STYLE}>
       <CardContent style={CARD_PAD}>
-        <SectionTitle>Modifier Impact</SectionTitle>
+        <SectionHeader>Modifier Impact</SectionHeader>
         {items.length > 0 ? (
           <>
             <GraphListBlock items={items} />

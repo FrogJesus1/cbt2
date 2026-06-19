@@ -18,7 +18,7 @@
  */
 
 import { Card, CardContent } from "@/components/ui/card";
-import { C, CARD_STYLE, CARD_PAD, Bar, SectionTitle } from "./shared";
+import { C, CARD_STYLE, CARD_PAD, Bar, SectionHeader } from "./shared";
 
 const CONFIDENCE_LEVELS = { "Very High": 100, "High": 75, "Medium": 50, "Low": 25 };
 
@@ -28,7 +28,7 @@ function OfflineBanner() {
   return (
     <Card style={{ ...CARD_STYLE, border: `1px solid ${C.amber}40` }}>
       <CardContent style={{ ...CARD_PAD, fontSize: "12px" }}>
-        <SectionTitle>Simulation Confidence</SectionTitle>
+        <SectionHeader>Simulation Confidence</SectionHeader>
 
         {/* OFFLINE badge */}
         <div style={{
@@ -106,7 +106,7 @@ function ActivePanel({ sim }) {
   return (
     <Card style={CARD_STYLE}>
       <CardContent style={{ ...CARD_PAD, fontSize: "13px" }}>
-        <SectionTitle>Simulation Confidence</SectionTitle>
+        <SectionHeader>Simulation Confidence</SectionHeader>
 
         {/* MC ACTIVE badge */}
         <div style={{
@@ -148,7 +148,7 @@ function ActivePanel({ sim }) {
           <span style={{ color: C.label, fontWeight: 600 }}>Confidence</span>
           <div style={{ display: "flex", alignItems: "center", gap: "10px" }}>
             <div style={{ flex: 1 }}>
-              <Bar value={confPct} max={100} color={C.green} />
+              <Bar value={confPct} max={100} color={C.green} solid height={6} />
             </div>
             <span style={{
               color:       C.green,

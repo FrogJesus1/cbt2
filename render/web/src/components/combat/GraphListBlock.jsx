@@ -60,7 +60,7 @@ export function GraphListBlock({ title, items = [], emptyMsg = "No data." }) {
             }}>
               {item.label}
             </span>
-            <Bar value={item.value} max={item.max} color={item.color ?? C.green} segments={10} />
+            <Bar value={item.value} max={item.max} color={item.color ?? C.green} solid height={6} />
             <span style={{
               color:      item.color ?? C.green,
               fontSize:   "10px",

@@ -48,16 +48,27 @@ export function BannerCard({
   return (
     <Card style={{ ...CARD_STYLE, border: `1px solid ${C.bordermid}`, boxShadow: `inset 0 0 0 1px ${C.border}` }}>
       <CardContent style={{ ...CARD_PAD, display: "flex", flexDirection: "column", gap: "0" }}>
-        {/* Title row — attacker vs defender */}
-        <div style={{ display: "flex", alignItems: "center", fontSize: "20px", lineHeight: "1.2", marginBottom: "10px" }}>
-          <span style={{ color: C.green, textShadow: `0 0 10px ${C.green}70`, fontWeight: 600 }}>
-            {attacker_name || "—"}
-          </span>
-          <span style={{ color: C.dim, fontSize: "15px", margin: "0 10px" }}>vs</span>
-          <span style={{ color: C.cyan, textShadow: `0 0 10px ${C.cyan}50`, fontWeight: 600 }}>
-            {defender_name || "—"}
-          </span>
-        </div>
+        {/* Title row — attacker [+ leader] vs target */}
+        {(() => {
+          const [attUnit, ...rest] = (attacker_name || "—").split(" + ");
+          const leader = rest.join(" + ");
+          return (
+            <div style={{ display: "flex", alignItems: "center", flexWrap: "wrap", fontSize: "19px", lineHeight: 1.25, marginBottom: "10px" }}>
+              <span style={{ color: C.green, textShadow: `0 0 10px ${C.green}55`, fontWeight: 600 }}>
+                {attUnit}
+              </span>
+              {leader && (
+                <span style={{ color: C.cyan, fontWeight: 600, marginLeft: "7px", textShadow: `0 0 10px ${C.cyan}45` }}>
+                  + {leader}
+                </span>
+              )}
+              <span style={{ color: C.dim, fontSize: "14px", margin: "0 10px" }}>vs</span>
+              <span style={{ color: C.accent, textShadow: `0 0 10px ${C.accent}45`, fontWeight: 600 }}>
+                {defender_name || "—"}
+              </span>
+            </div>
+          );
+        })()}
 
         {/* Modifier token row — "Tags: ml // ea1 — cover" */}
         {hasToggles && (

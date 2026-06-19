@@ -1,162 +1,54 @@
 /**
  * CombatBlock
  *
- * Composer for combat results. Layout:
+ * Composer for combat results — "Cogitator Dashboard" redesign layout:
  *
- *   BannerCard                    — full width
- *   WarningBlock                  — full width
- *   ┌─ Left 60% ──────────────────┬─ Right 40% ──────────────┐
- *   │  [Total Unit Output header] │  WeaponPlatformTotals    │
- *   │  TotalUnitOutputRanged      │  ModifierImpact          │
- *   │  TotalUnitOutputMelee       │  SimulationConfidence    │
- *   │  CalcList                   │                          │
- *   └─────────────────────────────┴──────────────────────────┘
- *   AbilitiesBlock                — full width
+ *   echo line  › attacker vs target
+ *   BannerCard                         — attacker [+leader] vs target + modifier tags
+ *   WarningBlock                       — rule/flag callouts
+ *   HeroTiles                          — Total Dmg · Slain · Squad Wipe · Swing
+ *   ForcesEngaged                      — attacker(+leader) | target stat line
+ *   WeaponStatsTable                   — ▸ Ranged / ▸ Melee, clickable rows
+ *   TargetingOutcome                   — per-weapon HIT/WOUND/UNSAVED cards
+ *   Total Output                       — Ranged + Melee hero-number panels
+ *   Modifier Impact | Sim Confidence   — 2-col
+ *   AbilitiesBlock                     — Attacker | Target
+ *   VerdictSummary                     — slain · verdict · survivors
  *
- * Individual panel files live in combat/:
- *   BannerCard, WarningBlock, TotalUnitOutputRanged, TotalUnitOutputMelee,
- *   WeaponPlatformTotals, ModifierImpact, SimulationConfidence, AbilitiesBlock,
- *   GraphListBlock, shared.jsx
+ * Weapon-toggle live recompute (disabledWeapons + adjustedData) is preserved.
  */
 
-// ─── Re-exports ────────────────────────────────────────────────────────────
+// ─── Re-exports (other modules import these from here) ──────────────────────
 
 export { BannerCard }              from "./combat/BannerCard";
 export { WarningBlock }            from "./combat/WarningBlock";
 export { TotalUnitOutputRanged }   from "./combat/TotalUnitOutputRanged";
 export { TotalUnitOutputMelee }    from "./combat/TotalUnitOutputMelee";
-
 export { ModifierImpact }          from "./combat/ModifierImpact";
 export { SimulationConfidence }    from "./combat/SimulationConfidence";
 export { AbilitiesBlock }          from "./combat/AbilitiesBlock";
 export { GraphListBlock }          from "./combat/GraphListBlock";
 export { WeaponStatsTable }        from "./combat/WeaponStatsTable";
 export { TargetingOutcome }        from "./combat/TargetingOutcome";
+export { HeroTiles }               from "./combat/HeroTiles";
+export { ForcesEngaged }           from "./combat/ForcesEngaged";
+export { VerdictSummary }          from "./combat/VerdictSummary";
 
 // ─── Imports for the composer ──────────────────────────────────────────────
 
 import { useState, useCallback }   from "react";
 import { BannerCard }              from "./combat/BannerCard";
 import { WarningBlock }            from "./combat/WarningBlock";
-import { TotalUnitOutputRanged }   from "./combat/TotalUnitOutputRanged";
-import { TotalUnitOutputMelee }    from "./combat/TotalUnitOutputMelee";
+import { HeroTiles }               from "./combat/HeroTiles";
+import { ForcesEngaged }           from "./combat/ForcesEngaged";
 import { WeaponStatsTable }        from "./combat/WeaponStatsTable";
 import { TargetingOutcome }        from "./combat/TargetingOutcome";
+import { TotalUnitOutputPanel }    from "./combat/TotalUnitOutputPanel";
 import { ModifierImpact }          from "./combat/ModifierImpact";
 import { SimulationConfidence }    from "./combat/SimulationConfidence";
 import { AbilitiesBlock }          from "./combat/AbilitiesBlock";
-import { C }                       from "./combat/shared";
-
-// ─── CalcList ──────────────────────────────────────────────────────────────
-// Subtle breakdown of exactly what was computed — attacker, models, weapons.
-
-function CalcList({ attacker_name, weapons = [], footer }) {
-  if (!attacker_name && !weapons.length) return null;
-
-  // Pull "single model" or "×N models" note from footer if present
-  let modelNote = null;
-  if (footer) {
-    const m = footer.match(/(\d+)\s*×?\s*model/i) || footer.match(/single model/i);
-    modelNote = m ? (m[1] ? `${m[1]} model${m[1] !== "1" ? "s" : ""}` : "single model") : null;
-  }
-
-  const ranged  = weapons.filter(w => w.type !== "melee");
-  const melee   = weapons.filter(w => w.type === "melee");
-  const ordered = [...ranged, ...melee];
-
-  if (!ordered.length) return null;
-
-  return (
-    <div style={{
-      borderTop:   `1px solid ${C.border}`,
-      marginTop:   "2px",
-      paddingTop:  "9px",
-      paddingLeft: "2px",
-    }}>
-      {/* Attacker + model note */}
-      <div style={{
-        display:       "flex",
-        alignItems:    "baseline",
-        gap:           "8px",
-        marginBottom:  "6px",
-      }}>
-        <span style={{ color: C.mid, fontSize: "11px", fontWeight: 600 }}>
-          {attacker_name}
-        </span>
-        {modelNote && (
-          <span style={{ color: C.dim, fontSize: "10px" }}>— {modelNote}</span>
-        )}
-      </div>
-
-      {/* Weapon lines */}
-      {ordered.map((w, i) => {
-        const isMelee  = w.type === "melee";
-        const shotVal  = w.shots != null ? w.shots : "?";
-        const unit     = isMelee ? (shotVal === 1 ? "attack" : "attacks") : (shotVal === 1 ? "shot" : "shots");
-        return (
-          <div key={i} style={{
-            display:    "flex",
-            alignItems: "baseline",
-            gap:        "7px",
-            lineHeight: "1.75",
-          }}>
-            <span style={{ color: C.border, fontSize: "11px", flexShrink: 0 }}>↳</span>
-            <span style={{ color: C.label, fontSize: "11px", flex: 1, minWidth: 0, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>
-              {w.name}
-            </span>
-            <span style={{ color: C.dim, fontSize: "10px", flexShrink: 0, whiteSpace: "nowrap" }}>
-              {shotVal} {unit}
-            </span>
-            <span style={{
-              color:      isMelee ? "#ff6b2b" : C.label,
-              fontSize:   "9px",
-              flexShrink: 0,
-              border:     `1px solid ${C.border}`,
-              padding:    "0 4px",
-              letterSpacing: "0.05em",
-            }}>
-              {isMelee ? "melee" : "ranged"}
-            </span>
-          </div>
-        );
-      })}
-    </div>
-  );
-}
-
-// ─── Column group header ───────────────────────────────────────────────────
-
-function ColumnHeader({ title }) {
-  return (
-    <div style={{
-      display:       "flex",
-      alignItems:    "center",
-      gap:           "0",
-      marginBottom:  "6px",
-      fontFamily:    "monospace",
-      fontSize:      "12px",
-      color:         C.border,
-      letterSpacing: "0.04em",
-    }}>
-      <span>{"───"} </span>
-      <span style={{
-        color:         C.amber,
-        textShadow:    `0 0 6px ${C.amber}60`,
-        fontWeight:    700,
-        letterSpacing: "0.12em",
-        textTransform: "uppercase",
-        flexShrink:    0,
-        padding:       "0 6px",
-        fontSize:      "11px",
-      }}>
-        {title}
-      </span>
-      <span style={{ flex: 1, overflow: "hidden", whiteSpace: "nowrap" }}>
-        {"─".repeat(60)}
-      </span>
-    </div>
-  );
-}
+import { VerdictSummary }          from "./combat/VerdictSummary";
+import { C, SectionHeader }        from "./combat/shared";
 
 // ─── CombatBlock ───────────────────────────────────────────────────────────
 
@@ -172,6 +64,8 @@ export function CombatBlock({ data, onSubmit }) {
     all_defender_flags = [],
     ranged, melee,
     weapons            = [],
+    target_profile,
+    att_models, def_models,
     modifier_impact,
     simulation,
     flag_notes         = [],
@@ -180,8 +74,6 @@ export function CombatBlock({ data, onSubmit }) {
   } = data;
 
   // ── Weapon toggle state ────────────────────────────────────────────────
-  // disabledWeapons: Set of weapon names the user has clicked off.
-  // Reset whenever a fresh combat result arrives (key = attacker+defender).
   const [disabledWeapons, setDisabledWeapons] = useState(() => new Set());
 
   const handleToggleWeapon = useCallback((name) => {
@@ -193,38 +85,22 @@ export function CombatBlock({ data, onSubmit }) {
   }, []);
 
   // ── Conditional keyword chips (Heavy / Rapid Fire / Melta / Lance) ──────
-  // Unlike the weapon on/off toggle (a client-side display adjustment), applying
-  // a conditional keyword changes the actual hit/wound/damage math, so it has to
-  // re-run the engine. Reuse the same `rerun --flag` path the modifier bar uses.
+  // Applying one changes the math, so re-run the engine (same path as the bar).
   const handleToggleFlag = useCallback((flag, nowActive) => {
     onSubmit?.(nowActive ? `rerun --${flag}` : `rerun --${flag} null`);
   }, [onSubmit]);
 
   // ── Adjusted aggregates when weapons are disabled ──────────────────────
-  // Sum per-weapon dmg for enabled weapons only and override the server total.
-  // Kill% and other MC metrics can't easily be recomputed client-side, so we
-  // leave them unchanged and only adjust the damage and kills lines.
-  const enabledWeapons     = weapons.filter(w => !disabledWeapons.has(w.name));
-  const enabledRanged      = enabledWeapons.filter(w => w.type !== "melee");
-  const enabledMelee       = enabledWeapons.filter(w => w.type === "melee");
+  // Recomputes the values that are simple functions of the per-weapon numbers
+  // we already hold client-side. kill_chance_pct / squad_wipe_pct need the joint
+  // MC distribution and can't be faithfully recombined here (documented gap).
+  const enabledWeapons = weapons.filter(w => !disabledWeapons.has(w.name));
+  const enabledRanged  = enabledWeapons.filter(w => w.type !== "melee");
+  const enabledMelee   = enabledWeapons.filter(w => w.type === "melee");
 
-  // Build adjusted ranged/melee data objects.  Recalculates the values that are
-  // simple functions of the per-weapon numbers we already have on the client:
-  //   expected_dmg        — sum of enabled weapons' dmg
-  //   expected_kills      — sum of enabled weapons' kills
-  //   overkill_waste_pct  — dmg-weighted average of enabled weapons' overkill,
-  //                         exactly how the server computes it (math_adapter
-  //                         _summarize_ev). Without this it stayed frozen at the
-  //                         all-weapons value when a weapon was toggled off.
-  //   avg_dmg_per_attack  — server reports total_dmg / weapon_count; keep it
-  //                         consistent with the enabled set.
-  // kill_chance_pct and squad_wipe_pct need the joint MC kill distribution
-  // (product across weapons), which we can't faithfully recombine from the
-  // per-weapon summaries here, so those stay from the server (documented gap).
   function adjustedData(serverData, enabledSet) {
     if (!serverData || !disabledWeapons.size) return serverData;
     if (!enabledSet.length) {
-      // All weapons hidden — zero everything
       return {
         ...serverData,
         expected_dmg: 0, expected_kills: 0, kill_chance_pct: 0,
@@ -233,7 +109,6 @@ export function CombatBlock({ data, onSubmit }) {
     }
     const adjustedDmg   = enabledSet.reduce((sum, w) => sum + (w.dmg ?? 0), 0);
     const adjustedKills = enabledSet.reduce((sum, w) => sum + (w.kills ?? 0), 0);
-    // dmg-weighted overkill across the enabled weapons (matches server formula)
     const adjustedOverkill = adjustedDmg > 0
       ? enabledSet.reduce((sum, w) => sum + (w.overkill_pct ?? 0) * (w.dmg ?? 0), 0) / adjustedDmg
       : 0;
@@ -256,10 +131,17 @@ export function CombatBlock({ data, onSubmit }) {
     ...weapons.map(w => w.dmg ?? 0),
   );
 
-  return (
-    <div className="font-mono" style={{ fontSize: "13px", display: "flex", flexDirection: "column", gap: "6px" }}>
+  const echo = `${attacker_name || "—"} vs ${defender_name || "—"}`;
 
-      {/* Full width — header with inline modifier toggles */}
+  return (
+    <div className="font-mono" style={{ display: "flex", flexDirection: "column", gap: "14px" }}>
+
+      {/* Echo command line */}
+      <div style={{ color: C.dim, fontSize: "11px", letterSpacing: "0.02em" }}>
+        › {echo}
+      </div>
+
+      {/* Banner — attacker [+leader] vs target + clickable modifier tags */}
       <BannerCard
         attacker_name={attacker_name}
         defender_name={defender_name}
@@ -271,45 +153,63 @@ export function CombatBlock({ data, onSubmit }) {
         onSubmit={onSubmit}
       />
 
-      {/* Full width — warnings */}
+      {/* Rule / flag callouts */}
       <WarningBlock flag_notes={flag_notes} />
 
-      {/* Full width — weapon spec table (A / BS / S / WR / AP / D, clickable rows) */}
-      <WeaponStatsTable
-        weapons={weapons}
-        disabledWeapons={disabledWeapons}
-        onToggleWeapon={handleToggleWeapon}
-        activeFlags={attacker_flags}
-        onToggleFlag={handleToggleFlag}
+      {/* Hero tiles */}
+      <HeroTiles ranged={rangedAdj} melee={meleeAdj} def_models={def_models} />
+
+      {/* Forces Engaged */}
+      <ForcesEngaged
+        attacker_name={attacker_name}
+        defender_name={defender_name}
+        weapons={enabledWeapons}
+        target_profile={target_profile}
+        att_models={att_models}
+        def_models={def_models}
+        footer={footer}
       />
 
-      {/* Two-column row — equal 50/50 split.
-          Left: aggregate output + simulation confidence
-          Right: per-weapon probability bars + modifier impact
-          flex-wrap kicks in below ~620px so columns stack cleanly on small screens. */}
-      <div style={{ display: "flex", gap: "6px", alignItems: "flex-start", flexWrap: "wrap" }}>
-
-        {/* ── Left — Aggregate Output + Simulation Confidence ── */}
-        <div style={{ flex: "1 1 300px", display: "flex", flexDirection: "column", gap: "6px", minWidth: 0 }}>
-          <ColumnHeader title="Total Unit Output" />
-          <TotalUnitOutputRanged data={rangedAdj} maxDmg={maxDmg} />
-          <TotalUnitOutputMelee  data={meleeAdj}  maxDmg={maxDmg} />
-          {simulation && <SimulationConfidence sim={simulation} />}
-          <CalcList attacker_name={attacker_name} weapons={enabledWeapons} footer={footer} />
-        </div>
-
-        {/* ── Right — Per-weapon Targeting + Modifier Impact ── */}
-        <div style={{ flex: "1 1 300px", display: "flex", flexDirection: "column", gap: "6px", minWidth: 0 }}>
-          <ColumnHeader title="Weapon Platforms" />
-          <TargetingOutcome weapons={enabledWeapons} />
-          <ColumnHeader title="Sensitivity" />
-          <ModifierImpact   modifiers={modifier_impact} />
-        </div>
-
+      {/* Weapon spec table — clickable rows toggle weapons in/out of the sim */}
+      <div>
+        <WeaponStatsTable
+          weapons={weapons}
+          disabledWeapons={disabledWeapons}
+          onToggleWeapon={handleToggleWeapon}
+          activeFlags={attacker_flags}
+          onToggleFlag={handleToggleFlag}
+        />
       </div>
 
-      {/* Full width — abilities at bottom */}
+      {/* Targeting Outcome — per-weapon HIT/WOUND/UNSAVED cards */}
+      <TargetingOutcome weapons={enabledWeapons} />
+
+      {/* Total Output — Ranged + Melee hero panels */}
+      <div>
+        <SectionHeader>Total Output</SectionHeader>
+        <div style={{ display: "flex", gap: "8px", flexWrap: "wrap", alignItems: "stretch" }}>
+          <TotalUnitOutputPanel data={rangedAdj} maxDmg={maxDmg} phase="ranged" />
+          <TotalUnitOutputPanel data={meleeAdj}  maxDmg={maxDmg} phase="melee" />
+        </div>
+      </div>
+
+      {/* Modifier Impact + Simulation Confidence */}
+      <div style={{ display: "flex", gap: "8px", flexWrap: "wrap", alignItems: "flex-start" }}>
+        <div style={{ flex: "1 1 280px", minWidth: 0 }}>
+          <ModifierImpact modifiers={modifier_impact} />
+        </div>
+        {simulation && (
+          <div style={{ flex: "1 1 280px", minWidth: 0 }}>
+            <SimulationConfidence sim={simulation} />
+          </div>
+        )}
+      </div>
+
+      {/* Abilities — Attacker | Target */}
       <AbilitiesBlock abilities={abilities} />
+
+      {/* Verdict */}
+      <VerdictSummary ranged={rangedAdj} melee={meleeAdj} def_models={def_models} />
 
     </div>
   );

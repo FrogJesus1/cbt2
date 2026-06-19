@@ -12,10 +12,28 @@ import { C } from "./colors";
 export const CARD_STYLE = {
   background:   C.panel,
   border:       `1px solid ${C.border}`,
-  borderRadius: "0",
+  borderRadius: "5px",
 };
 
 export const CARD_PAD = { padding: "14px 16px" };
+
+// ─── SectionHeader ────────────────────────────────────────────────────────
+// Chakra-Petch uppercase label + a gold hazard rule that fills the row.
+// The redesign's standard section divider (replaces bare SectionTitle).
+
+export function SectionHeader({ children, accent = C.accent, style }) {
+  return (
+    <div style={{ display: "flex", alignItems: "center", gap: "10px", marginBottom: "12px", ...style }}>
+      <span
+        className="ct-display"
+        style={{ color: accent, fontSize: "12px", letterSpacing: "0.14em", flexShrink: 0 }}
+      >
+        {children}
+      </span>
+      <span className="ct-hazard" />
+    </div>
+  );
+}
 
 // ─── SectionTitle ─────────────────────────────────────────────────────────
 // Accepts an optional `style` prop that merges over the defaults.
@@ -51,12 +69,14 @@ export function SectionTitle({ children, style }) {
 export function Bar({
   value, max,
   pct: pctProp,
-  color    = C.green,
-  dimColor = C.ghost,
-  segments = 10,
-  height   = 6,
+  color      = C.green,
+  dimColor   = C.ghost,
+  trackColor = C.track,
+  segments   = 10,
+  height     = 6,
   width,
-  glow     = false,
+  glow       = false,
+  solid      = false,
 }) {
   let pct;
   if (pctProp != null) {
@@ -65,6 +85,32 @@ export function Bar({
     pct = (value != null && max > 0)
       ? Math.min(100, Math.max(0, (value / max) * 100))
       : 0;
+  }
+
+  // ── Solid variant (mockup): one track + a single eased fill, no segments ──
+  if (solid) {
+    return (
+      <div
+        style={{
+          flexShrink:   0,
+          flexGrow:     width ? 0 : 1,
+          ...(width ? { width: typeof width === "number" ? `${width}px` : width } : { width: "100%" }),
+          height:       `${height}px`,
+          background:   trackColor,
+          borderRadius: "3px",
+          overflow:     "hidden",
+        }}
+      >
+        <div style={{
+          height:       "100%",
+          width:        `${pct}%`,
+          background:   color,
+          borderRadius: "3px",
+          transition:   "width 0.9s cubic-bezier(0.22, 1, 0.36, 1)",
+          boxShadow:    glow ? "0 0 6px rgba(var(--ct-glow-rgb), 0.5)" : "none",
+        }} />
+      </div>
+    );
   }
 
   const rawFilled = Math.round((pct / 100) * segments);

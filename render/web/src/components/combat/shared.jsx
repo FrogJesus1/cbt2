@@ -8,9 +8,9 @@
  */
 
 import { C } from "../shared/colors";
-import { CARD_STYLE, CARD_PAD, Bar as SharedBar } from "../shared/constants";
+import { CARD_STYLE, CARD_PAD, Bar as SharedBar, SectionHeader } from "../shared/constants";
 
-export { C, CARD_STYLE, CARD_PAD };
+export { C, CARD_STYLE, CARD_PAD, SectionHeader };
 
 // ─── Formatters ────────────────────────────────────────────────────────────
 

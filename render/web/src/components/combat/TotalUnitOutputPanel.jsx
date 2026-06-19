@@ -1,85 +1,85 @@
 /**
  * TotalUnitOutputPanel
  *
- * Unified ranged/melee aggregate output card.
- * Pass phase="ranged" or phase="melee" to set the title and empty-state message.
+ * Aggregate output card for one phase. Redesign layout: a phase dot + label,
+ * a big hero damage number, a solid damage bar, then Slain / Kill% / Overkill
+ * rows, and a swinginess footer.
  *
- * Layout:
- *   Dmg         [====] 10.95 dmg
- *   Kills       [===]  <1 kill
- *   Kill Chance [===]  4%
- *   Avg / Atk   [===]  1.82
- *   Overkill    [=  ]  1%
- *   Squad Wipe  [   ]  0%
- *   ─────────────────────────────
- *   Swinginess  1.48  — Swingy      Monte Carlo
+ * Pass phase="ranged" (green) or phase="melee" (gold).
+ *
+ * Props: data (summary | null), maxDmg, phase
  */
 
-import { Card, CardContent } from "@/components/ui/card";
-import { C, CARD_STYLE, CARD_PAD, fmt, fmtPct, fmtKills, SectionTitle, SwingScore } from "./shared";
-import { GraphListBlock } from "./GraphListBlock";
+import { C, CARD_STYLE, fmt, fmtPct, fmtKills, Bar } from "./shared";
 
-const PHASE_CONFIG = {
-  ranged: { title: "Ranged Output", empty: "No ranged data." },
-  melee:  { title: "Melee Output",  empty: "No melee data." },
+const PHASE = {
+  ranged: { title: "Ranged Output", dot: C.green,  empty: "No ranged data." },
+  melee:  { title: "Melee Output",  dot: C.accent, empty: "No melee data." },
 };
 
-function buildItems(data, maxDmg) {
-  if (!data) return [];
-  const {
-    expected_dmg, expected_kills, kill_chance_pct,
-    avg_dmg_per_attack, overkill_waste_pct, squad_wipe_pct,
-  } = data;
-
-  const killsMax = expected_kills != null ? Math.max(1, Math.ceil(expected_kills)) : 1;
-
-  return [
-    expected_dmg != null && {
-      label: "Dmg", value: expected_dmg, max: maxDmg, color: C.green,
-      displayValue: `${fmt(expected_dmg)} dmg`,
-    },
-    expected_kills != null && {
-      label: "Kills", value: expected_kills, max: killsMax, color: C.amber,
-      displayValue: fmtKills(expected_kills),
-    },
-    kill_chance_pct != null && {
-      label: "Kill Chance", value: kill_chance_pct, max: 100, color: C.red,
-      displayValue: fmtPct(kill_chance_pct),
-    },
-    avg_dmg_per_attack != null && {
-      label: "Avg / Atk", value: avg_dmg_per_attack,
-      max: Math.max(1, maxDmg / 4), displayValue: fmt(avg_dmg_per_attack),
-    },
-    overkill_waste_pct != null && {
-      label: "Overkill", value: overkill_waste_pct, max: 100, color: C.red,
-      displayValue: fmtPct(overkill_waste_pct),
-    },
-    squad_wipe_pct != null && {
-      label: "Squad Wipe", value: squad_wipe_pct, max: 100, color: C.green,
-      displayValue: fmtPct(squad_wipe_pct),
-    },
-  ].filter(Boolean);
+function StatRow({ label, value, color }) {
+  if (value === undefined) return null;
+  return (
+    <div style={{ display: "flex", alignItems: "baseline", justifyContent: "space-between", gap: "8px", lineHeight: 1.9 }}>
+      <span className="ct-display" style={{ color: C.dim, fontSize: "8px", letterSpacing: "0.08em" }}>{label}</span>
+      <span style={{ color: color || C.textMid, fontSize: "11px", fontWeight: 600 }}>{value}</span>
+    </div>
+  );
 }
 
 export function TotalUnitOutputPanel({ data, maxDmg = 10, phase = "ranged" }) {
-  const items = buildItems(data, maxDmg);
-  const { swinginess, swinginess_label } = data ?? {};
-  const cfg = PHASE_CONFIG[phase] || PHASE_CONFIG.ranged;
+  const cfg = PHASE[phase] || PHASE.ranged;
+
+  const card = { ...CARD_STYLE, padding: "12px 14px", flex: "1 1 220px", minWidth: 0 };
+
+  if (!data) {
+    return (
+      <div style={card}>
+        <Header cfg={cfg} />
+        <div style={{ color: C.dim, fontSize: "12px", fontStyle: "italic" }}>{cfg.empty}</div>
+      </div>
+    );
+  }
+
+  const { expected_dmg, expected_kills, kill_chance_pct, overkill_waste_pct, swinginess, swinginess_label } = data;
 
   return (
-    <Card style={CARD_STYLE}>
-      <CardContent style={CARD_PAD}>
-        <SectionTitle>{cfg.title}</SectionTitle>
-        {items.length > 0
-          ? (
-            <>
-              <GraphListBlock items={items} />
-              <SwingScore value={swinginess} label={swinginess_label} />
-            </>
-          )
-          : <div style={{ color: C.label, fontSize: "12px", fontStyle: "italic" }}>{cfg.empty}</div>
-        }
-      </CardContent>
-    </Card>
+    <div style={card}>
+      <Header cfg={cfg} />
+
+      {/* hero damage number */}
+      <div style={{ display: "flex", alignItems: "baseline", gap: "6px", margin: "2px 0 9px" }}>
+        <span className="ct-display" style={{ color: cfg.dot, fontSize: "26px", fontWeight: 700, lineHeight: 1, textShadow: `0 0 10px ${cfg.dot}45` }}>
+          {fmt(expected_dmg)}
+        </span>
+        <span style={{ color: C.dim, fontSize: "10px" }}>dmg</span>
+      </div>
+      <Bar pct={Math.min(100, ((expected_dmg ?? 0) / Math.max(1, maxDmg)) * 100)} color={cfg.dot} solid height={6} />
+
+      {/* stat rows */}
+      <div style={{ marginTop: "10px", borderTop: `1px solid ${C.border}`, paddingTop: "6px" }}>
+        <StatRow label="Models Slain" value={expected_kills != null ? fmtKills(expected_kills) : undefined} color={C.text} />
+        <StatRow label="Kill Chance"  value={kill_chance_pct != null ? fmtPct(kill_chance_pct) : undefined} color={C.danger} />
+        <StatRow label="Overkill"     value={overkill_waste_pct != null ? fmtPct(overkill_waste_pct) : undefined} color={C.danger} />
+      </div>
+
+      {/* swinginess footer */}
+      {swinginess != null && (
+        <div style={{ marginTop: "8px", paddingTop: "7px", borderTop: `1px solid ${C.border}`, display: "flex", alignItems: "baseline", gap: "8px" }}>
+          <span className="ct-display" style={{ color: C.dim, fontSize: "8px", letterSpacing: "0.1em" }}>Swinginess</span>
+          <span style={{ color: C.accent, fontSize: "14px", fontWeight: 700 }}>{Number(swinginess).toFixed(2)}</span>
+          {swinginess_label && <span style={{ color: C.accent, opacity: 0.6, fontSize: "10px", fontStyle: "italic" }}>— {swinginess_label}</span>}
+        </div>
+      )}
+    </div>
+  );
+}
+
+function Header({ cfg }) {
+  return (
+    <div style={{ display: "flex", alignItems: "center", gap: "7px", marginBottom: "8px" }}>
+      <span style={{ width: "7px", height: "7px", borderRadius: "50%", background: cfg.dot, boxShadow: `0 0 6px ${cfg.dot}` }} />
+      <span className="ct-display" style={{ color: cfg.dot, fontSize: "10px", letterSpacing: "0.12em" }}>{cfg.title}</span>
+    </div>
   );
 }

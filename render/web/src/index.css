@@ -2,63 +2,209 @@
 @tailwind components;
 @tailwind utilities;
 
-/* ── Combat Terminal — Retro phosphor theme ─────────────────────────── */
+/* ── Combat Terminal — "Cogitator Dashboard" theme ──────────────────────
+ * Phosphor-green data on near-black slate, near-white body text,
+ * gold section accents, cyan secondary, red danger. Default palette is
+ * the redesign's exact mockup hexes; faction themes re-hue the same
+ * semantic mapping (primary / accent / danger). All values flow through
+ * CSS variables so the theme picker keeps working.
+ * ──────────────────────────────────────────────────────────────────── */
 
 @layer base {
   :root {
-    --background: 0 0% 2%;
-    --foreground: 120 100% 54%;
-    --border: 120 60% 12%;
-    --input: 120 60% 12%;
-    --ring: 120 100% 54%;
-    --radius: 0rem;
-    --primary: 120 100% 54%;
-    --primary-foreground: 120 100% 3%;
-    --secondary: 120 40% 8%;
-    --secondary-foreground: 120 80% 50%;
-    --muted: 120 30% 6%;
-    --muted-foreground: 120 40% 30%;
-    --accent: 120 40% 10%;
-    --accent-foreground: 120 100% 54%;
-    --card: 120 30% 4%;
-    --card-foreground: 120 100% 54%;
+    --background: 220 13% 6%;
+    --foreground: 120 18% 94%;
+    --border: 140 8% 15%;
+    --input: 140 8% 15%;
+    --ring: 137 62% 58%;
+    --radius: 0.3125rem;
+    --primary: 137 62% 58%;
+    --primary-foreground: 137 30% 6%;
+    --secondary: 140 12% 9%;
+    --secondary-foreground: 137 50% 60%;
+    --muted: 140 10% 8%;
+    --muted-foreground: 100 6% 55%;
+    --accent: 41 58% 60%;
+    --accent-foreground: 220 13% 6%;
+    --card: 90 10% 7%;
+    --card-foreground: 120 18% 94%;
   }
 }
 
-/* ── Theme CSS variables ─────────────────────────────────────────────── */
-/* Applied via data-theme on the root div in App.jsx.                    */
-/* Only primary/accent colours change. Amber, cyan, red stay semantic.  */
+/* ── Theme-constant semantic colours ──────────────────────────────────── */
+/* Defaults shared by every (dark) theme; specific themes override below.  */
+/* `[data-theme]` and `[data-theme="x"]` have equal specificity, so this   */
+/* base block must come first — later same-specificity rules win.          */
 
-[data-theme="dark"] {
-  --ct-primary:       #39ff14;
-  --ct-primary-mid:   #22bb0e;
-  --ct-primary-label: #20a010;
-  --ct-primary-dim:   #145c08;
-  --ct-border:        #0d2a0a;
-  --ct-border-bright: #1a4a14;
-  --ct-bg:            #050805;
-  --ct-bg-dark:       #040704;
-  --ct-bg-panel:      #080e08;
-  --ct-echo:          #d4f5c4;
-  --ct-glow-rgb:      57, 255, 20;
-  --ct-ghost:         #0a2405;
-  --ct-bar-alt:       #00e5ff;
+[data-theme] {
+  --ct-cyan:           #4fd0e0;
+  --ct-bar-alt:        #4fd0e0;   /* legacy alias for cyan */
+  --ct-lead-cyan:      #7fe0ec;
+  --ct-warn:           #ffb000;
+  --ct-improved:       #6ee08a;
+  --ct-text-mid:       #cdd4cb;
+  --ct-body-dim:       #a8b0a4;
+  --ct-hairline:       #1a201c;
+  --ct-verdict-border: #1f5a36;
+  --ct-faction-sm:     #5b9bff;
+  --ct-faction-tau:    #e0962e;
+  --ct-faction-necron: #4fd873;
+  --ct-faction-ork:    #a0c020;
+  --ct-faction-aeldari:#4fd0e0;
+  --ct-faction-dg:     #9bbf4a;
 }
 
+/* ── Default · phosphor green (mockup palette) ───────────────────────── */
+[data-theme="dark"] {
+  --ct-primary:       #4fd873;
+  --ct-primary-mid:   #2a6c44;
+  --ct-primary-label: #84907f;
+  --ct-primary-dim:   #84907f;
+  --ct-border:        #232a26;
+  --ct-border-bright: #2a6c44;
+  --ct-track:         #1c241e;
+  --ct-bg:            #0d0f12;
+  --ct-bg-dark:       #0a0c0e;
+  --ct-bg-panel:      #12150f;
+  --ct-text:          #eef4ee;
+  --ct-echo:          #eef4ee;
+  --ct-accent:        #d8b25a;
+  --ct-danger:        #ff5d5d;
+  --ct-glow-rgb:      79, 216, 115;
+  --ct-ghost:         #3f4a40;
+}
+
+/* ── T'au · Farsight Enclave · crimson & flame ───────────────────────── */
+[data-theme="tau-farsight"] {
+  --ct-primary:       #ef4a3a;
+  --ct-primary-mid:   #7a241a;
+  --ct-primary-label: #9a7a68;
+  --ct-primary-dim:   #9a7a68;
+  --ct-border:        #3a1610;
+  --ct-border-bright: #7a241a;
+  --ct-track:         #280f0b;
+  --ct-bg:            #0a0706;
+  --ct-bg-dark:       #070403;
+  --ct-bg-panel:      #170b08;
+  --ct-text:          #f2e7da;
+  --ct-echo:          #f2e7da;
+  --ct-accent:        #f2c25a;
+  --ct-danger:        #ff8a3d;
+  --ct-glow-rgb:      239, 74, 58;
+  --ct-ghost:         #3a1610;
+}
+
+/* ── Orks · acid yellow & rust ───────────────────────────────────────── */
+[data-theme="orks"] {
+  --ct-primary:       #cfe023;
+  --ct-primary-mid:   #6a7012;
+  --ct-primary-label: #9a8c54;
+  --ct-primary-dim:   #9a8c54;
+  --ct-border:        #3a3008;
+  --ct-border-bright: #6a7012;
+  --ct-track:         #221a04;
+  --ct-bg:            #100c00;
+  --ct-bg-dark:       #0a0800;
+  --ct-bg-panel:      #1a1402;
+  --ct-text:          #f2eccb;
+  --ct-echo:          #f2eccb;
+  --ct-accent:        #e0631c;
+  --ct-danger:        #ff3a1e;
+  --ct-glow-rgb:      207, 224, 35;
+  --ct-ghost:         #3a3008;
+}
+
+/* ── Chaos Daemons · blood-red & warp-purple ─────────────────────────── */
+[data-theme="chaos-daemons"] {
+  --ct-primary:       #ff2733;
+  --ct-primary-mid:   #7a1019;
+  --ct-primary-label: #9a6068;
+  --ct-primary-dim:   #9a6068;
+  --ct-border:        #3a0c1a;
+  --ct-border-bright: #7a1019;
+  --ct-track:         #220712;
+  --ct-bg:            #0a0306;
+  --ct-bg-dark:       #060003;
+  --ct-bg-panel:      #16070d;
+  --ct-text:          #f4dde2;
+  --ct-echo:          #f4dde2;
+  --ct-accent:        #bf40ff;
+  --ct-danger:        #ff6a2a;
+  --ct-glow-rgb:      255, 39, 51;
+  --ct-ghost:         #3a0c1a;
+}
+
+/* ── Dark Angels · bone & forest (monastic) ──────────────────────────── */
+[data-theme="dark-angels"] {
+  --ct-primary:       #e6dcc2;
+  --ct-primary-mid:   #6b7a5e;
+  --ct-primary-label: #7c8a72;
+  --ct-primary-dim:   #7c8a72;
+  --ct-border:        #16341f;
+  --ct-border-bright: #6b7a5e;
+  --ct-track:         #0e2415;
+  --ct-bg:            #04130c;
+  --ct-bg-dark:       #020c07;
+  --ct-bg-panel:      #0a1a10;
+  --ct-text:          #eef2e6;
+  --ct-echo:          #eef2e6;
+  --ct-accent:        #2faa55;
+  --ct-danger:        #c23b3b;
+  --ct-glow-rgb:      230, 220, 194;
+  --ct-ghost:         #16341f;
+}
+
+/* ── White Scars · Light (inverted: dark text on light ground) ───────── */
 [data-theme="light"] {
-  --ct-primary:       #1a5c10;
-  --ct-primary-mid:   #2a7a1e;
-  --ct-primary-label: #3a8a2e;
-  --ct-primary-dim:   #8ab880;
-  --ct-border:        #c0d8bc;
-  --ct-border-bright: #7aaa70;
-  --ct-bg:            #f2f5f0;
-  --ct-bg-dark:       #e8ece6;
-  --ct-bg-panel:      #eaf0e8;
-  --ct-echo:          #1a3010;
-  --ct-glow-rgb:      26, 92, 16;
-  --ct-ghost:         #dce5da;
-  --ct-bar-alt:       #0088aa;
+  --ct-primary:       #c0392b;
+  --ct-primary-mid:   #9a5048;
+  --ct-primary-label: #8a8170;
+  --ct-primary-dim:   #8a8170;
+  --ct-border:        #cfc8b8;
+  --ct-border-bright: #9a5048;
+  --ct-track:         #dbd5c7;
+  --ct-bg:            #ece9e2;
+  --ct-bg-dark:       #e2ded4;
+  --ct-bg-panel:      #f6f3ed;
+  --ct-text:          #2a2620;
+  --ct-echo:          #2a2620;
+  --ct-accent:        #b8893a;
+  --ct-danger:        #d9622e;
+  --ct-glow-rgb:      192, 57, 43;
+  --ct-ghost:         #cfc8b8;
+  /* light-mode overrides for the shared semantic constants */
+  --ct-text-mid:      #514c42;
+  --ct-body-dim:      #6b6457;
+  --ct-hairline:      #d4cdbd;
+  --ct-cyan:          #1f8a99;
+  --ct-bar-alt:       #1f8a99;
+  --ct-lead-cyan:     #2a9aa8;
+  --ct-improved:      #2a8a4a;
+  --ct-warn:          #b8860b;
+}
+
+/* ── Console · pure retro amber phosphor (bonus, not in the handoff) ──── */
+[data-theme="console"] {
+  --ct-primary:       #ffb000;
+  --ct-primary-mid:   #cc8d00;
+  --ct-primary-label: #997a00;
+  --ct-primary-dim:   #997a00;
+  --ct-border:        #3d2e00;
+  --ct-border-bright: #ffb000;
+  --ct-track:         #1a1200;
+  --ct-bg:            #000000;
+  --ct-bg-dark:       #000000;
+  --ct-bg-panel:      #0a0700;
+  --ct-text:          #ffe9c0;
+  --ct-echo:          #ffe0a0;
+  --ct-accent:        #ffd700;
+  --ct-danger:        #ff5d5d;
+  --ct-glow-rgb:      255, 176, 0;
+  --ct-ghost:         #110a00;
+  --ct-cyan:          #ffd700;
+  --ct-bar-alt:       #ffd700;
+  --ct-text-mid:      #d8b878;
+  --ct-body-dim:      #b39550;
 }
 
 @layer base {
@@ -72,139 +218,37 @@
   }
 
   body {
-    background-color: var(--ct-bg, #050805);
-    color: var(--ct-primary, #39ff14);
+    background-color: var(--ct-bg, #0d0f12);
+    color: var(--ct-text, #eef4ee);
     font-family: "IBM Plex Mono", "Courier New", Courier, "Lucida Console", monospace;
     font-size: 15px;
-    line-height: 1.65;
+    line-height: 1.6;
     -webkit-font-smoothing: antialiased;
   }
 
-  /* Scanline overlay — disabled, kept for reference */
+  /* Scanline overlay — disabled globally; CRT effects live on the login boot. */
   /* body::before {
     content: '';
-    position: fixed;
-    inset: 0;
-    pointer-events: none;
-    z-index: 9999;
-    background: repeating-linear-gradient(
-      0deg,
-      transparent,
-      transparent 3px,
-      rgba(0, 0, 0, 0.08) 3px,
-      rgba(0, 0, 0, 0.08) 4px
-    );
-  } */
-
-  /* Vignette — disabled, kept for reference */
-  /* body::after {
-    content: '';
-    position: fixed;
-    inset: 0;
-    pointer-events: none;
-    z-index: 9998;
-    background: radial-gradient(ellipse at center, transparent 60%, rgba(0,0,0,0.4) 100%);
+    position: fixed; inset: 0; pointer-events: none; z-index: 9999;
+    background: repeating-linear-gradient(0deg, transparent 0 2px, rgba(0,0,0,.09) 2px 3px);
   } */
 
   /* Scrollbars */
   ::-webkit-scrollbar { width: 4px; height: 4px; }
   ::-webkit-scrollbar-track { background: transparent; }
-  ::-webkit-scrollbar-thumb { background: #0d2a0a; border-radius: 0; }
-  ::-webkit-scrollbar-thumb:hover { background: #1a4a14; }
+  ::-webkit-scrollbar-thumb { background: var(--ct-border); border-radius: 0; }
+  ::-webkit-scrollbar-thumb:hover { background: var(--ct-border-bright); }
 }
 
-/* ── Light theme — clean up ────────────────────────────────────────────── */
-/* Remove glow effects in light mode — they muddy light backgrounds */
+/* ── Light theme — strip glow (muddies light backgrounds) ──────────────── */
 [data-theme="light"] .ct-glow,
-[data-theme="light"] .ct-glow-sm {
+[data-theme="light"] .ct-glow-sm,
+[data-theme="light"] .ct-glow-amber,
+[data-theme="light"] .ct-glow-cyan {
   text-shadow: none !important;
 }
 
-/* Clean light-mode scrollbar */
-[data-theme="light"] ::-webkit-scrollbar-thumb { background: #c0d8bc; }
-[data-theme="light"] ::-webkit-scrollbar-thumb:hover { background: #7aaa70; }
-
-/* ── Chaos Daemons theme ───────────────────────────────────────────────
- * Blood-red and warp-purple on void black — daemonic corruption.
- * ─────────────────────────────────────────────────────────────────────── */
-
-[data-theme="chaos-daemons"] {
-  --ct-primary:       #ff2020;
-  --ct-primary-mid:   #cc1a1a;
-  --ct-primary-label: #aa1414;
-  --ct-primary-dim:   #661010;
-  --ct-border:        #3a0a0a;
-  --ct-border-bright: #8b1a1a;
-  --ct-bg:            #080004;
-  --ct-bg-dark:       #060003;
-  --ct-bg-panel:      #0e0308;
-  --ct-echo:          #ffb0b0;
-  --ct-glow-rgb:      255, 32, 32;
-  --ct-ghost:         #1a0508;
-  --ct-bar-alt:       #bf40ff;
-}
-
-/* ── Dark Angels theme ─────────────────────────────────────────────────
- * Deep forest green and bone-white — the Unforgiven.
- * ─────────────────────────────────────────────────────────────────────── */
-
-[data-theme="dark-angels"] {
-  --ct-primary:       #2aaa4a;
-  --ct-primary-mid:   #1e7a36;
-  --ct-primary-label: #186a2e;
-  --ct-primary-dim:   #0e4a1e;
-  --ct-border:        #0c3014;
-  --ct-border-bright: #1e6030;
-  --ct-bg:            #020804;
-  --ct-bg-dark:       #010603;
-  --ct-bg-panel:      #040e06;
-  --ct-echo:          #d4e8cc;
-  --ct-glow-rgb:      42, 170, 74;
-  --ct-ghost:         #061a0a;
-  --ct-bar-alt:       #e8d4a0;
-}
-
-/* ── Orks theme ────────────────────────────────────────────────────────
- * Grimy yellow-green and rust — brutal, loud, orky.
- * ─────────────────────────────────────────────────────────────────────── */
-
-[data-theme="orks"] {
-  --ct-primary:       #a0e020;
-  --ct-primary-mid:   #7ab018;
-  --ct-primary-label: #608a14;
-  --ct-primary-dim:   #3a5a0c;
-  --ct-border:        #2a3a08;
-  --ct-border-bright: #506010;
-  --ct-bg:            #0a0800;
-  --ct-bg-dark:       #080600;
-  --ct-bg-panel:      #0e0c02;
-  --ct-echo:          #e0f0a0;
-  --ct-glow-rgb:      160, 224, 32;
-  --ct-ghost:         #141000;
-  --ct-bar-alt:       #c85020;
-}
-
-/* ── Console (Retro Terminal) theme ─────────────────────────────────────
- * Pure retro — monospace only, amber phosphor on black, no chrome.
- * ─────────────────────────────────────────────────────────────────────── */
-
-[data-theme="console"] {
-  --ct-primary:       #ffb000;
-  --ct-primary-mid:   #cc8d00;
-  --ct-primary-label: #997a00;
-  --ct-primary-dim:   #664d00;
-  --ct-border:        #3d2e00;
-  --ct-border-bright: #ffb000;
-  --ct-bg:            #000000;
-  --ct-bg-dark:       #000000;
-  --ct-bg-panel:      #0a0700;
-  --ct-echo:          #ffe0a0;
-  --ct-glow-rgb:      255, 176, 0;
-  --ct-ghost:         #110a00;
-  --ct-bar-alt:       #ffb000;
-}
-
-/* Force monospace font and 14px globally — medium weight for readability */
+/* ── Console theme — force monospace, strip chrome ─────────────────────── */
 [data-theme="console"],
 [data-theme="console"] * {
   font-family: "Courier New", Courier, monospace !important;
@@ -214,12 +258,10 @@
   border-radius: 0 !important;
 }
 
-/* 14px on all text-bearing elements (skip SVG internals) */
 [data-theme="console"] *:not(svg):not(path):not(circle):not(g):not(line):not(polygon) {
   font-size: 14px !important;
 }
 
-/* Strip background gradients from all layout containers */
 [data-theme="console"] div,
 [data-theme="console"] nav,
 [data-theme="console"] button,
@@ -229,9 +271,9 @@
   background-image: none !important;
 }
 
-/* ASCII-style borders: plain hairlines, pure black background */
 [data-theme="console"] .ct-panel,
-[data-theme="console"] .ct-panel-inner {
+[data-theme="console"] .ct-panel-inner,
+[data-theme="console"] .ct-card {
   border: 1px solid #3d2e00 !important;
   background-color: #000000 !important;
 }
@@ -248,64 +290,105 @@
   }
 
   .ct-glow-amber {
-    text-shadow: 0 0 6px rgba(255, 163, 40, 0.7);
+    text-shadow: 0 0 6px rgba(216, 178, 90, 0.6);
   }
 
   .ct-glow-cyan {
-    text-shadow: 0 0 6px rgba(0, 229, 255, 0.7);
+    text-shadow: 0 0 6px rgba(79, 208, 224, 0.6);
+  }
+
+  /* ── Display face (Chakra Petch) — headings, hero numbers, nav, badges ── */
+  .ct-display {
+    font-family: "Chakra Petch", "IBM Plex Mono", monospace;
+    text-transform: uppercase;
+    letter-spacing: 0.14em;
+    font-weight: 600;
+  }
+
+  /* Hazard rule — the gold dashed divider beside section headers */
+  .ct-hazard {
+    flex: 1;
+    height: 3px;
+    border-radius: 2px;
+    opacity: 0.5;
+    background: repeating-linear-gradient(
+      45deg,
+      var(--ct-accent) 0 6px,
+      var(--ct-bg-panel) 6px 12px
+    );
+  }
+
+  /* Card / tile shell (mockup: panel bg, hairline border, 5px radius) */
+  .ct-card {
+    background-color: var(--ct-bg-panel);
+    border: 1px solid var(--ct-border);
+    border-radius: 5px;
   }
 
   /* Panel box — dark with theme border */
   .ct-panel {
     border: 1px solid var(--ct-border);
     background-color: var(--ct-bg-panel);
+    border-radius: 5px;
   }
 
   .ct-panel-inner {
     border: 1px solid var(--ct-border);
     background-color: var(--ct-bg-panel);
+    border-radius: 5px;
   }
 
-  /* Bar chart track */
+  /* Solid bar track + fill (mockup: 6px track, radius 3px, no segments) */
   .ct-bar-track {
-    background-color: var(--ct-bg-panel);
-    border: 1px solid var(--ct-border);
-    height: 14px;
+    background-color: var(--ct-track);
+    border-radius: 3px;
+    height: 6px;
     position: relative;
     overflow: hidden;
   }
 
   .ct-bar-fill {
     height: 100%;
+    border-radius: 3px;
     background-color: var(--ct-primary);
-    box-shadow: 0 0 4px rgba(var(--ct-glow-rgb), 0.6);
-    transition: width 0.4s ease;
+    transition: width 0.9s cubic-bezier(0.22, 1, 0.36, 1);
   }
 
   .ct-bar-fill-amber {
     height: 100%;
-    background-color: #ffa328;
-    box-shadow: 0 0 4px rgba(255, 163, 40, 0.6);
+    border-radius: 3px;
+    background-color: var(--ct-accent);
   }
 
   .ct-bar-fill-cyan {
     height: 100%;
-    background-color: #00e5ff;
-    box-shadow: 0 0 4px rgba(0, 229, 255, 0.6);
+    border-radius: 3px;
+    background-color: var(--ct-cyan);
   }
 
   .ct-bar-fill-dim {
     height: 100%;
+    border-radius: 3px;
     background-color: var(--ct-primary-dim);
   }
 
-  /* Section title line */
+  /* Section title line (legacy helper; SectionHeader component preferred) */
   .ct-section-title {
-    color: #ffa328;
-    text-shadow: 0 0 6px rgba(255, 163, 40, 0.6);
+    color: var(--ct-accent);
+    font-family: "Chakra Petch", "IBM Plex Mono", monospace;
     font-size: 13px;
-    letter-spacing: 0.15em;
+    letter-spacing: 0.14em;
     text-transform: uppercase;
+  }
+
+  /* Blinking caret for the command bar */
+  .ct-caret {
+    animation: ct-blink 1.1s steps(1) infinite;
+  }
+
+  @keyframes ct-blink {
+    0%, 50% { opacity: 1; }
+    50.01%, 100% { opacity: 0; }
   }
 
   /* Scrollbar theming */

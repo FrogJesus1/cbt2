@@ -2570,6 +2570,9 @@ class CombatTerminalEngine(EngineBase):
                 "def_models_override": def_models_override,
                 "ranged":              math_result.get("ranged"),
                 "melee":               math_result.get("melee"),
+                # Resolved defender profile (T/Sv/W/invuln) — surfaced for the
+                # redesign's Forces Engaged target stat line + Verdict survivors.
+                "target_profile":      math_result.get("target_profile"),
                 "weapons":             weapons,
                 "damage_distribution": None,   # Monte Carlo kill-bucket chart — future
                 "modifier_impact":     sensitivity or None,
