@@ -70,6 +70,11 @@ function prettyRole(role) {
 
 const ROW_KW_CAP = 6;
 
+// Points slider tops out here (most units are 40–350pts; 3500-pt slider was
+// unusable). The slider's max position means "no upper cap"; type a number in
+// the editable max box for a precise cap (incl. > 500).
+const POINTS_SLIDER_MAX = 500;
+
 // ── component ────────────────────────────────────────────────────────────────
 
 export function UnitListRich({ data = [], meta, onInject, starredUnits, onToggleStar, initialFaction }) {
@@ -116,8 +121,8 @@ export function UnitListRich({ data = [], meta, onInject, starredUnits, onToggle
         .map(([value, label]) => ({ value, label }))];
     return {
       factionOptions,
-      roleUniverse: [...rset].sort(),
-      kwUniverse: [...kset].sort(),
+      roleUniverse: [...rset].sort((a, b) => String(a).toLowerCase().localeCompare(String(b).toLowerCase())),
+      kwUniverse:   [...kset].sort((a, b) => String(a).toLowerCase().localeCompare(String(b).toLowerCase())),
       ptsLo: 0,
       ptsHi: hi > 0 ? Math.max(5, Math.ceil(hi / 5) * 5) : 260,
     };
@@ -131,23 +136,44 @@ export function UnitListRich({ data = [], meta, onInject, starredUnits, onToggle
   const [search, setSearch] = useState("");
   const [sort, setSort] = useState("pts-desc");
   const [shortlistOnly, setShortlistOnly] = useState(false);
-  const [costMin, setCostMin] = useState(ptsLo);
-  const [costMax, setCostMax] = useState(ptsHi);
+  const [costMin, setCostMin] = useState(0);
+  const [costMax, setCostMax] = useState(null);  // null = no upper cap
 
-  // Seed the faction filter from a `list units <arg>` command (the static UNITS
-  // page consumes such commands as a filter, not a new feed). Matches a faction
-  // when it can, else drops the term into search. Bare/"All" resets to all.
+  // Seed filters from a `list units <args>` command (the static UNITS page
+  // consumes such commands as filters, not a new feed). Splits args into a
+  // faction (non-flag tokens) and keyword flags (e.g. `--blast` → the Blast
+  // chip), so `list units tau --blast` filters T'au AND selects Blast.
   useEffect(() => {
     if (initialFaction == null) return;
-    const arg = String(initialFaction).trim();
-    if (!arg || /^all$/i.test(arg)) { setFaction("All"); return; }
-    const key = nameKey(arg);
-    const match = factionOptions.find((o) =>
-      o.value !== "All" && (nameKey(o.value) === key || nameKey(o.label) === key
-        || nameKey(o.label).includes(key) || nameKey(o.value).includes(key)));
-    if (match) { setFaction(match.value); setSearch(""); }
-    else { setFaction("All"); setSearch(arg.replace(/^--/, "")); }
-  }, [initialFaction, factionOptions]);
+    const raw = String(initialFaction).trim();
+    if (!raw || /^all$/i.test(raw)) { setFaction("All"); setKw({}); setSearch(""); return; }
+    const tokens  = raw.split(/\s+/).filter(Boolean);
+    const flags   = tokens.filter((t) => t.startsWith("--")).map((t) => t.replace(/^-+/, ""));
+    const factTok = tokens.filter((t) => !t.startsWith("--"));
+
+    // faction (joined non-flag tokens)
+    const fkey = nameKey(factTok.join(""));
+    const fMatch = fkey && factionOptions.find((o) =>
+      o.value !== "All" && (nameKey(o.value) === fkey || nameKey(o.label) === fkey
+        || nameKey(o.label).includes(fkey) || nameKey(o.value).includes(fkey)));
+    setFaction(fMatch ? fMatch.value : "All");
+
+    // keyword flags → matching chips (case/space-insensitive)
+    const nextKw = {};
+    for (const f of flags) {
+      const fk = nameKey(f);
+      if (!fk) continue;
+      const kMatch = kwUniverse.find((k) => {
+        const kk = nameKey(k);
+        return kk === fk || kk.includes(fk) || fk.includes(kk);
+      });
+      if (kMatch) nextKw[kMatch] = true;
+    }
+    setKw(nextKw);
+
+    // unmatched faction text → search; otherwise clear it
+    setSearch(fMatch || !factTok.length ? "" : factTok.join(" "));
+  }, [initialFaction, factionOptions, kwUniverse]);
 
   // ── roster filter (real saved rosters; defensive, fails to no-op) ──
   const [rosterList, setRosterList] = useState([]);     // [{id,name,faction}]
@@ -204,8 +230,8 @@ export function UnitListRich({ data = [], meta, onInject, starredUnits, onToggle
       if (shortlistOnly) return starredSet.has(u.name);
       if (faction !== "All" && u.faction !== faction) return false;
       if (roster !== "all" && rosterNames && !rosterNames.has(nameKey(u.name))) return false;
-      const p = toNum(u.points);
-      if (p != null && (p < costMin || p > costMax)) return false;  // null-points units always pass
+      const p = toNum(u.points);  // null-points units always pass; costMax null = no upper cap
+      if (p != null && (p < costMin || (costMax != null && p > costMax))) return false;
       if (selKw.length && !selKw.every((k) => (u.keywords || []).includes(k))) return false;
       if (selRole.length && !selRole.includes(u.role)) return false;
       if (q && !u.name.toLowerCase().includes(q)) return false;
@@ -225,8 +251,8 @@ export function UnitListRich({ data = [], meta, onInject, starredUnits, onToggle
   const onReset = useCallback(() => {
     setFaction("All"); setRoster("all"); setRosterNames(null); setRosterHint("");
     setKw({}); setRole({}); setSearch(""); setShortlistOnly(false);
-    setCostMin(ptsLo); setCostMax(ptsHi);
-  }, [ptsLo, ptsHi]);
+    setCostMin(0); setCostMax(null);
+  }, []);
 
   const goldBorder = `color-mix(in srgb, ${C.accent} 34%, transparent)`;
 
@@ -288,11 +314,10 @@ export function UnitListRich({ data = [], meta, onInject, starredUnits, onToggle
             rosterBusy={rosterBusy}
             costMin={costMin}
             costMax={costMax}
-            costLo={ptsLo}
-            costHi={ptsHi}
+            sliderMax={POINTS_SLIDER_MAX}
             costStep={5}
-            onCostMin={(e) => setCostMin(Math.min(Number(e.target.value), costMax))}
-            onCostMax={(e) => setCostMax(Math.max(Number(e.target.value), costMin))}
+            onCostMin={(n) => setCostMin(Math.max(0, Math.min(Number(n) || 0, costMax == null ? Infinity : costMax)))}
+            onCostMax={(n) => setCostMax(n == null ? null : Math.max(Number(n) || 0, costMin))}
             keywords={keywordChips}
             roles={roleChips}
             onReset={onReset}

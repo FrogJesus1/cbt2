@@ -83,10 +83,15 @@ function Slider({ min, max, step, value, onChange }) {
 export function UnitListFilters({
   factionSel, onFaction, factionOptions = [],
   rosterSel, onRoster, rosterOptions = [], rosterHint, rosterBusy,
-  costMin, costMax, costLo, costHi, costStep = 5, onCostMin, onCostMax,
+  costMin, costMax, sliderMax = 500, costStep = 5, onCostMin, onCostMax,
   keywords = [], roles = [],
   onReset,
 }) {
+  const ptsInput = {
+    width: "58px", background: "var(--ct-bg)", border: `1px solid ${C.border}`,
+    color: C.textMid, fontFamily: "inherit", fontSize: "12px", textAlign: "center",
+    padding: "5px 4px", borderRadius: "4px", outline: "none",
+  };
   return (
     <div style={{
       borderRight: `1px solid ${C.hairline}`,
@@ -119,16 +124,35 @@ export function UnitListFilters({
         )}
       </div>
 
-      {/* Points */}
+      {/* Points — editable min/max boxes + sensitive 0–sliderMax sliders */}
       <div>
-        <RailLabel right={`${costMin}–${costMax}`}>Points</RailLabel>
+        <RailLabel>Points</RailLabel>
+        <div style={{ display: "flex", alignItems: "center", gap: "6px", marginBottom: "9px" }}>
+          <input
+            type="number" min={0} value={costMin}
+            onChange={(e) => onCostMin(e.target.value)}
+            aria-label="Minimum points" style={ptsInput}
+          />
+          <span style={{ color: C.dim, fontSize: "12px" }}>–</span>
+          <input
+            type="number" min={0} placeholder="∞"
+            value={costMax == null ? "" : costMax}
+            onChange={(e) => onCostMax(e.target.value === "" ? null : e.target.value)}
+            aria-label="Maximum points" style={ptsInput}
+          />
+          <span style={{ color: C.dim, fontSize: "10px", letterSpacing: "0.06em" }}>pts</span>
+        </div>
         <div style={{ marginBottom: "6px" }}>
           <div style={{ fontSize: "9px", color: C.label, marginBottom: "2px" }}>Min</div>
-          <Slider min={costLo} max={costHi} step={costStep} value={costMin} onChange={onCostMin} />
+          <Slider min={0} max={sliderMax} step={costStep}
+            value={Math.min(Number(costMin) || 0, sliderMax)}
+            onChange={(e) => onCostMin(e.target.value)} />
         </div>
         <div>
-          <div style={{ fontSize: "9px", color: C.label, marginBottom: "2px" }}>Max</div>
-          <Slider min={costLo} max={costHi} step={costStep} value={costMax} onChange={onCostMax} />
+          <div style={{ fontSize: "9px", color: C.label, marginBottom: "2px" }}>Max{costMax == null ? " (∞)" : ""}</div>
+          <Slider min={0} max={sliderMax} step={costStep}
+            value={costMax == null ? sliderMax : Math.min(costMax, sliderMax)}
+            onChange={(e) => { const v = Number(e.target.value); onCostMax(v >= sliderMax ? null : v); }} />
         </div>
       </div>
 
@@ -136,7 +160,7 @@ export function UnitListFilters({
       {keywords.length > 0 && (
         <div>
           <RailLabel>Keywords</RailLabel>
-          <div style={{ display: "flex", flexWrap: "wrap", gap: "5px", maxHeight: "168px", overflowY: "auto", scrollbarWidth: "thin" }}>
+          <div style={{ display: "flex", flexWrap: "wrap", alignContent: "flex-start", gap: "5px", maxHeight: "300px", overflowY: "auto", scrollbarWidth: "thin", paddingRight: "4px" }}>
             {keywords.map(k => (
               <span key={k.label} onClick={k.onToggle} style={chipStyle(k.active, C.cyan)}>{k.label}</span>
             ))}
