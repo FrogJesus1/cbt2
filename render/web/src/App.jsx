@@ -108,7 +108,7 @@ function MenuItem({ label, hint, active = false, onClick }) {
 // submitting — used by the "edit & re-run" button on past commands.
 
 const CommandBar = forwardRef(function CommandBar(
-  { onSubmit, commands = [], loading = false },
+  { onSubmit, commands = [], loading = false, busy = false, simInfo = null },
   ref
 ) {
   const [input,     setInput]     = useState("");
@@ -319,6 +319,23 @@ const CommandBar = forwardRef(function CommandBar(
         </div>
       )}
 
+      {/* Command-run progress — indeterminate "simulating" strip while the engine works */}
+      {busy && !animating && (
+        <div style={{ padding: "7px 20px 1px" }}>
+          <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "5px" }}>
+            <span style={{ fontSize: "10px", letterSpacing: "0.08em", color: "var(--ct-primary-label)" }}>
+              <span style={{ color: "var(--ct-primary)" }}>⟳</span>{" "}
+              {simInfo?.mode === "deterministic"
+                ? "computing · deterministic pass"
+                : simInfo?.trials
+                ? `simulating · ${Number(simInfo.trials).toLocaleString()} iterations`
+                : "simulating…"}
+            </span>
+          </div>
+          <div className="ct-sim-track" />
+        </div>
+      )}
+
       {/* Input row */}
       <div
         className="flex items-center gap-3 px-5"
@@ -417,6 +434,11 @@ function AppInner({ profile, onLogout }) {
   const [rostersOpen,  setRostersOpen]  = useState(false);
   const [settingsOpen, setSettingsOpen] = useState(false);
   const [rosterUploadMode, setRosterUploadMode] = useState(null); // null | "player" | "enemy"
+  // Engine health → error states (Phase 7)
+  const [engineStatus,     setEngineStatus]     = useState(null);  // /status: { ready, simulation_mode, simulation_config }
+  const [retryIn,          setRetryIn]          = useState(null);  // connection-lost countdown (s)
+  const [offlineDismissed, setOfflineDismissed] = useState(false); // user chose "offline mode"
+  const [healthNonce,      setHealthNonce]      = useState(0);     // bump to re-probe /status
 
   const historyRef  = useRef(null);
   const themeRef    = useRef(null);
@@ -426,22 +448,30 @@ function AppInner({ profile, onLogout }) {
 
   // ── Load engines + version ────────────────────────────────────────────────
 
-  useEffect(() => {
-    fetch(`${API}/engines`)
+  // Pull the engine list. Reused by the connection-lost retry / reconnect path.
+  const loadEngines = useCallback(() => {
+    return fetch(`${API}/engines`)
       .then(r => r.json())
       .then(data => {
         const list    = data.engines ?? [];
         const primary = data.primary ?? list[0]?.id ?? null;
         setEngines(list);
         setActiveEngineId(primary);
+        setApiError(null);
+        setOfflineDismissed(false);
+        setHealthNonce(n => n + 1);   // re-probe /status after a (re)connect
+        return true;
       })
-      .catch(() => setApiError("Cannot reach API — run: python main.py"));
+      .catch(() => { setApiError("Cannot reach the engine API."); return false; });
+  }, []);
 
+  useEffect(() => {
+    loadEngines();
     fetch(`${API}/version`)
       .then(r => r.json())
       .then(data => setBuildHash(data.commit ?? null))
       .catch(() => {});
-  }, []);
+  }, [loadEngines]);
 
   useEffect(() => {
     if (!activeEngineId) return;
@@ -450,6 +480,31 @@ function AppInner({ profile, onLogout }) {
       .then(data => setCommands(data.commands ?? []))
       .catch(() => setCommands([]));
   }, [activeEngineId]);
+
+  // Engine health snapshot (MC vs deterministic vs offline) → degraded banner +
+  // the command-bar "simulating · N iterations" readout. Refetched on reconnect.
+  useEffect(() => {
+    if (!activeEngineId) { setEngineStatus(null); return; }
+    let alive = true;
+    fetch(`${API}/engines/${activeEngineId}/status`)
+      .then(r => r.json())
+      .then(d => { if (alive) setEngineStatus(d || null); })
+      .catch(() => { if (alive) setEngineStatus(null); });
+    return () => { alive = false; };
+  }, [activeEngineId, apiError, healthNonce]);
+
+  // Connection-lost auto-retry countdown — ticks while unreachable, re-probes at 0.
+  useEffect(() => {
+    if (!apiError || offlineDismissed) { setRetryIn(null); return; }
+    let n = 5;
+    setRetryIn(n);
+    const iv = setInterval(() => {
+      n -= 1;
+      if (n <= 0) { loadEngines(); n = 5; }
+      setRetryIn(n);
+    }, 1000);
+    return () => clearInterval(iv);
+  }, [apiError, offlineDismissed, loadEngines]);
 
   // Persist active theme to localStorage whenever it changes
   // Also sync to <body> so CSS pseudo-element selectors (scanlines, vignette) can react
@@ -816,6 +871,17 @@ function AppInner({ profile, onLogout }) {
   const activeEngine = engines.find(e => e.id === activeEngineId);
   const isReady      = activeEngine?.ready ?? false;
 
+  // ── Health states (Phase 7) ──────────────────────────────────────────────
+  // connection-lost = can't reach the API at all (full-screen takeover).
+  // degraded        = reachable, but Monte Carlo is offline → deterministic math.
+  const connectionLost = !!apiError && !offlineDismissed;
+  const simMode  = engineStatus?.simulation_mode;        // "monte_carlo" | "deterministic"
+  const simTrials = engineStatus?.simulation_config?.trials ?? null;
+  const degraded = !apiError && !!engineStatus &&
+                   (engineStatus.ready === false || simMode === "deterministic");
+  // Status pip shown in the chrome bar: online / degraded / no-link.
+  const health = connectionLost ? "lost" : degraded ? "degraded" : "ok";
+
   // Shared props passed to every context terminal
   const sharedTerminalProps = {
     engineId:  activeEngineId,
@@ -868,17 +934,30 @@ function AppInner({ profile, onLogout }) {
           borderBottom:    "1px solid var(--ct-border)",
         }}
       >
-        <span
-          title={isReady ? "Engine online" : "Engine offline"}
-          style={{
-            width: "7px", height: "7px", borderRadius: "50%", flexShrink: 0,
-            backgroundColor: isReady ? "var(--ct-primary)" : "var(--ct-danger)",
-            boxShadow:       isReady ? "0 0 7px var(--ct-primary)" : "0 0 7px var(--ct-danger)",
-          }}
-        />
+        {(() => {
+          const hc = health === "lost" ? "var(--ct-danger)" : health === "degraded" ? "var(--ct-warn)" : "var(--ct-primary)";
+          return (
+            <span
+              title={health === "lost" ? "Cogitator unreachable" : health === "degraded" ? "Monte Carlo offline — deterministic mode" : "Engine online"}
+              className={health === "ok" ? undefined : "ct-pulse"}
+              style={{
+                width: "7px", height: "7px", borderRadius: "50%", flexShrink: 0,
+                backgroundColor: hc, boxShadow: `0 0 7px ${hc}`,
+              }}
+            />
+          );
+        })()}
         <span className="ct-display" style={{ color: "var(--ct-text)", fontSize: "12px", letterSpacing: "0.16em" }}>
           COMBAT TERMINAL
         </span>
+        {health !== "ok" && (
+          <span className="ct-display" style={{
+            fontSize: "8px", letterSpacing: "0.14em",
+            color: health === "lost" ? "var(--ct-danger)" : "var(--ct-warn)",
+          }}>
+            {health === "lost" ? "NO LINK" : "DEGRADED"}
+          </span>
+        )}
 
         <div className="flex-1" />
 
@@ -1283,22 +1362,76 @@ function AppInner({ profile, onLogout }) {
         </div>
       </nav>
 
-      {/* ── API error banner ── */}
-      {apiError && (
+      {/* ── Engine-degraded banner (reachable, but Monte Carlo offline) ── */}
+      {degraded && (
         <div
-          className="shrink-0 px-5 py-2 font-mono text-sm"
+          className="shrink-0 flex items-center gap-2.5 px-5 py-2 font-mono"
           style={{
-            backgroundColor: "#1a0505",
-            borderBottom:    "1px solid #3a0808",
-            color:           "#ff3b3b",
+            backgroundColor: "rgba(255,176,0,0.08)",
+            borderBottom:    "1px solid rgba(255,176,0,0.4)",
+            color:           "var(--ct-warn)",
+            fontSize:        "12px",
           }}
         >
-          ✗ {apiError}
+          <span style={{ width: "8px", height: "8px", borderRadius: "50%", background: "var(--ct-warn)", boxShadow: "0 0 8px var(--ct-warn)", flexShrink: 0 }} />
+          <span className="ct-display" style={{ fontSize: "11px", letterSpacing: "0.1em", fontWeight: 700 }}>
+            Monte Carlo offline · deterministic mode
+          </span>
+          <span style={{ color: "var(--ct-warn)", opacity: 0.85 }}>
+            — fixed expected-value math; no variance, swinginess, or spike outcomes.
+          </span>
+          <span
+            onClick={() => loadEngines()}
+            className="ct-display"
+            style={{ marginLeft: "auto", fontSize: "10px", letterSpacing: "0.1em", color: "var(--ct-bg-dark)", background: "var(--ct-warn)", fontWeight: 700, padding: "3px 10px", borderRadius: "4px", cursor: "pointer", flexShrink: 0 }}
+          >
+            ↻ retry engine
+          </span>
         </div>
       )}
 
       {/* ── Context panels — all always mounted, show/hide via display ── */}
       <div className="flex-1 overflow-hidden" style={{ position: "relative" }}>
+
+        {/* ── Connection-lost takeover (overlays mounted panels) ── */}
+        {connectionLost && (
+          <div
+            className="absolute inset-0 flex flex-col items-center justify-center text-center font-mono"
+            style={{ zIndex: 50, background: "var(--ct-bg)", padding: "24px" }}
+          >
+            <div className="ct-pulse" style={{ fontSize: "34px", color: "var(--ct-danger)", marginBottom: "16px", textShadow: "0 0 16px rgba(255,93,93,.4)" }}>⚠</div>
+            <div className="ct-display" style={{ fontSize: "16px", color: "var(--ct-text)", fontWeight: 700, letterSpacing: "0.06em", marginBottom: "8px" }}>
+              COGITATOR UNREACHABLE
+            </div>
+            <div style={{ fontSize: "12px", color: "var(--ct-primary-label)", lineHeight: 1.6, maxWidth: "340px" }}>
+              Cannot reach the engine API. Check that the server is running —{" "}
+              <span style={{ color: "var(--ct-body-dim)" }}>python main.py</span> — then reconnect.
+            </div>
+            <div style={{ display: "flex", gap: "9px", marginTop: "20px" }}>
+              <span
+                onClick={() => loadEngines()}
+                className="ct-display"
+                style={{ fontSize: "10px", letterSpacing: "0.1em", color: "var(--ct-bg-dark)", background: "var(--ct-primary)", fontWeight: 700, padding: "9px 16px", borderRadius: "4px", cursor: "pointer" }}
+              >
+                ↻ reconnect
+              </span>
+              <span
+                onClick={() => setOfflineDismissed(true)}
+                className="ct-display"
+                style={{ fontSize: "10px", letterSpacing: "0.1em", color: "var(--ct-primary-label)", border: "1px solid var(--ct-border-bright)", padding: "9px 16px", borderRadius: "4px", cursor: "pointer" }}
+              >
+                offline mode
+              </span>
+            </div>
+            <div style={{ fontSize: "9px", color: "var(--ct-ghost)", marginTop: "16px", letterSpacing: "0.08em" }}>
+              {retryIn != null ? `retrying in ${retryIn}s…` : "retrying…"}{" "}
+              <span className="ct-caret" style={{ display: "inline-block", width: "6px", height: "11px", background: "var(--ct-ghost)", verticalAlign: "-1px" }} />
+            </div>
+          </div>
+        )}
+
+        {/* Context-switch CRT sweep — keyed to activeContext so it replays on nav change */}
+        <div key={activeContext} className="ct-ctx-sweep" />
 
         {/* MAIN context */}
         <div style={panelStyle("main")}>
@@ -1400,6 +1533,8 @@ function AppInner({ profile, onLogout }) {
         onSubmit={handleGlobalCommand}
         commands={commands}
         loading={cmdBarLoading || !activeEngineId || !!apiError}
+        busy={cmdBarLoading}
+        simInfo={{ mode: simMode, trials: simTrials }}
       />
 
     </div>{/* end terminal window frame */}

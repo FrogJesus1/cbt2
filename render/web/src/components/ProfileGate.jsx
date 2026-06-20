@@ -1,8 +1,14 @@
 /**
- * ProfileGate — Login / profile selection screen.
+ * ProfileGate — Login / boot / profile selection screen.
  *
- * Shown before the main app. User picks an existing profile or creates a new one.
- * On successful login, hydrates localStorage from server state and calls onLogin.
+ * Shown before the main app. Recreates Login.dc.html: a CRT "cogitator boot"
+ * console (power-on flicker → scanline sweep → streamed boot log → READY),
+ * then the auth body (pick a profile · enter a PIN · create a callsign · skip).
+ *
+ * Boot motion plays once per session (sessionStorage `ct_booted`) and is fully
+ * skipped under prefers-reduced-motion. All accents (primary/accent/danger/text)
+ * flow through the active theme's --ct-* tokens; the darker-than-app "boot
+ * console" shades are fixed phosphor darks with no token equivalent.
  *
  * If only one profile exists and has no PIN, auto-logs in silently.
  */
@@ -16,6 +22,35 @@ import {
   setLastProfile,
   hydrateFromProfile,
 } from "@/lib/profile";
+import { useEdition } from "@/hooks/useEdition";
+
+// ── Fixed boot-console palette (darker than the app; no token equivalent) ────
+const K = {
+  card:     "#04060c",
+  chrome:   "#03050a",
+  cardLine: "#14241a",
+  rowBg:    "#070d09",
+  rowLine:  "#16301f",
+  rowHover: "#0a160d",
+  dimGreen: "#2e5a40",
+  dotGreen: "#3f6e4e",
+};
+
+const prefersReducedMotion = () => {
+  try { return window.matchMedia?.("(prefers-reduced-motion: reduce)").matches ?? false; }
+  catch { return false; }
+};
+
+const readStoredTheme = () => {
+  try { return localStorage.getItem("ct_active_theme") || "dark"; } catch { return "dark"; }
+};
+
+// Boot log lines (flavour — a powering-on console). Tails colour-coded.
+const BOOT_LINES = [
+  { text: "booting cogitator core", tail: "OK",                        accent: true  },
+  { text: "loading dossiers",       tail: "29 factions · 1,284 units", accent: false },
+  { text: "monte carlo engine",     tail: "ONLINE",                    accent: true  },
+];
 
 export function ProfileGate({ onLogin }) {
   const [profiles, setProfiles]   = useState(null);  // null = loading
@@ -35,6 +70,29 @@ export function ProfileGate({ onLogin }) {
   const pinRef  = useRef(null);
   const nameRef = useRef(null);
 
+  const { label: edition } = useEdition();
+  const theme = readStoredTheme();
+
+  // ── Boot sequence (once per session, motion-gated) ───────────────────────
+  const [booting, setBooting]   = useState(() => {
+    try { if (sessionStorage.getItem("ct_booted")) return false; } catch { /* no storage */ }
+    return !prefersReducedMotion();
+  });
+  const [bootStep, setBootStep] = useState(0);  // 0 → power-on · 1-3 boot lines · 4 READY
+
+  useEffect(() => {
+    if (!booting) return;
+    try { sessionStorage.setItem("ct_booted", "1"); } catch { /* no storage */ }
+    const timers = [
+      setTimeout(() => setBootStep(1),  560),
+      setTimeout(() => setBootStep(2),  820),
+      setTimeout(() => setBootStep(3), 1080),
+      setTimeout(() => setBootStep(4), 1500),  // READY pill
+      setTimeout(() => setBooting(false), 2200),
+    ];
+    return () => timers.forEach(clearTimeout);
+  }, [booting]);
+
   // ── Load profiles on mount ───────────────────────────────────────────────
 
   useEffect(() => {
@@ -45,15 +103,8 @@ export function ProfileGate({ onLogin }) {
         const last = getLastProfile();
         if (last) {
           const match = list.find(p => p.name === last);
-          if (match && !match.has_pin) {
-            doLogin(match.name, null);
-            return;
-          }
-          if (match && match.has_pin) {
-            setSelected(match);
-            setView("pin");
-            return;
-          }
+          if (match && !match.has_pin) { doLogin(match.name, null); return; }
+          if (match && match.has_pin)  { setSelected(match); setView("pin"); return; }
         }
       })
       .catch(() => setProfiles([]));
@@ -62,9 +113,10 @@ export function ProfileGate({ onLogin }) {
   // ── Auto-focus ────────────────────────────────────────────────────────────
 
   useEffect(() => {
+    if (booting) return;
     if (view === "pin")    setTimeout(() => pinRef.current?.focus(), 50);
     if (view === "create") setTimeout(() => nameRef.current?.focus(), 50);
-  }, [view]);
+  }, [view, booting]);
 
   // ── Login ─────────────────────────────────────────────────────────────────
 
@@ -86,7 +138,7 @@ export function ProfileGate({ onLogin }) {
 
   const doCreate = useCallback(async () => {
     const name = newName.trim();
-    if (!name) { setError("Enter a name"); return; }
+    if (!name) { setError("Enter a callsign."); return; }
     setLoading(true);
     setError(null);
     try {
@@ -104,292 +156,295 @@ export function ProfileGate({ onLogin }) {
 
   const handleProfileClick = (p) => {
     setError(null);
-    if (p.has_pin) {
-      setSelected(p);
-      setPinInput("");
-      setView("pin");
-    } else {
-      doLogin(p.name, null);
-    }
+    if (p.has_pin) { setSelected(p); setPinInput(""); setView("pin"); }
+    else           { doLogin(p.name, null); }
   };
 
-  const handlePinSubmit = (e) => {
-    e.preventDefault();
-    if (selected) doLogin(selected.name, pinInput);
-  };
+  const handlePinKey   = (e) => { if (e.key === "Enter") { e.preventDefault(); if (selected) doLogin(selected.name, pinInput); } };
+  const submitPin      = ()  => { if (!pinInput.trim()) { setError("Enter your PIN."); return; } if (selected) doLogin(selected.name, pinInput); };
+  const goBack         = ()  => { setView("pick"); setError(null); };
 
-  const handleCreateSubmit = (e) => {
-    e.preventDefault();
-    doCreate();
-  };
+  // ── Boot-driven visibility ──────────────────────────────────────────────
+  const lineVisible = (i) => !booting || bootStep > i;
+  const bannerLit   = !booting || bootStep >= 1;
+  const showReady   = booting && bootStep >= 4;
+  const showBody    = !booting;
 
-  // ── Loading state ─────────────────────────────────────────────────────────
+  const heading = loading
+    ? "Authenticating…"
+    : view === "create" ? "New Profile"
+    : view === "pin"    ? "Secure Login"
+    : "Authentication Required";
+  const headingDot = view === "pin" ? "var(--ct-accent)" : "var(--ct-primary)";
 
-  if (profiles === null || loading) {
-    return (
-      <div style={styles.root}>
-        <div style={styles.box}>
-          <div style={styles.title}>⚡ COMBAT TERMINAL</div>
-          <div style={styles.dim}>{loading ? "Logging in…" : "Loading profiles…"}</div>
-        </div>
-      </div>
-    );
-  }
-
-  // ── PIN entry view ────────────────────────────────────────────────────────
-
-  if (view === "pin" && selected) {
-    return (
-      <div style={styles.root}>
-        <div style={styles.box}>
-          <div style={styles.title}>⚡ COMBAT TERMINAL</div>
-          <div style={{ ...styles.dim, marginBottom: "16px" }}>
-            Enter PIN for <span style={styles.accent}>{selected.name}</span>
-          </div>
-          <form onSubmit={handlePinSubmit} style={styles.form}>
-            <input
-              ref={pinRef}
-              type="password"
-              value={pinInput}
-              onChange={e => setPinInput(e.target.value)}
-              placeholder="PIN"
-              style={styles.input}
-              autoComplete="off"
-            />
-            <button type="submit" style={styles.btn}>LOGIN</button>
-          </form>
-          {error && <div style={styles.error}>{error}</div>}
-          <button onClick={() => { setView("pick"); setError(null); }} style={styles.link}>
-            ← Back
-          </button>
-        </div>
-      </div>
-    );
-  }
-
-  // ── Create profile view ───────────────────────────────────────────────────
-
-  if (view === "create") {
-    return (
-      <div style={styles.root}>
-        <div style={styles.box}>
-          <div style={styles.title}>⚡ COMBAT TERMINAL</div>
-          <div style={{ ...styles.dim, marginBottom: "16px" }}>New Profile</div>
-          <form onSubmit={handleCreateSubmit} style={styles.form}>
-            <input
-              ref={nameRef}
-              type="text"
-              value={newName}
-              onChange={e => setNewName(e.target.value)}
-              placeholder="Callsign"
-              style={styles.input}
-              autoComplete="off"
-              maxLength={24}
-            />
-            <label style={styles.checkLabel}>
-              <input
-                type="checkbox"
-                checked={usePin}
-                onChange={e => setUsePin(e.target.checked)}
-                style={{ marginRight: "6px" }}
-              />
-              <span style={styles.dim}>Set a PIN</span>
-            </label>
-            {usePin && (
-              <input
-                type="password"
-                value={newPin}
-                onChange={e => setNewPin(e.target.value)}
-                placeholder="PIN (optional security)"
-                style={styles.input}
-                autoComplete="off"
-              />
-            )}
-            <button type="submit" style={styles.btn}>CREATE</button>
-          </form>
-          {error && <div style={styles.error}>{error}</div>}
-          <button onClick={() => { setView("pick"); setError(null); }} style={styles.link}>
-            ← Back
-          </button>
-        </div>
-      </div>
-    );
-  }
-
-  // ── Profile picker view ───────────────────────────────────────────────────
+  // ── Render ────────────────────────────────────────────────────────────────
 
   return (
-    <div style={styles.root}>
-      <div style={styles.box}>
-        <div style={styles.title}>⚡ COMBAT TERMINAL</div>
-        <div style={{ ...styles.dim, marginBottom: "20px" }}>Select Profile</div>
+    <div data-theme={theme} style={S.root}>
+      <style>{`.ct-login input::placeholder{color:#335040;}`}</style>
+      <div className="ct-login" style={{ width: "480px", maxWidth: "100%" }}>
 
-        {profiles.length === 0 && (
-          <div style={{ ...styles.dim, marginBottom: "12px" }}>
-            No profiles yet — create one to get started.
-          </div>
-        )}
-
-        <div style={styles.list}>
-          {profiles.map(p => (
-            <button
-              key={p.name}
-              onClick={() => handleProfileClick(p)}
-              style={styles.profileBtn}
-              onMouseEnter={e => { e.currentTarget.style.backgroundColor = "rgba(57,255,20,0.06)"; e.currentTarget.style.borderColor = "#39ff14"; }}
-              onMouseLeave={e => { e.currentTarget.style.backgroundColor = "transparent"; e.currentTarget.style.borderColor = "#1a3a1a"; }}
-            >
-              <span style={styles.profileName}>{p.name}</span>
-              {p.has_pin && <span style={styles.pinBadge}>PIN</span>}
-            </button>
-          ))}
+        {/* caption */}
+        <div style={{ marginBottom: "12px" }}>
+          <div className="ct-display" style={S.caption}>login</div>
+          <div style={S.captionSub}>Authentication gate — pick a profile, enter a PIN, or create a new callsign.</div>
         </div>
 
-        {error && <div style={styles.error}>{error}</div>}
+        {/* console card */}
+        <div style={S.card} className="ct-flicker">
 
-        <button onClick={() => { setView("create"); setError(null); }} style={styles.btn}>
-          + NEW PROFILE
-        </button>
-        <button
-          onClick={() => onLogin({ name: null, slug: null, has_pin: false, state: {} })}
-          style={styles.skipLink}
-        >
-          skip — use without a profile
-        </button>
+          {/* boot header */}
+          <div style={S.header} className={booting ? "ct-power-on" : undefined}>
+            <div style={{ display: "flex", alignItems: "center", gap: "10px" }}>
+              <span style={{ fontSize: "18px", color: "var(--ct-primary)", textShadow: "0 0 12px rgba(var(--ct-glow-rgb),.6)" }}>⚡</span>
+              <span className="ct-display" style={{
+                fontSize: "18px", letterSpacing: "0.22em", fontWeight: 700,
+                color: bannerLit ? "var(--ct-text)" : "#1c3a24",
+                textShadow: bannerLit ? "0 0 14px rgba(var(--ct-glow-rgb),.4)" : "none",
+                transition: "color .25s, text-shadow .25s",
+              }}>COMBAT TERMINAL</span>
+              <span style={{ marginLeft: "auto", fontSize: "9px", letterSpacing: "0.12em", color: K.dimGreen }}>
+                · <span style={{ color: "var(--ct-primary)" }}>{edition}</span>
+              </span>
+            </div>
+            <div style={{ marginTop: "14px", fontSize: "10px", lineHeight: 1.85, color: K.dimGreen }}>
+              {BOOT_LINES.map((l, i) => (
+                <div key={i} style={{
+                  opacity: lineVisible(i) ? 1 : 0,
+                  transform: lineVisible(i) ? "translateX(0)" : "translateX(-4px)",
+                  transition: "opacity .14s, transform .14s",
+                }}>
+                  {l.text}<span style={{ color: K.dotGreen }}> ………… </span>
+                  <span style={{ color: l.accent ? "var(--ct-primary)" : "var(--ct-body-dim)" }}>{l.tail}</span>
+                </div>
+              ))}
+            </div>
+          </div>
+
+          {/* auth body */}
+          {showBody && (
+            <div style={S.body}>
+              <div style={{ display: "flex", alignItems: "center", gap: "8px", marginBottom: "18px" }}>
+                <span style={{ width: "7px", height: "7px", borderRadius: "50%", background: headingDot, boxShadow: `0 0 8px ${headingDot}` }} />
+                <span className="ct-display" style={{ fontSize: "11px", letterSpacing: "0.18em", color: "var(--ct-accent)" }}>{heading}</span>
+              </div>
+
+              {loading ? (
+                <div style={{ fontSize: "12px", color: "#84a890", padding: "6px 0 18px" }}>
+                  Verifying credentials with the cogitator…
+                </div>
+              ) : profiles === null ? (
+                <div style={{ fontSize: "12px", color: "#84a890", padding: "6px 0 18px" }}>
+                  Scanning for profiles…
+                </div>
+              ) : view === "pin" && selected ? (
+                <PinView
+                  selected={selected} pinInput={pinInput} setPinInput={setPinInput}
+                  onKey={handlePinKey} onSubmit={submitPin} onBack={goBack}
+                  error={error} pinRef={pinRef}
+                />
+              ) : view === "create" ? (
+                <CreateView
+                  newName={newName} setNewName={setNewName}
+                  usePin={usePin} setUsePin={setUsePin}
+                  newPin={newPin} setNewPin={setNewPin}
+                  onCreate={doCreate} onBack={goBack} error={error}
+                  setError={setError} nameRef={nameRef}
+                />
+              ) : (
+                <PickView
+                  profiles={profiles} onPick={handleProfileClick}
+                  onCreate={() => { setView("create"); setError(null); }}
+                  onSkip={() => onLogin({ name: null, slug: null, has_pin: false, state: {} })}
+                  error={error}
+                />
+              )}
+            </div>
+          )}
+
+          {/* READY pill (boot only) */}
+          {showReady && (
+            <div style={{ padding: "0 28px 22px" }}>
+              <span className="ct-display" style={{
+                fontSize: "11px", letterSpacing: "0.18em", color: K.card,
+                background: "var(--ct-primary)", padding: "3px 12px", borderRadius: "3px", fontWeight: 700,
+              }}>▸ READY</span>
+            </div>
+          )}
+
+          {/* prompt footer */}
+          <div style={S.footer}>
+            <span style={{ color: "var(--ct-primary)", fontSize: "13px" }}>›</span>
+            <span style={{ fontSize: "11px", color: K.dimGreen }}>awaiting authentication</span>
+            <span className="ct-caret" style={{
+              display: "inline-block", width: "7px", height: "13px", marginLeft: "1px",
+              background: "var(--ct-primary)", boxShadow: "0 0 6px rgba(var(--ct-glow-rgb),.7)",
+            }} />
+          </div>
+
+          {/* CRT overlays */}
+          {booting && <div className="ct-boot-scan" />}
+          <div className="ct-crt-scanlines" />
+          <div className="ct-crt-vignette" />
+        </div>
       </div>
     </div>
   );
 }
 
-// ─── Inline styles (matches CT dark theme) ───────────────────────────────────
+// ─── Views ───────────────────────────────────────────────────────────────────
 
-const styles = {
+function PickView({ profiles, onPick, onCreate, onSkip, error }) {
+  return (
+    <>
+      {profiles.length === 0 && (
+        <div style={{ fontSize: "12px", color: "#84a890", marginBottom: "14px" }}>
+          No profiles yet — create a callsign to get started.
+        </div>
+      )}
+      <div style={{ display: "flex", flexDirection: "column", gap: "7px", marginBottom: "18px" }}>
+        {profiles.map(p => {
+          const dot = p.has_pin ? "var(--ct-accent)" : "var(--ct-primary)";
+          return (
+            <div
+              key={p.name}
+              onClick={() => onPick(p)}
+              style={S.profileRow}
+              onMouseEnter={e => { e.currentTarget.style.borderColor = "var(--ct-primary-mid)"; e.currentTarget.style.background = K.rowHover; }}
+              onMouseLeave={e => { e.currentTarget.style.borderColor = K.rowLine; e.currentTarget.style.background = K.rowBg; }}
+            >
+              <span style={{ width: "9px", height: "9px", borderRadius: "50%", background: dot, flexShrink: 0, boxShadow: `0 0 6px ${dot}` }} />
+              <span style={{ flex: 1, fontSize: "14px", color: "var(--ct-text-mid)", letterSpacing: "0.1em" }}>{p.name}</span>
+              {p.has_pin && (
+                <span style={{ fontSize: "9px", letterSpacing: "0.12em", color: "var(--ct-accent)", border: "1px solid #4a3c1c", padding: "1px 6px", borderRadius: "2px" }}>🔒 PIN</span>
+              )}
+              <span style={{ color: K.dimGreen, fontSize: "12px" }}>›</span>
+            </div>
+          );
+        })}
+      </div>
+      {error && <div style={S.error}>{error}</div>}
+      <button onClick={onCreate} style={S.ghostBtn}>+ NEW PROFILE</button>
+      <div style={{ textAlign: "center", marginTop: "14px" }}>
+        <span onClick={onSkip} style={{ fontSize: "11px", letterSpacing: "0.06em", color: K.dimGreen, cursor: "pointer" }}>
+          skip — continue without a profile →
+        </span>
+      </div>
+    </>
+  );
+}
+
+function PinView({ selected, pinInput, setPinInput, onKey, onSubmit, onBack, error, pinRef }) {
+  return (
+    <>
+      <div style={{ fontSize: "12px", color: "#84a890", marginBottom: "14px" }}>
+        Enter PIN for <span style={{ color: "var(--ct-text-mid)", fontWeight: 600 }}>{selected.name}</span>
+      </div>
+      <input
+        ref={pinRef} type="password" value={pinInput}
+        onChange={e => setPinInput(e.target.value)} onKeyDown={onKey}
+        placeholder="• • • •" autoComplete="off"
+        style={{ ...S.input, fontSize: "18px", letterSpacing: "0.5em", textAlign: "center", marginBottom: "10px" }}
+      />
+      {error && <div style={{ ...S.error, marginBottom: "10px" }}>{error}</div>}
+      <button onClick={onSubmit} style={S.solidBtn}>▸ LOGIN</button>
+      <div style={{ textAlign: "center", marginTop: "14px" }}>
+        <span onClick={onBack} style={S.backLink}>← back</span>
+      </div>
+    </>
+  );
+}
+
+function CreateView({ newName, setNewName, usePin, setUsePin, newPin, setNewPin, onCreate, onBack, error, setError, nameRef }) {
+  return (
+    <div style={{ display: "flex", flexDirection: "column", gap: "11px" }}>
+      <div>
+        <div className="ct-display" style={{ fontSize: "9px", letterSpacing: "0.14em", color: K.dimGreen, marginBottom: "5px" }}>Callsign</div>
+        <input
+          ref={nameRef} value={newName} maxLength={24} autoComplete="off"
+          onChange={e => { setNewName(e.target.value); setError(null); }}
+          onKeyDown={e => { if (e.key === "Enter") { e.preventDefault(); onCreate(); } }}
+          placeholder="e.g. COMMANDER_VOSS"
+          style={{ ...S.input, letterSpacing: "0.08em" }}
+        />
+      </div>
+      <div onClick={() => setUsePin(v => !v)} style={{ display: "flex", alignItems: "center", gap: "9px", cursor: "pointer" }}>
+        <span style={{
+          width: "16px", height: "16px", borderRadius: "3px",
+          border: `1px solid ${usePin ? "var(--ct-primary)" : "#2e3630"}`,
+          background: usePin ? "var(--ct-primary)" : "transparent",
+          display: "flex", alignItems: "center", justifyContent: "center",
+          fontSize: "10px", color: K.card, flexShrink: 0,
+        }}>{usePin ? "✓" : ""}</span>
+        <span style={{ fontSize: "12px", color: "#84a890" }}>Protect with a PIN</span>
+      </div>
+      {usePin && (
+        <input
+          type="password" value={newPin} autoComplete="off"
+          onChange={e => setNewPin(e.target.value)}
+          placeholder="set a PIN"
+          style={{ ...S.input, letterSpacing: "0.3em" }}
+        />
+      )}
+      {error && <div style={S.error}>{error}</div>}
+      <button onClick={onCreate} style={{ ...S.solidBtn, marginTop: "2px" }}>▸ CREATE &amp; ENTER</button>
+      <div style={{ textAlign: "center" }}>
+        <span onClick={onBack} style={S.backLink}>← back</span>
+      </div>
+    </div>
+  );
+}
+
+// ─── Styles ──────────────────────────────────────────────────────────────────
+
+const S = {
   root: {
-    display:        "flex",
-    alignItems:     "center",
-    justifyContent: "center",
-    height:         "100vh",
-    backgroundColor: "#0a0e0a",
-    fontFamily:     "'JetBrains Mono', 'Fira Code', 'Cascadia Code', 'Consolas', monospace",
+    minHeight: "100vh", boxSizing: "border-box", padding: "40px",
+    background: "var(--ct-bg-dark)",
+    fontFamily: "'IBM Plex Mono', monospace",
+    display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center",
   },
-  box: {
-    display:        "flex",
-    flexDirection:  "column",
-    alignItems:     "center",
-    padding:        "40px",
-    border:         "1px solid #1a3a1a",
-    backgroundColor: "#0d120d",
-    minWidth:       "320px",
-    maxWidth:       "400px",
+  caption: {
+    fontSize: "11px", letterSpacing: "0.28em", color: "var(--ct-primary-dim)",
+    textTransform: "uppercase", fontWeight: 600,
   },
-  title: {
-    color:          "#39ff14",
-    fontSize:       "18px",
-    fontWeight:     700,
-    letterSpacing:  "0.18em",
-    marginBottom:   "8px",
-    textShadow:    "0 0 8px rgba(57,255,20,0.3)",
+  captionSub: { fontSize: "12px", color: "var(--ct-primary-dim)", marginTop: "3px" },
+  card: {
+    position: "relative", borderRadius: "3px", overflow: "hidden",
+    boxShadow: "0 10px 40px rgba(0,0,0,.4)",
+    background: K.card, color: "var(--ct-primary)",
   },
-  dim: {
-    color:          "#3a6a3a",
-    fontSize:       "12px",
-    letterSpacing:  "0.1em",
+  header: {
+    padding: "24px 28px 18px", borderBottom: `1px solid ${K.cardLine}`, background: K.chrome,
+    position: "relative", zIndex: 1,
   },
-  accent: {
-    color:          "#39ff14",
+  body: { padding: "22px 28px 26px", position: "relative", zIndex: 1 },
+  footer: {
+    display: "flex", alignItems: "center", gap: "8px",
+    padding: "11px 28px", borderTop: `1px solid ${K.cardLine}`, background: K.chrome,
+    position: "relative", zIndex: 1,
   },
-  form: {
-    display:       "flex",
-    flexDirection: "column",
-    gap:           "10px",
-    width:         "100%",
+  profileRow: {
+    display: "flex", alignItems: "center", gap: "11px",
+    padding: "13px 15px", border: `1px solid ${K.rowLine}`, borderRadius: "5px",
+    background: K.rowBg, cursor: "pointer", transition: "border-color .15s, background .15s",
   },
   input: {
-    backgroundColor: "#080c08",
-    border:          "1px solid #1a3a1a",
-    color:           "#39ff14",
-    padding:         "10px 12px",
-    fontSize:        "14px",
-    fontFamily:      "inherit",
-    letterSpacing:   "0.08em",
-    outline:         "none",
-    width:           "100%",
-    boxSizing:       "border-box",
+    width: "100%", boxSizing: "border-box", background: K.rowBg,
+    border: `1px solid ${K.rowLine}`, color: "var(--ct-primary)",
+    fontFamily: "inherit", fontSize: "14px", padding: "11px 13px",
+    borderRadius: "5px", outline: "none",
   },
-  btn: {
-    backgroundColor: "transparent",
-    border:          "1px solid #39ff14",
-    color:           "#39ff14",
-    padding:         "10px 16px",
-    fontSize:        "13px",
-    fontFamily:      "inherit",
-    letterSpacing:   "0.15em",
-    cursor:          "pointer",
-    marginTop:       "8px",
-    transition:      "background-color 0.15s",
+  solidBtn: {
+    width: "100%", background: "var(--ct-primary)", border: "none", color: K.card,
+    fontFamily: "inherit", fontWeight: 700, fontSize: "13px", letterSpacing: "0.16em",
+    padding: "13px", borderRadius: "5px", cursor: "pointer",
   },
-  link: {
-    background:     "none",
-    border:         "none",
-    color:          "#3a6a3a",
-    fontSize:       "12px",
-    cursor:         "pointer",
-    marginTop:      "12px",
-    fontFamily:     "inherit",
-    letterSpacing:  "0.08em",
+  ghostBtn: {
+    width: "100%", background: "transparent", border: "1px solid var(--ct-primary-mid)",
+    color: "var(--ct-primary)", fontFamily: "inherit", fontSize: "12px",
+    letterSpacing: "0.16em", padding: "12px", borderRadius: "5px", cursor: "pointer",
   },
-  error: {
-    color:       "#ff3b3b",
-    fontSize:    "12px",
-    marginTop:   "8px",
-    textAlign:   "center",
-  },
-  list: {
-    display:       "flex",
-    flexDirection: "column",
-    gap:           "6px",
-    width:         "100%",
-    marginBottom:  "16px",
-  },
-  profileBtn: {
-    display:         "flex",
-    alignItems:      "center",
-    justifyContent:  "space-between",
-    padding:         "10px 14px",
-    border:          "1px solid #1a3a1a",
-    backgroundColor: "transparent",
-    cursor:          "pointer",
-    fontFamily:      "inherit",
-    transition:      "all 0.15s",
-    width:           "100%",
-    textAlign:       "left",
-  },
-  profileName: {
-    color:          "#39ff14",
-    fontSize:       "14px",
-    letterSpacing:  "0.1em",
-  },
-  pinBadge: {
-    color:          "#3a6a3a",
-    fontSize:       "10px",
-    letterSpacing:  "0.12em",
-    border:         "1px solid #1a3a1a",
-    padding:        "2px 6px",
-  },
-  checkLabel: {
-    display:     "flex",
-    alignItems:  "center",
-    cursor:      "pointer",
-    fontSize:    "12px",
-  },
-  skipLink: {
-    background:     "none",
-    border:         "none",
-    color:          "#2a4a2a",
-    fontSize:       "11px",
-    cursor:         "pointer",
-    marginTop:      "16px",
-    fontFamily:     "inherit",
-    letterSpacing:  "0.06em",
-  },
+  backLink: { fontSize: "11px", color: K.dimGreen, cursor: "pointer" },
+  error: { color: "var(--ct-danger)", fontSize: "11px", textAlign: "center" },
 };

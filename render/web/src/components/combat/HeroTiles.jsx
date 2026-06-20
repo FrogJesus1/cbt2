@@ -13,12 +13,7 @@
  */
 
 import { C } from "./shared";
-
-function num(v, dec = 1) {
-  if (v === null || v === undefined) return "—";
-  const n = Number(v);
-  return dec === 0 ? String(Math.round(n)) : n.toFixed(dec);
-}
+import { CountUp } from "@/hooks/useCountUp";
 
 function Tile({ label, value, color, glow }) {
   return (
@@ -67,10 +62,10 @@ export function HeroTiles({ ranged, melee, def_models }) {
 
   return (
     <div style={{ display: "grid", gridTemplateColumns: "repeat(4, 1fr)", gap: "8px" }}>
-      <Tile label="Total Dmg"    value={num(totalDmg, 1)} color={C.green}  glow />
-      <Tile label="Models Slain" value={num(slain, 1)}    color={C.text} />
-      <Tile label="Squad Wipe"   value={squadWipe == null ? "—" : `${num(squadWipe, 0)}%`} color={C.accent} />
-      <Tile label="Swing"        value={num(swing, 2)}    color={C.dim} />
+      <Tile label="Total Dmg"    value={<CountUp value={totalDmg} decimals={1} />}            color={C.green}  glow />
+      <Tile label="Models Slain" value={<CountUp value={slain}    decimals={1} />}            color={C.text} />
+      <Tile label="Squad Wipe"   value={<CountUp value={squadWipe} decimals={0} suffix="%" />} color={C.accent} />
+      <Tile label="Swing"        value={<CountUp value={swing}    decimals={2} />}            color={C.dim} />
     </div>
   );
 }

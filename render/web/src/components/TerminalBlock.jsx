@@ -1666,16 +1666,56 @@ function TerminalError({ message, meta, onInject, onEdit }) {
   const { main, suggestions } = parseErrorSuggestions(message);
   const reportCmd = meta?.report_command;
   const learnTpl  = meta?.learn_template;
+  const bare      = suggestions.length === 0 && !reportCmd && !learnTpl;
+
   return (
     <div className="font-mono" style={{ paddingLeft: "18px", fontSize: "14px" }}>
-      <div style={{ color: C.red, fontWeight: 600 }}>✗ {main || message}</div>
+      {/* red left-accent block */}
+      <div style={{ borderLeft: `2px solid ${C.danger}`, padding: "2px 0 2px 13px", marginBottom: bare ? "10px" : "16px" }}>
+        <div style={{ color: C.danger, fontWeight: 600, marginBottom: bare ? "4px" : 0 }}>✕ {main || message}</div>
+        {bare && (
+          <div style={{ fontSize: "11px", color: C.label, lineHeight: 1.6 }}>
+            No command, unit, or rule matched that input.
+          </div>
+        )}
+      </div>
+
+      {/* did-you-mean cards */}
+      {suggestions.length > 0 && (
+        <>
+          <div className="ct-display" style={{ fontSize: "9px", color: C.dim, letterSpacing: "0.12em", marginBottom: "8px" }}>
+            Did you mean
+          </div>
+          <div style={{ display: "flex", flexDirection: "column", gap: "5px", marginBottom: "16px" }}>
+            {suggestions.map((s, i) => (
+              <div
+                key={i}
+                onClick={() => onInject?.(String(i + 1))}
+                style={{
+                  display: "flex", alignItems: "center", gap: "9px",
+                  border: `1px solid ${C.border}`, borderRadius: "5px", background: C.panel,
+                  padding: "9px 12px", cursor: onInject ? "pointer" : "default", userSelect: "none",
+                }}
+                onMouseEnter={e => { if (onInject) e.currentTarget.style.borderColor = C.bordermid; }}
+                onMouseLeave={e => { e.currentTarget.style.borderColor = C.border; }}
+              >
+                <span style={{ color: C.green }}>›</span>
+                <span style={{ fontSize: "12px", color: C.green }}>{s}</span>
+                <span style={{ marginLeft: "auto", fontSize: "9px", color: C.dim }}>↵ {i + 1}</span>
+              </div>
+            ))}
+          </div>
+        </>
+      )}
+
+      {/* report / teach affordances */}
       {(reportCmd || learnTpl) && (
-        <div style={{ marginTop: "8px", display: "flex", flexWrap: "wrap", gap: "8px 14px", alignItems: "baseline" }}>
+        <div style={{ marginBottom: "14px", display: "flex", flexWrap: "wrap", gap: "8px 14px", alignItems: "baseline" }}>
           {reportCmd && (
             <span
               onClick={() => onInject?.(reportCmd)}
               style={{ color: C.amber, cursor: onInject ? "pointer" : "default", fontWeight: 600,
-                       border: `1px solid ${C.amber}`, padding: "1px 8px", userSelect: "none" }}
+                       border: `1px solid ${C.amber}`, borderRadius: "4px", padding: "1px 8px", userSelect: "none" }}
               title={reportCmd}
             >
               ⚑ Report this to the admin
@@ -1696,27 +1736,19 @@ function TerminalError({ message, meta, onInject, onEdit }) {
           )}
         </div>
       )}
-      {suggestions.length === 1 && (
-        <div style={{ color: C.label, marginTop: "4px" }}>
-          Did you mean: <span style={{ color: C.mid }}>{suggestions[0]}</span>?
-        </div>
-      )}
-      {suggestions.length > 1 && (
-        <div style={{ marginTop: "6px" }}>
-          <div style={{ color: C.label, marginBottom: "3px" }}>Did you mean:</div>
-          {suggestions.map((s, i) => (
-            <div key={i} style={{ color: C.mid, lineHeight: "1.6", display: "flex", gap: "6px" }}>
-              <span
-                onClick={() => onInject?.(String(i + 1))}
-                style={{ color: C.amber, flexShrink: 0, minWidth: "22px", textAlign: "right", cursor: onInject ? "pointer" : "default", fontWeight: 600, userSelect: "none" }}
-              >
-                {i + 1}.
-              </span>
-              <span>{s}</span>
-            </div>
-          ))}
-        </div>
-      )}
+
+      {/* help hint + caret */}
+      <div style={{ fontSize: "11px", color: C.dim }}>
+        Type{" "}
+        <span
+          onClick={() => onInject?.("help")}
+          style={{ color: C.green, cursor: onInject ? "pointer" : "default", userSelect: "none" }}
+        >
+          help
+        </span>{" "}
+        for the full command reference.{" "}
+        <span className="ct-caret" style={{ display: "inline-block", width: "7px", height: "13px", background: C.green, verticalAlign: "-2px" }} />
+      </div>
     </div>
   );
 }

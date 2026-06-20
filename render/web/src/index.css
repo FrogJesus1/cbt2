@@ -391,6 +391,105 @@
     50.01%, 100% { opacity: 0; }
   }
 
+  /* ── Phase 7 · motion vocabulary ──────────────────────────────────────
+   * Boot / power-on, command-run, result reveal, context flicker, CRT.
+   * Terminal-flavoured. Everything is disabled under prefers-reduced-motion
+   * (block at the foot of this layer).
+   * ──────────────────────────────────────────────────────────────────── */
+
+  /* CRT overlays (Login / boot screen). Parent must be position:relative. */
+  .ct-crt-scanlines {
+    position: absolute; inset: 0; pointer-events: none;
+    background: repeating-linear-gradient(0deg, transparent 0 2px, rgba(0, 0, 0, 0.13) 2px 3px);
+  }
+  .ct-crt-vignette {
+    position: absolute; inset: 0; pointer-events: none;
+    background: radial-gradient(ellipse at center, transparent 58%, rgba(0, 0, 0, 0.4) 100%);
+  }
+
+  /* Idle phosphor flicker — subtle, infinite (the powered-on screen). */
+  @keyframes ct-flicker {
+    0%, 100% { opacity: 1; }
+    92% { opacity: 1; } 93% { opacity: 0.85; } 94% { opacity: 1; }
+  }
+  .ct-flicker { animation: ct-flicker 9s linear infinite; }
+
+  /* One-shot power-on flicker for the boot card content. */
+  @keyframes ct-power-on {
+    0% { opacity: 0.04; } 14% { opacity: 0.04; }
+    18% { opacity: 0.85; } 24% { opacity: 0.32; }
+    30% { opacity: 0.9; } 38% { opacity: 0.4; }
+    46% { opacity: 1; } 100% { opacity: 1; }
+  }
+  .ct-power-on { animation: ct-power-on 0.85s steps(1, end) both; }
+
+  /* One-shot scanline sweep down the boot card. */
+  @keyframes ct-boot-scan {
+    0% { top: -14%; opacity: 0; }
+    10% { opacity: 1; } 90% { opacity: 1; }
+    100% { top: 100%; opacity: 0; }
+  }
+  .ct-boot-scan {
+    position: absolute; left: 0; right: 0; height: 46px; pointer-events: none; z-index: 2;
+    background: linear-gradient(180deg, transparent, rgba(var(--ct-glow-rgb), 0.18), transparent);
+    animation: ct-boot-scan 1.05s ease-out forwards;
+  }
+
+  /* Context-switch: fast CRT flicker + green top-sweep on nav change. */
+  @keyframes ct-ctx-flicker {
+    0% { opacity: 0.25; } 22% { opacity: 0.92; }
+    38% { opacity: 0.45; } 60% { opacity: 1; } 100% { opacity: 1; }
+  }
+  .ct-ctx-flicker { animation: ct-ctx-flicker 0.26s steps(2, end); }
+  @keyframes ct-ctx-sweep {
+    0% { opacity: 0; } 14% { opacity: 1; } 100% { opacity: 0; }
+  }
+  .ct-ctx-sweep {
+    position: absolute; left: 0; right: 0; top: 0; height: 100%;
+    pointer-events: none; z-index: 30;
+    background: linear-gradient(180deg, rgba(var(--ct-glow-rgb), 0.14), transparent 42%);
+    animation: ct-ctx-sweep 0.42s ease-out forwards;
+  }
+
+  /* Command-run: indeterminate "simulating" bar (no real progress events). */
+  @keyframes ct-sim-slide {
+    0% { transform: translateX(-120%); } 100% { transform: translateX(320%); }
+  }
+  .ct-sim-track {
+    position: relative; height: 4px; border-radius: 3px;
+    background: var(--ct-track); overflow: hidden;
+  }
+  .ct-sim-track::after {
+    content: ""; position: absolute; top: 0; left: 0; height: 100%; width: 36%;
+    border-radius: 3px; background: var(--ct-primary);
+    box-shadow: 0 0 8px rgba(var(--ct-glow-rgb), 0.5);
+    animation: ct-sim-slide 1.05s ease-in-out infinite;
+  }
+
+  /* Result reveal — new stream blocks fade + rise in. */
+  @keyframes ct-reveal {
+    from { opacity: 0; transform: translateY(7px); }
+    to   { opacity: 1; transform: translateY(0); }
+  }
+  .ct-reveal { animation: ct-reveal 0.5s cubic-bezier(0.22, 1, 0.36, 1) both; }
+
+  /* Soft danger pulse — connection-lost / degraded status dots. */
+  @keyframes ct-pulse {
+    0%, 100% { opacity: 1; } 50% { opacity: 0.4; }
+  }
+  .ct-pulse { animation: ct-pulse 1.5s ease-in-out infinite; }
+
+  /* Honour the user's motion preference — kill every Phase-7 animation. */
+  @media (prefers-reduced-motion: reduce) {
+    .ct-flicker, .ct-power-on, .ct-boot-scan, .ct-ctx-flicker, .ct-ctx-sweep,
+    .ct-reveal, .ct-pulse, .ct-caret {
+      animation: none !important;
+    }
+    .ct-power-on { opacity: 1 !important; }
+    .ct-boot-scan { display: none !important; }
+    .ct-sim-track::after { animation: none !important; width: 100% !important; }
+  }
+
   /* Scrollbar theming */
   ::-webkit-scrollbar-thumb { background: var(--ct-border); border-radius: 0; }
   ::-webkit-scrollbar-thumb:hover { background: var(--ct-border-bright); }

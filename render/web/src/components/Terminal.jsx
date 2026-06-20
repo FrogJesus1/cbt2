@@ -1645,6 +1645,7 @@ export function Terminal({
             <div
               key={entry.id}
               ref={el => { entryRefs.current[entry.id] = el; }}
+              className="ct-reveal"
               style={{ transition: "background-color 0.3s" }}
             >
               {idx > 0 && (
