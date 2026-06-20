@@ -1,0 +1,352 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;600;700&family=Chakra+Petch:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+  * { box-sizing: border-box; }
+  body { margin: 0; }
+  @keyframes ctBlink { 0%, 49% { opacity: 1; } 50%, 100% { opacity: 0; } }
+</style>
+</helmet>
+
+<div class="cr" style="min-width:100%; min-height:100vh; box-sizing:border-box; padding:40px; background:#e7e5df; font-family:'IBM Plex Mono', monospace; display:flex; flex-direction:column; align-items:center;">
+  <div style="width:1020px; max-width:100%;">
+    <div style="margin-bottom:12px; display:flex; align-items:baseline; gap:12px;">
+      <a href="Rosters.dc.html" style="font-size:11px; letter-spacing:0.1em; color:#5f6b62; text-decoration:none;">‹ rosters</a>
+      <div style="font-size:11px; letter-spacing:0.28em; color:#5a5648; text-transform:uppercase; font-weight:600;">crusade tracker</div>
+    </div>
+
+    <div data-screen-label="Crusade" style="position:relative; border-radius:3px; overflow:hidden; box-shadow:0 4px 24px rgba(0,0,0,.22); background:#0d0f12; color:#d8dee0;">
+      <!-- chrome -->
+      <div style="display:flex; align-items:center; gap:12px; padding:9px 18px; background:#0a0c0e; border-bottom:1px solid #232a26;">
+        <span style="width:7px; height:7px; border-radius:50%; background:#4fd873; box-shadow:0 0 8px rgba(79,216,115,.85);"></span>
+        <span style="font-family:'Chakra Petch', sans-serif; font-size:13px; letter-spacing:0.16em; color:#eef4ee; font-weight:600;">COMBAT TERMINAL</span>
+        <span style="font-size:10px; letter-spacing:0.1em; color:#5f6b62;">v2.0 · 7a3f1c</span><span style="font-size:10px; letter-spacing:0.1em; color:#4fd873; margin-left:6px;">· 11TH ED</span>
+        <div style="margin-left:auto; display:flex; flex-direction:column; align-items:flex-end; gap:2px;">
+          <span style="font-family:'Chakra Petch', sans-serif; font-size:10px; letter-spacing:0.12em; color:#5f6b62; border:1px dashed #2e3630; padding:3px 8px; border-radius:3px;">NOT ASSIGNED</span>
+          <span style="font-size:8px; letter-spacing:0.1em; color:#4a5249;">crusade · T'au Empire</span>
+        </div>
+      </div>
+      <!-- nav -->
+      <div style="display:flex; font-family:'Chakra Petch', sans-serif; font-size:11px; letter-spacing:0.1em; border-bottom:1px solid #1a201c; background:#0a0c0e; padding:0 8px;">
+        <a href="Combat%20Home.dc.html" style="padding:9px 14px; color:#5f6b62; text-decoration:none;">COMBAT SIM</a>
+        <a href="List%20Units.dc.html" style="padding:9px 14px; color:#5f6b62; text-decoration:none;">UNITS</a>
+        <a href="Spec%20Unit.dc.html" style="padding:9px 14px; color:#5f6b62; text-decoration:none;">DATASHEET</a>
+        <div style="padding:9px 14px; color:#eef4ee; border-bottom:2px solid #4fd873;">ROSTERS</div>
+        <a href="Rules.dc.html" style="padding:9px 14px; color:#5f6b62; text-decoration:none;">RULES</a>
+        <a href="Settings.dc.html" style="padding:9px 14px; color:#5f6b62; text-decoration:none;">SETTINGS</a>
+      </div>
+
+      <div style="padding:20px 22px 22px;">
+        <!-- campaign header -->
+        <div style="display:flex; align-items:flex-end; justify-content:space-between; gap:16px; flex-wrap:wrap; padding-bottom:18px; margin-bottom:20px; border-bottom:1px solid #1a201c;">
+          <div>
+            <div style="font-family:'Chakra Petch', sans-serif; font-size:24px; letter-spacing:0.03em; color:#eef4ee; font-weight:700;">Damocles Gulf</div>
+            <div style="font-size:11px; color:#84907f; margin-top:6px; letter-spacing:0.04em;">T'au Empire · Kauyon Hunter Cadre · <span style="color:#d8b25a;">Battle Round 3</span></div>
+          </div>
+          <div style="display:flex; gap:22px; flex-shrink:0;">
+            <div style="text-align:right;"><div style="font-size:9px; color:#5f6b62; letter-spacing:0.1em; text-transform:uppercase;">Record</div><div style="font-family:'Chakra Petch', sans-serif; font-size:18px; color:#eef4ee; font-weight:700; margin-top:3px;">2<span style="font-size:12px; color:#4fd873;">W</span> – 1<span style="font-size:12px; color:#ff5d5d;">L</span></div></div>
+            <div style="text-align:right;"><div style="font-size:9px; color:#5f6b62; letter-spacing:0.1em; text-transform:uppercase;">Crusade Pts</div><div style="font-family:'Chakra Petch', sans-serif; font-size:18px; color:#d8b25a; font-weight:700; margin-top:3px;">7</div></div>
+            <div style="text-align:right;"><div style="font-size:9px; color:#5f6b62; letter-spacing:0.1em; text-transform:uppercase;">Req. Points</div><div style="font-family:'Chakra Petch', sans-serif; font-size:18px; color:#4fd0e0; font-weight:700; margin-top:3px;">{{ rp }}</div></div>
+          </div>
+        </div>
+
+        <div style="display:grid; grid-template-columns:1fr 320px; gap:18px; align-items:start;">
+          <!-- ── ORDER OF BATTLE ── -->
+          <div>
+            <div style="display:flex; align-items:center; gap:10px; margin-bottom:11px;">
+              <span style="font-family:'Chakra Petch', sans-serif; font-size:12px; letter-spacing:0.14em; color:#eef4ee; text-transform:uppercase;">Order of Battle</span>
+              <span style="font-size:9px; color:#5f6b62;">{{ unitCount }} units · click to expand</span>
+              <div style="flex:1; height:3px; background:repeating-linear-gradient(45deg,#d8b25a 0 6px,#11140f 6px 12px); opacity:.5;"></div>
+            </div>
+            <!-- supply gauge -->
+            <div style="margin-bottom:12px;">
+              <div style="display:flex; justify-content:space-between; font-size:11px; margin-bottom:4px;"><span style="color:#5f6b62; letter-spacing:0.08em;">SUPPLY USED</span><span style="{{ supplyStyle }}">{{ supplyUsed }} / 1000 pts{{ supplyOver }}</span></div>
+              <div style="height:6px; background:#1c241e; border:1px solid #232a26; border-radius:3px; overflow:hidden;"><div style="{{ supplyBar }}"></div></div>
+            </div>
+
+            <div style="display:flex; flex-direction:column; gap:5px;">
+              <sc-for list="{{ units }}" as="u" hint-placeholder-count="6">
+                <div style="border:1px solid {{ u.borderColor }}; border-radius:5px; background:#12150f; overflow:hidden;">
+                  <div onClick="{{ u.onToggle }}" style="{{ u.rowStyle }}">
+                    <span style="width:3px; height:24px; background:{{ u.rankColor }}; border-radius:1px; flex-shrink:0;"></span>
+                    <span style="font-size:13px; color:{{ u.nameColor }}; font-weight:{{ u.nameWeight }}; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; min-width:0;">{{ u.display }}</span>
+                    <sc-if value="{{ u.hasNick }}" hint-placeholder-val="{{ false }}"><span style="font-size:10px; color:#5f6b62; flex-shrink:0;">{{ u.unitName }}</span></sc-if>
+                    <span style="{{ u.rankBadge }}">{{ u.rank }}</span>
+                    <sc-if value="{{ u.died }}" hint-placeholder-val="{{ false }}"><span style="font-size:8px; letter-spacing:0.1em; color:#ff5d5d; border:1px solid #5a2122; background:rgba(255,93,93,.1); padding:1px 6px; border-radius:2px; flex-shrink:0;">✝ SLAIN</span></sc-if>
+                    <span style="font-size:10px; color:#d8b25a; flex-shrink:0;">{{ u.xp }} XP</span>
+                    <span style="margin-left:auto; font-size:11px; color:#5f6b62; flex-shrink:0;">{{ u.points }} pts</span>
+                    <span style="font-size:9px; color:#5f6b62; width:10px; flex-shrink:0;">{{ u.caret }}</span>
+                  </div>
+                  <sc-if value="{{ u.open }}" hint-placeholder-val="{{ false }}">
+                    <div style="border-top:1px solid #1c211d; padding:13px 15px;">
+                      <div style="display:flex; gap:18px; flex-wrap:wrap; padding-bottom:12px; margin-bottom:12px; border-bottom:1px solid #1a201c;">
+                        <div style="text-align:center;"><div style="font-family:'Chakra Petch', sans-serif; font-size:16px; color:#d8b25a; font-weight:700;">{{ u.xp }}</div><div style="font-size:8px; color:#5f6b62; letter-spacing:0.08em; text-transform:uppercase;">XP</div></div>
+                        <div style="text-align:center;"><div style="font-family:'Chakra Petch', sans-serif; font-size:16px; color:#a8b0a4; font-weight:700;">{{ u.battles }}</div><div style="font-size:8px; color:#5f6b62; letter-spacing:0.08em; text-transform:uppercase;">Battles</div></div>
+                        <div style="text-align:center;"><div style="font-family:'Chakra Petch', sans-serif; font-size:16px; color:#4fd0e0; font-weight:700;">{{ u.survived }}</div><div style="font-size:8px; color:#5f6b62; letter-spacing:0.08em; text-transform:uppercase;">Survived</div></div>
+                        <div style="text-align:center;"><div style="font-family:'Chakra Petch', sans-serif; font-size:16px; color:#ff5d5d; font-weight:700;">{{ u.kills }}</div><div style="font-size:8px; color:#5f6b62; letter-spacing:0.08em; text-transform:uppercase;">Kills</div></div>
+                        <div style="text-align:center;"><div style="font-family:'Chakra Petch', sans-serif; font-size:16px; color:#d8b25a; font-weight:700;">{{ u.cp }}</div><div style="font-size:8px; color:#5f6b62; letter-spacing:0.08em; text-transform:uppercase;">Crusade Pts</div></div>
+                      </div>
+                      <!-- log activity -->
+                      <sc-if value="{{ u.editing }}" hint-placeholder-val="{{ false }}">
+                      <div style="display:flex; gap:8px; margin-bottom:13px; flex-wrap:wrap;">
+                        <div style="display:flex; align-items:center; gap:7px; border:1px solid #232a26; border-radius:4px; padding:5px 9px;"><span style="font-size:9px; color:#5f6b62; letter-spacing:0.08em; text-transform:uppercase;">XP</span><span onClick="{{ u.onXpDown }}" style="width:18px; height:18px; display:inline-flex; align-items:center; justify-content:center; border:1px solid #2e3630; border-radius:3px; color:#d8b25a; cursor:pointer; font-size:14px;">−</span><span onClick="{{ u.onXpUp }}" style="width:18px; height:18px; display:inline-flex; align-items:center; justify-content:center; border:1px solid #2e3630; border-radius:3px; color:#4fd873; cursor:pointer; font-size:13px;">+</span></div>
+                        <div style="display:flex; align-items:center; gap:7px; border:1px solid #232a26; border-radius:4px; padding:5px 9px;"><span style="font-size:9px; color:#5f6b62; letter-spacing:0.08em; text-transform:uppercase;">Kills</span><span onClick="{{ u.onKillDown }}" style="width:18px; height:18px; display:inline-flex; align-items:center; justify-content:center; border:1px solid #2e3630; border-radius:3px; color:#d8b25a; cursor:pointer; font-size:14px;">−</span><span onClick="{{ u.onKillUp }}" style="width:18px; height:18px; display:inline-flex; align-items:center; justify-content:center; border:1px solid #2e3630; border-radius:3px; color:#4fd873; cursor:pointer; font-size:13px;">+</span></div>
+                        <div style="display:flex; align-items:center; gap:7px; border:1px solid #232a26; border-radius:4px; padding:5px 9px;"><span style="font-size:9px; color:#5f6b62; letter-spacing:0.08em; text-transform:uppercase;">Crusade Pts</span><span onClick="{{ u.onCpDown }}" style="width:18px; height:18px; display:inline-flex; align-items:center; justify-content:center; border:1px solid #2e3630; border-radius:3px; color:#d8b25a; cursor:pointer; font-size:14px;">−</span><span onClick="{{ u.onCpUp }}" style="width:18px; height:18px; display:inline-flex; align-items:center; justify-content:center; border:1px solid #2e3630; border-radius:3px; color:#4fd873; cursor:pointer; font-size:13px;">+</span></div>
+                      </div>
+                      </sc-if>
+                      <!-- xp to next -->
+                      <div style="margin-bottom:13px;">
+                        <div style="display:flex; justify-content:space-between; font-size:10px; margin-bottom:4px;"><span style="color:#5f6b62;">RANK PROGRESS</span><span style="color:#a8b0a4;">{{ u.nextLabel }}</span></div>
+                        <div style="height:5px; background:#1c241e; border-radius:3px; overflow:hidden;"><div style="{{ u.xpBar }}"></div></div>
+                      </div>
+                      <!-- loadout -->
+                      <sc-if value="{{ u.hasLoadout }}" hint-placeholder-val="{{ false }}">
+                        <div style="margin-bottom:12px;"><div style="font-size:9px; color:#5f6b62; letter-spacing:0.1em; text-transform:uppercase; margin-bottom:6px;">Loadout</div><div style="display:flex; flex-wrap:wrap; gap:5px;"><sc-for list="{{ u.loadout }}" as="w" hint-placeholder-count="2"><span style="font-size:10px; color:#a8b0a4; border:1px solid #232a26; padding:2px 7px; border-radius:3px;">{{ w }}</span></sc-for></div></div>
+                      </sc-if>
+                      <div style="display:grid; grid-template-columns:1fr 1fr; gap:12px;">
+                        <div>
+                          <div style="font-size:9px; color:#d8b25a; letter-spacing:0.1em; text-transform:uppercase; margin-bottom:6px;">Battle Honours</div>
+                          <sc-for list="{{ u.honours }}" as="h" hint-placeholder-count="1"><div style="display:flex; align-items:baseline; gap:7px; font-size:11px; padding:2px 0;"><span style="color:#d8b25a;">◆</span><span style="color:#cdd4cb;">{{ h.name }}</span><span style="color:#5f6b62; margin-left:auto;">{{ h.effect }}</span><sc-if value="{{ u.editing }}" hint-placeholder-val="{{ false }}"><span onClick="{{ h.onRemove }}" style="color:#5f6b62; cursor:pointer;">✕</span></sc-if></div></sc-for>
+                          <sc-if value="{{ u.noHonours }}" hint-placeholder-val="{{ false }}"><div style="font-size:10px; color:#3f4a40; font-style:italic;">none yet</div></sc-if>
+                          <sc-if value="{{ u.editing }}" hint-placeholder-val="{{ false }}">
+                          <div style="display:flex; gap:4px; margin-top:7px;">
+                            <input value="{{ u.honName }}" onInput="{{ u.onHonName }}" placeholder="honour" style="flex:1; min-width:0; background:#0a0c0e; border:1px solid #232a26; color:#d8dee0; font-family:inherit; font-size:10px; padding:4px 6px; border-radius:3px; outline:none;">
+                            <input value="{{ u.honEff }}" onInput="{{ u.onHonEff }}" placeholder="effect" style="flex:1; min-width:0; background:#0a0c0e; border:1px solid #232a26; color:#d8dee0; font-family:inherit; font-size:10px; padding:4px 6px; border-radius:3px; outline:none;">
+                            <span onClick="{{ u.onAddHonour }}" style="font-size:13px; color:#0d0f12; background:#d8b25a; font-weight:700; padding:2px 9px; border-radius:3px; cursor:pointer; display:inline-flex; align-items:center;">+</span>
+                          </div>
+                          </sc-if>
+                        </div>
+                        <div>
+                          <div style="font-size:9px; color:#ff5d5d; letter-spacing:0.1em; text-transform:uppercase; margin-bottom:6px;">Battle Scars</div>
+                          <sc-for list="{{ u.scars }}" as="sc" hint-placeholder-count="1"><div style="display:flex; align-items:baseline; gap:7px; font-size:11px; padding:2px 0;"><span style="color:#ff5d5d;">✖</span><span style="color:#cdd4cb;">{{ sc.name }}</span><span style="color:#5f6b62; margin-left:auto;">{{ sc.effect }}</span><sc-if value="{{ u.editing }}" hint-placeholder-val="{{ false }}"><span onClick="{{ sc.onRemove }}" style="color:#5f6b62; cursor:pointer;">✕</span></sc-if></div></sc-for>
+                          <sc-if value="{{ u.noScars }}" hint-placeholder-val="{{ false }}"><div style="font-size:10px; color:#3f4a40; font-style:italic;">none — unscathed</div></sc-if>
+                          <sc-if value="{{ u.editing }}" hint-placeholder-val="{{ false }}">
+                          <div style="display:flex; gap:4px; margin-top:7px;">
+                            <input value="{{ u.scarName }}" onInput="{{ u.onScarName }}" placeholder="scar" style="flex:1; min-width:0; background:#0a0c0e; border:1px solid #232a26; color:#d8dee0; font-family:inherit; font-size:10px; padding:4px 6px; border-radius:3px; outline:none;">
+                            <input value="{{ u.scarEff }}" onInput="{{ u.onScarEff }}" placeholder="effect" style="flex:1; min-width:0; background:#0a0c0e; border:1px solid #232a26; color:#d8dee0; font-family:inherit; font-size:10px; padding:4px 6px; border-radius:3px; outline:none;">
+                            <span onClick="{{ u.onAddScar }}" style="font-size:13px; color:#0d0f12; background:#ff5d5d; font-weight:700; padding:2px 9px; border-radius:3px; cursor:pointer; display:inline-flex; align-items:center;">+</span>
+                          </div>
+                          </sc-if>
+                        </div>
+                      </div>
+                      <div style="display:flex; gap:8px; margin-top:13px; align-items:center; flex-wrap:wrap;">
+                        <span onClick="{{ u.onToggleEdit }}" style="{{ u.editStyle }}">{{ u.editLabel }}</span>
+                        <sc-if value="{{ u.editing }}" hint-placeholder-val="{{ false }}"><span onClick="{{ u.onMark }}" style="{{ u.markStyle }}">{{ u.markLabel }}</span></sc-if>
+                        <sc-if value="{{ u.editing }}" hint-placeholder-val="{{ false }}"><span onClick="{{ u.onToggleDied }}" style="{{ u.diedStyle }}">{{ u.diedLabel }}</span></sc-if>
+                        <a href="Spec%20Unit.dc.html?unit={{ u.specParam }}" style="font-size:9px; letter-spacing:0.08em; text-transform:uppercase; color:#4fd0e0; border:1px solid #1f4e57; padding:4px 10px; border-radius:3px; text-decoration:none; margin-left:auto;">datasheet ›</a>
+                      </div>
+                    </div>
+                  </sc-if>
+                </div>
+              </sc-for>
+            </div>
+          </div>
+
+          <!-- ── SIDEBAR: requisition + history ── -->
+          <div style="display:flex; flex-direction:column; gap:18px;">
+            <div>
+              <div style="font-family:'Chakra Petch', sans-serif; font-size:12px; letter-spacing:0.14em; color:#eef4ee; text-transform:uppercase; margin-bottom:11px;">Requisitions</div>
+              <div style="border:1px solid #1f4e57; border-radius:5px; background:rgba(79,208,224,.05); padding:11px 13px; margin-bottom:10px; display:flex; align-items:center; gap:10px;">
+                <span style="font-family:'Chakra Petch', sans-serif; font-size:24px; color:#4fd0e0; font-weight:700;">{{ rp }}</span>
+                <div><div style="font-size:10px; color:#84a890; letter-spacing:0.08em; text-transform:uppercase;">Req. Points</div><div style="font-size:9px; color:#5f6b62;">+1 RP each battle round</div></div>
+                <sc-if value="{{ flashShow }}" hint-placeholder-val="{{ false }}"><span style="margin-left:auto; font-size:9px; color:#4fd873;">{{ flash }}</span></sc-if>
+              </div>
+              <div style="display:flex; flex-direction:column; gap:6px;">
+                <sc-for list="{{ requisitions }}" as="r" hint-placeholder-count="4">
+                  <div style="border:1px solid #232a26; border-radius:5px; background:#12150f; padding:10px 12px;">
+                    <div style="display:flex; align-items:center; gap:8px; margin-bottom:4px;">
+                      <span style="font-size:12px; color:#cdd4cb; font-weight:600;">{{ r.name }}</span>
+                      <span onClick="{{ r.onSpend }}" style="{{ r.btnStyle }}">{{ r.btnLabel }}</span>
+                    </div>
+                    <div style="font-size:10px; color:#84907f; line-height:1.5;">{{ r.desc }}</div>
+                  </div>
+                </sc-for>
+              </div>
+            </div>
+
+            <div>
+              <div style="font-family:'Chakra Petch', sans-serif; font-size:12px; letter-spacing:0.14em; color:#eef4ee; text-transform:uppercase; margin-bottom:11px;">Battle History</div>
+              <div style="border:1px solid #232a26; border-radius:5px; background:#12150f; overflow:hidden;">
+                <sc-for list="{{ battles }}" as="b" hint-placeholder-count="3">
+                  <div style="padding:11px 13px; border-bottom:1px solid #1a201c;">
+                    <div style="display:flex; align-items:center; gap:8px; margin-bottom:3px;">
+                      <span style="{{ b.resultStyle }}">{{ b.result }}</span>
+                      <span style="font-size:12px; color:#cdd4cb;">vs {{ b.opponent }}</span>
+                      <span style="margin-left:auto; font-size:9px; color:#5f6b62;">RND {{ b.round }}</span>
+                    </div>
+                    <div style="font-size:10px; color:#84907f;">{{ b.mission }}<sc-if value="{{ b.hasCp }}" hint-placeholder-val="{{ false }}"><span style="color:#d8b25a;"> · +{{ b.cp }} CP</span></sc-if></div>
+                  </div>
+                </sc-for>
+                <div style="padding:10px 13px;"><span style="font-size:9px; letter-spacing:0.08em; text-transform:uppercase; color:#4fd873; border:1px solid #1f5a36; padding:4px 10px; border-radius:3px; cursor:pointer;">+ log battle</span></div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- command bar -->
+      <div style="display:flex; align-items:center; gap:12px; padding:0 18px; min-height:48px; border-top:2px solid #1f5a36; background:#0a0c0e;">
+        <span style="color:#4fd873; font-size:16px; flex-shrink:0;">›</span>
+        <input value="{{ term }}" onInput="{{ onTermInput }}" onKeyDown="{{ onTermKey }}" placeholder="crusade  ·  add unit &lt;name&gt;  ·  requisition &lt;name&gt;  ·  log battle" style="flex:1; background:transparent; border:none; outline:none; color:#4fd873; font-family:'IBM Plex Mono', monospace; font-size:13px; caret-color:#4fd873;">
+        <span style="font-size:10px; letter-spacing:0.14em; color:#3f4a40; flex-shrink:0;">⏎ RUN</span>
+      </div>
+    </div>
+  </div>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script>
+class Component extends DCLogic {
+  state = { open: {}, rp: 4, units: null, edit: {}, editing: {}, flash: null, term: "" };
+
+  componentDidMount() {
+    let u = null;
+    try { const raw = JSON.parse(localStorage.getItem("ct_crusade_units") || "null"); if (Array.isArray(raw) && raw.length) u = raw; } catch { /* */ }
+    this.setState({ units: u || this.UNITS() });
+  }
+  saveUnits(u) { try { localStorage.setItem("ct_crusade_units", JSON.stringify(u)); } catch { /* */ } }
+  patch(id, fn) { this.setState(st => { const next = (st.units || this.UNITS()).map(x => x.id === id ? fn({ ...x }) : x); this.saveUnits(next); return { units: next }; }); }
+
+  RANKS() { return [["Battle-ready", 0, "#84907f"], ["Blooded", 6, "#4fd873"], ["Battle-hardened", 16, "#4fd0e0"], ["Heroic", 31, "#d8b25a"], ["Legendary", 51, "#a78bdb"]]; }
+
+  rankFor(xp) { const r = this.RANKS(); let cur = r[0]; for (const x of r) if (xp >= x[1]) cur = x; return cur; }
+  nextRank(xp) { const r = this.RANKS(); for (const x of r) if (x[1] > xp) return x; return null; }
+
+  UNITS() {
+    return [
+      { id: "cmd", unit_name: "Commander in Coldstar", nick: "", leader: true, xp: 9, points: 100, models: 1,
+        loadout: ["Cyclic ion blaster", "Battlesuit fists"], honours: [{ name: "Strike and Fade", effect: "Fall back & shoot" }], scars: [],
+        battles: 3, survived: 3, kills: 7, cp: 2, marked: true },
+      { id: "sun", unit_name: "Crisis Sunforge", nick: "Alpha", leader: false, xp: 18, points: 130, models: 3,
+        loadout: ["Twin fusion blaster ×3"], honours: [{ name: "Tank Hunters", effect: "+1 to Wound vs Vehicles" }], scars: [{ name: "Battle-weary", effect: "-1 to Advance" }],
+        battles: 3, survived: 2, kills: 5, cp: 1 },
+      { id: "bro", unit_name: "Broadside Battlesuits", nick: "", leader: false, xp: 8, points: 90, models: 2,
+        loadout: ["Heavy rail rifle ×2"], honours: [], scars: [],
+        battles: 2, survived: 2, kills: 4, cp: 1 },
+      { id: "rip", unit_name: "Riptide Battlesuit", nick: "", leader: false, xp: 4, points: 180, models: 1,
+        loadout: ["Heavy burst cannon"], honours: [], scars: [{ name: "Crippling Damage", effect: "-1\" Move" }],
+        battles: 1, survived: 1, kills: 2, cp: 0 },
+      { id: "ham", unit_name: "Hammerhead Gunship", nick: "Longstrike", leader: false, xp: 32, points: 160, models: 1,
+        loadout: ["Railgun", "2× Gun drones"], honours: [{ name: "Crack Shot", effect: "Ignores Cover" }, { name: "Gunline Veteran", effect: "Re-roll 1s to Hit" }], scars: [],
+        battles: 3, survived: 3, kills: 11, cp: 3, marked: true },
+      { id: "fw", unit_name: "Fire Warriors", nick: "", leader: false, xp: 3, points: 75, models: 10,
+        loadout: ["Pulse rifle ×10"], honours: [], scars: [],
+        battles: 2, survived: 1, kills: 3, cp: 0 },
+    ];
+  }
+
+  renderVals() {
+    const s = this.state;
+    const raw = s.units || this.UNITS();
+    const supplyUsed = raw.reduce((a, u) => a + u.points, 0);
+    const over = supplyUsed > 1000;
+
+    const units = raw.map(u => {
+      const rank = this.rankFor(u.xp);
+      const nx = this.nextRank(u.xp);
+      const marked = !!u.marked;
+      const died = !!u.died;
+      const editing = !!s.editing[u.id];
+      const ed = s.edit[u.id] || {};
+      const setEd = (k, v) => this.setState(st => ({ edit: { ...st.edit, [u.id]: { ...(st.edit[u.id] || {}), [k]: v } } }));
+      const open = !!s.open[u.id];
+      const display = (marked ? "★ " : "") + (u.nick || u.unit_name);
+      const segMin = rank[1], segMax = nx ? nx[1] : rank[1] + 20;
+      const xpPct = Math.min(100, Math.round((u.xp - segMin) / (segMax - segMin) * 100));
+      return {
+        display, unitName: u.unit_name, hasNick: !!u.nick,
+        nameColor: u.leader ? "#d8b25a" : "#cdeacd", nameWeight: u.leader ? 600 : 400,
+        rankColor: rank[2], rank: rank[0].toUpperCase(),
+        rankBadge: { fontSize: "8px", letterSpacing: "0.08em", color: rank[2], border: "1px solid " + rank[2] + "55", background: rank[2] + "14", padding: "1px 6px", borderRadius: "2px", flexShrink: 0, textTransform: "uppercase" },
+        xp: u.xp, points: u.points,
+        borderColor: open ? rank[2] + "55" : "#232a26",
+        rowStyle: { display: "flex", alignItems: "center", gap: "10px", padding: "10px 13px", cursor: "pointer",
+                    opacity: died ? 0.55 : 1, background: open ? rank[2] + "0d" : "transparent" },
+        caret: open ? "▲" : "▼", open,
+        onToggle: () => this.setState(st => ({ open: { ...st.open, [u.id]: !st.open[u.id] } })),
+        battles: u.battles, survived: u.survived, kills: u.kills, cp: u.cp,
+        nextLabel: nx ? (nx[1] - u.xp) + " XP to " + nx[0] : "Legendary — max rank",
+        xpBar: { height: "100%", width: xpPct + "%", borderRadius: "3px", background: rank[2] },
+        hasLoadout: u.loadout.length > 0, loadout: u.loadout,
+        honours: u.honours.map((h, i) => ({ name: h.name, effect: h.effect, onRemove: () => this.patch(u.id, x => ({ ...x, honours: x.honours.filter((_, j) => j !== i) })) })),
+        noHonours: u.honours.length === 0,
+        scars: u.scars.map((c, i) => ({ name: c.name, effect: c.effect, onRemove: () => this.patch(u.id, x => ({ ...x, scars: x.scars.filter((_, j) => j !== i) })) })),
+        noScars: u.scars.length === 0,
+        specParam: encodeURIComponent(u.unit_name),
+        onXpUp: () => this.patch(u.id, x => ({ ...x, xp: x.xp + 1 })),
+        onXpDown: () => this.patch(u.id, x => ({ ...x, xp: Math.max(0, x.xp - 1) })),
+        onKillUp: () => this.patch(u.id, x => ({ ...x, kills: x.kills + 1 })),
+        onKillDown: () => this.patch(u.id, x => ({ ...x, kills: Math.max(0, x.kills - 1) })),
+        onCpUp: () => this.patch(u.id, x => ({ ...x, cp: x.cp + 1 })),
+        onCpDown: () => this.patch(u.id, x => ({ ...x, cp: Math.max(0, x.cp - 1) })),
+        honName: ed.hn || "", onHonName: (e) => setEd("hn", e.target.value),
+        honEff: ed.he || "", onHonEff: (e) => setEd("he", e.target.value),
+        onAddHonour: () => { const n = (ed.hn || "").trim(); if (!n) return; this.patch(u.id, x => ({ ...x, honours: [...x.honours, { name: n, effect: (ed.he || "").trim() }] })); setEd("hn", ""); setEd("he", ""); },
+        scarName: ed.sn || "", onScarName: (e) => setEd("sn", e.target.value),
+        scarEff: ed.se || "", onScarEff: (e) => setEd("se", e.target.value),
+        onAddScar: () => { const n = (ed.sn || "").trim(); if (!n) return; this.patch(u.id, x => ({ ...x, scars: [...x.scars, { name: n, effect: (ed.se || "").trim() }] })); setEd("sn", ""); setEd("se", ""); },
+        onMark: () => this.patch(u.id, x => ({ ...x, marked: !x.marked })),
+        died, editing,
+        onToggleEdit: () => this.setState(st => ({ editing: { ...st.editing, [u.id]: !st.editing[u.id] } })),
+        editLabel: editing ? "✓ Save" : "✎ Edit",
+        editStyle: { fontSize: "9px", letterSpacing: "0.08em", textTransform: "uppercase", cursor: "pointer", padding: "4px 11px", borderRadius: "3px", color: editing ? "#0d0f12" : "#4fd873", background: editing ? "#4fd873" : "transparent", border: "1px solid " + (editing ? "#4fd873" : "#1f5a36"), fontWeight: editing ? 700 : 400 },
+        onToggleDied: () => this.patch(u.id, x => ({ ...x, died: !x.died })),
+        diedLabel: died ? "↺ restore" : "✝ mark died",
+        diedStyle: { fontSize: "9px", letterSpacing: "0.08em", textTransform: "uppercase", cursor: "pointer", padding: "4px 10px", borderRadius: "3px", color: died ? "#0d0f12" : "#ff5d5d", background: died ? "#ff5d5d" : "transparent", border: "1px solid #5a2122", fontWeight: died ? 700 : 400 },
+        markStyle: { fontSize: "9px", letterSpacing: "0.08em", textTransform: "uppercase", cursor: "pointer", padding: "4px 10px", borderRadius: "3px",
+                     color: marked ? "#0d0f12" : "#d8b25a", background: marked ? "#d8b25a" : "transparent", border: "1px solid " + (marked ? "#d8b25a" : "#4a3c1c"), fontWeight: marked ? 700 : 400 },
+        markLabel: marked ? "★ marked for greatness" : "mark for greatness",
+      };
+    });
+
+    const reqDefs = [
+      { name: "Increase Supply Limit", cost: 1, desc: "Raise your Crusade army's supply limit by 200 points." },
+      { name: "Renowned Heroes", cost: 1, desc: "Grant an extra Battle Honour to a Character unit." },
+      { name: "Repair & Recuperate", cost: 1, desc: "Remove one Battle Scar from a unit in your Order of Battle." },
+      { name: "Fresh Recruits", cost: 1, desc: "Add a brand-new unit to your Order of Battle." },
+    ];
+    const requisitions = reqDefs.map(r => {
+      const can = s.rp >= r.cost;
+      return { name: r.name, desc: r.desc,
+        btnLabel: r.cost + " RP",
+        btnStyle: { marginLeft: "auto", fontSize: "9px", letterSpacing: "0.06em", padding: "3px 9px", borderRadius: "3px", flexShrink: 0,
+                    cursor: can ? "pointer" : "default", opacity: can ? 1 : 0.4,
+                    color: can ? "#4fd0e0" : "#5f6b62", border: "1px solid " + (can ? "#1f4e57" : "#232a26"), background: can ? "rgba(79,208,224,.08)" : "transparent" },
+        onSpend: () => { if (s.rp < r.cost) return; this.setState({ rp: s.rp - r.cost, flash: "✓ " + r.name }); setTimeout(() => this.setState({ flash: null }), 2500); },
+      };
+    });
+
+    const battles = [
+      { round: 3, opponent: "Hive Fleet Leviathan", mission: "The Tipping Point", result: "WIN", cp: 3 },
+      { round: 2, opponent: "Iron Warriors", mission: "Scorched Earth", result: "LOSS", cp: 0 },
+      { round: 1, opponent: "Sautekh Dynasty", mission: "Take and Hold", result: "WIN", cp: 2 },
+    ].map(b => ({ round: b.round, opponent: b.opponent, mission: b.mission, result: b.result, cp: b.cp, hasCp: b.cp > 0,
+      resultStyle: { fontSize: "8px", letterSpacing: "0.1em", fontWeight: 700, padding: "1px 6px", borderRadius: "2px",
+                     color: b.result === "WIN" ? "#0d0f12" : "#ff5d5d", background: b.result === "WIN" ? "#4fd873" : "transparent",
+                     border: b.result === "WIN" ? "none" : "1px solid #5a2122" } }));
+
+    const supColor = over ? "#ff5d5d" : "#4fd873";
+    return {
+      rp: s.rp, unitCount: raw.length, units,
+      supplyUsed, supplyOver: over ? "  (+" + (supplyUsed - 1000) + " over)" : "",
+      supplyStyle: { color: supColor },
+      supplyBar: { height: "100%", width: Math.min(100, supplyUsed / 1000 * 100) + "%", borderRadius: "3px", background: supColor },
+      requisitions, flash: s.flash, flashShow: !!s.flash,
+      battles,
+      term: s.term, onTermInput: (e) => this.setState({ term: e.target.value }),
+      onTermKey: (e) => { if (e.key === "Enter") this.setState({ term: "" }); },
+    };
+  }
+}
+</script>
+</body>
+</html>

@@ -1,0 +1,204 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;600;700&family=Chakra+Petch:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+  * { box-sizing: border-box; }
+  body { margin: 0; }
+  @keyframes lsBlink { 0%, 49% { opacity: 1; } 50%, 100% { opacity: 0; } }
+</style>
+</helmet>
+
+<div style="min-width:100%; min-height:100vh; box-sizing:border-box; padding:48px; background:#e7e5df; font-family:'IBM Plex Mono', monospace; display:flex; flex-direction:column; align-items:center;">
+  <div style="width:920px; max-width:100%;">
+    <div style="margin-bottom:28px;">
+      <div style="font-size:11px; letter-spacing:0.32em; color:#8a8576; text-transform:uppercase;">Combat Terminal · Motion Vocabulary</div>
+      <div style="font-size:24px; letter-spacing:-0.01em; color:#2a2722; margin-top:8px; font-weight:600;">Loading &amp; transition states</div>
+      <div style="font-size:13px; line-height:1.6; color:#6c685c; margin-top:8px;">Looping reference for the terminal motion language — power-on, command run, result reveal, context flicker. Apply these to the live screens so the phosphor look feels like a machine thinking.</div>
+    </div>
+
+    <div style="display:grid; grid-template-columns:1fr 1fr; gap:24px;">
+
+      <!-- ── 1 · BOOT ── -->
+      <div>
+        <div style="font-size:11px; letter-spacing:0.2em; color:#5a5648; text-transform:uppercase; font-weight:600; margin-bottom:10px;">01 · Boot / power-on</div>
+        <div style="position:relative; height:236px; border-radius:3px; overflow:hidden; background:#04060c; box-shadow:0 1px 3px rgba(0,0,0,.16);">
+          <div style="{{ bootInner }}">
+            <div style="padding:18px 20px;">
+              <div style="display:flex; align-items:center; gap:9px; margin-bottom:16px;">
+                <span style="font-size:15px; color:#4fd873;">⚡</span>
+                <span style="{{ bootBanner }}">COMBAT TERMINAL</span>
+              </div>
+              <div style="display:flex; flex-direction:column; gap:6px; font-size:11px;">
+                <sc-for list="{{ bootLines }}" as="l" hint-placeholder-count="4">
+                  <div style="{{ l.style }}">{{ l.text }}</div>
+                </sc-for>
+              </div>
+              <sc-if value="{{ bootReady }}" hint-placeholder-val="{{ false }}">
+                <div style="margin-top:14px; font-size:11px; letter-spacing:0.18em; color:#0d0f12; background:#4fd873; display:inline-block; padding:3px 10px; border-radius:3px; font-weight:700;">▸ READY</div>
+              </sc-if>
+            </div>
+          </div>
+          <div style="{{ scanStyle }}"></div>
+          <div style="position:absolute; inset:0; pointer-events:none; background:repeating-linear-gradient(0deg,transparent 0 2px,rgba(0,0,0,.16) 2px 3px);"></div>
+        </div>
+      </div>
+
+      <!-- ── 2 · COMMAND RUN ── -->
+      <div>
+        <div style="font-size:11px; letter-spacing:0.2em; color:#5a5648; text-transform:uppercase; font-weight:600; margin-bottom:10px;">02 · Command run</div>
+        <div style="position:relative; height:236px; border-radius:3px; overflow:hidden; background:#0d0f12; box-shadow:0 1px 3px rgba(0,0,0,.16);">
+          <div style="padding:18px 20px;">
+            <div style="font-size:9px; color:#5f6b62; letter-spacing:0.12em; text-transform:uppercase; margin-bottom:14px;">click-to-run injects the command, then the engine works</div>
+            <div style="display:flex; align-items:center; gap:8px; min-height:24px; border:1px solid #1f5a36; border-radius:4px; padding:8px 11px; background:#0a0c0e;">
+              <span style="color:#4fd873; font-size:14px;">›</span>
+              <span style="font-size:13px; color:#4fd873;">{{ typed }}</span>
+              <sc-if value="{{ typing }}" hint-placeholder-val="{{ true }}"><span style="display:inline-block; width:7px; height:14px; background:#4fd873; animation:lsBlink 1.1s step-end infinite;"></span></sc-if>
+              <sc-if value="{{ injecting }}" hint-placeholder-val="{{ false }}"><span style="margin-left:auto; font-size:9px; letter-spacing:0.14em; color:#ffb000;">INJECT</span></sc-if>
+            </div>
+            <sc-if value="{{ running }}" hint-placeholder-val="{{ false }}">
+              <div style="margin-top:16px;">
+                <div style="display:flex; justify-content:space-between; font-size:10px; margin-bottom:6px;"><span style="color:#84907f;">⟳ simulating · 5,000 iterations</span><span style="color:#4fd873;">{{ progPct }}</span></div>
+                <div style="height:5px; background:#1c241e; border-radius:3px; overflow:hidden;"><div style="{{ progStyle }}"></div></div>
+              </div>
+            </sc-if>
+            <sc-if value="{{ cmdDone }}" hint-placeholder-val="{{ false }}">
+              <div style="margin-top:16px; font-size:12px; color:#4fd873;">✓ combat resolved · 6.8 dmg · 2.4 slain</div>
+            </sc-if>
+          </div>
+          <div style="position:absolute; inset:0; pointer-events:none; background:repeating-linear-gradient(0deg,transparent 0 2px,rgba(0,0,0,.06) 2px 3px);"></div>
+        </div>
+      </div>
+
+      <!-- ── 3 · RESULT REVEAL ── -->
+      <div>
+        <div style="font-size:11px; letter-spacing:0.2em; color:#5a5648; text-transform:uppercase; font-weight:600; margin-bottom:10px;">03 · Result reveal</div>
+        <div style="position:relative; height:236px; border-radius:3px; overflow:hidden; background:#0d0f12; box-shadow:0 1px 3px rgba(0,0,0,.16);">
+          <div style="padding:18px 20px;">
+            <div style="font-size:11px; color:#d8b25a; letter-spacing:0.12em; text-transform:uppercase; margin-bottom:13px;">Targeting Outcome</div>
+            <div style="display:grid; grid-template-columns:54px 1fr 38px; align-items:center; gap:9px; margin-bottom:9px;"><span style="font-size:9px; color:#84907f;">HIT</span><div style="height:6px; background:#1c241e; border-radius:3px; overflow:hidden;"><div style="{{ hitStyle }}"></div></div><span style="font-size:10px; color:#4fd873; text-align:right;">{{ hitVal }}</span></div>
+            <div style="display:grid; grid-template-columns:54px 1fr 38px; align-items:center; gap:9px; margin-bottom:9px;"><span style="font-size:9px; color:#84907f;">WOUND</span><div style="height:6px; background:#1c241e; border-radius:3px; overflow:hidden;"><div style="{{ woundStyle }}"></div></div><span style="font-size:10px; color:#d8b25a; text-align:right;">{{ woundVal }}</span></div>
+            <div style="display:grid; grid-template-columns:54px 1fr 38px; align-items:center; gap:9px; margin-bottom:14px;"><span style="font-size:9px; color:#84907f;">UNSAVED</span><div style="height:6px; background:#1c241e; border-radius:3px; overflow:hidden;"><div style="{{ unsavedStyle }}"></div></div><span style="font-size:10px; color:#ff5d5d; text-align:right;">{{ unsavedVal }}</span></div>
+            <div style="display:flex; flex-direction:column; gap:4px; font-size:10px; color:#84907f;">
+              <sc-for list="{{ revealLines }}" as="l" hint-placeholder-count="3"><div style="{{ l.style }}">{{ l.text }}</div></sc-for>
+            </div>
+          </div>
+          <div style="position:absolute; inset:0; pointer-events:none; background:repeating-linear-gradient(0deg,transparent 0 2px,rgba(0,0,0,.06) 2px 3px);"></div>
+        </div>
+      </div>
+
+      <!-- ── 4 · CONTEXT FLICKER ── -->
+      <div>
+        <div style="font-size:11px; letter-spacing:0.2em; color:#5a5648; text-transform:uppercase; font-weight:600; margin-bottom:10px;">04 · Context switch flicker</div>
+        <div style="position:relative; height:236px; border-radius:3px; overflow:hidden; background:#0d0f12; box-shadow:0 1px 3px rgba(0,0,0,.16);">
+          <div style="display:flex; font-family:'Chakra Petch', sans-serif; font-size:10px; letter-spacing:0.1em; border-bottom:1px solid #1a201c; background:#0a0c0e; padding:0 6px;">
+            <sc-for list="{{ navTabs }}" as="n" hint-placeholder-count="4"><div style="{{ n.style }}">{{ n.label }}</div></sc-for>
+          </div>
+          <div style="{{ ctxInner }}">
+            <div style="padding:20px;">
+              <div style="font-family:'Chakra Petch', sans-serif; font-size:20px; color:#eef4ee; font-weight:700; letter-spacing:0.04em;">{{ ctxLabel }}</div>
+              <div style="font-size:11px; color:#5f6b62; margin-top:8px;">{{ ctxSub }}</div>
+              <div style="margin-top:16px; display:flex; flex-direction:column; gap:6px;">
+                <div style="height:8px; width:80%; background:#161a13; border-radius:2px;"></div>
+                <div style="height:8px; width:60%; background:#161a13; border-radius:2px;"></div>
+                <div style="height:8px; width:70%; background:#161a13; border-radius:2px;"></div>
+              </div>
+            </div>
+          </div>
+          <div style="{{ ctxSweep }}"></div>
+        </div>
+      </div>
+
+    </div>
+  </div>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script>
+class Component extends DCLogic {
+  state = { t: 0 };
+  componentDidMount() { this.iv = setInterval(() => this.setState(s => ({ t: s.t + 60 })), 60); }
+  componentWillUnmount() { if (this.iv) clearInterval(this.iv); }
+
+  renderVals() {
+    const t = this.state.t;
+    const ease = (x) => 1 - (1 - x) * (1 - x);
+    const clamp01 = (x) => Math.max(0, Math.min(1, x));
+
+    // ── 1 · BOOT (cycle 5400ms) ──
+    const bt = t % 5400;
+    let bootOpacity = 1;
+    if (bt < 220) bootOpacity = 0.04;
+    else if (bt < 760) bootOpacity = (bt % 120 < 60) ? 0.85 : 0.35; // power-on flicker
+    const bootInner = { opacity: bootOpacity, transition: "opacity 0.06s" };
+    const bootLineDefs = ["▸ cogitator core ………… OK", "▸ dossiers ………… 29 factions · 1,284 units", "▸ monte carlo ………… ONLINE", "▸ auth ………… GUEST"];
+    const bootLines = bootLineDefs.map((text, i) => {
+      const on = bt > 900 + i * 230;
+      return { text, style: { color: i === 0 ? "#4fd873" : "#2e5a40", opacity: on ? 1 : 0, transform: on ? "translateX(0)" : "translateX(-4px)", transition: "opacity .12s, transform .12s" } };
+    });
+    const bannerLit = bt > 600;
+    const bootBanner = { fontFamily: "'Chakra Petch', sans-serif", fontSize: "15px", letterSpacing: "0.18em", fontWeight: 700,
+      color: bannerLit ? "#eef4ee" : "#1c3a24", textShadow: bannerLit ? "0 0 14px rgba(79,216,115,.45)" : "none", transition: "color .2s, text-shadow .2s" };
+    const scanOn = bt < 900;
+    const scanStyle = { position: "absolute", left: 0, right: 0, height: "40px", top: (clamp01(bt / 900) * 100) + "%",
+      background: "linear-gradient(180deg, transparent, rgba(79,216,115,.18), transparent)", opacity: scanOn ? 1 : 0, pointerEvents: "none" };
+    const bootReady = bt > 2100 && bt < 5100;
+
+    // ── 2 · COMMAND RUN (cycle 4600ms) ──
+    const ct = t % 4600;
+    const cmd = "intercessors vs plague marines";
+    const typing = ct < 1500;
+    const typedN = Math.floor(clamp01(ct / 1400) * cmd.length);
+    const typed = typing ? cmd.slice(0, typedN) : cmd;
+    const injecting = ct >= 1400 && ct < 1650;
+    const running = ct >= 1650 && ct < 3700;
+    const cmdDone = ct >= 3700;
+    const prog = clamp01((ct - 1650) / 1900);
+    const progPct = Math.round(prog * 100) + "%";
+    const progStyle = { height: "100%", width: (prog * 100) + "%", borderRadius: "3px", background: "#4fd873" };
+
+    // ── 3 · RESULT REVEAL (cycle 3400ms) ──
+    const rt = t % 3400;
+    const fill = ease(clamp01(rt / 1100));
+    const mk = (target, c) => ({ height: "100%", width: (target * fill) + "%", borderRadius: "3px", background: c });
+    const hitStyle = mk(89, "#4fd873"), woundStyle = mk(33, "#d8b25a"), unsavedStyle = mk(56, "#ff5d5d");
+    const num = (target, dec) => (target * fill).toFixed(dec);
+    const hitVal = Math.round(89 * fill) + "%", woundVal = Math.round(33 * fill) + "%", unsavedVal = Math.round(56 * fill) + "%";
+    const rLineDefs = ["rolling 10 attacks · BS 2+", "8.3 hits → 2.8 wounds → 1.4 unsaved", "✓ 6.8 dmg · 2.4 models slain"];
+    const revealLines = rLineDefs.map((text, i) => {
+      const on = rt > 1100 + i * 280;
+      return { text, style: { color: i === 2 ? "#4fd873" : "#84907f", opacity: on ? 1 : 0, transition: "opacity .12s" } };
+    });
+
+    // ── 4 · CONTEXT FLICKER (cycle 2600ms) ──
+    const idx = Math.floor(t / 2600) % 4;
+    const ft = t % 2600;
+    const flick = ft < 320;
+    const ctxOpacity = flick ? ((ft % 90 < 45) ? 0.25 : 0.9) : 1;
+    const ctxInner = { opacity: ctxOpacity, transition: "opacity 0.05s" };
+    const tabs = ["COMBAT SIM", "UNITS", "ROSTERS", "RULES"];
+    const subs = ["probability combat math", "unit database", "army manager", "rules & keywords"];
+    const navTabs = tabs.map((label, i) => ({ label, style: { padding: "8px 11px", color: i === idx ? "#eef4ee" : "#5f6b62", borderBottom: i === idx ? "2px solid #4fd873" : "2px solid transparent", transition: "color .1s" } }));
+    const ctxSweep = { position: "absolute", left: 0, right: 0, top: 0, height: "100%",
+      background: "linear-gradient(180deg, rgba(79,216,115,.14), transparent 40%)",
+      opacity: flick ? 1 : 0, transition: "opacity 0.2s", pointerEvents: "none" };
+
+    return {
+      bootInner, bootBanner, bootLines, bootReady, scanStyle,
+      typed, typing, injecting, running, cmdDone, progPct, progStyle,
+      hitStyle, woundStyle, unsavedStyle, hitVal, woundVal, unsavedVal, revealLines,
+      navTabs, ctxInner, ctxSweep, ctxLabel: tabs[idx], ctxSub: subs[idx],
+    };
+  }
+}
+</script>
+</body>
+</html>

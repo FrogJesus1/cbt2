@@ -1,0 +1,135 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;600;700&family=Chakra+Petch:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+  * { box-sizing: border-box; }
+  body { margin: 0; }
+</style>
+</helmet>
+
+<div style="width:max-content; min-width:100%; min-height:100vh; box-sizing:border-box; padding:48px; background:#e7e5df; font-family:'IBM Plex Mono', monospace;">
+  <div style="margin-bottom:30px; max-width:1100px;">
+    <div style="font-size:11px; letter-spacing:0.32em; color:#8a8576; text-transform:uppercase;">Combat Terminal · Faction Theme Palettes</div>
+    <div style="font-size:24px; letter-spacing:-0.01em; color:#2a2722; margin-top:8px; font-weight:600;">Combat sim, themed</div>
+    <div style="font-size:13px; line-height:1.6; color:#6c685c; margin-top:8px;">The combat-result card in each faction theme. Each card carries its token legend (bg · panel · primary · accent · danger) so the exact values can be wired straight into <span style="color:#6c685c;">data-theme</span>. Default first, then the faction themes.</div>
+  </div>
+
+  <div style="display:flex; gap:28px; align-items:flex-start;">
+    <sc-for list="{{ cards }}" as="c" hint-placeholder-count="7">
+      <div style="flex:none; width:340px;">
+        <div style="margin-bottom:11px;">
+          <div style="font-size:11px; letter-spacing:0.2em; color:#5a5648; text-transform:uppercase; font-weight:600;">{{ c.name }}</div>
+          <div style="font-size:11px; color:#908b7c; margin-top:2px;">{{ c.faction }}</div>
+        </div>
+
+        <div style="{{ c.screen }}">
+          <div style="{{ c.chrome }}">
+            <span style="{{ c.dot }}"></span>
+            <span style="{{ c.title }}">COMBAT TERMINAL</span>
+            <span style="{{ c.chip }}">{{ c.tag }}</span>
+          </div>
+          <div style="{{ c.body }}">
+            <div style="{{ c.echo }}">› intercessors vs plague marines</div>
+            <div style="{{ c.tiles }}">
+              <div style="{{ c.tile }}"><div style="{{ c.tileLabel }}">Total Dmg</div><div style="{{ c.dmgNum }}">11.0</div></div>
+              <div style="{{ c.tile }}"><div style="{{ c.tileLabel }}">Models Slain</div><div style="{{ c.slainNum }}">2.4</div></div>
+            </div>
+            <div style="{{ c.section }}">Targeting Outcome</div>
+            <div style="{{ c.wname }}">Bolt Rifle</div>
+            <div style="display:grid; grid-template-columns:54px 1fr 34px; align-items:center; gap:8px; margin-bottom:7px;"><span style="{{ c.rowLabel }}">HIT</span><div style="{{ c.track }}"><div style="{{ c.hit }}"></div></div><span style="{{ c.hitVal }}">89%</span></div>
+            <div style="display:grid; grid-template-columns:54px 1fr 34px; align-items:center; gap:8px; margin-bottom:7px;"><span style="{{ c.rowLabel }}">WOUND</span><div style="{{ c.track }}"><div style="{{ c.wound }}"></div></div><span style="{{ c.woundVal }}">33%</span></div>
+            <div style="display:grid; grid-template-columns:54px 1fr 34px; align-items:center; gap:8px;"><span style="{{ c.rowLabel }}">UNSAVED</span><div style="{{ c.track }}"><div style="{{ c.unsaved }}"></div></div><span style="{{ c.unsavedVal }}">56%</span></div>
+            <div style="{{ c.verdict }}">
+              <div style="{{ c.verdictLabel }}">Verdict</div>
+              <div style="{{ c.verdictText }}">Target holds — 3 of 5 survive. Commit melee to break the squad.</div>
+            </div>
+          </div>
+        </div>
+
+        <!-- token legend -->
+        <div style="display:grid; grid-template-columns:repeat(5,1fr); gap:6px; margin-top:12px;">
+          <sc-for list="{{ c.legend }}" as="s" hint-placeholder-count="5">
+            <div>
+              <div style="{{ s.sw }}"></div>
+              <div style="font-size:8px; color:#8a8576; margin-top:3px; letter-spacing:0.04em;">{{ s.label }}</div>
+              <div style="font-size:8px; color:#aaa599;">{{ s.hex }}</div>
+            </div>
+          </sc-for>
+        </div>
+      </div>
+    </sc-for>
+  </div>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script>
+class Component extends DCLogic {
+  THEMES() {
+    return [
+      { name: "Default", faction: "Phosphor green (current)", tag: "DEFAULT",
+        k: { bg: "#0d0f12", bgDark: "#0a0c0e", panel: "#12150f", line: "#232a26", track: "#1c241e", primary: "#4fd873", primaryDim: "#2a6c44", accent: "#d8b25a", danger: "#ff5d5d", text: "#eef4ee", dim: "#84907f" } },
+      { name: "T'au · Farsight Enclave", faction: "Crimson & flame on black", tag: "FARSIGHT",
+        k: { bg: "#0a0706", bgDark: "#070403", panel: "#170b08", line: "#3a1610", track: "#280f0b", primary: "#ef4a3a", primaryDim: "#7a241a", accent: "#f2c25a", danger: "#ff8a3d", text: "#f2e7da", dim: "#9a7a68" } },
+      { name: "Orks", faction: "Acid yellow & rust — loud", tag: "WAAAGH!",
+        k: { bg: "#100c00", bgDark: "#0a0800", panel: "#1a1402", line: "#3a3008", track: "#221a04", primary: "#cfe023", primaryDim: "#6a7012", accent: "#e0631c", danger: "#ff3a1e", text: "#f2eccb", dim: "#9a8c54" } },
+      { name: "Chaos Daemons", faction: "Blood-red & warp-purple", tag: "CHAOS",
+        k: { bg: "#0a0306", bgDark: "#060003", panel: "#16070d", line: "#3a0c1a", track: "#220712", primary: "#ff2733", primaryDim: "#7a1019", accent: "#bf40ff", danger: "#ff6a2a", text: "#f4dde2", dim: "#9a6068" } },
+      { name: "Dark Angels", faction: "Bone & forest — monastic", tag: "UNFORGIVEN",
+        k: { bg: "#04130c", bgDark: "#020c07", panel: "#0a1a10", line: "#16341f", track: "#0e2415", primary: "#e6dcc2", primaryDim: "#6b7a5e", accent: "#2faa55", danger: "#c23b3b", text: "#eef2e6", dim: "#7c8a72" } },
+      { name: "White Scars · Light", faction: "White ground · red & gold", tag: "WHITE SCARS",
+        k: { bg: "#ece9e2", bgDark: "#e2ded4", panel: "#f6f3ed", line: "#cfc8b8", track: "#dbd5c7", primary: "#c0392b", primaryDim: "#9a5048", accent: "#b8893a", danger: "#d9622e", text: "#2a2620", dim: "#8a8170" } },
+    ];
+  }
+
+  renderVals() {
+    const cards = this.THEMES().map(th => {
+      const k = th.k;
+      const ck = "#0d0f12";
+      const txtOnAccent = k.bgDark;
+      return {
+        name: th.name, faction: th.faction, tag: th.tag,
+        screen: { background: k.bg, borderRadius: "3px", overflow: "hidden", boxShadow: "0 1px 3px rgba(0,0,0,.2)" },
+        chrome: { display: "flex", alignItems: "center", gap: "8px", padding: "8px 11px", background: k.bgDark, borderBottom: "1px solid " + k.line },
+        dot: { width: "6px", height: "6px", borderRadius: "50%", background: k.primary, boxShadow: "0 0 7px " + k.primary, flexShrink: 0 },
+        title: { fontFamily: "'Chakra Petch',sans-serif", fontSize: "10px", letterSpacing: "0.14em", color: k.text, fontWeight: 600 },
+        chip: { marginLeft: "auto", fontFamily: "'Chakra Petch',sans-serif", fontSize: "8px", letterSpacing: "0.1em", color: k.primary, border: "1px solid " + k.primary + "66", background: k.primary + "1a", padding: "2px 7px", borderRadius: "3px" },
+        body: { padding: "12px 13px" },
+        echo: { fontSize: "9px", color: k.primaryDim, marginBottom: "11px" },
+        tiles: { display: "grid", gridTemplateColumns: "1fr 1fr", gap: "7px", marginBottom: "13px" },
+        tile: { border: "1px solid " + k.line, borderRadius: "4px", padding: "9px 10px", background: k.panel },
+        tileLabel: { fontSize: "8px", letterSpacing: "0.1em", color: k.dim, textTransform: "uppercase" },
+        dmgNum: { fontFamily: "'Chakra Petch',sans-serif", fontSize: "20px", fontWeight: 700, color: k.primary, lineHeight: 1.1, marginTop: "3px", textShadow: "0 0 10px " + k.primary + "55" },
+        slainNum: { fontFamily: "'Chakra Petch',sans-serif", fontSize: "20px", fontWeight: 700, color: k.text, lineHeight: 1.1, marginTop: "3px" },
+        section: { fontFamily: "'Chakra Petch',sans-serif", fontSize: "9px", letterSpacing: "0.12em", color: k.accent, textTransform: "uppercase", marginBottom: "9px" },
+        wname: { fontSize: "11px", color: k.text, fontWeight: 600, marginBottom: "7px" },
+        rowLabel: { fontSize: "8px", color: k.dim, textAlign: "right" },
+        track: { height: "6px", background: k.track, borderRadius: "3px", overflow: "hidden" },
+        hit: { height: "100%", width: "89%", borderRadius: "3px", background: k.primary },
+        wound: { height: "100%", width: "33%", borderRadius: "3px", background: k.accent },
+        unsaved: { height: "100%", width: "56%", borderRadius: "3px", background: k.danger },
+        hitVal: { fontSize: "9px", color: k.primary, textAlign: "right" },
+        woundVal: { fontSize: "9px", color: k.accent, textAlign: "right" },
+        unsavedVal: { fontSize: "9px", color: k.danger, textAlign: "right" },
+        verdict: { marginTop: "13px", padding: "9px 11px", border: "1px solid " + k.primary + "44", borderRadius: "4px", background: k.primary + "0d" },
+        verdictLabel: { fontFamily: "'Chakra Petch',sans-serif", fontSize: "8px", letterSpacing: "0.12em", color: k.accent, textTransform: "uppercase", marginBottom: "3px" },
+        verdictText: { fontSize: "10px", color: k.text, lineHeight: 1.5 },
+        legend: [["bg", k.bg], ["panel", k.panel], ["primary", k.primary], ["accent", k.accent], ["danger", k.danger]].map(([label, hex]) => ({
+          label, hex, sw: { width: "100%", height: "18px", borderRadius: "3px", background: hex, border: "1px solid rgba(255,255,255,.12)" },
+        })),
+      };
+    });
+    return { cards };
+  }
+}
+</script>
+</body>
+</html>

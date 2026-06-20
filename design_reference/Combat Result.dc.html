@@ -1,0 +1,591 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;600;700&family=Chakra+Petch:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+  * { box-sizing: border-box; }
+  body { margin: 0; }
+  @keyframes ctBlink { 0%, 49% { opacity: 1; } 50%, 100% { opacity: 0; } }
+  .v3 input::placeholder { color: #4a5249; }
+</style>
+</helmet>
+
+<div class="v3" style="min-width:100%; min-height:100vh; box-sizing:border-box; padding:40px; background:#e7e5df; font-family:'IBM Plex Mono', monospace; display:flex; flex-direction:column; align-items:center;">
+  <div style="width:920px; max-width:100%;">
+    <div style="margin-bottom:14px;">
+      <div style="font-size:11px; letter-spacing:0.28em; color:#5a5648; text-transform:uppercase; font-weight:600;">Cogitator Dashboard · full combat result</div>
+      <div style="font-size:12px; color:#908b7c; margin-top:3px;">Interactive — click weapon rows to drop them, toggle modifier tags (hover highlighted stats), attach/detach the Captain, or type <span style="color:#6c685c;">theme salamanders</span> in the bar.</div>
+    </div>
+
+    <div data-screen-label="Combat Result" style="position:relative; border-radius:3px; overflow:hidden; box-shadow:0 4px 24px rgba(0,0,0,.22); background:#0d0f12; color:#d8dee0;">
+
+      <!-- chrome -->
+      <div style="display:flex; align-items:center; gap:12px; padding:9px 18px; background:#0a0c0e; border-bottom:1px solid #232a26;">
+        <span style="width:7px; height:7px; border-radius:50%; background:#4fd873; box-shadow:0 0 8px rgba(79,216,115,.85);"></span>
+        <span style="font-family:'Chakra Petch', sans-serif; font-size:13px; letter-spacing:0.16em; color:#eef4ee; font-weight:600;">COMBAT TERMINAL</span>
+        <span style="font-size:10px; letter-spacing:0.1em; color:#5f6b62;">v2.0 · 7a3f1c</span><span style="font-size:10px; letter-spacing:0.1em; color:#4fd873; margin-left:6px;">· 11TH ED</span>
+        <div style="margin-left:auto; display:flex; flex-direction:column; align-items:flex-end; gap:2px;">
+          <span style="{{ factionStyle }}">{{ factionLabel }}</span>
+          <span style="font-size:8px; letter-spacing:0.1em; color:#4a5249;">{{ enemyLabel }}</span>
+        </div>
+      </div>
+
+      <!-- nav -->
+      <div style="display:flex; font-family:'Chakra Petch', sans-serif; font-size:11px; letter-spacing:0.1em; border-bottom:1px solid #1a201c; background:#0a0c0e; padding:0 8px;">
+        <div style="padding:9px 14px; color:#eef4ee; border-bottom:2px solid #4fd873;">COMBAT SIM</div>
+        <div style="padding:9px 14px; color:#5f6b62;">UNITS</div>
+        <div style="padding:9px 14px; color:#5f6b62;">ROSTERS</div>
+        <div style="padding:9px 14px; color:#5f6b62;">RULES</div>
+      </div>
+
+      <div style="padding:16px 20px 20px;">
+
+        <!-- echo -->
+        <div style="font-size:11px; color:#5a7a64; margin-bottom:14px; word-break:break-word;"><span style="color:#4fd873;">›</span> {{ echo }} <span style="display:inline-block; width:7px; height:13px; background:#4fd873; vertical-align:-2px; margin-left:3px; box-shadow:0 0 6px rgba(79,216,115,.7); animation:ctBlink 1.1s step-end infinite;"></span></div>
+
+        <!-- banner -->
+        <div style="border:1px solid #2e3630; border-radius:5px; background:#101309; padding:14px 16px; margin-bottom:14px;">
+          <div style="display:flex; align-items:flex-start; gap:12px;">
+            <div style="flex:1; min-width:0;">
+              <div style="display:flex; align-items:baseline; gap:10px; flex-wrap:wrap;">
+                <span style="font-family:'Chakra Petch', sans-serif; font-size:19px; color:#6ee08a; font-weight:600; text-shadow:0 0 12px rgba(79,216,115,.4);">Intercessor Squad</span>
+                <sc-if value="{{ leaderAttached }}" hint-placeholder-val="{{ true }}"><span style="font-size:12px; color:#7fe0ec;">+ Captain</span></sc-if>
+                <span style="font-size:13px; color:#5f6b62;">vs</span>
+                <span style="font-family:'Chakra Petch', sans-serif; font-size:19px; color:#d8b25a; font-weight:600;">Plague Marines</span>
+              </div>
+              <div style="display:flex; align-items:center; gap:7px; margin-top:9px; flex-wrap:wrap;">
+                <span style="font-size:11px; font-style:italic; color:#84907f;">Tags:</span>
+                <sc-for list="{{ tags }}" as="t" hint-placeholder-count="5"><span style="{{ t.style }}" onClick="{{ t.onToggle }}">{{ t.label }}</span></sc-for>
+              </div>
+            </div>
+            <button onClick="{{ toggleEdit }}" style="flex-shrink:0; font-family:'IBM Plex Mono', monospace; font-size:10px; letter-spacing:0.1em; color:#4fd873; background:transparent; border:1px solid #1f5a36; border-radius:3px; padding:6px 11px; cursor:pointer;">✎ EDIT</button>
+          </div>
+
+          <!-- edit form -->
+          <sc-if value="{{ editing }}" hint-placeholder-val="{{ false }}">
+            <div style="margin-top:14px; padding-top:14px; border-top:1px solid #2e3630; display:grid; grid-template-columns:1fr 1fr; gap:12px;">
+              <div>
+                <div style="font-size:9px; letter-spacing:0.12em; color:#5f6b62; text-transform:uppercase; margin-bottom:5px;">Attacker</div>
+                <input value="Intercessor Squad" style="width:100%; background:#0a0c0e; border:1px solid #2e3630; color:#d8dee0; font-family:inherit; font-size:12px; padding:7px 9px; border-radius:3px; outline:none;">
+              </div>
+              <div>
+                <div style="font-size:9px; letter-spacing:0.12em; color:#5f6b62; text-transform:uppercase; margin-bottom:5px;">Target</div>
+                <input value="Plague Marines" style="width:100%; background:#0a0c0e; border:1px solid #2e3630; color:#d8dee0; font-family:inherit; font-size:12px; padding:7px 9px; border-radius:3px; outline:none;">
+              </div>
+              <div>
+                <div style="font-size:9px; letter-spacing:0.12em; color:#5f6b62; text-transform:uppercase; margin-bottom:5px;">Attach Leader</div>
+                <input value="Captain in Gravis Armour" style="width:100%; background:#0a0c0e; border:1px solid #2e3630; color:#7fe0ec; font-family:inherit; font-size:12px; padding:7px 9px; border-radius:3px; outline:none;">
+              </div>
+              <div>
+                <div style="font-size:9px; letter-spacing:0.12em; color:#5f6b62; text-transform:uppercase; margin-bottom:5px;">Attacker Models</div>
+                <input value="5" style="width:100%; background:#0a0c0e; border:1px solid #2e3630; color:#d8dee0; font-family:inherit; font-size:12px; padding:7px 9px; border-radius:3px; outline:none;">
+              </div>
+              <div style="grid-column:1 / -1; display:flex; gap:9px; margin-top:2px;">
+                <button onClick="{{ toggleEdit }}" style="font-family:inherit; font-size:11px; letter-spacing:0.1em; color:#0d0f12; background:#4fd873; border:none; border-radius:3px; padding:8px 16px; cursor:pointer; font-weight:700;">▸ RUN SIM</button>
+                <button onClick="{{ toggleEdit }}" style="font-family:inherit; font-size:11px; letter-spacing:0.1em; color:#84907f; background:transparent; border:1px solid #2e3630; border-radius:3px; padding:8px 16px; cursor:pointer;">CANCEL</button>
+              </div>
+            </div>
+          </sc-if>
+        </div>
+
+        <!-- hero strip -->
+        <div style="display:grid; grid-template-columns:repeat(4,1fr); gap:10px; margin-bottom:18px;">
+          <div style="border:1px solid #232a26; border-radius:5px; padding:12px 13px; background:#12150f;">
+            <div style="font-size:9px; letter-spacing:0.1em; color:#84907f; text-transform:uppercase;">Total Dmg</div>
+            <div style="font-family:'Chakra Petch', sans-serif; font-size:24px; color:#4fd873; font-weight:700; line-height:1.1; margin-top:4px;">{{ totalDmg }}</div>
+          </div>
+          <div style="border:1px solid #232a26; border-radius:5px; padding:12px 13px; background:#12150f;">
+            <div style="font-size:9px; letter-spacing:0.1em; color:#84907f; text-transform:uppercase;">Models Slain</div>
+            <div style="font-family:'Chakra Petch', sans-serif; font-size:24px; color:#eef4ee; font-weight:700; line-height:1.1; margin-top:4px;">{{ slain }}</div>
+          </div>
+          <div style="border:1px solid #232a26; border-radius:5px; padding:12px 13px; background:#12150f;">
+            <div style="font-size:9px; letter-spacing:0.1em; color:#84907f; text-transform:uppercase;">Squad Wipe</div>
+            <div style="font-family:'Chakra Petch', sans-serif; font-size:24px; color:#d8b25a; font-weight:700; line-height:1.1; margin-top:4px;">12<span style="font-size:13px;">%</span></div>
+          </div>
+          <div style="border:1px solid #232a26; border-radius:5px; padding:12px 13px; background:#12150f;">
+            <div style="font-size:9px; letter-spacing:0.1em; color:#84907f; text-transform:uppercase;">Swing</div>
+            <div style="font-family:'Chakra Petch', sans-serif; font-size:24px; color:#9aa49a; font-weight:700; line-height:1.1; margin-top:4px;">1.6</div>
+          </div>
+        </div>
+
+        <!-- forces engaged -->
+        <div style="font-family:'Chakra Petch', sans-serif; font-size:12px; letter-spacing:0.14em; color:#eef4ee; text-transform:uppercase; margin-bottom:10px; display:flex; align-items:center; gap:10px;">Forces Engaged<div style="flex:1; height:3px; background:repeating-linear-gradient(45deg,#d8b25a 0 6px,#11140f 6px 12px); opacity:.5;"></div></div>
+        <div style="display:grid; grid-template-columns:1fr 1fr; gap:12px; margin-bottom:20px;">
+          <div style="border:1px solid #232a26; border-radius:5px; background:#12150f; padding:13px 15px;">
+            <sc-for list="{{ forces }}" as="g" hint-placeholder-count="2">
+              <div style="{{ g.wrap }}">
+                <div style="display:flex; align-items:baseline; gap:8px; margin-bottom:6px;">
+                  <span style="{{ g.nameStyle }}">{{ g.name }}</span>
+                  <sc-if value="{{ g.isLeader }}" hint-placeholder-val="{{ false }}"><span style="font-size:8px; color:#7fe0ec; border:1px solid #1f4e57; padding:0 4px; line-height:14px; border-radius:2px;">LEADER</span></sc-if>
+                  <span style="font-size:10px; color:#5f6b62; margin-left:auto;">{{ g.models }}</span>
+                </div>
+                <sc-for list="{{ g.items }}" as="it" hint-placeholder-count="3">
+                  <div style="display:flex; align-items:baseline; gap:6px; font-size:11px; padding:1px 0;">
+                    <span style="color:#3f4a40;">↳</span>
+                    <span style="color:#a8b0a4;">{{ it.w }}</span>
+                    <span style="color:#5f6b62; margin-left:auto;">{{ it.detail }}</span>
+                  </div>
+                </sc-for>
+              </div>
+            </sc-for>
+          </div>
+          <div style="border:1px solid #232a26; border-radius:5px; background:#12150f; padding:13px 15px;">
+            <div style="display:flex; align-items:baseline; gap:8px; margin-bottom:6px;">
+              <span style="font-size:13px; color:#d8b25a; font-weight:600;">Plague Marines</span>
+              <span style="font-size:10px; color:#5f6b62; margin-left:auto;">5 models</span>
+            </div>
+            <div style="display:flex; align-items:baseline; gap:6px; font-size:11px; padding:1px 0;"><span style="color:#3f4a40;">↳</span><span style="color:#a8b0a4;">Boltgun</span><span style="color:#5f6b62; margin-left:auto;">1 shot · ranged</span></div>
+            <div style="display:flex; align-items:baseline; gap:6px; font-size:11px; padding:1px 0;"><span style="color:#3f4a40;">↳</span><span style="color:#a8b0a4;">Plague knives</span><span style="color:#5f6b62; margin-left:auto;">3 attacks · melee</span></div>
+            <div style="display:flex; align-items:baseline; gap:6px; font-size:11px; padding:1px 0;"><span style="color:#3f4a40;">↳</span><span style="color:#a8b0a4;">Blight grenades</span><span style="color:#5f6b62; margin-left:auto;">D6 shots · ranged</span></div>
+            <div style="margin-top:9px; padding-top:8px; border-top:1px solid #232a26; display:flex; gap:14px; font-size:10px; color:#84907f;">
+              <span>T<span style="color:#d8dee0;">5</span></span><span>SV<span style="color:#d8dee0;">3+</span></span><span>W<span style="color:#d8dee0;">2</span></span><span>FNP<span style="color:#d8b25a;">5+</span></span>
+            </div>
+          </div>
+        </div>
+
+        <!-- weapon specs -->
+        <div style="display:flex; align-items:center; gap:10px; margin-bottom:10px;">
+          <span style="font-family:'Chakra Petch', sans-serif; font-size:12px; letter-spacing:0.14em; color:#eef4ee; text-transform:uppercase;">Weapon Specs</span>
+          <span style="font-size:9px; color:#5f6b62; letter-spacing:0.04em;">click row to toggle · hover lit stats</span>
+          <sc-if value="{{ hasDisabled }}" hint-placeholder-val="{{ false }}"><span style="font-size:9px; color:#d8b25a;">· {{ disabledCount }} off</span></sc-if>
+          <button onClick="{{ toggleLeader }}" style="{{ leaderBtnStyle }}">{{ leaderBtnLabel }}</button>
+        </div>
+        <table style="width:100%; border-collapse:collapse; font-size:11px;">
+          <thead>
+            <tr style="color:#5f6b62; font-size:9px; letter-spacing:0.08em; text-transform:uppercase; font-family:'Chakra Petch', sans-serif;">
+              <th style="text-align:left; padding:5px 6px; font-weight:600;">Weapon</th>
+              <th style="padding:5px 4px; font-weight:600;">Rng</th><th style="padding:5px 4px; font-weight:600;">A</th><th style="padding:5px 4px; font-weight:600;">BS</th><th style="padding:5px 4px; font-weight:600;">S</th><th style="padding:5px 4px; font-weight:600;">WR</th><th style="padding:5px 4px; font-weight:600;">AP</th><th style="padding:5px 4px; font-weight:600;">D</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr><td colspan="8" style="font-size:9px; letter-spacing:0.14em; color:#4fd873; text-transform:uppercase; padding:9px 6px 4px; font-weight:700; font-family:'Chakra Petch', sans-serif;">▸ Ranged</td></tr>
+            <sc-for list="{{ ranged }}" as="w" hint-placeholder-count="3">
+              <tr style="{{ w.rowStyle }}" onClick="{{ w.onToggle }}">
+                <td style="padding:6px 6px;">
+                  <span style="{{ w.nameStyle }}">{{ w.name }}</span>
+                  <sc-if value="{{ w.leaderTag }}" hint-placeholder-val="{{ false }}"><span style="font-size:8px; color:#7fe0ec; border:1px solid #1f4e57; padding:0 3px; border-radius:2px; line-height:14px; margin-left:3px;">LDR</span></sc-if>
+                  <sc-for list="{{ w.kws }}" as="k" hint-placeholder-count="0"><span style="{{ w.kwStyle }}">{{ k }}</span></sc-for>
+                  <sc-if value="{{ w.showOff }}" hint-placeholder-val="{{ false }}"><span style="font-size:8px; color:#84907f; border:1px solid #2e3630; padding:0 3px; border-radius:2px; line-height:14px; margin-left:3px;">OFF</span></sc-if>
+                </td>
+                <td style="text-align:center;">{{ w.rng }}</td>
+                <td style="text-align:center;">{{ w.a }}</td>
+                <td style="text-align:center; position:relative;">
+                  <span style="{{ w.bs.valStyle }}" onMouseEnter="{{ w.bs.onEnter }}" onMouseLeave="{{ w.bs.onLeave }}">{{ w.bs.val }}</span>
+                  <sc-if value="{{ w.bs.show }}" hint-placeholder-val="{{ false }}"><div style="{{ w.bs.tipStyle }}"><div style="{{ w.bs.tipHeadStyle }}">{{ w.bs.tipHead }}</div><div style="{{ w.bs.tipSubStyle }}">{{ w.bs.tipSub }}</div></div></sc-if>
+                </td>
+                <td style="text-align:center;">{{ w.s }}</td>
+                <td style="text-align:center;">{{ w.wr }}</td>
+                <td style="text-align:center; position:relative;">
+                  <span style="{{ w.ap.valStyle }}" onMouseEnter="{{ w.ap.onEnter }}" onMouseLeave="{{ w.ap.onLeave }}">{{ w.ap.val }}</span>
+                  <sc-if value="{{ w.ap.show }}" hint-placeholder-val="{{ false }}"><div style="{{ w.ap.tipStyle }}"><div style="{{ w.ap.tipHeadStyle }}">{{ w.ap.tipHead }}</div><div style="{{ w.ap.tipSubStyle }}">{{ w.ap.tipSub }}</div></div></sc-if>
+                </td>
+                <td style="text-align:center;">{{ w.d }}</td>
+              </tr>
+            </sc-for>
+            <tr><td colspan="8" style="font-size:9px; letter-spacing:0.14em; color:#d8b25a; text-transform:uppercase; padding:11px 6px 4px; font-weight:700; font-family:'Chakra Petch', sans-serif; border-top:1px solid #2e3630;">▸ Melee</td></tr>
+            <sc-for list="{{ melee }}" as="w" hint-placeholder-count="2">
+              <tr style="{{ w.rowStyle }}" onClick="{{ w.onToggle }}">
+                <td style="padding:6px 6px;">
+                  <span style="{{ w.nameStyle }}">{{ w.name }}</span>
+                  <sc-if value="{{ w.leaderTag }}" hint-placeholder-val="{{ false }}"><span style="font-size:8px; color:#7fe0ec; border:1px solid #1f4e57; padding:0 3px; border-radius:2px; line-height:14px; margin-left:3px;">LDR</span></sc-if>
+                  <sc-for list="{{ w.kws }}" as="k" hint-placeholder-count="0"><span style="{{ w.kwStyle }}">{{ k }}</span></sc-for>
+                  <sc-if value="{{ w.showOff }}" hint-placeholder-val="{{ false }}"><span style="font-size:8px; color:#84907f; border:1px solid #2e3630; padding:0 3px; border-radius:2px; line-height:14px; margin-left:3px;">OFF</span></sc-if>
+                </td>
+                <td style="text-align:center;">{{ w.rng }}</td>
+                <td style="text-align:center;">{{ w.a }}</td>
+                <td style="text-align:center; position:relative;">
+                  <span style="{{ w.bs.valStyle }}" onMouseEnter="{{ w.bs.onEnter }}" onMouseLeave="{{ w.bs.onLeave }}">{{ w.bs.val }}</span>
+                  <sc-if value="{{ w.bs.show }}" hint-placeholder-val="{{ false }}"><div style="{{ w.bs.tipStyle }}"><div style="{{ w.bs.tipHeadStyle }}">{{ w.bs.tipHead }}</div><div style="{{ w.bs.tipSubStyle }}">{{ w.bs.tipSub }}</div></div></sc-if>
+                </td>
+                <td style="text-align:center;">{{ w.s }}</td>
+                <td style="text-align:center;">{{ w.wr }}</td>
+                <td style="text-align:center; position:relative;">
+                  <span style="{{ w.ap.valStyle }}" onMouseEnter="{{ w.ap.onEnter }}" onMouseLeave="{{ w.ap.onLeave }}">{{ w.ap.val }}</span>
+                  <sc-if value="{{ w.ap.show }}" hint-placeholder-val="{{ false }}"><div style="{{ w.ap.tipStyle }}"><div style="{{ w.ap.tipHeadStyle }}">{{ w.ap.tipHead }}</div><div style="{{ w.ap.tipSubStyle }}">{{ w.ap.tipSub }}</div></div></sc-if>
+                </td>
+                <td style="text-align:center;">{{ w.d }}</td>
+              </tr>
+            </sc-for>
+          </tbody>
+        </table>
+
+        <!-- targeting outcome -->
+        <div style="font-family:'Chakra Petch', sans-serif; font-size:12px; letter-spacing:0.14em; color:#eef4ee; text-transform:uppercase; margin:22px 0 12px; display:flex; align-items:center; gap:10px;">Targeting Outcome<div style="flex:1; height:3px; background:repeating-linear-gradient(45deg,#d8b25a 0 6px,#11140f 6px 12px); opacity:.5;"></div></div>
+        <div style="display:grid; grid-template-columns:1fr 1fr; gap:11px;">
+          <sc-for list="{{ outcomes }}" as="o" hint-placeholder-count="4">
+            <div style="border:1px solid #232a26; border-radius:5px; padding:13px 15px; background:#12150f;">
+              <div style="font-size:11px; color:#d8dee0; margin-bottom:10px; font-weight:600; display:flex; align-items:center; gap:6px;"><span style="{{ o.nameStyle }}">{{ o.name }}</span><span style="{{ o.tagStyle }}">· {{ o.tagText }}</span></div>
+              <div style="display:grid; grid-template-columns:58px 1fr 38px; align-items:center; gap:9px; margin-bottom:8px;">
+                <span style="font-size:9px; color:#84907f; text-align:right;">HIT</span>
+                <div style="height:6px; border-radius:3px; background:#1c241e; overflow:hidden;"><div style="{{ o.hitStyle }}"></div></div>
+                <span style="font-size:10px; color:#4fd873; text-align:right;">{{ o.hit }}</span>
+              </div>
+              <div style="display:grid; grid-template-columns:58px 1fr 38px; align-items:center; gap:9px; margin-bottom:8px;">
+                <span style="font-size:9px; color:#84907f; text-align:right;">WOUND</span>
+                <div style="height:6px; border-radius:3px; background:#1c241e; overflow:hidden;"><div style="{{ o.woundStyle }}"></div></div>
+                <span style="font-size:10px; color:#d8b25a; text-align:right;">{{ o.wound }}</span>
+              </div>
+              <div style="display:grid; grid-template-columns:58px 1fr 38px; align-items:center; gap:9px;">
+                <span style="font-size:9px; color:#84907f; text-align:right;">UNSAVED</span>
+                <div style="height:6px; border-radius:3px; background:#1c241e; overflow:hidden;"><div style="{{ o.unsavedStyle }}"></div></div>
+                <span style="font-size:10px; color:#ff5d5d; text-align:right;">{{ o.unsaved }}</span>
+              </div>
+            </div>
+          </sc-for>
+        </div>
+
+        <!-- total output -->
+        <div style="font-family:'Chakra Petch', sans-serif; font-size:12px; letter-spacing:0.14em; color:#eef4ee; text-transform:uppercase; margin:22px 0 12px; display:flex; align-items:center; gap:10px;">Total Output<div style="flex:1; height:3px; background:repeating-linear-gradient(45deg,#d8b25a 0 6px,#11140f 6px 12px); opacity:.5;"></div></div>
+        <div style="display:grid; grid-template-columns:1fr 1fr; gap:12px;">
+          <div style="border:1px solid #232a26; border-radius:5px; padding:14px 15px; background:#12150f;">
+            <div style="display:flex; align-items:center; gap:7px; margin-bottom:11px;"><span style="width:6px; height:6px; border-radius:50%; background:#4fd873;"></span><span style="font-family:'Chakra Petch', sans-serif; font-size:10px; letter-spacing:0.12em; color:#4fd873; text-transform:uppercase;">Ranged Output</span></div>
+            <div style="display:flex; justify-content:space-between; align-items:baseline; margin-bottom:6px;"><span style="font-size:9px; color:#84907f; text-transform:uppercase; letter-spacing:0.06em;">Expected Dmg</span><span style="font-family:'Chakra Petch', sans-serif; font-size:22px; color:#4fd873; font-weight:700; line-height:1;">{{ rangedDmg }}</span></div>
+            <div style="height:5px; border-radius:3px; background:#1c241e; overflow:hidden; margin-bottom:11px;"><div style="{{ rangedBarStyle }}"></div></div>
+            <div style="display:flex; justify-content:space-between; margin-bottom:6px;"><span style="font-size:10px; color:#84907f;">Models Slain</span><span style="font-size:11px; color:#d8dee0;">1.5</span></div>
+            <div style="display:flex; justify-content:space-between; margin-bottom:6px;"><span style="font-size:10px; color:#84907f;">Kill Chance</span><span style="font-size:11px; color:#ff5d5d;">41%</span></div>
+            <div style="display:flex; justify-content:space-between;"><span style="font-size:10px; color:#84907f;">Overkill</span><span style="font-size:11px; color:#d8dee0;">12%</span></div>
+            <div style="display:flex; justify-content:space-between; align-items:baseline; margin-top:10px; padding-top:9px; border-top:1px solid #232a26;"><span style="font-size:9px; color:#84907f; text-transform:uppercase; letter-spacing:0.06em;">Swinginess</span><span style="font-size:12px; color:#d8b25a;">1.42 <span style="font-size:9px; font-style:italic;">Swingy</span></span></div>
+          </div>
+          <div style="border:1px solid #232a26; border-radius:5px; padding:14px 15px; background:#12150f;">
+            <div style="display:flex; align-items:center; gap:7px; margin-bottom:11px;"><span style="width:6px; height:6px; border-radius:50%; background:#d8b25a;"></span><span style="font-family:'Chakra Petch', sans-serif; font-size:10px; letter-spacing:0.12em; color:#d8b25a; text-transform:uppercase;">Melee Output</span></div>
+            <div style="display:flex; justify-content:space-between; align-items:baseline; margin-bottom:6px;"><span style="font-size:9px; color:#84907f; text-transform:uppercase; letter-spacing:0.06em;">Expected Dmg</span><span style="font-family:'Chakra Petch', sans-serif; font-size:22px; color:#eef4ee; font-weight:700; line-height:1;">{{ meleeDmg }}</span></div>
+            <div style="height:5px; border-radius:3px; background:#1c241e; overflow:hidden; margin-bottom:11px;"><div style="{{ meleeBarStyle }}"></div></div>
+            <div style="display:flex; justify-content:space-between; margin-bottom:6px;"><span style="font-size:10px; color:#84907f;">Models Slain</span><span style="font-size:11px; color:#d8dee0;">0.9</span></div>
+            <div style="display:flex; justify-content:space-between; margin-bottom:6px;"><span style="font-size:10px; color:#84907f;">Kill Chance</span><span style="font-size:11px; color:#ff5d5d;">22%</span></div>
+            <div style="display:flex; justify-content:space-between;"><span style="font-size:10px; color:#84907f;">Overkill</span><span style="font-size:11px; color:#d8dee0;">18%</span></div>
+            <div style="display:flex; justify-content:space-between; align-items:baseline; margin-top:10px; padding-top:9px; border-top:1px solid #232a26;"><span style="font-size:9px; color:#84907f; text-transform:uppercase; letter-spacing:0.06em;">Swinginess</span><span style="font-size:12px; color:#d8b25a;">1.80 <span style="font-size:9px; font-style:italic;">V.Swingy</span></span></div>
+          </div>
+        </div>
+
+        <!-- modifier impact + sim confidence -->
+        <div style="display:grid; grid-template-columns:1fr 1fr; gap:12px; margin-top:20px;">
+          <div style="border:1px solid #232a26; border-radius:5px; padding:14px 15px; background:#12150f;">
+            <div style="font-family:'Chakra Petch', sans-serif; font-size:11px; letter-spacing:0.12em; color:#d8b25a; text-transform:uppercase; margin-bottom:12px;">Modifier Impact</div>
+            <sc-for list="{{ modImpact }}" as="m" hint-placeholder-count="5">
+              <div style="display:grid; grid-template-columns:78px 1fr 40px; align-items:center; gap:9px; margin-bottom:8px;">
+                <span style="font-size:10px; color:#a8b0a4; text-align:right;">{{ m.label }}</span>
+                <div style="height:6px; border-radius:3px; background:#1c241e; overflow:hidden;"><div style="{{ m.style }}"></div></div>
+                <span style="font-size:10px; color:#d8b25a; text-align:right;">{{ m.val }}</span>
+              </div>
+            </sc-for>
+            <div style="font-size:10px; color:#5f6b62; font-style:italic; margin-top:6px;">% damage gain from +1 to each stat</div>
+          </div>
+          <div style="border:1px solid #232a26; border-radius:5px; padding:14px 15px; background:#12150f;">
+            <div style="font-family:'Chakra Petch', sans-serif; font-size:11px; letter-spacing:0.12em; color:#d8b25a; text-transform:uppercase; margin-bottom:12px;">Simulation Confidence</div>
+            <div style="display:flex; align-items:center; gap:8px; margin-bottom:13px;"><span style="width:8px; height:8px; border-radius:50%; background:#4fd873; box-shadow:0 0 6px #4fd873;"></span><span style="font-size:10px; letter-spacing:0.12em; color:#4fd873; font-weight:700;">MONTE CARLO · ACTIVE</span></div>
+            <div style="display:flex; justify-content:space-between; margin-bottom:7px;"><span style="font-size:10px; color:#84907f;">Iterations</span><span style="font-size:11px; color:#d8dee0;">5,000</span></div>
+            <div style="display:flex; justify-content:space-between; margin-bottom:7px;"><span style="font-size:10px; color:#84907f;">Error Margin</span><span style="font-size:11px; color:#d8dee0;">±0.8% (95% CI)</span></div>
+            <div style="display:flex; align-items:center; gap:10px; margin-top:10px;">
+              <span style="font-size:10px; color:#84907f; flex-shrink:0;">Confidence</span>
+              <div style="flex:1; height:6px; border-radius:3px; background:#1c241e; overflow:hidden;"><div style="height:100%; width:100%; border-radius:3px; background:#4fd873;"></div></div>
+              <span style="font-size:10px; color:#4fd873; flex-shrink:0;">Very High</span>
+            </div>
+            <div style="font-size:10px; color:#5f6b62; font-style:italic; margin-top:11px; padding-top:9px; border-top:1px solid #232a26;">Lower error = more reliable · ≤1% is Very High</div>
+          </div>
+        </div>
+
+        <!-- abilities -->
+        <div style="font-family:'Chakra Petch', sans-serif; font-size:12px; letter-spacing:0.14em; color:#eef4ee; text-transform:uppercase; margin:22px 0 12px; display:flex; align-items:center; gap:10px;">Abilities<div style="flex:1; height:3px; background:repeating-linear-gradient(45deg,#d8b25a 0 6px,#11140f 6px 12px); opacity:.5;"></div></div>
+        <div style="display:grid; grid-template-columns:1fr 1fr; gap:12px; align-items:start;">
+        <div style="border:1px solid #232a26; border-radius:5px; background:#12150f; padding:4px 15px 12px;">
+          <div style="font-size:10px; letter-spacing:0.12em; color:#4fd873; text-transform:uppercase; font-weight:600; margin:11px 0 4px; padding-bottom:8px; border-bottom:1px solid #232a26;">▸ Attacker · Intercessor Squad + Captain</div>
+          <sc-for list="{{ abilitiesAtt }}" as="a" hint-placeholder-count="4">
+            <div style="border-bottom:1px solid #1c211d;">
+              <div onClick="{{ a.onToggle }}" style="{{ a.headStyle }}">
+                <span style="display:flex; align-items:center; gap:8px; min-width:0;"><span style="{{ a.dotStyle }}">◆</span><sc-if value="{{ a.cat }}" hint-placeholder-val="{{ false }}"><span style="font-size:8px; letter-spacing:0.1em; color:#5f6b62; border:1px solid #2e3630; padding:0 4px; line-height:14px; border-radius:2px;">{{ a.cat }}</span></sc-if><span style="{{ a.nameStyle }}">{{ a.name }}</span></span>
+                <span style="font-size:11px; color:#5f6b62; flex-shrink:0;">{{ a.caret }}</span>
+              </div>
+              <sc-if value="{{ a.open }}" hint-placeholder-val="{{ false }}"><div style="font-size:11px; color:#a8b0a4; line-height:1.65; padding:2px 8px 11px 22px;">{{ a.body }}</div></sc-if>
+            </div>
+          </sc-for>
+        </div>
+        <div style="border:1px solid #232a26; border-radius:5px; background:#12150f; padding:4px 15px 12px;">
+          <div style="font-size:10px; letter-spacing:0.12em; color:#d8b25a; text-transform:uppercase; font-weight:600; margin:11px 0 4px; padding-bottom:8px; border-bottom:1px solid #232a26;">▸ Target · Plague Marines</div>
+          <sc-for list="{{ abilitiesDef }}" as="a" hint-placeholder-count="2">
+            <div style="border-bottom:1px solid #1c211d;">
+              <div onClick="{{ a.onToggle }}" style="{{ a.headStyle }}">
+                <span style="display:flex; align-items:center; gap:8px; min-width:0;"><span style="{{ a.dotStyle }}">◆</span><sc-if value="{{ a.cat }}" hint-placeholder-val="{{ false }}"><span style="font-size:8px; letter-spacing:0.1em; color:#5f6b62; border:1px solid #2e3630; padding:0 4px; line-height:14px; border-radius:2px;">{{ a.cat }}</span></sc-if><span style="{{ a.nameStyle }}">{{ a.name }}</span></span>
+                <span style="font-size:11px; color:#5f6b62; flex-shrink:0;">{{ a.caret }}</span>
+              </div>
+              <sc-if value="{{ a.open }}" hint-placeholder-val="{{ false }}"><div style="font-size:11px; color:#a8b0a4; line-height:1.65; padding:2px 8px 11px 22px;">{{ a.body }}</div></sc-if>
+            </div>
+          </sc-for>
+        </div>
+        </div>
+
+        <!-- verdict summary -->
+        <div style="margin-top:20px; display:flex; gap:16px; align-items:center; padding:15px 18px; border:1px solid #1f5a36; border-radius:5px; background:linear-gradient(180deg,rgba(79,216,115,.07),transparent);">
+          <div style="text-align:center; flex-shrink:0; padding-right:16px; border-right:1px solid #232a26;">
+            <div style="font-family:'Chakra Petch', sans-serif; font-size:34px; color:#4fd873; font-weight:700; line-height:1; text-shadow:0 0 14px rgba(79,216,115,.4);">{{ slain }}</div>
+            <div style="font-size:8px; letter-spacing:0.14em; color:#84907f; text-transform:uppercase; margin-top:4px;">models slain</div>
+          </div>
+          <div style="flex:1; min-width:0;">
+            <div style="font-family:'Chakra Petch', sans-serif; font-size:10px; letter-spacing:0.14em; color:#d8b25a; text-transform:uppercase;">Verdict</div>
+            <div style="font-size:13px; color:#d8dee0; margin-top:4px; line-height:1.5;">{{ verdictText }}</div>
+          </div>
+          <div style="text-align:right; flex-shrink:0;">
+            <div style="font-size:9px; color:#84907f; text-transform:uppercase; letter-spacing:0.08em;">Survivors</div>
+            <div style="font-family:'Chakra Petch', sans-serif; font-size:20px; color:#eef4ee; font-weight:700; margin-top:2px;">{{ survivors }} / 5</div>
+          </div>
+        </div>
+
+      </div>
+
+      <!-- terminal entry bar -->
+      <div style="display:flex; align-items:center; gap:12px; padding:0 18px; min-height:50px; border-top:2px solid #1f5a36; background:#0a0c0e; box-shadow:0 -4px 20px rgba(79,216,115,.05);">
+        <span style="color:#4fd873; font-size:18px; flex-shrink:0; text-shadow:0 0 8px rgba(79,216,115,.6);">›</span>
+        <input value="{{ term }}" onInput="{{ onTermInput }}" onKeyDown="{{ onTermKey }}" placeholder="enter command…  e.g. theme salamanders  ·  intercessors vs custodes" style="flex:1; background:transparent; border:none; outline:none; color:#4fd873; font-family:'IBM Plex Mono', monospace; font-size:14px; caret-color:#4fd873;">
+        <span style="font-size:10px; letter-spacing:0.14em; color:#3f4a40; flex-shrink:0;">⏎ RUN</span>
+      </div>
+
+      <!-- scanline -->
+      <div style="position:absolute; inset:0; pointer-events:none; background:repeating-linear-gradient(0deg,transparent 0 2px,rgba(0,0,0,.09) 2px 3px);"></div>
+    </div>
+  </div>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script>
+class Component extends DCLogic {
+  state = {
+    off: {},
+    leader: true,
+    editing: false,
+    exp: {},
+    mods: { oath: true, hit1: true, halfrange: true, cover: true, fnp: true },
+    hover: null,
+    faction: null,
+    term: "",
+    echo: "intercessors + captain vs plague marines",
+  };
+
+  weaponsData() {
+    return {
+      ranged: [
+        { name: "Bolt Rifle",         kws: ["HV","AS"], rng: "24", a: "2 (10)", s: "4", wr: "5+", ap: "-1", d: "1", dmg: 3.0, hit: 89, wound: 33, unsaved: 50, leader: false },
+        { name: "Bolt Pistol",        kws: [],          rng: "12", a: "1 (5)",  s: "4", wr: "5+", ap: "0",  d: "1", dmg: 0.6, hit: 89, wound: 33, unsaved: 42, leader: false },
+        { name: "Frag Launcher",      kws: ["BL"],      rng: "24", a: "D6 (1)", s: "4", wr: "5+", ap: "0",  d: "1", dmg: 1.2, hit: 89, wound: 33, unsaved: 50, leader: false },
+        { name: "Boltstorm Gauntlet", kws: ["TL"],      rng: "12", a: "3 (3)",  s: "4", wr: "5+", ap: "-1", d: "1", dmg: 2.0, hit: 89, wound: 33, unsaved: 50, leader: true  },
+      ],
+      melee: [
+        { name: "Close Combat Weapon", kws: [], rng: "—", a: "3 (15)", s: "4", wr: "5+", ap: "0",  d: "1", dmg: 1.6, hit: 78, wound: 33, unsaved: 42, leader: false },
+        { name: "Power Fist",          kws: [], rng: "—", a: "5 (5)",  s: "8", wr: "2+", ap: "-2", d: "2", dmg: 2.6, hit: 78, wound: 83, unsaved: 74, leader: true  },
+      ],
+    };
+  }
+
+  // worsen AP by 1 step ("-1" -> "0", "-2" -> "-1")
+  worsenAp(ap) { const n = parseInt(ap, 10) + 1; return n === 0 ? "0" : String(n); }
+
+  renderVals() {
+    const s = this.state;
+    const C = {
+      acc: "#4fd873", text: "#d8dee0", dim: "#84907f", muted: "#5f6b62",
+      border: "#232a26", gold: "#d8b25a", red: "#ff5d5d", green: "#6ee08a",
+      lead: "#7fe0ec", leadBd: "#1f4e57", leadKw: "#4fd0e0",
+    };
+    const off = s.off;
+
+    // ── builder for a modifier-aware stat cell ──────────────────────────────
+    const cell = (id, val, hl, dir, head, sub, base) => {
+      const dc = dir === "worse" ? C.red : C.green;
+      return {
+        id, val, show: hl && s.hover === id,
+        valStyle: hl
+          ? { color: dc, fontWeight: 700, borderBottom: "1px dotted " + dc, cursor: "help", paddingBottom: "1px", textShadow: "0 0 7px " + dc + "70" }
+          : { color: base },
+        onEnter: hl ? () => this.setState({ hover: id }) : () => {},
+        onLeave: hl ? () => this.setState({ hover: null }) : () => {},
+        tipStyle: { position: "absolute", bottom: "calc(100% + 7px)", left: "50%", transform: "translateX(-50%)",
+                    background: "#0a0c0e", border: "1px solid " + dc, boxShadow: "0 0 12px " + dc + "55",
+                    borderRadius: "3px", padding: "6px 10px", whiteSpace: "nowrap", zIndex: 60, textAlign: "left", pointerEvents: "none" },
+        tipHeadStyle: { color: dc, fontSize: "11px", fontWeight: 700, letterSpacing: "0.02em", textShadow: "0 0 6px " + dc + "70" },
+        tipSubStyle: { color: C.dim, fontSize: "9px", marginTop: "2px", letterSpacing: "0.03em" },
+        tipHead: head, tipSub: sub,
+      };
+    };
+
+    const mkRow = (w, phase) => {
+      const disabled = !!off[w.name];
+      const isLeader = w.leader;
+      const base = disabled ? C.dim : (isLeader ? C.lead : C.text);
+
+      // BS — base 3+, improved to 2+ by the +1-to-hit modifier
+      const hitOn = s.mods.hit1 && !disabled;
+      const bs = cell("bs:" + w.name, hitOn ? "2+" : "3+", hitOn, "better",
+        "Hit  3+ → 2+", "+1 to Hit · Oath of Moment", base);
+
+      // AP — cover (ranged only) degrades a negative AP by one step
+      const coverOn = s.mods.cover && phase === "ranged" && parseInt(w.ap, 10) < 0 && !disabled;
+      const apVal = coverOn ? this.worsenAp(w.ap) : w.ap;
+      const ap = cell("ap:" + w.name, apVal, coverOn, "worse",
+        "AP  " + w.ap + " → " + apVal, "Target in Cover · +1 Save", base);
+
+      return {
+        name: w.name, kws: w.kws, rng: w.rng, a: w.a, s: w.s, wr: w.wr, d: w.d,
+        disabled, leaderTag: isLeader, showOff: disabled, bs, ap,
+        onToggle: () => this.setState(st => ({ off: { ...st.off, [w.name]: !st.off[w.name] } })),
+        rowStyle: { borderTop: "1px solid " + C.border, cursor: "pointer", color: base,
+                    opacity: disabled ? 0.45 : 1, transition: "opacity .15s",
+                    background: (isLeader && !disabled) ? "rgba(79,208,224,0.045)" : "transparent" },
+        nameStyle: { textDecoration: disabled ? "line-through" : "none" },
+        kwStyle: { fontSize: "8px", color: disabled ? C.dim : (isLeader ? C.leadKw : C.acc),
+                   border: "1px solid " + (isLeader ? C.leadBd : "#2a4a36"), padding: "0 3px",
+                   borderRadius: "2px", lineHeight: "14px", marginLeft: "4px" },
+      };
+    };
+
+    const data = this.weaponsData();
+    const incl = (w) => w.leader ? s.leader : true;
+    const ranged = data.ranged.filter(incl).map(w => mkRow(w, "ranged"));
+    const melee  = data.melee.filter(incl).map(w => mkRow(w, "melee"));
+
+    const liveR = data.ranged.filter(w => incl(w) && !off[w.name]);
+    const liveM = data.melee.filter(w => incl(w) && !off[w.name]);
+    const rangedDmg = liveR.reduce((a, w) => a + w.dmg, 0);
+    const meleeDmg  = liveM.reduce((a, w) => a + w.dmg, 0);
+    const total = rangedDmg + meleeDmg;
+    const slain = total * 0.218;
+    const survivors = Math.max(0, 5 - Math.round(slain));
+
+    const disabledCount = Object.values(off).filter(Boolean).length;
+
+    const solidFill = (c) => (pct) => ({ height: "100%", width: pct, borderRadius: "3px", background: c });
+    const fillGreen = solidFill("#4fd873"), fillGold = solidFill("#d8b25a"), fillRed = solidFill("#ff5d5d");
+
+    const outcomes = [...liveR.map(w => ({ ...w, phase: "ranged" })), ...liveM.map(w => ({ ...w, phase: "melee" }))].map(w => ({
+      name: w.name, hit: w.hit + "%", wound: w.wound + "%", unsaved: w.unsaved + "%",
+      nameStyle: { color: w.leader ? C.lead : C.text },
+      tagStyle: { fontSize: "9px", letterSpacing: "0.1em", color: w.phase === "ranged" ? C.acc : C.gold },
+      tagText: w.phase.toUpperCase(),
+      hitStyle: fillGreen(w.hit + "%"), woundStyle: fillGold(w.wound + "%"), unsavedStyle: fillRed(w.unsaved + "%"),
+    }));
+
+    const forces = [
+      { name: "Intercessor Squad", isLeader: false, models: "5 models",
+        nameStyle: { fontSize: "13px", color: C.acc, fontWeight: 600 },
+        wrap: { marginBottom: s.leader ? "10px" : "0" },
+        items: [
+          { w: "Bolt Rifle", detail: "2 shots · ranged" },
+          { w: "Bolt Pistol", detail: "1 shot · ranged" },
+          { w: "Astartes Grenade Launcher", detail: "D6 shots · ranged" },
+          { w: "Close Combat Weapon", detail: "3 attacks · melee" },
+        ] },
+    ];
+    if (s.leader) {
+      forces.push({ name: "Captain in Gravis Armour", isLeader: true, models: "1 model",
+        nameStyle: { fontSize: "13px", color: C.lead, fontWeight: 600 },
+        wrap: { paddingTop: "10px", borderTop: "1px solid " + C.border },
+        items: [
+          { w: "Boltstorm Gauntlet", detail: "3 shots · ranged" },
+          { w: "Power Fist", detail: "5 attacks · melee" },
+        ] });
+    }
+
+    const mi = [
+      { label: "+1 Damage", v: 41 }, { label: "+1 Strength", v: 22 },
+      { label: "+1 Attack", v: 18 }, { label: "+1 AP", v: 14 }, { label: "+1 to Hit", v: 9 },
+    ];
+    const modImpact = mi.map(m => ({ label: m.label, val: "+" + m.v + "%", style: fillGold((m.v / 41 * 100) + "%") }));
+
+    const tagDefs = [
+      { key: "oath",      label: "oath",       kind: "benefit" },
+      { key: "hit1",      label: "+1 hit",     kind: "benefit" },
+      { key: "halfrange", label: "half range", kind: "benefit" },
+      { key: "cover",     label: "cover",      kind: "penalty" },
+      { key: "fnp",       label: "fnp5",       kind: "penalty" },
+    ];
+    const tags = tagDefs.map(t => {
+      const active = s.mods[t.key];
+      const c = t.kind === "penalty" ? C.red : C.leadKw;
+      return { label: t.label,
+        onToggle: () => this.setState(st => ({ mods: { ...st.mods, [t.key]: !st.mods[t.key] } })),
+        style: { color: active ? c : C.muted, textDecoration: active ? "none" : "line-through",
+                 cursor: "pointer", fontSize: "12px", letterSpacing: "0.04em",
+                 opacity: active ? 1 : 0.5, userSelect: "none" } };
+    });
+
+    const ab = (id, cat, name, body, color) => ({
+      id, cat, name, body, caret: s.exp[id] ? "▴" : "▾", open: !!s.exp[id],
+      onToggle: () => this.setState(st => ({ exp: { ...st.exp, [id]: !st.exp[id] } })),
+      headStyle: { display: "flex", alignItems: "center", justifyContent: "space-between",
+                   width: "100%", background: s.exp[id] ? "rgba(79,216,115,0.04)" : "transparent",
+                   border: "none", padding: "8px 4px", cursor: "pointer", fontFamily: "inherit", textAlign: "left" },
+      nameStyle: { color, fontSize: "13px" }, dotStyle: { color, flexShrink: 0 },
+    });
+    const abilitiesAtt = [
+      ab("a1", "FACTION", "Oath of Moment", "At the start of your Command phase, select one enemy unit. Re-roll Hit rolls against that unit for the rest of the turn.", C.gold),
+      ab("a2", "CHARACTER", "Rites of Battle", "Once per battle round, when the Captain's unit is targeted by a Stratagem, you can use that Stratagem for 0 CP.", C.lead),
+      ab("a3", "CORE", "Leaders", "This Character can be attached to a Bodyguard unit. While leading, it cannot be targeted by ranged attacks.", C.dim),
+      ab("a4", "", "Bolter Discipline", "Rapid Fire weapons gain their bonus Attacks at full range when the bearer's unit Remained Stationary.", "#7fe0ec"),
+    ];
+    const abilitiesDef = [
+      ab("d1", "FACTION", "Disgustingly Resilient", "Each time this model would lose a wound, roll one D6: on a 5+ that wound is not lost. (Feel No Pain 5+)", C.gold),
+      ab("d2", "", "Nurgle's Gift", "Each enemy unit within 3\" of this unit subtracts 1 from the Toughness characteristic of its models.", "#7fe0ec"),
+    ];
+
+    const leaderBtnStyle = {
+      marginLeft: "auto", fontFamily: "'IBM Plex Mono', monospace", fontSize: "9px",
+      letterSpacing: "0.08em", cursor: "pointer", padding: "4px 9px", borderRadius: "3px",
+      color: s.leader ? C.lead : C.muted,
+      border: "1px solid " + (s.leader ? C.leadBd : C.border),
+      background: s.leader ? "rgba(79,208,224,0.06)" : "transparent",
+    };
+
+    // faction label (top-right) — only set by the `theme <name>` command
+    const assigned = !!s.faction;
+    const factionLabel = assigned ? s.faction.toUpperCase() : "NOT ASSIGNED";
+    const factionStyle = assigned
+      ? { fontFamily: "'Chakra Petch', sans-serif", fontSize: "10px", letterSpacing: "0.12em", color: "#4fd873",
+          border: "1px solid #1f5a36", background: "rgba(79,216,115,.08)", padding: "3px 8px", borderRadius: "3px" }
+      : { fontFamily: "'Chakra Petch', sans-serif", fontSize: "10px", letterSpacing: "0.12em", color: "#5f6b62",
+          border: "1px dashed #2e3630", background: "transparent", padding: "3px 8px", borderRadius: "3px" };
+
+    return {
+      factionLabel, factionStyle, enemyLabel: "enemy · Death Guard",
+      echo: s.echo,
+      leaderAttached: s.leader,
+      toggleLeader: () => this.setState(st => ({ leader: !st.leader })),
+      leaderBtnLabel: s.leader ? "⚔ CAPTAIN ATTACHED ✕" : "+ ATTACH CAPTAIN",
+      leaderBtnStyle,
+      editing: s.editing,
+      toggleEdit: () => this.setState(st => ({ editing: !st.editing })),
+      tags,
+      totalDmg: total.toFixed(1), slain: slain.toFixed(1), survivors,
+      verdictText: survivors >= 4
+        ? survivors + " of 5 hold the line — target barely scratched. Reposition or pour on more fire."
+        : survivors >= 2
+          ? "Target holds — " + survivors + " of 5 survive. Commit melee to break the squad."
+          : "Squad shattered — only " + survivors + " left standing. Expect it to break and run.",
+      rangedDmg: rangedDmg.toFixed(1), meleeDmg: meleeDmg.toFixed(1),
+      rangedBarStyle: fillGreen(Math.min(100, rangedDmg / 8 * 100) + "%"),
+      meleeBarStyle:  fillGold(Math.min(100, meleeDmg / 8 * 100) + "%"),
+      ranged, melee, outcomes, forces, modImpact, abilitiesAtt, abilitiesDef,
+      hasDisabled: disabledCount > 0, disabledCount,
+      term: s.term,
+      onTermInput: (e) => this.setState({ term: e.target.value }),
+      onTermKey: (e) => {
+        if (e.key !== "Enter") return;
+        const v = e.target.value.trim();
+        if (!v) return;
+        const low = v.toLowerCase();
+        if (low.startsWith("theme ")) {
+          this.setState({ faction: v.slice(6).trim(), echo: v, term: "" });
+        } else {
+          this.setState({ echo: v, term: "" });
+        }
+      },
+    };
+  }
+}
+</script>
+</body>
+</html>

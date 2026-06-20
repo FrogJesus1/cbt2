@@ -1,0 +1,173 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;600;700&family=Chakra+Petch:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+  * { box-sizing: border-box; }
+  body { margin: 0; }
+  @keyframes ctBlink { 0%, 49% { opacity: 1; } 50%, 100% { opacity: 0; } }
+  @keyframes ctFlicker { 0%, 100% { opacity: 1; } 92% { opacity: 1; } 93% { opacity: 0.85; } 94% { opacity: 1; } }
+  .lg input::placeholder { color: #335040; }
+</style>
+</helmet>
+
+<div class="lg" style="min-height:100vh; box-sizing:border-box; padding:40px; background:#e7e5df; font-family:'IBM Plex Mono', monospace; display:flex; flex-direction:column; align-items:center; justify-content:center;">
+  <div style="width:480px; max-width:100%;">
+    <div style="margin-bottom:12px;">
+      <div style="font-size:11px; letter-spacing:0.28em; color:#5a5648; text-transform:uppercase; font-weight:600;">login</div>
+      <div style="font-size:12px; color:#908b7c; margin-top:3px;">Authentication gate — pick a profile, enter a PIN, or create a new callsign.</div>
+    </div>
+
+    <div data-screen-label="Login" style="position:relative; border-radius:3px; overflow:hidden; box-shadow:0 10px 40px rgba(0,0,0,.3); background:#04060c; color:#4fd873; animation:ctFlicker 9s linear infinite;">
+
+      <!-- boot header -->
+      <div style="padding:24px 28px 18px; border-bottom:1px solid #14241a; background:#03050a;">
+        <div style="display:flex; align-items:center; gap:10px;">
+          <span style="font-size:18px; color:#4fd873; text-shadow:0 0 12px rgba(79,216,115,.6);">⚡</span>
+          <span style="font-family:'Chakra Petch', sans-serif; font-size:18px; letter-spacing:0.22em; color:#eef4ee; font-weight:700; text-shadow:0 0 14px rgba(79,216,115,.4);">COMBAT TERMINAL</span>
+          <span style="margin-left:auto; font-size:9px; letter-spacing:0.12em; color:#2e5a40;" · <span style="color:#4fd873;">11TH ED</span></span>
+        </div>
+        <div style="margin-top:14px; font-size:10px; line-height:1.85; color:#2e5a40;">
+          <div>booting cogitator core<span style="color:#3f6e4e;"> ………… </span><span style="color:#4fd873;">OK</span></div>
+          <div>loading dossiers<span style="color:#3f6e4e;"> …………… </span><span style="color:#a8b0a4;">29 factions · 1,284 units</span></div>
+          <div>monte carlo engine<span style="color:#3f6e4e;"> ………… </span><span style="color:#4fd873;">ONLINE</span></div>
+        </div>
+      </div>
+
+      <!-- auth body -->
+      <div style="padding:22px 28px 26px;">
+        <div style="display:flex; align-items:center; gap:8px; margin-bottom:18px;">
+          <span style="width:7px; height:7px; border-radius:50%; background:#4fd873; box-shadow:0 0 8px #4fd873;"></span>
+          <span style="font-size:11px; letter-spacing:0.18em; color:#d8b25a; text-transform:uppercase;">{{ heading }}</span>
+        </div>
+
+        <!-- ── PICK ── -->
+        <sc-if value="{{ isPick }}" hint-placeholder-val="{{ true }}">
+          <div style="display:flex; flex-direction:column; gap:7px; margin-bottom:18px;">
+            <sc-for list="{{ profiles }}" as="p" hint-placeholder-count="3">
+              <div onClick="{{ p.onSelect }}" style="display:flex; align-items:center; gap:11px; padding:13px 15px; border:1px solid #16301f; border-radius:5px; background:#070d09; cursor:pointer;" style-hover="border-color:#2a6c44; background:#0a160d;">
+                <span style="width:9px; height:9px; border-radius:50%; background:{{ p.dot }}; flex-shrink:0; box-shadow:0 0 6px {{ p.dot }};"></span>
+                <span style="flex:1; font-size:14px; color:#cdeacd; letter-spacing:0.1em;">{{ p.name }}</span>
+                <sc-if value="{{ p.hasPin }}" hint-placeholder-val="{{ false }}"><span style="font-size:9px; letter-spacing:0.12em; color:#d8b25a; border:1px solid #4a3c1c; padding:1px 6px; border-radius:2px;">🔒 PIN</span></sc-if>
+                <span style="color:#2e5a40; font-size:12px;">›</span>
+              </div>
+            </sc-for>
+          </div>
+          <button onClick="{{ onGoCreate }}" style="width:100%; background:transparent; border:1px solid #2a6c44; color:#4fd873; font-family:inherit; font-size:12px; letter-spacing:0.16em; padding:12px; border-radius:5px; cursor:pointer;">+ NEW PROFILE</button>
+          <div style="text-align:center; margin-top:14px;"><span onClick="{{ onSkip }}" style="font-size:11px; letter-spacing:0.06em; color:#2e5a40; cursor:pointer;">skip — continue without a profile →</span></div>
+        </sc-if>
+
+        <!-- ── PIN ── -->
+        <sc-if value="{{ isPin }}" hint-placeholder-val="{{ false }}">
+          <div style="font-size:12px; color:#84a890; margin-bottom:14px;">Enter PIN for <span style="color:#cdeacd; font-weight:600;">{{ selectedName }}</span></div>
+          <input type="password" value="{{ pinInput }}" onInput="{{ onPin }}" onKeyDown="{{ onPinKey }}" placeholder="• • • •" style="width:100%; background:#070d09; border:1px solid #16301f; color:#4fd873; font-family:inherit; font-size:18px; letter-spacing:0.5em; padding:12px 14px; border-radius:5px; outline:none; text-align:center; margin-bottom:10px;">
+          <sc-if value="{{ hasError }}" hint-placeholder-val="{{ false }}"><div style="color:#ff5d5d; font-size:11px; margin-bottom:10px; text-align:center;">{{ error }}</div></sc-if>
+          <button onClick="{{ onLogin }}" style="width:100%; background:#4fd873; border:none; color:#04060c; font-family:inherit; font-weight:700; font-size:13px; letter-spacing:0.16em; padding:13px; border-radius:5px; cursor:pointer;">▸ LOGIN</button>
+          <div style="text-align:center; margin-top:14px;"><span onClick="{{ onBack }}" style="font-size:11px; color:#2e5a40; cursor:pointer;">← back</span></div>
+        </sc-if>
+
+        <!-- ── CREATE ── -->
+        <sc-if value="{{ isCreate }}" hint-placeholder-val="{{ false }}">
+          <div style="display:flex; flex-direction:column; gap:11px;">
+            <div>
+              <div style="font-size:9px; letter-spacing:0.14em; color:#2e5a40; text-transform:uppercase; margin-bottom:5px;">Callsign</div>
+              <input value="{{ newName }}" onInput="{{ onName }}" placeholder="e.g. COMMANDER_VOSS" maxlength="24" style="width:100%; background:#070d09; border:1px solid #16301f; color:#4fd873; font-family:inherit; font-size:14px; letter-spacing:0.08em; padding:11px 13px; border-radius:5px; outline:none;">
+            </div>
+            <div onClick="{{ onToggleUsePin }}" style="display:flex; align-items:center; gap:9px; cursor:pointer;">
+              <span style="{{ pinBox }}">{{ pinCheck }}</span>
+              <span style="font-size:12px; color:#84a890;">Protect with a PIN</span>
+            </div>
+            <sc-if value="{{ usePin }}" hint-placeholder-val="{{ false }}">
+              <input type="password" value="{{ newPin }}" onInput="{{ onNewPin }}" placeholder="set a PIN" style="width:100%; background:#070d09; border:1px solid #16301f; color:#4fd873; font-family:inherit; font-size:14px; letter-spacing:0.3em; padding:11px 13px; border-radius:5px; outline:none;">
+            </sc-if>
+            <sc-if value="{{ hasError }}" hint-placeholder-val="{{ false }}"><div style="color:#ff5d5d; font-size:11px; text-align:center;">{{ error }}</div></sc-if>
+            <button onClick="{{ onCreate }}" style="width:100%; background:#4fd873; border:none; color:#04060c; font-family:inherit; font-weight:700; font-size:13px; letter-spacing:0.16em; padding:13px; border-radius:5px; cursor:pointer; margin-top:2px;">▸ CREATE &amp; ENTER</button>
+            <div style="text-align:center;"><span onClick="{{ onBack }}" style="font-size:11px; color:#2e5a40; cursor:pointer;">← back</span></div>
+          </div>
+        </sc-if>
+      </div>
+
+      <!-- prompt footer -->
+      <div style="display:flex; align-items:center; gap:8px; padding:11px 28px; border-top:1px solid #14241a; background:#03050a;">
+        <span style="color:#4fd873; font-size:13px;">›</span>
+        <span style="font-size:11px; color:#2e5a40;">awaiting authentication</span>
+        <span style="display:inline-block; width:7px; height:13px; background:#4fd873; margin-left:1px; box-shadow:0 0 6px rgba(79,216,115,.7); animation:ctBlink 1.1s step-end infinite;"></span>
+      </div>
+
+      <!-- scanline + vignette -->
+      <div style="position:absolute; inset:0; pointer-events:none; background:repeating-linear-gradient(0deg,transparent 0 2px,rgba(0,0,0,.13) 2px 3px);"></div>
+      <div style="position:absolute; inset:0; pointer-events:none; background:radial-gradient(ellipse at center,transparent 58%,rgba(0,0,0,.4) 100%);"></div>
+    </div>
+  </div>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script>
+class Component extends DCLogic {
+  state = {
+    view: "pick",
+    selected: null,
+    newName: "", usePin: false, newPin: "",
+    pinInput: "", error: null,
+  };
+
+  PROFILES() {
+    return [
+      { name: "COMMANDER_VOSS", hasPin: true },
+      { name: "FARSIGHT_ACTUAL", hasPin: false },
+      { name: "GUEST", hasPin: false },
+    ];
+  }
+
+  enter() { window.location.href = "Combat%20Result%20v3.dc.html"; }
+
+  renderVals() {
+    const s = this.state;
+    const heading = s.view === "create" ? "New Profile" : s.view === "pin" ? "Secure Login" : "Authentication Required";
+
+    const profiles = this.PROFILES().map(p => ({
+      name: p.name, hasPin: p.hasPin, dot: p.hasPin ? "#d8b25a" : "#4fd873",
+      onSelect: () => { if (p.hasPin) this.setState({ view: "pin", selected: p.name, pinInput: "", error: null }); else this.enter(); },
+    }));
+
+    const chk = (on) => ({ width: "16px", height: "16px", borderRadius: "3px", border: "1px solid " + (on ? "#4fd873" : "#2e3630"), background: on ? "#4fd873" : "transparent", display: "flex", alignItems: "center", justifyContent: "center", fontSize: "10px", color: "#04060c", flexShrink: 0 });
+
+    return {
+      heading,
+      isPick: s.view === "pick", isPin: s.view === "pin", isCreate: s.view === "create",
+      profiles,
+      onGoCreate: () => this.setState({ view: "create", error: null }),
+      onSkip: () => this.enter(),
+      onBack: () => this.setState({ view: "pick", error: null }),
+      // pin
+      selectedName: s.selected || "",
+      pinInput: s.pinInput, onPin: (e) => this.setState({ pinInput: e.target.value, error: null }),
+      onPinKey: (e) => { if (e.key === "Enter") this.submitPin(); },
+      onLogin: () => this.submitPin(),
+      // create
+      newName: s.newName, onName: (e) => this.setState({ newName: e.target.value, error: null }),
+      usePin: s.usePin, onToggleUsePin: () => this.setState(st => ({ usePin: !st.usePin })),
+      pinBox: chk(s.usePin), pinCheck: s.usePin ? "✓" : "",
+      newPin: s.newPin, onNewPin: (e) => this.setState({ newPin: e.target.value }),
+      onCreate: () => { if (!s.newName.trim()) { this.setState({ error: "Enter a callsign." }); return; } this.enter(); },
+      // error
+      hasError: !!s.error, error: s.error || "",
+    };
+  }
+
+  submitPin() {
+    if (!this.state.pinInput.trim()) { this.setState({ error: "Enter your PIN." }); return; }
+    this.enter();
+  }
+}
+</script>
+</body>
+</html>

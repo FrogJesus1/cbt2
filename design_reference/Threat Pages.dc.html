@@ -1,0 +1,437 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;600;700&family=Chakra+Petch:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+  * { box-sizing: border-box; }
+  body { margin: 0; }
+  @keyframes ctBlink { 0%, 49% { opacity: 1; } 50%, 100% { opacity: 0; } }
+  .v3 input::placeholder { color: #4a5249; }
+</style>
+</helmet>
+
+<div class="v3" style="min-width:100%; min-height:100vh; box-sizing:border-box; padding:40px; background:#e7e5df; font-family:'IBM Plex Mono', monospace; display:flex; flex-direction:column; align-items:center; gap:40px;">
+
+  <!-- ════════════════════════════════════════════════════════════ -->
+  <!-- THREAT · FACTION                                               -->
+  <!-- ════════════════════════════════════════════════════════════ -->
+  <div style="width:920px; max-width:100%;">
+    <div style="margin-bottom:12px;">
+      <div style="font-size:11px; letter-spacing:0.28em; color:#5a5648; text-transform:uppercase; font-weight:600;">threat [faction]</div>
+      <div style="font-size:12px; color:#908b7c; margin-top:3px;">Enemy faction overview — composition, threat distribution, and a ranked unit index (click a row to expand).</div>
+    </div>
+
+    <div data-screen-label="Threat Faction" style="position:relative; border-radius:3px; overflow:hidden; box-shadow:0 4px 24px rgba(0,0,0,.22); background:#0d0f12; color:#d8dee0;">
+      <div style="display:flex; align-items:center; gap:12px; padding:9px 18px; background:#0a0c0e; border-bottom:1px solid #232a26;">
+        <span style="width:7px; height:7px; border-radius:50%; background:#4fd873; box-shadow:0 0 8px rgba(79,216,115,.85);"></span>
+        <span style="font-family:'Chakra Petch', sans-serif; font-size:13px; letter-spacing:0.16em; color:#eef4ee; font-weight:600;">COMBAT TERMINAL</span>
+        <span style="font-size:10px; letter-spacing:0.1em; color:#5f6b62;">v2.0 · 7a3f1c</span><span style="font-size:10px; letter-spacing:0.1em; color:#4fd873; margin-left:6px;">· 11TH ED</span>
+        <div style="margin-left:auto; display:flex; flex-direction:column; align-items:flex-end; gap:2px;">
+          <span style="font-family:'Chakra Petch', sans-serif; font-size:10px; letter-spacing:0.12em; color:#5f6b62; border:1px dashed #2e3630; padding:3px 8px; border-radius:3px;">NOT ASSIGNED</span>
+          <span style="font-size:8px; letter-spacing:0.1em; color:#4a5249;">analysing · T'au Empire</span>
+        </div>
+      </div>
+      <div style="display:flex; font-family:'Chakra Petch', sans-serif; font-size:11px; letter-spacing:0.1em; border-bottom:1px solid #1a201c; background:#0a0c0e; padding:0 8px;">
+        <div style="padding:9px 14px; color:#eef4ee; border-bottom:2px solid #4fd873;">COMBAT SIM</div>
+        <div style="padding:9px 14px; color:#5f6b62;">UNITS</div>
+        <div style="padding:9px 14px; color:#5f6b62;">ROSTERS</div>
+        <div style="padding:9px 14px; color:#5f6b62;">RULES</div>
+      </div>
+
+      <div style="padding:16px 20px 20px;">
+        <div style="font-size:11px; color:#5a7a64; margin-bottom:14px;"><span style="color:#4fd873;">›</span> {{ echoF }} <span style="display:inline-block; width:7px; height:13px; background:#4fd873; vertical-align:-2px; margin-left:3px; box-shadow:0 0 6px rgba(79,216,115,.7); animation:ctBlink 1.1s step-end infinite;"></span></div>
+
+        <!-- title -->
+        <div style="display:flex; align-items:baseline; gap:12px; margin-bottom:16px;">
+          <span style="font-family:'Chakra Petch', sans-serif; font-size:21px; color:#eef4ee; font-weight:700; letter-spacing:0.02em;">T'AU EMPIRE</span>
+          <span style="font-size:11px; letter-spacing:0.16em; color:#d8b25a; text-transform:uppercase;">Threat Assessment</span>
+          <span style="margin-left:auto; font-size:10px; color:#5f6b62; letter-spacing:0.08em;">14 units catalogued</span>
+        </div>
+
+        <!-- summary panels -->
+        <div style="display:grid; grid-template-columns:1fr 1.6fr 1fr; gap:12px; margin-bottom:12px; align-items:stretch;">
+          <div style="border:1px solid #232a26; border-radius:5px; background:#12150f; padding:14px 15px;">
+            <div style="font-family:'Chakra Petch', sans-serif; font-size:10px; letter-spacing:0.12em; color:#d8b25a; text-transform:uppercase; margin-bottom:10px;">Units Loaded</div>
+            <div style="font-family:'Chakra Petch', sans-serif; font-size:30px; color:#4fd873; font-weight:700; line-height:1; margin-bottom:12px; text-shadow:0 0 10px rgba(79,216,115,.3);">14</div>
+            <div style="display:flex; justify-content:space-between; margin-bottom:4px;"><span style="font-size:10px; color:#ff5d5d; font-weight:700; letter-spacing:0.1em;">HIGH</span><span style="font-size:11px; color:#ff5d5d; font-weight:700;">3</span></div>
+            <div style="display:flex; justify-content:space-between; margin-bottom:4px;"><span style="font-size:10px; color:#d8b25a; font-weight:700; letter-spacing:0.1em;">MED</span><span style="font-size:11px; color:#d8b25a; font-weight:700;">6</span></div>
+            <div style="display:flex; justify-content:space-between;"><span style="font-size:10px; color:#84907f; font-weight:700; letter-spacing:0.1em;">LOW</span><span style="font-size:11px; color:#84907f; font-weight:700;">5</span></div>
+          </div>
+          <div style="border:1px solid #232a26; border-radius:5px; background:#12150f; padding:14px 15px;">
+            <div style="font-family:'Chakra Petch', sans-serif; font-size:10px; letter-spacing:0.12em; color:#d8b25a; text-transform:uppercase; margin-bottom:6px;">Army Composition</div>
+            <div style="font-size:11px; color:#a8b0a4; margin-bottom:11px; letter-spacing:0.04em;">Ranged-heavy · gunline skew</div>
+            <sc-for list="{{ skew }}" as="b" hint-placeholder-count="5">
+              <div style="margin-bottom:7px;">
+                <div style="display:flex; justify-content:space-between; margin-bottom:3px;"><span style="font-size:10px; color:{{ b.color }}; font-weight:600; letter-spacing:0.06em;">{{ b.type }}</span><span style="font-size:10px; color:#5f6b62;">{{ b.count }}</span></div>
+                <div style="height:4px; background:#1c241e; border-radius:2px; overflow:hidden;"><div style="{{ b.style }}"></div></div>
+              </div>
+            </sc-for>
+          </div>
+          <div style="border:1px solid #232a26; border-radius:5px; background:#12150f; padding:14px 15px; display:flex; flex-direction:column;">
+            <div style="font-family:'Chakra Petch', sans-serif; font-size:10px; letter-spacing:0.12em; color:#d8b25a; text-transform:uppercase; margin-bottom:10px;">Roster Filter</div>
+            <div style="flex:1; display:flex; flex-direction:column; align-items:center; justify-content:center; gap:9px; text-align:center;">
+              <div style="width:34px; height:34px; border:1px dashed #2e3630; display:flex; align-items:center; justify-content:center; color:#5f6b62; font-size:17px; border-radius:3px;">⊘</div>
+              <div style="font-size:11px; color:#84907f; line-height:1.5;">No roster loaded.<br>Showing full faction.</div>
+              <div style="font-size:9px; color:#5f6b62; letter-spacing:0.04em; line-height:1.5;">Run <span style="color:#4fd873;">enemy &lt;faction&gt;</span><br>to filter by detachment.</div>
+            </div>
+          </div>
+        </div>
+
+        <!-- threat distribution -->
+        <div style="border:1px solid #232a26; border-radius:5px; background:#12150f; padding:14px 15px; margin-bottom:18px;">
+          <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:11px;">
+            <span style="font-family:'Chakra Petch', sans-serif; font-size:10px; letter-spacing:0.12em; color:#d8b25a; text-transform:uppercase;">Threat Distribution</span>
+            <span style="font-size:9px; color:#5f6b62; letter-spacing:0.1em;">BY UNIT COUNT</span>
+          </div>
+          <sc-for list="{{ dist }}" as="d" hint-placeholder-count="3">
+            <div style="display:grid; grid-template-columns:64px 1fr 70px; align-items:center; gap:10px; margin-bottom:8px;">
+              <span style="font-size:10px; color:{{ d.color }}; font-weight:700; letter-spacing:0.1em;">{{ d.label }}</span>
+              <div style="height:8px; background:#1c241e; border-radius:3px; overflow:hidden;"><div style="{{ d.style }}"></div></div>
+              <span style="font-size:11px; color:{{ d.color }}; text-align:right;">{{ d.count }} <span style="font-size:9px; color:#5f6b62;">({{ d.pct }})</span></span>
+            </div>
+          </sc-for>
+        </div>
+
+        <!-- threat index -->
+        <div style="font-family:'Chakra Petch', sans-serif; font-size:12px; letter-spacing:0.14em; color:#eef4ee; text-transform:uppercase; margin-bottom:10px; display:flex; align-items:center; gap:10px;">Threat Index<span style="font-size:9px; color:#5f6b62; letter-spacing:0.04em; text-transform:none; font-family:'IBM Plex Mono',monospace;">click a unit to expand</span><div style="flex:1; height:3px; background:repeating-linear-gradient(45deg,#d8b25a 0 6px,#11140f 6px 12px); opacity:.5;"></div></div>
+        <sc-for list="{{ units }}" as="u" hint-placeholder-count="6">
+          <div style="{{ u.boxStyle }}">
+            <div onClick="{{ u.onToggle }}" style="{{ u.headStyle }}">
+              <span style="font-size:10px; color:#5f6b62; min-width:18px;">{{ u.idx }}</span>
+              <div style="{{ u.tabStyle }}"></div>
+              <span style="{{ u.nameStyle }}">{{ u.name }}</span>
+              <div style="display:flex; align-items:center; gap:8px; flex-shrink:0;">
+                <sc-for list="{{ u.micro }}" as="mb" hint-placeholder-count="3">
+                  <div style="display:flex; flex-direction:column; align-items:center; gap:2px;">
+                    <span style="font-size:8px; color:#5f6b62; letter-spacing:0.04em;">{{ mb.label }}</span>
+                    <div style="width:46px; height:3px; background:#1c241e; border-radius:2px; overflow:hidden;"><div style="{{ mb.style }}"></div></div>
+                  </div>
+                </sc-for>
+              </div>
+              <span style="{{ u.badgeStyle }}">{{ u.levelLabel }}</span>
+              <span style="font-size:9px; color:#5f6b62; width:10px; flex-shrink:0;">{{ u.caret }}</span>
+            </div>
+            <sc-if value="{{ u.open }}" hint-placeholder-val="{{ false }}">
+              <div style="{{ u.bodyStyle }}">
+                <div style="display:grid; grid-template-columns:1.4fr 1fr; gap:16px;">
+                  <div>
+                    <div style="font-size:9px; letter-spacing:0.12em; color:#5f6b62; text-transform:uppercase; margin-bottom:9px;">Threat Metrics</div>
+                    <sc-for list="{{ u.metrics }}" as="m" hint-placeholder-count="5">
+                      <div style="display:grid; grid-template-columns:46px 1fr 28px; align-items:center; gap:9px; margin-bottom:7px;">
+                        <span style="font-size:10px; color:#a8b0a4;">{{ m.label }}</span>
+                        <div style="height:6px; background:#1c241e; border-radius:3px; overflow:hidden;"><div style="{{ m.style }}"></div></div>
+                        <span style="font-size:10px; color:{{ m.color }}; text-align:right; font-weight:700;">{{ m.score }}</span>
+                      </div>
+                    </sc-for>
+                  </div>
+                  <div>
+                    <div style="font-size:9px; letter-spacing:0.12em; color:#5f6b62; text-transform:uppercase; margin-bottom:9px;">Profile</div>
+                    <div style="display:grid; grid-template-columns:repeat(5,1fr); gap:1px; border:1px solid #232a26; margin-bottom:12px;">
+                      <sc-for list="{{ u.profile }}" as="p" hint-placeholder-count="5">
+                        <div style="text-align:center; padding:7px 2px; border-right:1px solid #232a26;">
+                          <div style="font-size:8px; color:#5f6b62; letter-spacing:0.1em; font-weight:700;">{{ p.k }}</div>
+                          <div style="font-size:14px; color:#4fd873; font-weight:700; margin-top:3px;">{{ p.v }}</div>
+                        </div>
+                      </sc-for>
+                    </div>
+                    <div style="font-size:9px; letter-spacing:0.12em; color:#5f6b62; text-transform:uppercase; margin-bottom:6px;">Top Counter</div>
+                    <div style="display:flex; justify-content:space-between; align-items:baseline; margin-bottom:4px;"><span style="font-size:11px; color:#4fd873; font-weight:600;">{{ u.counterName }}</span><span style="font-size:11px; color:#4fd873; font-weight:700;">{{ u.counterScore }}</span></div>
+                    <div style="height:5px; background:#1c241e; border-radius:3px; overflow:hidden;"><div style="{{ u.counterStyle }}"></div></div>
+                  </div>
+                </div>
+                <div style="margin-top:11px; font-size:10px; color:#5f6b62; font-style:italic;">↳ run <span style="color:#4fd873;">threat {{ u.cmd }}</span> for the full dossier</div>
+              </div>
+            </sc-if>
+          </div>
+        </sc-for>
+
+        <!-- strategic notes -->
+        <div style="font-family:'Chakra Petch', sans-serif; font-size:12px; letter-spacing:0.14em; color:#eef4ee; text-transform:uppercase; margin:24px 0 12px; display:flex; align-items:center; gap:10px;">Strategic Notes<div style="flex:1; height:3px; background:repeating-linear-gradient(45deg,#d8b25a 0 6px,#11140f 6px 12px); opacity:.5;"></div></div>
+        <div style="display:flex; flex-direction:column; gap:6px;">
+          <div style="display:flex; gap:11px; align-items:flex-start; padding:9px 13px; background:rgba(255,93,93,.06); border:1px solid rgba(255,93,93,.2); border-left:2px solid #ff5d5d; border-radius:3px;">
+            <span style="color:#ff5d5d; font-size:12px; flex-shrink:0; margin-top:1px;">⚠</span>
+            <div><span style="font-size:9px; font-weight:700; letter-spacing:0.16em; color:#ff5d5d; margin-right:8px;">WARNING</span><span style="font-size:12px; color:#a8b0a4; line-height:1.6;">Markerlight + Guided stacks re-roll Hits and Wounds on a Spotted unit. Kill the Observers — Pathfinders and drones — before they light you up.</span></div>
+          </div>
+          <div style="display:flex; gap:11px; align-items:flex-start; padding:9px 13px; background:rgba(216,178,90,.06); border:1px solid rgba(216,178,90,.2); border-left:2px solid #d8b25a; border-radius:3px;">
+            <span style="color:#d8b25a; font-size:12px; flex-shrink:0; margin-top:1px;">◉</span>
+            <div><span style="font-size:9px; font-weight:700; letter-spacing:0.16em; color:#d8b25a; margin-right:8px;">FOCUS</span><span style="font-size:12px; color:#a8b0a4; line-height:1.6;">Battlesuits screen behind Saviour Protocol drones. Strip the cheap drones with volume fire first, then commit melta into the suit.</span></div>
+          </div>
+          <div style="display:flex; gap:11px; align-items:flex-start; padding:9px 13px; background:rgba(79,208,224,.06); border:1px solid rgba(79,208,224,.2); border-left:2px solid #4fd0e0; border-radius:3px;">
+            <span style="color:#4fd0e0; font-size:12px; flex-shrink:0; margin-top:1px;">›</span>
+            <div><span style="font-size:9px; font-weight:700; letter-spacing:0.16em; color:#4fd0e0; margin-right:8px;">TIP</span><span style="font-size:12px; color:#a8b0a4; line-height:1.6;">T'au fold in melee. Tie up gunline units in combat to shut their shooting down for a full turn.</span></div>
+          </div>
+          <div style="display:flex; gap:11px; align-items:flex-start; padding:9px 13px; background:rgba(255,93,93,.06); border:1px solid rgba(255,93,93,.2); border-left:2px solid #ff5d5d; border-radius:3px;">
+            <span style="color:#ff5d5d; font-size:12px; flex-shrink:0; margin-top:1px;">⚠</span>
+            <div><span style="font-size:9px; font-weight:700; letter-spacing:0.16em; color:#ff5d5d; margin-right:8px;">WARNING</span><span style="font-size:12px; color:#a8b0a4; line-height:1.6;">Hammerhead railgun Devastating Wounds bypass invulnerable saves. Keep characters and key models out of line of sight.</span></div>
+          </div>
+        </div>
+      </div>
+
+      <div style="display:flex; align-items:center; gap:12px; padding:0 18px; min-height:50px; border-top:2px solid #1f5a36; background:#0a0c0e; box-shadow:0 -4px 20px rgba(79,216,115,.05);">
+        <span style="color:#4fd873; font-size:18px; flex-shrink:0; text-shadow:0 0 8px rgba(79,216,115,.6);">›</span>
+        <input value="{{ termF }}" onInput="{{ onTermFInput }}" onKeyDown="{{ onTermFKey }}" placeholder="threat &lt;faction&gt;  ·  threat &lt;unit&gt;  ·  enemy &lt;faction&gt;" style="flex:1; background:transparent; border:none; outline:none; color:#4fd873; font-family:'IBM Plex Mono', monospace; font-size:14px; caret-color:#4fd873;">
+        <span style="font-size:10px; letter-spacing:0.14em; color:#3f4a40; flex-shrink:0;">⏎ RUN</span>
+      </div>
+      <div style="position:absolute; inset:0; pointer-events:none; background:repeating-linear-gradient(0deg,transparent 0 2px,rgba(0,0,0,.09) 2px 3px);"></div>
+    </div>
+  </div>
+
+  <!-- ════════════════════════════════════════════════════════════ -->
+  <!-- THREAT · UNIT                                                  -->
+  <!-- ════════════════════════════════════════════════════════════ -->
+  <div style="width:920px; max-width:100%;">
+    <div style="margin-bottom:12px;">
+      <div style="font-size:11px; letter-spacing:0.28em; color:#5a5648; text-transform:uppercase; font-weight:600;">threat [unit]</div>
+      <div style="font-size:12px; color:#908b7c; margin-top:3px;">Single-unit dossier — threat metrics, counter picks, profile, keywords and abilities.</div>
+    </div>
+
+    <div data-screen-label="Threat Unit" style="position:relative; border-radius:3px; overflow:hidden; box-shadow:0 4px 24px rgba(0,0,0,.22); background:#0d0f12; color:#d8dee0;">
+      <div style="display:flex; align-items:center; gap:12px; padding:9px 18px; background:#0a0c0e; border-bottom:1px solid #232a26;">
+        <span style="width:7px; height:7px; border-radius:50%; background:#4fd873; box-shadow:0 0 8px rgba(79,216,115,.85);"></span>
+        <span style="font-family:'Chakra Petch', sans-serif; font-size:13px; letter-spacing:0.16em; color:#eef4ee; font-weight:600;">COMBAT TERMINAL</span>
+        <span style="font-size:10px; letter-spacing:0.1em; color:#5f6b62;">v2.0 · 7a3f1c</span><span style="font-size:10px; letter-spacing:0.1em; color:#4fd873; margin-left:6px;">· 11TH ED</span>
+        <div style="margin-left:auto; display:flex; flex-direction:column; align-items:flex-end; gap:2px;">
+          <span style="font-family:'Chakra Petch', sans-serif; font-size:10px; letter-spacing:0.12em; color:#5f6b62; border:1px dashed #2e3630; padding:3px 8px; border-radius:3px;">NOT ASSIGNED</span>
+          <span style="font-size:8px; letter-spacing:0.1em; color:#4a5249;">analysing · Broadside Battlesuits</span>
+        </div>
+      </div>
+      <div style="display:flex; font-family:'Chakra Petch', sans-serif; font-size:11px; letter-spacing:0.1em; border-bottom:1px solid #1a201c; background:#0a0c0e; padding:0 8px;">
+        <div style="padding:9px 14px; color:#eef4ee; border-bottom:2px solid #4fd873;">COMBAT SIM</div>
+        <div style="padding:9px 14px; color:#5f6b62;">UNITS</div>
+        <div style="padding:9px 14px; color:#5f6b62;">ROSTERS</div>
+        <div style="padding:9px 14px; color:#5f6b62;">RULES</div>
+      </div>
+
+      <div style="padding:16px 20px 20px;">
+        <div style="font-size:11px; color:#5a7a64; margin-bottom:14px;"><span style="color:#4fd873;">›</span> {{ echoU }} <span style="display:inline-block; width:7px; height:13px; background:#4fd873; vertical-align:-2px; margin-left:3px; box-shadow:0 0 6px rgba(79,216,115,.7); animation:ctBlink 1.1s step-end infinite;"></span></div>
+
+        <!-- banner -->
+        <div style="display:flex; align-items:center; gap:14px; border:1px solid rgba(255,93,93,.28); border-radius:5px; background:#150f0f; padding:14px 18px; margin-bottom:14px; box-shadow:inset 0 0 0 1px #232a26, 0 0 14px rgba(255,93,93,.06);">
+          <span style="width:4px; height:30px; background:#ff5d5d; border-radius:2px; flex-shrink:0;"></span>
+          <span style="font-family:'Chakra Petch', sans-serif; font-size:22px; color:#ff7a7a; font-weight:700; letter-spacing:0.03em; text-shadow:0 0 12px rgba(255,93,93,.4); flex:1;">BROADSIDE BATTLESUITS</span>
+          <span style="font-size:11px; font-weight:700; letter-spacing:0.18em; color:#ff5d5d; border:1px solid rgba(255,93,93,.5); padding:3px 9px; background:rgba(255,93,93,.1); border-radius:3px;">HIGH THREAT</span>
+        </div>
+
+        <!-- metrics + counters -->
+        <div style="display:grid; grid-template-columns:1.5fr 1fr; gap:12px; margin-bottom:12px; align-items:start;">
+          <div style="border:1px solid #232a26; border-radius:5px; background:#12150f; padding:14px 16px;">
+            <div style="font-family:'Chakra Petch', sans-serif; font-size:10px; letter-spacing:0.12em; color:#d8b25a; text-transform:uppercase; margin-bottom:13px;">Threat Metrics</div>
+            <sc-for list="{{ uMetrics }}" as="m" hint-placeholder-count="5">
+              <div style="display:grid; grid-template-columns:54px 1fr 30px; align-items:center; gap:11px; margin-bottom:10px;">
+                <span style="font-size:11px; color:#a8b0a4; font-weight:600;">{{ m.label }}</span>
+                <div style="height:6px; background:#1c241e; border-radius:3px; overflow:hidden;"><div style="{{ m.style }}"></div></div>
+                <span style="font-size:12px; color:{{ m.color }}; text-align:right; font-weight:700;">{{ m.score }}</span>
+              </div>
+            </sc-for>
+          </div>
+          <div style="border:1px solid #232a26; border-radius:5px; background:#12150f; padding:14px 16px;">
+            <div style="font-family:'Chakra Petch', sans-serif; font-size:10px; letter-spacing:0.12em; color:#4fd873; text-transform:uppercase; margin-bottom:13px;">Counter Picks</div>
+            <sc-for list="{{ counters }}" as="c" hint-placeholder-count="3">
+              <div style="{{ c.wrap }}">
+                <div style="display:flex; justify-content:space-between; align-items:baseline; margin-bottom:4px;"><span style="font-size:12px; color:#6ee08a; font-weight:600;">{{ c.name }}</span><span style="font-size:12px; color:#4fd873; font-weight:700;">{{ c.score }}</span></div>
+                <div style="height:5px; background:#1c241e; border-radius:3px; overflow:hidden;"><div style="{{ c.style }}"></div></div>
+                <div style="font-size:10px; color:#5f6b62; margin-top:4px; line-height:1.4;">{{ c.reason }}</div>
+              </div>
+            </sc-for>
+          </div>
+        </div>
+
+        <!-- profile -->
+        <div style="border:1px solid #232a26; border-radius:5px; background:#12150f; padding:14px 16px; margin-bottom:12px;">
+          <div style="font-family:'Chakra Petch', sans-serif; font-size:10px; letter-spacing:0.12em; color:#d8b25a; text-transform:uppercase; margin-bottom:11px;">Profile</div>
+          <div style="display:grid; grid-template-columns:repeat(5,1fr); border:1px solid #232a26;">
+            <sc-for list="{{ uProfile }}" as="p" hint-placeholder-count="5">
+              <div style="text-align:center; padding:10px 4px; border-right:1px solid #232a26;">
+                <div style="font-size:9px; color:#84907f; letter-spacing:0.14em; font-weight:700;">{{ p.k }}</div>
+                <div style="font-size:19px; color:#4fd873; font-weight:700; margin-top:5px; text-shadow:0 0 6px rgba(79,216,115,.4);">{{ p.v }}</div>
+              </div>
+            </sc-for>
+          </div>
+        </div>
+
+        <!-- keywords -->
+        <div style="border:1px solid #232a26; border-radius:5px; background:#12150f; padding:14px 16px; margin-bottom:12px;">
+          <div style="font-family:'Chakra Petch', sans-serif; font-size:10px; letter-spacing:0.12em; color:#d8b25a; text-transform:uppercase; margin-bottom:11px;">Keywords</div>
+          <div style="display:flex; flex-wrap:wrap; gap:6px;">
+            <sc-for list="{{ keywords }}" as="k" hint-placeholder-count="6">
+              <span style="font-size:11px; color:#4fd0e0; border:1px solid #1f4e57; padding:2px 8px; border-radius:3px; letter-spacing:0.04em;">{{ k }}</span>
+            </sc-for>
+          </div>
+        </div>
+
+        <!-- abilities -->
+        <div style="border:1px solid #232a26; border-radius:5px; background:#12150f; padding:4px 16px 12px; margin-bottom:12px;">
+          <div style="font-family:'Chakra Petch', sans-serif; font-size:10px; letter-spacing:0.12em; color:#d8b25a; text-transform:uppercase; margin:12px 0 2px;">Abilities</div>
+          <sc-for list="{{ uAbilities }}" as="a" hint-placeholder-count="3">
+            <div style="border-bottom:1px solid #1c211d;">
+              <div onClick="{{ a.onToggle }}" style="{{ a.headStyle }}">
+                <span style="display:flex; align-items:center; gap:8px; min-width:0;"><span style="color:#d8b25a; flex-shrink:0;">◆</span><sc-if value="{{ a.cat }}" hint-placeholder-val="{{ false }}"><span style="font-size:8px; letter-spacing:0.1em; color:#5f6b62; border:1px solid #2e3630; padding:0 4px; line-height:14px; border-radius:2px;">{{ a.cat }}</span></sc-if><span style="color:#cdd4cb; font-size:13px;">{{ a.name }}</span></span>
+                <span style="font-size:11px; color:#5f6b62; flex-shrink:0;">{{ a.caret }}</span>
+              </div>
+              <sc-if value="{{ a.open }}" hint-placeholder-val="{{ false }}"><div style="font-size:11px; color:#a8b0a4; line-height:1.65; padding:2px 8px 11px 22px;">{{ a.body }}</div></sc-if>
+            </div>
+          </sc-for>
+        </div>
+
+        <!-- enhancement -->
+        <div style="display:flex; align-items:center; gap:10px; padding:11px 16px; border:1px solid #4a3c1c; border-radius:5px; background:rgba(216,178,90,.06);">
+          <span style="font-size:14px;">⚡</span>
+          <span style="font-family:'Chakra Petch', sans-serif; font-size:9px; letter-spacing:0.14em; color:#d8b25a; text-transform:uppercase; font-weight:700;">Enhancement</span>
+          <span style="font-size:12px; color:#cdd4cb;">Puretide Engram Neurochip</span>
+          <span style="margin-left:auto; font-size:10px; color:#5f6b62; font-style:italic;">re-roll 1s to hit &amp; wound · once per battle</span>
+        </div>
+      </div>
+
+      <div style="display:flex; align-items:center; gap:12px; padding:0 18px; min-height:50px; border-top:2px solid #1f5a36; background:#0a0c0e; box-shadow:0 -4px 20px rgba(79,216,115,.05);">
+        <span style="color:#4fd873; font-size:18px; flex-shrink:0; text-shadow:0 0 8px rgba(79,216,115,.6);">›</span>
+        <input value="{{ termU }}" onInput="{{ onTermUInput }}" onKeyDown="{{ onTermUKey }}" placeholder="threat &lt;unit&gt;  ·  spec &lt;unit&gt;  ·  &lt;unit&gt; vs &lt;unit&gt;" style="flex:1; background:transparent; border:none; outline:none; color:#4fd873; font-family:'IBM Plex Mono', monospace; font-size:14px; caret-color:#4fd873;">
+        <span style="font-size:10px; letter-spacing:0.14em; color:#3f4a40; flex-shrink:0;">⏎ RUN</span>
+      </div>
+      <div style="position:absolute; inset:0; pointer-events:none; background:repeating-linear-gradient(0deg,transparent 0 2px,rgba(0,0,0,.09) 2px 3px);"></div>
+    </div>
+  </div>
+
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script>
+class Component extends DCLogic {
+  state = {
+    openRow: {},
+    expU: {},
+    termF: "", echoF: "threat t'au empire",
+    termU: "", echoU: "threat broadside battlesuits",
+  };
+
+  renderVals() {
+    const C = {
+      acc: "#4fd873", green: "#6ee08a", text: "#d8dee0", dim: "#84907f", muted: "#5f6b62",
+      border: "#232a26", gold: "#d8b25a", red: "#ff5d5d", cyan: "#4fd0e0",
+    };
+    const fill = (c) => (pct) => ({ height: "100%", width: pct + "%", borderRadius: "2px", background: c });
+    const lvl = { high: C.red, medium: C.gold, low: C.dim };
+    const lvlLabel = { high: "HIGH", medium: "MED", low: "LOW" };
+
+    // ── faction: composition skew ──
+    const skewData = [
+      { type: "Infantry", count: 6, color: C.acc },
+      { type: "Vehicle",  count: 4, color: C.cyan },
+      { type: "Monster",  count: 2, color: C.red },
+      { type: "Mounted",  count: 1, color: C.gold },
+      { type: "Other",    count: 1, color: C.dim },
+    ];
+    const skewTot = skewData.reduce((a, b) => a + b.count, 0);
+    const skew = skewData.map(b => ({ type: b.type, count: b.count, color: b.color,
+      style: fill(b.color)(Math.round(b.count / skewTot * 100)) }));
+
+    // ── faction: threat distribution ──
+    const dist = [
+      { label: "HIGH",   count: 3, color: C.red,  pct: 21 },
+      { label: "MEDIUM", count: 6, color: C.gold, pct: 43 },
+      { label: "LOW",    count: 5, color: C.dim,  pct: 36 },
+    ].map(d => ({ ...d, pct: d.pct + "%", style: fill(d.color)(d.pct) }));
+
+    // ── faction: ranked unit index ──
+    const unitDefs = [
+      { name: "Broadside Battlesuits", level: "high", threat: 88, dur: 72, dmg: 84, mob: 28, buff: 40,
+        profile: { T: 6, Sv: "2+", W: 8, M: '5"', OC: 2 }, counter: ["Eradicator Squad", 78], cmd: "broadside battlesuits" },
+      { name: "Riptide Battlesuit", level: "high", threat: 85, dur: 80, dmg: 76, mob: 52, buff: 38,
+        profile: { T: 10, Sv: "2+", W: 14, M: '10"', OC: 4 }, counter: ["Ballistus Dreadnought", 74], cmd: "riptide" },
+      { name: "Hammerhead Gunship", level: "high", threat: 82, dur: 66, dmg: 90, mob: 60, buff: 22,
+        profile: { T: 9, Sv: "3+", W: 13, M: '12"', OC: 3 }, counter: ["Eradicator Squad", 70], cmd: "hammerhead" },
+      { name: "Crisis Battlesuits", level: "medium", threat: 64, dur: 55, dmg: 70, mob: 58, buff: 30,
+        profile: { T: 5, Sv: "3+", W: 5, M: '10"', OC: 2 }, counter: ["Inceptor Squad", 66], cmd: "crisis battlesuits" },
+      { name: "Stealth Battlesuits", level: "medium", threat: 52, dur: 48, dmg: 54, mob: 62, buff: 44,
+        profile: { T: 4, Sv: "3+", W: 3, M: '8"', OC: 2 }, counter: ["Assault Intercessors", 60], cmd: "stealth battlesuits" },
+      { name: "Fire Warriors (Strike Team)", level: "low", threat: 34, dur: 30, dmg: 42, mob: 26, buff: 18,
+        profile: { T: 3, Sv: "4+", W: 1, M: '6"', OC: 2 }, counter: ["Any melee unit", 72], cmd: "fire warriors" },
+    ];
+    const units = unitDefs.map((u, i) => {
+      const lc = lvl[u.level];
+      const open = !!this.state.openRow[u.cmd];
+      return {
+        idx: String(i + 1).padStart(2, "0"), name: u.name.toUpperCase(), cmd: u.cmd,
+        levelLabel: lvlLabel[u.level], open, caret: open ? "▲" : "▼",
+        onToggle: () => this.setState(s => ({ openRow: { ...s.openRow, [u.cmd]: !s.openRow[u.cmd] } })),
+        boxStyle: { border: "1px solid " + (open ? lc + "55" : C.border), background: "#12150f",
+                    marginBottom: "5px", borderRadius: "4px", transition: "border-color .15s" },
+        headStyle: { display: "flex", alignItems: "center", gap: "12px", padding: "10px 14px", cursor: "pointer",
+                     userSelect: "none", background: open ? lc + "0d" : "transparent",
+                     borderBottom: open ? "1px solid " + lc + "30" : "none" },
+        tabStyle: { width: "3px", height: "22px", background: lc, borderRadius: "1px", flexShrink: 0 },
+        nameStyle: { color: lc, fontWeight: 700, fontSize: "13px", flex: 1, letterSpacing: "0.04em",
+                     overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" },
+        badgeStyle: { color: lc, fontSize: "9px", fontWeight: 700, letterSpacing: "0.14em",
+                      border: "1px solid " + lc + "55", padding: "1px 6px", background: lc + "12",
+                      borderRadius: "2px", flexShrink: 0 },
+        bodyStyle: { padding: "12px 16px", borderTop: "1px solid " + lc + "22" },
+        micro: [
+          { label: "THR", style: fill(C.red)(u.threat) },
+          { label: "DUR", style: fill(C.red)(u.dur) },
+          { label: "DMG", style: fill(C.cyan)(u.dmg) },
+        ],
+        metrics: [
+          { label: "Threat", score: u.threat, color: C.red,  style: fill(C.red)(u.threat) },
+          { label: "Dur",    score: u.dur,    color: C.red,  style: fill(C.red)(u.dur) },
+          { label: "Dmg",    score: u.dmg,    color: C.cyan, style: fill(C.cyan)(u.dmg) },
+          { label: "Mob",    score: u.mob,    color: C.cyan, style: fill(C.cyan)(u.mob) },
+          { label: "Buff",   score: u.buff,   color: C.cyan, style: fill(C.cyan)(u.buff) },
+        ],
+        profile: Object.entries(u.profile).map(([k, v]) => ({ k, v: String(v) })),
+        counterName: u.counter[0], counterScore: u.counter[1], counterStyle: fill(C.acc)(u.counter[1]),
+      };
+    });
+
+    // ── unit dossier (Broadside Battlesuits) ──
+    const um = [
+      { label: "Threat", v: 88, color: C.red }, { label: "Dur", v: 72, color: C.red },
+      { label: "Dmg", v: 84, color: C.cyan }, { label: "Mob", v: 28, color: C.cyan }, { label: "Buff", v: 40, color: C.cyan },
+    ];
+    const uMetrics = um.map(m => ({ label: m.label, score: m.v, color: m.color, style: fill(m.color)(m.v) }));
+
+    const cd = [
+      { name: "Eradicator Squad", score: 78, reason: "Melta deletes T6 multi-wound at half range." },
+      { name: "Ballistus Dreadnought", score: 71, reason: "Long-range AP-3 fire, durable trade." },
+      { name: "Inceptor Squad", score: 64, reason: "Deep strike + volume bypasses Saviour drones." },
+    ];
+    const counters = cd.map((c, i) => ({ name: c.name, score: c.score, reason: c.reason,
+      style: fill(C.acc)(c.score), wrap: { paddingBottom: i === cd.length - 1 ? "0" : "12px" } }));
+
+    const uProfile = [["T", 6], ["Sv", "2+"], ["W", 8], ["M", '5"'], ["OC", 2]].map(([k, v]) => ({ k, v: String(v) }));
+    const keywords = ["T'AU EMPIRE", "BATTLESUIT", "INFANTRY", "GRENADES", "FIRE CASTE", "SMART MISSILE SYSTEM"];
+
+    const ab = (id, cat, name, body) => ({
+      id, cat, name, caret: this.state.expU[id] ? "▴" : "▾", open: !!this.state.expU[id],
+      onToggle: () => this.setState(s => ({ expU: { ...s.expU, [id]: !s.expU[id] } })),
+      headStyle: { display: "flex", alignItems: "center", justifyContent: "space-between", width: "100%",
+                   background: this.state.expU[id] ? "rgba(216,178,90,0.05)" : "transparent",
+                   border: "none", padding: "8px 4px", cursor: "pointer", fontFamily: "inherit", textAlign: "left" },
+    });
+    const uAbilities = [
+      ab("u1", "FACTION", "For the Greater Good", "When a T'au unit Observes a target, your units gain +1 to Hit and the Spotted target can be targeted by Guided weapons that turn."),
+      ab("u2", "", "Saviour Protocols", "Each time an attack targets this unit, you may allocate it to a friendly Drone within 3\" instead — intercepting the wound."),
+      ab("u3", "", "Heavy Rail Rifle", "Anti-Vehicle 4+, Devastating Wounds. S12 AP-4 D6+1 — the signature anti-armour shot of the battlesuit."),
+    ];
+
+    return {
+      echoF: this.state.echoF, echoU: this.state.echoU,
+      skew, dist, units, uMetrics, counters, uProfile, keywords, uAbilities,
+      termF: this.state.termF, termU: this.state.termU,
+      onTermFInput: (e) => this.setState({ termF: e.target.value }),
+      onTermFKey: (e) => { if (e.key === "Enter") { const v = e.target.value.trim(); if (v) this.setState({ echoF: v, termF: "" }); } },
+      onTermUInput: (e) => this.setState({ termU: e.target.value }),
+      onTermUKey: (e) => { if (e.key === "Enter") { const v = e.target.value.trim(); if (v) this.setState({ echoU: v, termU: "" }); } },
+    };
+  }
+}
+</script>
+</body>
+</html>

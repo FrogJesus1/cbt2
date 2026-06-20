@@ -1,0 +1,446 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;600;700&family=Chakra+Petch:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+  * { box-sizing: border-box; }
+  body { margin: 0; }
+  @keyframes ctBlink { 0%, 49% { opacity: 1; } 50%, 100% { opacity: 0; } }
+  .sp input::placeholder { color: #4a5249; }
+</style>
+</helmet>
+
+<div class="sp" style="min-width:100%; min-height:100vh; box-sizing:border-box; padding:40px; background:#e7e5df; font-family:'IBM Plex Mono', monospace; display:flex; flex-direction:column; align-items:center;">
+  <div style="width:1000px; max-width:100%;">
+    <div style="margin-bottom:12px; display:flex; align-items:baseline; gap:12px;">
+      <a href="List%20Units.dc.html" style="font-size:11px; letter-spacing:0.1em; color:#5f6b62; text-decoration:none;">‹ back to units</a>
+      <div style="font-size:11px; letter-spacing:0.28em; color:#5a5648; text-transform:uppercase; font-weight:600;">spec [unit]</div>
+    </div>
+
+    <div data-screen-label="Spec Unit" style="position:relative; border-radius:3px; overflow:hidden; box-shadow:0 4px 24px rgba(0,0,0,.22); background:#0d0f12; color:#d8dee0;">
+      <!-- chrome -->
+      <div style="display:flex; align-items:center; gap:12px; padding:9px 18px; background:#0a0c0e; border-bottom:1px solid #232a26;">
+        <span style="width:7px; height:7px; border-radius:50%; background:#4fd873; box-shadow:0 0 8px rgba(79,216,115,.85);"></span>
+        <span style="font-family:'Chakra Petch', sans-serif; font-size:13px; letter-spacing:0.16em; color:#eef4ee; font-weight:600;">COMBAT TERMINAL</span>
+        <span style="font-size:10px; letter-spacing:0.1em; color:#5f6b62;">v2.0 · 7a3f1c</span><span style="font-size:10px; letter-spacing:0.1em; color:#4fd873; margin-left:6px;">· 11TH ED</span>
+        <div style="margin-left:auto; display:flex; flex-direction:column; align-items:flex-end; gap:2px;">
+          <span style="font-family:'Chakra Petch', sans-serif; font-size:10px; letter-spacing:0.12em; color:#5f6b62; border:1px dashed #2e3630; padding:3px 8px; border-radius:3px;">NOT ASSIGNED</span>
+          <span style="font-size:8px; letter-spacing:0.1em; color:#4a5249;">datasheet · {{ faction }}</span>
+        </div>
+      </div>
+      <!-- nav -->
+      <div style="display:flex; font-family:'Chakra Petch', sans-serif; font-size:11px; letter-spacing:0.1em; border-bottom:1px solid #1a201c; background:#0a0c0e; padding:0 8px;">
+        <div style="padding:9px 14px; color:#5f6b62;">COMBAT SIM</div>
+        <a href="List%20Units.dc.html" style="padding:9px 14px; color:#5f6b62; text-decoration:none;">UNITS</a>
+        <div style="padding:9px 14px; color:#eef4ee; border-bottom:2px solid #4fd873;">DATASHEET</div>
+        <div style="padding:9px 14px; color:#5f6b62;">ROSTERS</div>
+        <div style="padding:9px 14px; color:#5f6b62;">RULES</div>
+      </div>
+
+      <div style="display:flex; align-items:stretch;">
+      <div style="flex:1; min-width:0; padding:16px 20px 20px;">
+        <div style="font-size:11px; color:#5a7a64; margin-bottom:14px;"><span style="color:#4fd873;">›</span> {{ echo }} <span style="display:inline-block; width:7px; height:13px; background:#4fd873; vertical-align:-2px; margin-left:3px; box-shadow:0 0 6px rgba(79,216,115,.7); animation:ctBlink 1.1s step-end infinite;"></span></div>
+
+        <!-- banner -->
+        <div style="display:flex; align-items:center; gap:14px; border:1px solid #2e3630; border-radius:5px; background:#101309; padding:15px 18px; margin-bottom:8px;">
+          <div style="flex:1; min-width:0;">
+            <div style="font-family:'Chakra Petch', sans-serif; font-size:22px; font-weight:700; letter-spacing:0.03em; color:{{ factionColor }}; text-shadow:0 0 12px {{ factionGlow }};">{{ nameUpper }}</div>
+            <div style="font-size:11px; color:#84907f; margin-top:4px; letter-spacing:0.04em;">{{ faction }} · <span style="color:#4fd873;">{{ pts }} pts</span> · {{ role }}</div>
+          </div>
+          <button onClick="{{ onStar }}" style="{{ starStyle }}">{{ starGlyph }}</button>
+        </div>
+
+        <!-- keywords -->
+        <div style="border:1px solid #232a26; border-radius:5px; background:#12150f; padding:10px 14px; margin-bottom:8px; position:relative;">
+          <div style="display:flex; flex-wrap:wrap; gap:6px; align-items:center;">
+            <span style="font-size:9px; letter-spacing:0.12em; color:#5f6b62; text-transform:uppercase; margin-right:4px;">Keywords</span>
+            <sc-for list="{{ keywords }}" as="k" hint-placeholder-count="4">
+              <span onMouseEnter="{{ k.onEnter }}" onMouseLeave="{{ k.onLeave }}" style="{{ k.style }}">{{ k.label }}<sc-if value="{{ k.show }}" hint-placeholder-val="{{ false }}"><div style="{{ k.tipStyle }}"><div style="font-size:11px; color:#d8dee0; font-weight:700; margin-bottom:3px;">{{ k.label }}</div><div style="font-size:10px; color:#a8b0a4; line-height:1.5;">{{ k.desc }}</div></div></sc-if></span>
+            </sc-for>
+          </div>
+        </div>
+
+        <!-- statline + ratings -->
+        <div style="display:grid; grid-template-columns:1fr 290px; gap:8px; align-items:start; margin-bottom:8px;">
+
+          <!-- left: stats + weapons -->
+          <div style="border:1px solid #232a26; border-radius:5px; background:#12150f; padding:14px 16px;">
+            <div style="font-family:'Chakra Petch', sans-serif; font-size:10px; letter-spacing:0.12em; color:#d8b25a; text-transform:uppercase; margin-bottom:10px;">Stat Line</div>
+            <div style="display:grid; grid-template-columns:repeat(6,1fr); border:1px solid #232a26; margin-bottom:16px;">
+              <sc-for list="{{ statBoxes }}" as="b" hint-placeholder-count="6">
+                <div style="text-align:center; padding:12px 4px; border-right:1px solid #232a26;">
+                  <div style="font-size:10px; color:#84907f; letter-spacing:0.12em; font-weight:700;">{{ b.k }}</div>
+                  <div style="font-family:'Chakra Petch', sans-serif; font-size:26px; color:#4fd873; font-weight:700; margin-top:6px; line-height:1; text-shadow:0 0 8px rgba(79,216,115,.4);">{{ b.v }}</div>
+                </div>
+              </sc-for>
+            </div>
+
+            <!-- weapons -->
+            <div style="border-top:1px solid #232a26; padding-top:14px;">
+              <div style="font-family:'Chakra Petch', sans-serif; font-size:9px; letter-spacing:0.14em; color:#4fd873; text-transform:uppercase; font-weight:700; margin-bottom:6px;">▸ Ranged</div>
+              <div style="display:grid; grid-template-columns:1fr 50px 34px 44px 30px 36px 40px; font-size:8px; color:#5f6b62; letter-spacing:0.08em; text-transform:uppercase; padding:0 2px 5px; border-bottom:1px solid #232a26;">
+                <span>Weapon</span><span style="text-align:center;">Rng</span><span style="text-align:center;">A</span><span style="text-align:center;">BS/WS</span><span style="text-align:center;">S</span><span style="text-align:center;">AP</span><span style="text-align:center;">D</span>
+              </div>
+              <sc-for list="{{ ranged }}" as="w" hint-placeholder-count="2">
+                <div style="display:grid; grid-template-columns:1fr 50px 34px 44px 30px 36px 40px; align-items:center; font-size:11px; padding:6px 2px; border-bottom:1px solid #1a201c;">
+                  <span style="display:flex; flex-wrap:wrap; align-items:center; gap:4px; padding-right:8px;"><span style="color:#d8dee0;">{{ w.n }}</span><sc-for list="{{ w.k }}" as="kw" hint-placeholder-count="0"><span style="font-size:8px; color:#5f6b62;">[{{ kw }}]</span></sc-for></span>
+                  <span style="text-align:center; color:#84907f;">{{ w.rng }}</span>
+                  <span style="text-align:center; color:#a8b0a4;">{{ w.a }}</span>
+                  <span style="text-align:center; color:#a8b0a4;">{{ w.sk }}</span>
+                  <span style="text-align:center; color:#a8b0a4;">{{ w.s }}</span>
+                  <span style="text-align:center; color:{{ w.apColor }};">{{ w.ap }}</span>
+                  <span style="text-align:center; color:#4fd0e0;">{{ w.d }}</span>
+                </div>
+              </sc-for>
+
+              <div style="font-family:'Chakra Petch', sans-serif; font-size:9px; letter-spacing:0.14em; color:#d8b25a; text-transform:uppercase; font-weight:700; margin:12px 0 6px;">▸ Melee</div>
+              <div style="display:grid; grid-template-columns:1fr 50px 34px 44px 30px 36px 40px; font-size:8px; color:#5f6b62; letter-spacing:0.08em; text-transform:uppercase; padding:0 2px 5px; border-bottom:1px solid #232a26;">
+                <span>Weapon</span><span style="text-align:center;">Rng</span><span style="text-align:center;">A</span><span style="text-align:center;">WS</span><span style="text-align:center;">S</span><span style="text-align:center;">AP</span><span style="text-align:center;">D</span>
+              </div>
+              <sc-for list="{{ melee }}" as="w" hint-placeholder-count="1">
+                <div style="display:grid; grid-template-columns:1fr 50px 34px 44px 30px 36px 40px; align-items:center; font-size:11px; padding:6px 2px; border-bottom:1px solid #1a201c;">
+                  <span style="display:flex; flex-wrap:wrap; align-items:center; gap:4px; padding-right:8px;"><span style="color:#d8dee0;">{{ w.n }}</span><sc-for list="{{ w.k }}" as="kw" hint-placeholder-count="0"><span style="font-size:8px; color:#5f6b62;">[{{ kw }}]</span></sc-for></span>
+                  <span style="text-align:center; color:#84907f;">{{ w.rng }}</span>
+                  <span style="text-align:center; color:#a8b0a4;">{{ w.a }}</span>
+                  <span style="text-align:center; color:#a8b0a4;">{{ w.sk }}</span>
+                  <span style="text-align:center; color:#a8b0a4;">{{ w.s }}</span>
+                  <span style="text-align:center; color:{{ w.apColor }};">{{ w.ap }}</span>
+                  <span style="text-align:center; color:#4fd0e0;">{{ w.d }}</span>
+                </div>
+              </sc-for>
+            </div>
+          </div>
+
+          <!-- right: ratings + radar -->
+          <div style="display:flex; flex-direction:column; gap:8px;">
+            <div style="border:1px solid #232a26; border-radius:5px; background:#12150f; padding:14px 16px;">
+              <div style="font-family:'Chakra Petch', sans-serif; font-size:10px; letter-spacing:0.12em; color:#d8b25a; text-transform:uppercase; margin-bottom:12px;">Combat Ratings</div>
+              <sc-for list="{{ ratings }}" as="r" hint-placeholder-count="5">
+                <div style="margin-bottom:10px;">
+                  <div style="display:flex; justify-content:space-between; margin-bottom:4px;"><span style="font-size:10px; color:#a8b0a4;">{{ r.label }}</span><span style="font-size:10px; color:{{ r.color }}; font-weight:700;">{{ r.score }}</span></div>
+                  <div style="height:6px; background:#1c241e; border-radius:3px; overflow:hidden;"><div style="{{ r.style }}"></div></div>
+                </div>
+              </sc-for>
+            </div>
+            <div style="border:1px solid #232a26; border-radius:5px; background:#12150f; padding:14px 16px; display:flex; justify-content:center;">
+              {{ radar }}
+            </div>
+          </div>
+        </div>
+
+        <!-- drone note (optional) -->
+        <sc-if value="{{ hasNote }}" hint-placeholder-val="{{ false }}">
+          <div style="display:flex; align-items:center; gap:8px; border:1px solid rgba(79,208,224,.3); background:rgba(79,208,224,.07); border-radius:5px; padding:8px 13px; margin-bottom:8px;">
+            <span style="color:#4fd0e0; flex-shrink:0;">◈</span><span style="font-size:12px; color:#a8b0a4; line-height:1.5;">{{ note }}</span>
+          </div>
+        </sc-if>
+
+        <!-- abilities -->
+        <div style="border:1px solid #232a26; border-radius:5px; background:#12150f; padding:4px 16px 10px;">
+          <div style="font-family:'Chakra Petch', sans-serif; font-size:10px; letter-spacing:0.12em; color:#d8b25a; text-transform:uppercase; margin:12px 0 2px;">Abilities</div>
+          <sc-for list="{{ abilities }}" as="a" hint-placeholder-count="2">
+            <div style="border-bottom:1px solid #1c211d;">
+              <div onClick="{{ a.onToggle }}" style="{{ a.headStyle }}">
+                <span style="display:flex; align-items:center; gap:8px; min-width:0;"><span style="color:#d8b25a; flex-shrink:0; width:12px; text-align:center;">{{ a.icon }}</span><sc-if value="{{ a.tag }}" hint-placeholder-val="{{ false }}"><span style="font-size:8px; letter-spacing:0.1em; color:#5f6b62; border:1px solid #2e3630; padding:0 4px; line-height:14px; border-radius:2px;">{{ a.tag }}</span></sc-if><span style="color:#cdd4cb; font-size:13px;">{{ a.name }}</span></span>
+              </div>
+              <sc-if value="{{ a.open }}" hint-placeholder-val="{{ false }}"><div style="font-size:11px; color:#a8b0a4; line-height:1.65; padding:2px 8px 11px 24px;">{{ a.body }}</div></sc-if>
+            </div>
+          </sc-for>
+        </div>
+      </div>
+
+        <!-- quick-jump shortlist rail -->
+        <div style="width:190px; flex-shrink:0; border-left:1px solid #1a201c; background:#0a0c0e; padding:14px 12px; display:flex; flex-direction:column; gap:7px;">
+          <div style="display:flex; align-items:center; gap:6px; margin-bottom:2px;">
+            <span style="color:#d8b25a; font-size:12px;">★</span>
+            <span style="font-family:'Chakra Petch', sans-serif; font-size:10px; letter-spacing:0.12em; color:#d8b25a; text-transform:uppercase; font-weight:700;">My Units</span>
+            <span style="margin-left:auto; font-size:9px; color:#5f6b62;">{{ shortlistCount }}</span>
+          </div>
+          <sc-for list="{{ shortlist }}" as="u" hint-placeholder-count="3">
+            <div style="{{ u.rowStyle }}">
+              <span onClick="{{ u.onJump }}" style="flex:1; min-width:0; display:flex; align-items:flex-start; gap:7px; cursor:pointer;">
+                <span style="width:6px; height:6px; border-radius:50%; background:{{ u.col }}; flex-shrink:0; margin-top:4px;"></span>
+                <span style="{{ u.nameStyle }}">{{ u.name }}</span>
+              </span>
+              <span onClick="{{ u.onRemove }}" title="Remove" style="color:#5f6b62; font-size:11px; cursor:pointer; flex-shrink:0; padding:0 2px;">✕</span>
+            </div>
+          </sc-for>
+          <sc-if value="{{ noShortlist }}" hint-placeholder-val="{{ false }}">
+            <div style="font-size:10px; color:#4a5249; line-height:1.6; font-style:italic; margin-top:4px;">Star a unit to pin it here — jump between your army quickly during play.</div>
+          </sc-if>
+        </div>
+      </div>
+
+      <!-- command bar -->
+      <div style="display:flex; align-items:center; gap:12px; padding:0 18px; min-height:48px; border-top:2px solid #1f5a36; background:#0a0c0e;">
+        <span style="color:#4fd873; font-size:16px; flex-shrink:0;">›</span>
+        <input value="{{ term }}" onInput="{{ onTermInput }}" onKeyDown="{{ onTermKey }}" placeholder="spec &lt;unit&gt;  ·  threat &lt;unit&gt;  ·  &lt;unit&gt; vs &lt;unit&gt;" style="flex:1; background:transparent; border:none; outline:none; color:#4fd873; font-family:'IBM Plex Mono', monospace; font-size:13px; caret-color:#4fd873;">
+        <span style="font-size:10px; letter-spacing:0.14em; color:#3f4a40; flex-shrink:0;">⏎ RUN</span>
+      </div>
+    </div>
+  </div>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script>
+class Component extends DCLogic {
+  state = { unit: "Broadside Battlesuits", starred: [], kwHover: null, abOpen: {}, term: "", echo: "spec broadside battlesuits" };
+
+  componentDidMount() {
+    let unit = this.state.unit;
+    try { const p = new URLSearchParams(location.search).get("unit"); if (p) unit = p; } catch { /* */ }
+    let starred = [];
+    try { starred = JSON.parse(localStorage.getItem("ct_units_shortlist") || "[]"); } catch { /* */ }
+    this.setState({ unit, starred, echo: "spec " + unit.toLowerCase() });
+  }
+
+  DB() {
+    const F = {
+      "Space Marines": { col: "#5b9bff", ld: "6+", ab: { tag: "FACTION", name: "Oath of Moment", body: "At the start of your Command phase select one enemy unit. Re-roll Hit rolls (and Wound rolls) against that unit until your next turn." } },
+      "T'au Empire":   { col: "#e0962e", ld: "7+", ab: { tag: "FACTION", name: "For the Greater Good", body: "When a unit Observes a target, your Guided units gain +1 to Hit against that Spotted unit until the end of the phase." } },
+      "Necrons":       { col: "#4fd873", ld: "7+", ab: { tag: "FACTION", name: "Reanimation Protocols", body: "At the start of your Command phase, each unit reanimates a number of lost wounds — slain models return on a full reanimation." } },
+      "Orks":          { col: "#a0c020", ld: "7+", ab: { tag: "FACTION", name: "Waaagh!", body: "Once per game, call a Waaagh!: units can Advance and Charge, and gain +1 Strength and Attacks in melee that turn." } },
+      "Aeldari":       { col: "#4fd0e0", ld: "7+", ab: { tag: "FACTION", name: "Strands of Fate", body: "Roll a pool of Fate dice each battle round; spend them to replace the result of a roll, bending fate to your will." } },
+      "Death Guard":   { col: "#9bbf4a", ld: "6+", ab: { tag: "FACTION", name: "Nurgle's Gift", body: "Enemy units within Contagion Range suffer -1 Toughness — the creeping rot of the Plague God saps their resilience." } },
+    };
+    const u = (name, faction, role, pts, st, r, kw, w, sig, note) => ({ name, faction, role, pts, st, r, kw, w, sig, note: note || null });
+    const list = [
+      u("Intercessor Squad","Space Marines","INFANTRY",80,{M:'6"',T:4,Sv:"3+",W:2,OC:2},[55,45,55,50,35],["Infantry","Grenades","Adeptus Astartes"],
+        [["Bolt rifle","r",'24"',"2","3+","4","-1","1",["ASSAULT","HEAVY"]],["Bolt pistol","r",'12"',"1","3+","4","0","1",["PISTOL"]],["Close combat weapon","m","Melee","3","3+","4","0","1",[]]],
+        { name:"Combat Squads", body:"At deployment this 10-model unit can be split into two 5-model units." }),
+      u("Hellblaster Squad","Space Marines","INFANTRY",115,{M:'6"',T:4,Sv:"3+",W:3,OC:2},[55,40,45,82,30],["Infantry","Grenades","Adeptus Astartes"],
+        [["Plasma incinerator, standard","r",'24"',"2","3+","7","-3","1",[]],["Plasma incinerator, supercharge","r",'24"',"2","3+","8","-4","2",["HAZARDOUS"]],["Close combat weapon","m","Melee","1","3+","4","0","1",[]]],
+        { name:"Supercharge", body:"Hazardous: supercharged plasma can destroy the bearer on an unmodified Hit roll of 1." }),
+      u("Eradicator Squad","Space Marines","INFANTRY",95,{M:'6"',T:6,Sv:"3+",W:3,OC:1},[60,40,35,80,35],["Infantry","Grenades","Adeptus Astartes"],
+        [["Melta rifle","r",'18"',"1","3+","9","-4","D6+2",["MELTA 2"]],["Close combat weapon","m","Melee","2","3+","4","0","1",[]]],
+        { name:"Total Obliteration", body:"While Remained Stationary, re-roll Hit and Wound rolls against MONSTER and VEHICLE units." }),
+      u("Inceptor Squad","Space Marines","INFANTRY",130,{M:'10"',T:5,Sv:"3+",W:3,OC:2},[55,80,45,68,45],["Infantry","Fly","Jump Pack","Adeptus Astartes"],
+        [["Assault bolters","r",'18"',"3","3+","5","-1","1",["SUSTAINED HITS 1"]],["Close combat weapon","m","Melee","3","3+","4","0","1",[]]],
+        { name:"Meteoric Descent", body:"Deep Strike. Set up in Reserves and arrive within 9\" of the enemy during Reinforcements." }),
+      u("Redemptor Dreadnought","Space Marines","VEHICLE",210,{M:'8"',T:10,Sv:"2+",W:12,OC:4},[85,55,60,82,80],["Vehicle","Walker","Adeptus Astartes"],
+        [["Macro plasma incinerator","r",'36"',"D6+1","3+","9","-4","3",["BLAST"]],["Onslaught gatling cannon","r",'24"',"12","3+","6","0","1",["DEVASTATING WOUNDS"]],["Redemptor fist","m","Melee","5","3+","14","-3","3",[]]],
+        { name:"Duty Eternal", body:"Each time an attack is allocated to this model, subtract 1 from the Damage (to a minimum of 1)." }),
+
+      u("Broadside Battlesuits","T'au Empire","INFANTRY",90,{M:'5"',T:6,Sv:"2+",W:8,OC:2},[72,30,40,88,40],["Infantry","Battlesuit","Grenades","T'au Empire"],
+        [["Heavy rail rifle","r",'60"',"2","4+","12","-4","D6+1",["ANTI-VEHICLE 4+","DEV WOUNDS"]],["Twin smart missile system","r",'30"',"4","4+","5","0","1",["IGNORES COVER"]],["Crushing bulk","m","Melee","3","5+","6","0","1",[]]],
+        { name:"Saviour Protocols", body:"Each time an attack targets this unit, you can allocate it to a friendly Drone within 3\" instead.", note:"Drones screen this suit — strip them before they soak your melta." }),
+      u("Riptide Battlesuit","T'au Empire","MOUNTED",180,{M:'10"',T:10,Sv:"2+",W:14,OC:4},[82,55,55,78,55],["Mounted","Battlesuit","Towering","T'au Empire"],
+        [["Heavy burst cannon","r",'36"',"8","4+","6","-1","2",["SUSTAINED HITS 1"]],["Twin smart missile system","r",'30"',"4","4+","5","0","1",["IGNORES COVER"]],["Riptide fists","m","Melee","4","4+","8","-1","2",[]]],
+        { name:"Nova Reactor", body:"Once per turn overcharge the reactor (Hazardous) to boost a system — extra shots, a 4++ shield, or a long jump." }),
+      u("Hammerhead Gunship","T'au Empire","VEHICLE",160,{M:'12"',T:9,Sv:"3+",W:13,OC:3},[68,70,45,90,30],["Vehicle","T'au Empire"],
+        [["Railgun","r",'72"',"1","3+","20","-5","D6+6",["DEV WOUNDS"]],["Twin smart missile system","r",'30"',"4","4+","5","0","1",["IGNORES COVER"]],["Armoured hull","m","Melee","3","5+","6","0","1",[]]],
+        { name:"Velocity Tracker", body:"Re-roll Hit rolls of 1 against AIRCRAFT and, while Guided, against the Spotted unit." }),
+      u("Crisis Sunforge","T'au Empire","INFANTRY",130,{M:'10"',T:5,Sv:"3+",W:5,OC:2},[55,65,40,80,45],["Infantry","Battlesuit","Fly","T'au Empire"],
+        [["Twin fusion blaster","r",'18"',"2","4+","9","-4","D6",["MELTA 2"]],["Battlesuit fists","m","Melee","4","5+","5","0","1",[]]],
+        { name:"Deep Strike", body:"Set up in Reserves and arrive within 9\" of the enemy — perfect for a melta alpha-strike." }),
+      u("Fire Warriors","T'au Empire","INFANTRY",75,{M:'6"',T:3,Sv:"4+",W:1,OC:2},[30,45,55,48,20],["Infantry","Grenades","T'au Empire"],
+        [["Pulse rifle","r",'30"',"1","4+","5","0","1",["RAPID FIRE 1"]],["Close combat weapon","m","Melee","1","5+","3","0","1",[]]],
+        { name:"Volley Fire", body:"While a Fire Warrior leads this unit, Pulse weapons gain the [SUSTAINED HITS 1] ability." }),
+
+      u("Necron Warriors","Necrons","INFANTRY",90,{M:'5"',T:4,Sv:"4+",W:1,OC:2},[45,35,55,42,30],["Infantry","Necrons"],
+        [["Gauss flayer","r",'24"',"1","4+","4","-1","1",["LETHAL HITS","RAPID FIRE 1"]],["Close combat weapon","m","Melee","1","4+","4","0","1",[]]],
+        { name:"Their Number Is Legion", body:"Reanimation Protocols reanimate D3 wounds each Command phase — they simply will not stay dead." }),
+      u("Immortals","Necrons","INFANTRY",85,{M:'5"',T:5,Sv:"3+",W:1,OC:2},[55,35,55,55,30],["Infantry","Necrons"],
+        [["Gauss blaster","r",'24"',"2","3+","5","-2","1",["LETHAL HITS","RAPID FIRE 1"]],["Close combat weapon","m","Melee","1","3+","4","0","1",[]]],
+        { name:"Relentless Advance", body:"Tough battleline with Reanimation Protocols — a resilient anchor for the dynasty's line." }),
+      u("Lokhust Heavy Destroyers","Necrons","MOUNTED",55,{M:'10"',T:6,Sv:"3+",W:4,OC:1},[45,75,30,80,30],["Mounted","Fly","Necrons"],
+        [["Heavy gauss cannon","r",'36"',"2","3+","14","-4","D6+1",["DEV WOUNDS"]],["Close combat weapon","m","Melee","2","3+","5","0","1",[]]],
+        { name:"Hover Tank", body:"This unit can Fall Back and still shoot and charge in the same turn." }),
+      u("Doomsday Ark","Necrons","VEHICLE",200,{M:'10"',T:11,Sv:"3+",W:14,OC:4},[80,55,45,88,35],["Vehicle","Necrons"],
+        [["Doomsday cannon (charged)","r",'72"',"D6+1","3+","16","-4","D6+2",["BLAST","HEAVY"]],["Gauss flayer arrays","r",'24"',"10","4+","4","-1","1",[]],["Armoured bulk","m","Melee","4","4+","8","0","1",[]]],
+        { name:"Living Metal", body:"At the start of your Command phase, this model regains up to D3 lost wounds." }),
+
+      u("Ork Boyz","Orks","INFANTRY",80,{M:'6"',T:5,Sv:"6+",W:1,OC:2},[38,45,60,35,55],["Infantry","Orks"],
+        [["Slugga","r",'12"',"1","4+","4","0","1",["PISTOL"]],["Choppa","m","Melee","4","3+","4","-1","1",[]]],
+        { name:"Mob Rule", body:"While this unit has 10+ models, improve its Objective Control and it auto-passes Battle-shock." }),
+      u("Meganobz","Orks","INFANTRY",140,{M:'5"',T:6,Sv:"2+",W:4,OC:2},[70,40,45,55,80],["Infantry","Mega Armour","Orks"],
+        [["Kombi-rokkit","r",'24"',"1","5+","9","-2","3",["BLAST"]],["Power klaw","m","Melee","4","3+","9","-2","2",["TWIN-LINKED"]]],
+        { name:"'Ard as Nails", body:"2+ armour bricks that hit like a truck — a brutal melta-resistant hammer unit." }),
+      u("Lootas","Orks","INFANTRY",95,{M:'5"',T:5,Sv:"5+",W:1,OC:1},[35,35,40,70,25],["Infantry","Orks"],
+        [["Deffgun","r",'48"',"D3","5+","7","-1","2",["HEAVY","SUSTAINED HITS 1"]],["Close combat weapon","m","Melee","2","3+","4","0","1",[]]],
+        { name:"More Dakka!", body:"Each Deffgun rolls a variable number of shots — a hail of long-range firepower." }),
+      u("Battlewagon","Orks","VEHICLE",180,{M:'12"',T:12,Sv:"3+",W:16,OC:5},[85,70,65,60,55],["Vehicle","Transport","Orks"],
+        [["Killkannon","r",'24"',"D6","5+","8","-2","2",["BLAST"]],["Big shootas","r",'36"',"9","5+","5","0","1",[]],["Wrecking bulk","m","Melee","6","4+","8","-1","2",[]]],
+        { name:"Ramshackle but Rugged", body:"On a 5+ ignore the Damage of an incoming attack — a rolling fortress and transport.", note:"Transport: carries 22 Ork Infantry models into the fight." }),
+
+      u("Fire Dragons","Aeldari","INFANTRY",110,{M:'7"',T:3,Sv:"4+",W:1,OC:1},[30,55,40,82,25],["Infantry","Aeldari"],
+        [["Fusion gun","r",'12"',"1","3+","9","-4","D6",["MELTA 2"]],["Close combat weapon","m","Melee","1","3+","3","0","1",[]]],
+        { name:"Assured Destruction", body:"Re-roll Wound rolls against MONSTER and VEHICLE units — a surgical anti-tank squad." }),
+      u("Wraithguard","Aeldari","INFANTRY",170,{M:'5"',T:7,Sv:"2+",W:3,OC:1},[72,35,40,80,55],["Infantry","Wraith Construct","Aeldari"],
+        [["Wraithcannon","r",'12"',"1","4+","14","-4","D6+1",["DEV WOUNDS"]],["Close combat weapon","m","Melee","3","4+","6","0","1",[]]],
+        { name:"Implacable", body:"Never Battle-shocked; can Advance and still fire Wraithcannons — relentless T7 infantry." }),
+      u("Wave Serpent","Aeldari","VEHICLE",130,{M:'16"',T:9,Sv:"3+",W:13,OC:3},[68,90,50,60,30],["Vehicle","Transport","Fly","Aeldari"],
+        [["Twin shuriken cannon","r",'36"',"6","3+","6","-1","1",["TWIN-LINKED"]],["Serpent shield","r",'36"',"1","3+","10","-2","3",["LANCE"]],["Armoured hull","m","Melee","3","4+","6","0","1",[]]],
+        { name:"Serpent Shield", body:"Once per battle, halve the Damage of an attack that targets this transport.", note:"Transport: carries 12 Aeldari Infantry models." }),
+
+      u("Plague Marines","Death Guard","INFANTRY",90,{M:'5"',T:5,Sv:"3+",W:2,OC:2},[65,35,60,42,45],["Infantry","Grenades","Nurgle","Death Guard"],
+        [["Boltgun","r",'24"',"2","3+","4","0","1",["RAPID FIRE 1"]],["Plague knives","m","Melee","3","3+","4","0","1",["LETHAL HITS"]]],
+        { name:"Disgustingly Resilient", body:"Each time this model loses a wound, roll a D6: on a 5+ that wound is not lost (Feel No Pain 5+)." }),
+      u("Blightlord Terminators","Death Guard","INFANTRY",180,{M:'4"',T:6,Sv:"2+",W:3,OC:1},[78,35,45,58,60],["Infantry","Terminator","Nurgle","Death Guard"],
+        [["Combi-bolter","r",'24"',"2","3+","4","0","1",["RAPID FIRE 1"]],["Bubotic blade","m","Melee","4","3+","5","-2","1",["SUSTAINED HITS 1"]]],
+        { name:"Teleport Homer", body:"Deep Strike T6 bricks with Feel No Pain 5+ — a near-unkillable objective anchor." }),
+      u("Death Guard Predator","Death Guard","VEHICLE",130,{M:'10"',T:9,Sv:"3+",W:11,OC:3},[70,55,50,82,35],["Vehicle","Nurgle","Death Guard"],
+        [["Predator autocannon","r",'48"',"D3+3","3+","10","-2","3",["BLAST"]],["Lascannon sponsons","r",'48"',"2","3+","12","-3","D6+1",[]],["Armoured tracks","m","Melee","3","4+","8","0","1",[]]],
+        { name:"Toxic Onslaught", body:"Mid-range anti-tank platform spewing the corruption of Nurgle's Gift across the field." }),
+    ];
+    return { F, list };
+  }
+
+  renderVals() {
+    const s = this.state;
+    const { F, list } = this.DB();
+    const unit = list.find(x => x.name.toLowerCase() === String(s.unit).toLowerCase()) || list[0];
+    const fac = F[unit.faction] || { col: "#4fd873", ld: "6+", ab: null };
+
+    // weapons
+    const apColor = (ap) => parseInt(ap, 10) < 0 ? "#6ee08a" : (ap === "0" ? "#84907f" : "#a8b0a4");
+    const mkW = (arr) => ({ n: arr[0], rng: arr[2], a: arr[3], sk: arr[4], s: arr[5], ap: arr[6], d: arr[7], k: arr[8], apColor: apColor(arr[6]) });
+    const ranged = unit.w.filter(a => a[1] === "r").map(mkW);
+    const melee = unit.w.filter(a => a[1] === "m").map(mkW);
+
+    // stat boxes  M T Sv W Ld OC
+    const statBoxes = [
+      { k: "M", v: unit.st.M }, { k: "T", v: String(unit.st.T) }, { k: "Sv", v: unit.st.Sv },
+      { k: "W", v: String(unit.st.W) }, { k: "Ld", v: fac.ld }, { k: "OC", v: String(unit.st.OC) },
+    ];
+
+    // ratings
+    const RMETA = [
+      { key: 0, label: "Durability",  color: "#4fd0e0" },
+      { key: 1, label: "Mobility",    color: "#4fd873" },
+      { key: 2, label: "Obj Control", color: "#d8b25a" },
+      { key: 3, label: "Firepower",   color: "#ff5d5d" },
+      { key: 4, label: "Melee",       color: "#ff8a3d" },
+    ];
+    const ratings = RMETA.map(m => {
+      const v = unit.r[m.key];
+      return { label: m.label, score: v, color: m.color, style: { height: "100%", width: v + "%", borderRadius: "3px", background: m.color } };
+    });
+
+    // radar (5 axes)
+    const cx = 100, cy = 84, R = 60;
+    const ang = (i) => (-90 + i * 72) * Math.PI / 180;
+    const ptAt = (i, frac) => [cx + R * frac * Math.cos(ang(i)), cy + R * frac * Math.sin(ang(i))];
+    const ptsStr = (frac, vals) => unit.r.map((_, i) => { const f = vals ? unit.r[i] / 100 : frac; const [x, y] = ptAt(i, f); return x.toFixed(1) + "," + y.toFixed(1); }).join(" ");
+    const radarData = ptsStr(0, true);
+    const radarOuter = ptsStr(1, false);
+    const radarMid = ptsStr(0.5, false);
+    const radarSpokes = unit.r.map((_, i) => { const [x, y] = ptAt(i, 1); return { x: x.toFixed(1), y: y.toFixed(1) }; });
+    const labelTxt = ["DUR", "MOB", "OBJ", "FIRE", "MEL"];
+    const radarLabels = unit.r.map((_, i) => {
+      const [x, y] = ptAt(i, 1.24);
+      const anchor = x < cx - 4 ? "end" : (x > cx + 4 ? "start" : "middle");
+      return { x: x.toFixed(1), y: (y + 3).toFixed(1), t: labelTxt[i], anchor };
+    });
+
+    // Build the radar as a real SVG element (sc-for can't emit SVG-namespaced nodes)
+    const h = React.createElement;
+    const radar = h("svg", { viewBox: "0 0 200 172", style: { width: "100%", maxWidth: "236px" } }, [
+      h("polygon", { key: "o", points: radarOuter, fill: "none", stroke: "#2c352e", strokeWidth: 1 }),
+      h("polygon", { key: "m", points: radarMid, fill: "none", stroke: "#222a24", strokeWidth: 1 }),
+      ...radarSpokes.map((sp, i) => h("line", { key: "s" + i, x1: cx, y1: cy, x2: sp.x, y2: sp.y, stroke: "#222a24", strokeWidth: 1 })),
+      h("polygon", { key: "d", points: radarData, fill: "rgba(79,216,115,0.18)", stroke: "#4fd873", strokeWidth: 1.5 }),
+      ...radarLabels.map((l, i) => h("text", { key: "l" + i, x: l.x, y: l.y, fill: "#9aa49a", fontSize: 9, fontWeight: 700, fontFamily: "'IBM Plex Mono', monospace", textAnchor: l.anchor, letterSpacing: "0.06em" }, l.t)),
+    ]);
+
+    // Quick-jump shortlist (starred units, shared with the units database)
+    const FCOLk = { "Space Marines": "#5b9bff", "T'au Empire": "#e0962e", "Necrons": "#4fd873", "Orks": "#a0c020", "Aeldari": "#4fd0e0", "Death Guard": "#9bbf4a" };
+    const shortlist = s.starred.map(nm => {
+      const ud = list.find(x => x.name === nm);
+      const col = ud ? (FCOLk[ud.faction] || "#4fd873") : "#4fd873";
+      const active = nm.toLowerCase() === unit.name.toLowerCase();
+      return {
+        name: nm, col, active,
+        rowStyle: { display: "flex", alignItems: "center", gap: "4px", padding: "6px 7px", borderRadius: "4px",
+                    border: "1px solid " + (active ? "#3a4a3c" : "#1a201c"), background: active ? "rgba(79,216,115,.07)" : "transparent" },
+        nameStyle: { fontSize: "11px", color: active ? "#eef4ee" : "#a8b0a4", whiteSpace: "normal", lineHeight: "1.3", fontWeight: active ? 600 : 400 },
+        onJump: () => { if (!active) window.location.href = "Spec%20Unit.dc.html?unit=" + encodeURIComponent(nm); },
+        onRemove: () => this.setState(st => { const arr = st.starred.filter(x => x !== nm); try { localStorage.setItem("ct_units_shortlist", JSON.stringify(arr)); } catch { /* */ } return { starred: arr }; }),
+      };
+    });
+
+    // keywords with hover descriptions
+    const KW = {
+      "Infantry": "Moves through infantry-passable terrain and benefits from cover. The most common unit type.",
+      "Battlesuit": "T'au armoured exo-suit. Equips Support Systems and benefits from Battlesuit stratagems.",
+      "Mounted": "Cavalry, bikes or walkers on the move — specific charge and Fall Back interactions.",
+      "Vehicle": "A mechanical war machine. Blocked from some terrain; may carry units.",
+      "Walker": "A bipedal vehicle that moves and fights like infantry-scale armour.",
+      "Towering": "Can be seen over and can see over all non-Towering terrain.",
+      "Fly": "Moves over models and terrain freely during the Movement phase.",
+      "Transport": "Can carry eligible units; see the unit's transport capacity.",
+      "Grenades": "Can throw grenades in the Shooting phase via the Grenade stratagem.",
+      "Jump Pack": "Can use its jump pack to move over terrain and models, and Fall Back + charge.",
+      "Terminator": "Elite heavy infantry — 2+ armour, Deep Strike, and stubborn resilience.",
+      "Mega Armour": "Heaviest Ork plate — a 2+ save at the cost of speed.",
+      "Wraith Construct": "Spirit-stone war-construct — never Battle-shocked, implacable advance.",
+      "Nurgle": "Marked by the Plague God — durable, diseased, and slow.",
+      "Adeptus Astartes": "Space Marine faction keyword — enables Oath of Moment and Chapter abilities.",
+      "T'au Empire": "T'au faction keyword — benefits from For the Greater Good and Sept tenets.",
+      "Necrons": "Necron faction keyword — Reanimation Protocols and undying dynasties.",
+      "Orks": "Ork faction keyword — Waaagh! energy and brutal close combat.",
+      "Aeldari": "Aeldari faction keyword — Strands of Fate and lightning speed.",
+      "Death Guard": "Death Guard faction keyword — Disgustingly Resilient and Contagions of Nurgle.",
+    };
+    const keywords = unit.kw.map(k => ({
+      label: k, desc: KW[k] || ("The " + k + " keyword — interacts with rules that reference it."),
+      show: s.kwHover === k,
+      onEnter: () => this.setState({ kwHover: k }),
+      onLeave: () => this.setState({ kwHover: null }),
+      style: { position: "relative", fontSize: "11px", color: "#4fd0e0", border: "1px solid #1f4e57",
+               background: "rgba(79,208,224,.05)", padding: "3px 9px", borderRadius: "3px",
+               letterSpacing: "0.04em", cursor: "help", userSelect: "none" },
+      tipStyle: { position: "absolute", top: "calc(100% + 7px)", left: "0", background: "#0a0c0e",
+                  border: "1px solid #2e3630", borderRadius: "4px", padding: "8px 11px", width: "max-content",
+                  maxWidth: "260px", zIndex: 60, boxShadow: "0 6px 18px rgba(0,0,0,.6)", whiteSpace: "normal", cursor: "default" },
+    }));
+
+    // abilities = faction ability + signature
+    const mkAb = (id, tag, name, body) => ({
+      id, tag, name, body, open: !!s.abOpen[id], icon: s.abOpen[id] ? "▼" : "▶",
+      onToggle: () => this.setState(st => ({ abOpen: { ...st.abOpen, [id]: !st.abOpen[id] } })),
+      headStyle: { display: "flex", alignItems: "center", justifyContent: "space-between", width: "100%",
+                   background: s.abOpen[id] ? "rgba(216,178,90,0.05)" : "transparent",
+                   border: "none", padding: "9px 4px", cursor: "pointer", fontFamily: "inherit", textAlign: "left" },
+    });
+    const abilities = [];
+    if (fac.ab) abilities.push(mkAb("fac", fac.ab.tag, fac.ab.name, fac.ab.body));
+    abilities.push(mkAb("sig", "", unit.sig.name, unit.sig.body));
+
+    const isStarred = s.starred.includes(unit.name);
+
+    return {
+      faction: unit.faction, role: unit.role, pts: unit.pts,
+      nameUpper: unit.name.toUpperCase(),
+      factionColor: fac.col, factionGlow: fac.col + "55",
+      echo: s.echo,
+      starGlyph: isStarred ? "★" : "☆",
+      starStyle: { background: "transparent", border: "1px solid " + (isStarred ? "#4a3c1c" : "#2e3630"),
+                   borderRadius: "4px", cursor: "pointer", fontSize: "18px", padding: "5px 11px", flexShrink: 0,
+                   color: isStarred ? "#d8b25a" : "#5f6b62",
+                   textShadow: isStarred ? "0 0 8px rgba(216,178,90,.5)" : "none" },
+      onStar: () => this.setState(st => {
+        const arr = st.starred.includes(unit.name) ? st.starred.filter(x => x !== unit.name) : [...st.starred, unit.name];
+        try { localStorage.setItem("ct_units_shortlist", JSON.stringify(arr)); } catch { /* */ }
+        return { starred: arr };
+      }),
+      statBoxes, ranged, melee, ratings, keywords, abilities, radar,
+      shortlist, shortlistCount: s.starred.length, hasShortlist: shortlist.length > 0, noShortlist: shortlist.length === 0,
+      hasNote: !!unit.note, note: unit.note,
+      term: s.term,
+      onTermInput: (e) => this.setState({ term: e.target.value }),
+      onTermKey: (e) => { if (e.key === "Enter") { const v = e.target.value.trim(); if (v) this.setState({ echo: v, term: "" }); } },
+    };
+  }
+}
+</script>
+</body>
+</html>

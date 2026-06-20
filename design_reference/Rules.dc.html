@@ -1,0 +1,330 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;600;700&family=Chakra+Petch:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+  * { box-sizing: border-box; }
+  body { margin: 0; }
+  .rl input::placeholder { color: #4a5249; }
+</style>
+</helmet>
+
+<div class="rl" style="min-width:100%; min-height:100vh; box-sizing:border-box; padding:40px; background:#e7e5df; font-family:'IBM Plex Mono', monospace; display:flex; flex-direction:column; align-items:center;">
+  <div style="width:1040px; max-width:100%;">
+    <div style="margin-bottom:12px;">
+      <div style="font-size:11px; letter-spacing:0.28em; color:#5a5648; text-transform:uppercase; font-weight:600;">rules</div>
+      <div style="font-size:12px; color:#908b7c; margin-top:3px;">Rules &amp; keyword reference — search weapon abilities, keywords, phases and core rules. ✓ marks rules the combat simulator applies for you.</div>
+    </div>
+
+    <div data-screen-label="Rules" style="position:relative; border-radius:3px; overflow:hidden; box-shadow:0 4px 24px rgba(0,0,0,.22); background:#0d0f12; color:#d8dee0;">
+      <!-- chrome -->
+      <div style="display:flex; align-items:center; gap:12px; padding:9px 18px; background:#0a0c0e; border-bottom:1px solid #232a26;">
+        <span style="width:7px; height:7px; border-radius:50%; background:#4fd873; box-shadow:0 0 8px rgba(79,216,115,.85);"></span>
+        <span style="font-family:'Chakra Petch', sans-serif; font-size:13px; letter-spacing:0.16em; color:#eef4ee; font-weight:600;">COMBAT TERMINAL</span>
+        <span style="font-size:10px; letter-spacing:0.1em; color:#5f6b62;">v2.0 · 7a3f1c</span><span style="font-size:10px; letter-spacing:0.1em; color:#4fd873; margin-left:6px;">· 11TH ED</span>
+        <div style="margin-left:auto; display:flex; flex-direction:column; align-items:flex-end; gap:2px;">
+          <span style="font-family:'Chakra Petch', sans-serif; font-size:10px; letter-spacing:0.12em; color:#5f6b62; border:1px dashed #2e3630; padding:3px 8px; border-radius:3px;">NOT ASSIGNED</span>
+          <span style="font-size:8px; letter-spacing:0.1em; color:#4a5249;">10th edition · core</span>
+        </div>
+      </div>
+      <!-- nav -->
+      <div style="display:flex; font-family:'Chakra Petch', sans-serif; font-size:11px; letter-spacing:0.1em; border-bottom:1px solid #1a201c; background:#0a0c0e; padding:0 8px;">
+        <div style="padding:9px 14px; color:#5f6b62;">COMBAT SIM</div>
+        <a href="List%20Units.dc.html" style="padding:9px 14px; color:#5f6b62; text-decoration:none;">UNITS</a>
+        <a href="Spec%20Unit.dc.html" style="padding:9px 14px; color:#5f6b62; text-decoration:none;">DATASHEET</a>
+        <a href="Rosters.dc.html" style="padding:9px 14px; color:#5f6b62; text-decoration:none;">ROSTERS</a>
+        <div style="padding:9px 14px; color:#eef4ee; border-bottom:2px solid #4fd873;">RULES</div>
+      </div>
+
+      <!-- title + search -->
+      <div style="display:flex; align-items:center; gap:14px; padding:16px 20px 14px; border-bottom:1px solid #1a201c;">
+        <span style="font-family:'Chakra Petch', sans-serif; font-size:18px; color:#eef4ee; font-weight:700; letter-spacing:0.04em;">RULES REFERENCE</span>
+        <div style="flex:1; display:flex; align-items:center; gap:9px; background:#12150f; border:1px solid #232a26; border-radius:4px; padding:8px 12px;">
+          <span style="color:#5f6b62; font-size:13px;">⌕</span>
+          <input value="{{ search }}" onInput="{{ onSearch }}" placeholder="search rules &amp; keywords…  e.g. devastating, fall back, blast" style="flex:1; background:transparent; border:none; outline:none; color:#d8dee0; font-family:inherit; font-size:13px;">
+        </div>
+      </div>
+
+      <div style="display:grid; grid-template-columns:222px 1fr; align-items:start;">
+        <!-- filter rail -->
+        <div style="border-right:1px solid #1a201c; padding:16px; display:flex; flex-direction:column; gap:8px;">
+          <div style="font-size:9px; letter-spacing:0.14em; color:#5f6b62; text-transform:uppercase; font-weight:700; margin-bottom:2px;">Category</div>
+          <sc-for list="{{ classes }}" as="c" hint-placeholder-count="6">
+            <div onClick="{{ c.onSelect }}" style="{{ c.rowStyle }}">
+              <span style="width:8px; height:8px; border-radius:2px; background:{{ c.color }}; flex-shrink:0;"></span>
+              <span style="{{ c.labelStyle }}">{{ c.label }}</span>
+              <span style="font-size:10px; color:#5f6b62; margin-left:auto;">{{ c.count }}</span>
+            </div>
+          </sc-for>
+          <sc-if value="{{ hasFactionFilter }}" hint-placeholder-val="{{ false }}">
+            <div style="border-top:1px solid #1a201c; margin-top:8px; padding-top:12px;">
+              <div style="font-size:9px; letter-spacing:0.14em; color:#5f6b62; text-transform:uppercase; font-weight:700; margin-bottom:7px;">Faction</div>
+              <div style="position:relative;">
+                <select value="{{ factionSel }}" onChange="{{ onFaction }}" style="width:100%; background:#12150f; border:1px solid #232a26; color:#d8dee0; font-family:inherit; font-size:12px; padding:8px 10px; border-radius:4px; outline:none; cursor:pointer;">
+                  <sc-for list="{{ factionOptions }}" as="o" hint-placeholder-count="3"><option value="{{ o.value }}">{{ o.label }}</option></sc-for>
+                </select>
+                <span style="position:absolute; right:10px; top:9px; color:#5f6b62; font-size:9px; pointer-events:none;">▼</span>
+              </div>
+            </div>
+          </sc-if>
+          <div style="border-top:1px solid #1a201c; margin-top:8px; padding-top:12px;">
+            <div onClick="{{ onToggleMath }}" style="{{ mathToggleStyle }}">
+              <span style="width:14px; height:14px; border-radius:3px; border:1px solid {{ mathBoxBorder }}; background:{{ mathBoxBg }}; display:flex; align-items:center; justify-content:center; font-size:9px; color:#0d0f12; flex-shrink:0;">{{ mathCheck }}</span>
+              <span style="font-size:11px; color:#a8b0a4;">Sim-relevant only</span>
+            </div>
+            <div style="font-size:9px; color:#4a5249; line-height:1.5; margin-top:8px; padding-left:2px;">✓ = the combat simulator applies this automatically. ~ = situational, you toggle it.</div>
+          </div>
+        </div>
+
+        <!-- results -->
+        <div style="padding:14px 18px 18px; min-height:480px;">
+          <div style="display:flex; align-items:center; gap:10px; margin-bottom:12px;">
+            <span style="font-size:12px; color:#d8dee0;"><span style="color:#4fd873; font-weight:700;">{{ count }}</span> <span style="color:#84907f;">entries</span></span>
+          </div>
+
+          <sc-if value="{{ isEmpty }}" hint-placeholder-val="{{ false }}">
+            <div style="text-align:center; padding:60px 20px; color:#5f6b62; font-size:13px;"><div style="font-size:24px; margin-bottom:10px; opacity:.5;">⊘</div>No rules match.</div>
+          </sc-if>
+
+          <sc-for list="{{ results }}" as="r" hint-placeholder-count="8">
+            <div style="border:1px solid #232a26; border-radius:5px; background:#12150f; margin-bottom:6px; overflow:hidden;">
+              <div style="{{ r.headStyle }}">
+                <span style="width:3px; height:30px; background:{{ r.color }}; border-radius:1px; flex-shrink:0;"></span>
+                <div style="flex:1; min-width:0;">
+                  <div style="display:flex; align-items:center; gap:8px; flex-wrap:wrap;">
+                    <span style="font-size:13px; color:#eef4ee; font-weight:600; letter-spacing:0.03em;">{{ r.name }}</span>
+                    <span style="{{ r.clsStyle }}">{{ r.clsLabel }}</span>
+                    <sc-if value="{{ r.hasMath }}" hint-placeholder-val="{{ false }}"><span style="{{ r.mathStyle }}" title="Applied by the combat simulator">{{ r.mathLabel }}</span></sc-if>
+                    <sc-if value="{{ r.hasFaction }}" hint-placeholder-val="{{ false }}"><span style="{{ r.factionStyle }}">{{ r.factionLabel }}</span></sc-if>
+                    <sc-if value="{{ r.hasCp }}" hint-placeholder-val="{{ false }}"><span style="font-size:8px; color:#d8b25a; border:1px solid #4a3c1c; background:rgba(216,178,90,.12); padding:1px 6px; border-radius:2px; font-weight:700; letter-spacing:0.04em;">{{ r.cp }}</span></sc-if>
+                  </div>
+                  <div style="font-size:11px; color:#84907f; margin-top:3px; line-height:1.5;">{{ r.desc }}</div>
+                </div>
+              </div>
+              <sc-if value="{{ r.hasDetail }}" hint-placeholder-val="{{ true }}">
+                <div style="border-top:1px solid #1c211d; padding:11px 16px 13px 30px; display:flex; flex-direction:column; gap:9px;">
+                  <sc-if value="{{ r.hasStrat }}" hint-placeholder-val="{{ false }}">
+                    <div style="display:flex; flex-direction:column; gap:5px;">
+                      <div style="font-size:11px; color:#a8b0a4; line-height:1.55;"><span style="color:#4fd0e0; font-size:9px; letter-spacing:0.1em; text-transform:uppercase; margin-right:7px;">When</span>{{ r.stratWhen }}</div>
+                      <div style="font-size:11px; color:#a8b0a4; line-height:1.55;"><span style="color:#4fd0e0; font-size:9px; letter-spacing:0.1em; text-transform:uppercase; margin-right:7px;">Target</span>{{ r.stratTarget }}</div>
+                      <div style="font-size:11px; color:#cdd4cb; line-height:1.55;"><span style="color:#4fd0e0; font-size:9px; letter-spacing:0.1em; text-transform:uppercase; margin-right:7px;">Effect</span>{{ r.stratEffect }}</div>
+                    </div>
+                  </sc-if>
+                  <sc-if value="{{ r.hasDetach }}" hint-placeholder-val="{{ false }}">
+                    <div>
+                      <div style="font-size:9px; color:#5f6b62; letter-spacing:0.1em; text-transform:uppercase; margin-bottom:6px;">Enhancements</div>
+                      <div style="display:flex; flex-direction:column; gap:4px;">
+                        <sc-for list="{{ r.enhancements }}" as="e" hint-placeholder-count="3">
+                          <div style="display:flex; align-items:baseline; gap:8px; font-size:11px;"><span style="color:#d8b25a;">◆</span><span style="color:#cdd4cb;">{{ e.name }}</span><span style="margin-left:auto; color:#5f6b62;">{{ e.pts }} pts</span></div>
+                        </sc-for>
+                      </div>
+                    </div>
+                  </sc-if>
+                  <sc-if value="{{ r.hasParam }}" hint-placeholder-val="{{ false }}">
+                    <div style="font-size:11px; color:#a8b0a4;"><span style="color:#5f6b62; letter-spacing:0.1em; text-transform:uppercase; font-size:9px; margin-right:6px;">Parameter</span>{{ r.param }}</div>
+                  </sc-if>
+                  <sc-if value="{{ r.hasExample }}" hint-placeholder-val="{{ false }}">
+                    <div style="font-size:11px; color:#9aa49a; font-style:italic; line-height:1.6; border-left:2px solid #2e3630; padding-left:10px;">{{ r.example }}</div>
+                  </sc-if>
+                  <sc-if value="{{ r.hasInteractions }}" hint-placeholder-val="{{ false }}">
+                    <div style="display:flex; align-items:center; gap:6px; flex-wrap:wrap;">
+                      <span style="font-size:9px; color:#5f6b62; letter-spacing:0.1em; text-transform:uppercase;">Interacts</span>
+                      <sc-for list="{{ r.interactions }}" as="i" hint-placeholder-count="2"><span style="font-size:9px; color:#4fd0e0; border:1px solid #1f4e57; background:rgba(79,208,224,.05); padding:1px 6px; border-radius:2px;">{{ i }}</span></sc-for>
+                    </div>
+                  </sc-if>
+                </div>
+              </sc-if>
+            </div>
+          </sc-for>
+        </div>
+      </div>
+
+      <!-- command bar -->
+      <div style="display:flex; align-items:center; gap:12px; padding:0 18px; min-height:48px; border-top:2px solid #1f5a36; background:#0a0c0e;">
+        <span style="color:#4fd873; font-size:16px; flex-shrink:0;">›</span>
+        <input value="{{ term }}" onInput="{{ onTermInput }}" onKeyDown="{{ onTermKey }}" placeholder="rule &lt;keyword&gt;  ·  e.g. rule devastating wounds" style="flex:1; background:transparent; border:none; outline:none; color:#4fd873; font-family:'IBM Plex Mono', monospace; font-size:13px; caret-color:#4fd873;">
+        <span style="font-size:10px; letter-spacing:0.14em; color:#3f4a40; flex-shrink:0;">⏎ RUN</span>
+      </div>
+    </div>
+  </div>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script>
+class Component extends DCLogic {
+  state = { cls: "all", mathOnly: false, search: "", open: {}, faction: "all", term: "" };
+
+  CLASSES() {
+    return {
+      weapon: { label: "Weapon Abilities", color: "#d8b25a" },
+      keyword: { label: "Keywords", color: "#4fd873" },
+      phase: { label: "Phase & Timing", color: "#4fd0e0" },
+      unit: { label: "Unit Types", color: "#8fb0c4" },
+      core: { label: "Core Rules", color: "#a78bdb" },
+      detachment: { label: "Detachments", color: "#e08a5a" },
+      stratagem: { label: "Stratagems", color: "#5b9bff" },
+    };
+  }
+
+  DATA() {
+    // [name, cls, math('yes'|'cond'|null), param, desc, interactions[], example]
+    return [
+      ["Blast", "weapon", "yes", "—", "Add 1 to the Attacks for every 5 models in the target unit. Cannot target a unit within Engagement Range.", ["Attacks step"], "Vs a 10-model unit a Blast weapon gains +2 Attacks."],
+      ["Lethal Hits", "weapon", "yes", null, "Each Critical Hit (unmodified Hit roll of 6) automatically wounds — skip the Wound roll.", ["Sustained Hits", "Anti"], "A 6 to hit auto-wounds regardless of Strength vs Toughness."],
+      ["Devastating Wounds", "weapon", "yes", null, "A Critical Wound (unmodified 6 to wound, or via Anti) inflicts its damage as mortal-style wounds that bypass saves.", ["Anti", "Lethal Hits"], "A wounding 6 ignores both armour and invulnerable saves."],
+      ["Sustained Hits", "weapon", "yes", "X (1, 2, D3…)", "Each Critical Hit scores X additional hits on the target.", ["Lethal Hits"], "Sustained Hits 1: every 6 to hit becomes 2 hits."],
+      ["Rapid Fire", "weapon", "yes", "X (1, 2…)", "Add X to the weapon's Attacks when targeting a unit within half range.", ["half range"], "Rapid Fire 1 at 12\": a 2-shot bolt rifle fires 3."],
+      ["Twin-linked", "weapon", "yes", null, "Re-roll the Wound roll for attacks made with this weapon.", ["Wound step"], null],
+      ["Torrent", "weapon", "yes", null, "Attacks automatically hit the target — make no Hit roll.", ["auto-hit"], "Flamers ignore BS entirely."],
+      ["Melta", "weapon", "yes", "X (2, 4…)", "While within half range, add X to the weapon's Damage characteristic.", ["half range"], "Melta 2 at 9\": a D6 melta gun deals D6+2."],
+      ["Heavy", "weapon", "cond", null, "Add 1 to the Hit roll if the bearer's unit Remained Stationary this turn.", ["stationary"], null],
+      ["Lance", "weapon", "cond", null, "Add 1 to the Wound roll if the bearer's unit made a Charge move this turn.", ["charge"], null],
+      ["Anti", "weapon", "yes", "keyword + X+ (e.g. Anti-Vehicle 4+)", "Unmodified Wound rolls of X+ are Critical Wounds against targets with the named keyword.", ["Devastating Wounds"], "Anti-Vehicle 4+: rolls of 4+ to wound crit vs Vehicles."],
+      ["Hazardous", "weapon", "cond", null, "After firing, roll a D6 per Hazardous weapon. On a 1 the bearer suffers 3 mortal wounds (a Character/Vehicle/Monster is destroyed if slain).", ["mortal wounds"], "Supercharged plasma can kill its own firer."],
+      ["Ignores Cover", "weapon", "cond", null, "The target cannot have the Benefit of Cover against these attacks.", ["Benefit of Cover"], null],
+      ["Precision", "weapon", null, null, "Attacks that wound can be allocated to an attached Character in the target unit instead of the bodyguard.", ["Leader"], "Snipe out a leading Captain through its squad."],
+      ["Indirect Fire", "weapon", "cond", null, "Can target units not visible to the bearer; those attacks are at -1 to Hit and the target gains Benefit of Cover.", ["Benefit of Cover"], null],
+      ["Assault", "weapon", null, null, "Can be fired even if the bearer's unit Advanced this turn.", ["Advance"], null],
+      ["Pistol", "weapon", null, null, "Can be fired (Pistols only) even while the bearer is within Engagement Range, targeting an engaged enemy.", ["Engagement Range"], null],
+      ["Extra Attacks", "weapon", "yes", null, "Attacks made in addition to those from the bearer's other melee weapons — not instead of them.", ["Fight phase"], null],
+
+      ["Feel No Pain", "keyword", "cond", "X+ (e.g. 5+)", "Each time the model would lose a wound, roll a D6; on X+ that wound is ignored.", ["Damage", "mortal wounds"], "FNP 5+: roughly a third of incoming wounds shrugged off."],
+      ["Leader", "keyword", null, null, "Before the battle, attach this Character to an eligible Bodyguard unit. While leading it cannot be targeted directly.", ["Precision", "Lone Operative"], null],
+      ["Lone Operative", "keyword", null, null, "Cannot be targeted by a ranged attack unless the attacking model is within 12\".", ["Leader"], null],
+      ["Deep Strike", "keyword", null, null, "Set up in Reserves; arrive anywhere more than 9\" from enemy models, from the second battle round.", ["Reserves"], null],
+      ["Fights First", "keyword", null, null, "Fights in the Fight phase before units that do not have Fights First.", ["Charge"], null],
+      ["Stealth", "keyword", "cond", null, "Subtract 1 from ranged Hit rolls that target this unit.", ["Hit step"], null],
+      ["Scouts", "keyword", null, "X\" (e.g. 6\")", "Pre-game move of up to X\" before the first turn begins (must end more than 9\" from enemies).", ["Infiltrators"], null],
+      ["Fly", "keyword", null, null, "Can move over models and terrain; affects charge and Fall Back interactions and lets the model be targeted as if grounded.", ["Fall Back"], null],
+      ["Benefit of Cover", "keyword", "cond", null, "Add 1 to the saving throw against ranged attacks (capped; no help to a 3+ save vs AP0).", ["Ignores Cover"], null],
+
+      ["Advance", "phase", null, null, "Move M + D6\". The unit cannot shoot or charge this turn unless a rule (e.g. Assault) says otherwise.", ["Assault"], null],
+      ["Fall Back", "phase", null, null, "Move out of Engagement Range. The unit cannot shoot or charge unless a rule allows it (e.g. Fly, Desperate Escape).", ["Fly"], null],
+      ["Charge Phase", "phase", null, null, "Declare a charge, roll 2D6 and move into Engagement Range of the target. A successful charge grants Fights First that turn.", ["Fights First"], null],
+      ["Command Phase", "phase", null, null, "Gain 1 CP at the start of your turn; take Battle-shock tests for units below Half strength.", ["Battle-shock"], null],
+
+      ["Vehicle", "unit", null, null, "Mechanical war machine. Blocked from some terrain; may have Firing Deck and transport rules.", ["Anti"], null],
+      ["Monster", "unit", null, null, "A huge living creature. Can move and fight like infantry-scale armour and is hit by Anti-Monster.", ["Anti"], null],
+
+      ["Battle Round", "core", null, null, "Each battle round is two player turns. Win the roll-off to choose who goes first. Most games last 5 rounds.", ["Command Phase"], null],
+      ["Objective Control", "core", null, null, "Each model has an OC value. The side with the higher total OC contesting an objective controls it — even a single tank can be tipped by chaff.", ["Battle-shock"], null],
+      ["Battle-shock", "core", "cond", null, "A unit below Half strength tests 2D6 vs Leadership at the start of its Command phase. Fail → OC becomes 0 and it can't use Stratagems.", ["Objective Control"], null],
+      ["Saving Throw", "core", "yes", null, "Roll a D6 vs the model's Save, modified by the attack's AP; or use an unmodified Invulnerable save instead.", ["AP", "Feel No Pain"], "Sv3+ vs AP-1 saves on a 4+."],
+    ];
+  }
+
+  EXTRA() {
+    return [
+      // ── Detachments ──
+      { name: "Kauyon", cls: "detachment", faction: "T'au Empire", desc: "Patient Hunter — from battle round 3, ranged weapons gain [Sustained Hits 1]; while a unit is Guided it adds 1 to Wound rolls against its Spotted target.", detach: { enhancements: [ { name: "Exemplar of the Kauyon", pts: 20 }, { name: "Precision of the Patient Hunter", pts: 15 }, { name: "Devastation", pts: 40 } ] } },
+      { name: "Mont'ka", cls: "detachment", faction: "T'au Empire", desc: "Killing Blow — during battle rounds 1-3, ranged weapons gain [Assault]; while a unit is Guided its ranged weapons gain [Lethal Hits].", detach: { enhancements: [ { name: "Strategic Conqueror", pts: 15 }, { name: "Strike Swiftly", pts: 25 } ] } },
+      { name: "Gladius Task Force", cls: "detachment", faction: "Space Marines", desc: "Combat Doctrines — each Command phase, activate a Doctrine granting army-wide re-rolls and movement or shooting bonuses.", detach: { enhancements: [ { name: "Artificer Armour", pts: 10 }, { name: "The Honour Vehement", pts: 25 }, { name: "Adept of the Codex", pts: 15 } ] } },
+      { name: "Plague Company", cls: "detachment", faction: "Death Guard", desc: "Contagions of Nurgle — enemy units within Contagion Range suffer a worsening penalty (-1 Toughness, then -1 to hit) as the battle drags on.", detach: { enhancements: [ { name: "Living Plague", pts: 20 }, { name: "Shamblerot", pts: 15 } ] } },
+      { name: "Awakened Dynasty", cls: "detachment", faction: "Necrons", desc: "My Will Be Done — each Command phase a Character can boost a nearby unit's Hit rolls and movement, driving the dynasty's relentless advance.", detach: { enhancements: [ { name: "Veil of Darkness", pts: 20 }, { name: "Enaegic Dermal Bond", pts: 10 } ] } },
+
+      // ── Stratagems ──
+      { name: "A Tempting Trap", cls: "stratagem", faction: "T'au Empire", desc: "Bait the foe onto your chosen ground.", strat: { cp: 1, when: "Your Shooting phase.", target: "A T'au unit that hasn't shot; on first use also pick your Trap objective.", effect: "+1 to Wound rolls vs enemy units within range of your Trap objective. Not usable in rounds 1-2." } },
+      { name: "Point-Blank Ambush", cls: "stratagem", faction: "T'au Empire", desc: "Devastating fire at close range.", strat: { cp: 1, when: "Your Shooting phase.", target: "A T'au unit that hasn't been selected to shoot.", effect: "Improve the AP of attacks by 1 against targets within 9\". Not usable in rounds 1-2." } },
+      { name: "Coordinate to Engage", cls: "stratagem", faction: "T'au Empire", desc: "Cadres focus the deadliest target.", strat: { cp: 1, when: "Your Shooting phase.", target: "A unit just selected as an Observer.", effect: "+1 to the Ballistic Skill of attacks vs the Spotted unit; Markerlight units also gain [Ignores Cover]." } },
+      { name: "Armour of Contempt", cls: "stratagem", faction: "Space Marines", desc: "Transhuman resilience.", strat: { cp: 1, when: "Opponent's Shooting or Fight phase, when an Adeptus Astartes unit is targeted.", target: "That unit.", effect: "Worsen the AP of incoming attacks by 1 until the end of the phase." } },
+      { name: "Adaptive Strategy", cls: "stratagem", faction: "Space Marines", desc: "Flexible doctrine.", strat: { cp: 1, when: "Start of your Command phase.", target: "One unit from your army.", effect: "It gains Battle-shock immunity and re-rolls Advance and Charge rolls for the turn." } },
+      { name: "Cloud of Flies", cls: "stratagem", faction: "Death Guard", desc: "Shroud the advance in droning swarms.", strat: { cp: 1, when: "Your Movement phase.", target: "A Death Guard Infantry unit not within Engagement Range.", effect: "Until the start of your next turn it can only be targeted by ranged attacks from within 12\"." } },
+      { name: "Eternal Guardian", cls: "stratagem", faction: "Necrons", desc: "Living metal endures.", strat: { cp: 1, when: "Opponent's Shooting phase, when a Necron unit is targeted.", target: "That unit.", effect: "Halve the Damage characteristic of incoming attacks (rounding up) until the end of the phase." } },
+      { name: "Command Re-roll", cls: "stratagem", faction: "Core", desc: "Fate favours the prepared.", strat: { cp: 1, when: "Any phase, just after you make a roll.", target: "You.", effect: "Re-roll that roll — a single D6, 2D6, 3D6, a Hit, Wound, Damage, or saving throw." } },
+      { name: "Counter-offensive", cls: "stratagem", faction: "Core", desc: "Strike back before the enemy presses on.", strat: { cp: 2, when: "Fight phase, just after an enemy unit has fought.", target: "One of your eligible units within Engagement Range.", effect: "Your unit fights next, out of the normal sequence." } },
+      { name: "Fire Overwatch", cls: "stratagem", faction: "Core", desc: "Reactive defensive fire.", strat: { cp: 1, when: "Opponent's Movement or Charge phase.", target: "One of your units within 24\" of the moving enemy.", effect: "It shoots the enemy unit; unmodified Hit rolls of 6 score hits." } },
+      { name: "Rapid Ingress", cls: "stratagem", faction: "Core", desc: "Arrive ahead of schedule.", strat: { cp: 1, when: "End of opponent's Movement phase.", target: "One of your units in Reserves.", effect: "Set it up on the battlefield as if it were the Reinforcements step of your Movement phase." } },
+      { name: "Insane Bravery", cls: "stratagem", faction: "Core", desc: "Hold the line at all costs.", strat: { cp: 1, when: "Battle-shock step of your Command phase.", target: "One of your units about to take a Battle-shock test.", effect: "That test is automatically passed." } },
+    ];
+  }
+
+  renderVals() {
+    const s = this.state;
+    const CL = this.CLASSES();
+    const FCOL = { "Space Marines": "#5b9bff", "T'au Empire": "#e0962e", "Necrons": "#4fd873", "Orks": "#a0c020", "Aeldari": "#4fd0e0", "Death Guard": "#9bbf4a", "Core": "#8fb0c4" };
+    const base = this.DATA().map((d) => ({ name: d[0], cls: d[1], math: d[2], param: d[3], desc: d[4], interactions: d[5] || [], example: d[6], faction: null, strat: null, detach: null }));
+    const extra = this.EXTRA().map(e => ({ name: e.name, cls: e.cls, math: null, param: null, desc: e.desc, interactions: [], example: null, faction: e.faction, strat: e.strat || null, detach: e.detach || null }));
+    const rows = [...base, ...extra].map((r, i) => ({ id: i, ...r }));
+
+    // per-class counts (respecting math filter, ignoring class selection)
+    const matchMath = (r) => !s.mathOnly || r.math === "yes" || r.math === "cond";
+    const q = s.search.trim().toLowerCase();
+    const matchSearch = (r) => !q || r.name.toLowerCase().includes(q) || r.desc.toLowerCase().includes(q);
+
+    const classes = [{ key: "all", label: "All Rules", color: "#cdd4cb" },
+      ...Object.entries(CL).map(([k, v]) => ({ key: k, label: v.label, color: v.color }))];
+    const classViews = classes.map(c => {
+      const active = s.cls === c.key;
+      const count = rows.filter(r => (c.key === "all" || r.cls === c.key) && matchMath(r) && matchSearch(r)).length;
+      return {
+        label: c.label, color: c.color, count,
+        onSelect: () => this.setState({ cls: c.key }),
+        rowStyle: { display: "flex", alignItems: "center", gap: "9px", padding: "7px 9px", borderRadius: "4px",
+                    cursor: "pointer", background: active ? "rgba(79,216,115,.08)" : "transparent",
+                    border: "1px solid " + (active ? "#2a4a36" : "transparent") },
+        labelStyle: { fontSize: "12px", color: active ? "#eef4ee" : "#a8b0a4", fontWeight: active ? 600 : 400 },
+      };
+    });
+
+    const factionApplies = s.cls === "detachment" || s.cls === "stratagem";
+    const matchFaction = (r) => !factionApplies || s.faction === "all" || r.faction === s.faction;
+    let list = rows.filter(r => (s.cls === "all" || r.cls === s.cls) && matchMath(r) && matchSearch(r) && matchFaction(r));
+
+    const mathMeta = (m) => m === "yes" ? { label: "✓ SIM", style: { fontSize: "8px", color: "#0d0f12", background: "#4fd873", fontWeight: 700, padding: "1px 5px", borderRadius: "2px", letterSpacing: "0.06em" } }
+      : m === "cond" ? { label: "~ SIM", style: { fontSize: "8px", color: "#d8b25a", border: "1px solid #4a3c1c", background: "rgba(216,178,90,.1)", padding: "0 5px", borderRadius: "2px", letterSpacing: "0.06em" } }
+      : null;
+
+    const results = list.map(r => {
+      const cm = CL[r.cls];
+      const mm = mathMeta(r.math);
+      const open = !!s.open[r.id];
+      return {
+        name: r.name, color: cm.color, clsLabel: cm.label, desc: r.desc,
+        clsStyle: { fontSize: "8px", letterSpacing: "0.08em", color: cm.color, border: "1px solid " + cm.color + "55", background: cm.color + "12", padding: "1px 6px", borderRadius: "2px", textTransform: "uppercase" },
+        hasMath: !!mm, mathLabel: mm ? mm.label : "", mathStyle: mm ? mm.style : {},
+        hasParam: r.param && r.param !== "—", param: r.param,
+        hasExample: !!r.example, example: r.example,
+        hasInteractions: r.interactions.length > 0, interactions: r.interactions,
+        hasFaction: !!r.faction,
+        factionLabel: r.faction || "",
+        factionStyle: { fontSize: "8px", letterSpacing: "0.06em", color: FCOL[r.faction] || "#8fb0c4", border: "1px solid " + (FCOL[r.faction] || "#8fb0c4") + "55", background: (FCOL[r.faction] || "#8fb0c4") + "12", padding: "1px 6px", borderRadius: "2px", textTransform: "uppercase" },
+        hasCp: !!(r.strat && r.strat.cp != null),
+        cp: r.strat ? r.strat.cp + " CP" : "",
+        hasStrat: !!r.strat, stratWhen: r.strat ? r.strat.when : "", stratTarget: r.strat ? r.strat.target : "", stratEffect: r.strat ? r.strat.effect : "",
+        hasDetach: !!r.detach, enhancements: r.detach ? r.detach.enhancements.map(e => ({ name: e.name, pts: e.pts })) : [],
+        hasDetail: r.interactions.length > 0 || (!!r.param && r.param !== "—") || !!r.example || !!r.strat || !!r.detach,
+        headStyle: { display: "flex", alignItems: "flex-start", gap: "12px", padding: "11px 14px" },
+      };
+    });
+
+    const mathChecked = s.mathOnly;
+    return {
+      search: s.search, onSearch: (e) => this.setState({ search: e.target.value }),
+      classes: classViews,
+      hasFactionFilter: factionApplies,
+      factionSel: s.faction,
+      onFaction: (e) => this.setState({ faction: e.target.value }),
+      factionOptions: ["all", ...[...new Set(rows.filter(r => r.cls === s.cls && r.faction).map(r => r.faction))]].map(f => ({ value: f, label: f === "all" ? "All Factions" : f })),
+      onToggleMath: () => this.setState(st => ({ mathOnly: !st.mathOnly })),
+      mathCheck: mathChecked ? "✓" : "",
+      mathBoxBorder: mathChecked ? "#4fd873" : "#2e3630",
+      mathBoxBg: mathChecked ? "#4fd873" : "transparent",
+      mathToggleStyle: { display: "flex", alignItems: "center", gap: "9px", cursor: "pointer", userSelect: "none" },
+      results, count: results.length, isEmpty: results.length === 0,
+      term: s.term,
+      onTermInput: (e) => this.setState({ term: e.target.value }),
+      onTermKey: (e) => { if (e.key === "Enter") this.setState({ term: "" }); },
+    };
+  }
+}
+</script>
+</body>
+</html>

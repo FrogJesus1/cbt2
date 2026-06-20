@@ -1,0 +1,281 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;600;700&family=Chakra+Petch:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+  * { box-sizing: border-box; }
+  body { margin: 0; }
+  .up input::placeholder, .up textarea::placeholder { color: #4a5249; }
+</style>
+</helmet>
+
+<div class="up" style="min-height:100vh; box-sizing:border-box; padding:40px; background:#e7e5df; font-family:'IBM Plex Mono', monospace; display:flex; flex-direction:column; align-items:center;">
+  <div style="width:640px; max-width:100%;">
+    <div style="margin-bottom:12px; display:flex; align-items:baseline; gap:12px;">
+      <a href="Rosters.dc.html" style="font-size:11px; letter-spacing:0.1em; color:#5f6b62; text-decoration:none;">‹ rosters</a>
+      <div style="font-size:11px; letter-spacing:0.28em; color:#5a5648; text-transform:uppercase; font-weight:600;">upload roster</div>
+    </div>
+
+    <div data-screen-label="Upload Roster" style="position:relative; border-radius:3px; overflow:hidden; box-shadow:0 4px 24px rgba(0,0,0,.22); background:#0d0f12; color:#d8dee0;">
+      <div style="display:flex; align-items:center; gap:12px; padding:9px 18px; background:#0a0c0e; border-bottom:1px solid #232a26;">
+        <span style="width:7px; height:7px; border-radius:50%; background:#4fd873; box-shadow:0 0 8px rgba(79,216,115,.85);"></span>
+        <span style="font-family:'Chakra Petch', sans-serif; font-size:13px; letter-spacing:0.16em; color:#eef4ee; font-weight:600;">COMBAT TERMINAL</span>
+        <span style="font-size:10px; letter-spacing:0.1em; color:#5f6b62;">v2.0 · 7a3f1c</span><span style="font-size:10px; letter-spacing:0.1em; color:#4fd873; margin-left:6px;">· 11TH ED</span>
+        <span style="margin-left:auto; font-family:'Chakra Petch', sans-serif; font-size:10px; letter-spacing:0.12em; color:#5f6b62; border:1px dashed #2e3630; padding:3px 8px; border-radius:3px;">NOT ASSIGNED</span>
+      </div>
+      <div style="display:flex; font-family:'Chakra Petch', sans-serif; font-size:11px; letter-spacing:0.1em; border-bottom:1px solid #1a201c; background:#0a0c0e; padding:0 8px;">
+        <a href="Combat%20Home.dc.html" style="padding:9px 14px; color:#5f6b62; text-decoration:none;">COMBAT SIM</a>
+        <a href="List%20Units.dc.html" style="padding:9px 14px; color:#5f6b62; text-decoration:none;">UNITS</a>
+        <a href="Spec%20Unit.dc.html" style="padding:9px 14px; color:#5f6b62; text-decoration:none;">DATASHEET</a>
+        <div style="padding:9px 14px; color:#eef4ee; border-bottom:2px solid #4fd873;">ROSTERS</div>
+        <a href="Rules.dc.html" style="padding:9px 14px; color:#5f6b62; text-decoration:none;">RULES</a>
+        <a href="Settings.dc.html" style="padding:9px 14px; color:#5f6b62; text-decoration:none;">SETTINGS</a>
+      </div>
+
+      <div style="padding:22px 24px 26px;">
+        <!-- step rail -->
+        <div style="display:flex; align-items:center; gap:0; margin-bottom:22px;">
+          <sc-for list="{{ steps }}" as="s" hint-placeholder-count="4">
+            <div style="display:flex; align-items:center;">
+              <div style="display:flex; align-items:center; gap:8px;">
+                <span style="{{ s.dot }}">{{ s.num }}</span>
+                <span style="{{ s.label }}">{{ s.name }}</span>
+              </div>
+              <sc-if value="{{ s.arrow }}" hint-placeholder-val="{{ true }}"><span style="color:#2e3630; padding:0 12px;">───</span></sc-if>
+            </div>
+          </sc-for>
+        </div>
+
+        <!-- ── PASTE ── -->
+        <sc-if value="{{ isPaste }}" hint-placeholder-val="{{ true }}">
+          <div style="display:flex; align-items:center; gap:8px; margin-bottom:6px;">
+            <span style="font-family:'Chakra Petch', sans-serif; font-size:13px; letter-spacing:0.12em; color:#eef4ee; text-transform:uppercase;">Paste army list</span>
+            <span style="{{ sideTag }}">{{ sideLabel }}</span>
+          </div>
+          <div style="font-size:11px; color:#84907f; margin-bottom:12px; line-height:1.6;">Upload a New Recruit / BattleScribe file, or paste your list export. The faction is auto-detected — you can correct it next.</div>
+          <label style="display:flex; align-items:center; gap:13px; border:1px dashed #2e3630; border-radius:5px; padding:14px 16px; cursor:pointer; margin-bottom:12px; background:#0a0c0e;">
+            <span style="font-size:20px; color:#4fd873;">⇪</span>
+            <div style="flex:1; min-width:0;"><div style="font-size:12px; color:#cdd4cb;">Upload a roster file</div><div style="font-size:10px; color:#5f6b62; margin-top:2px;">.rosz or .ros from New Recruit / BattleScribe</div></div>
+            <sc-if value="{{ hasFile }}" hint-placeholder-val="{{ false }}"><span style="font-size:10px; color:#4fd873; border:1px solid #1f5a36; background:rgba(79,216,115,.08); padding:3px 9px; border-radius:3px; max-width:180px; overflow:hidden; text-overflow:ellipsis; white-space:nowrap;">{{ fileName }} ✓</span></sc-if>
+            <input type="file" accept=".rosz,.ros" onChange="{{ onFile }}" style="display:none;">
+          </label>
+          <div style="font-size:9px; letter-spacing:0.14em; color:#5f6b62; text-transform:uppercase; text-align:center; margin-bottom:12px;">— or paste below —</div>
+          <textarea value="{{ text }}" onInput="{{ onText }}" rows="9" placeholder="++ Strike Force (2000 pts) ++&#10;&#10;Char1: 1x Commander in Coldstar (100 pts)&#10;3x Crisis Sunforge (130 pts)&#10;2x Broadside Battlesuits (180 pts)&#10;…" style="width:100%; background:#0a0c0e; border:1px solid #232a26; color:#d8dee0; font-family:inherit; font-size:12px; line-height:1.6; padding:12px; border-radius:5px; outline:none; resize:vertical; margin-bottom:14px;"></textarea>
+          <div style="display:flex; gap:9px; align-items:center;">
+            <span onClick="{{ onParse }}" style="{{ nextStyle }}">Detect &amp; continue ›</span>
+            <a href="Rosters.dc.html" style="font-size:10px; letter-spacing:0.08em; text-transform:uppercase; color:#5f6b62; text-decoration:none;">cancel</a>
+            <sc-if value="{{ noText }}" hint-placeholder-val="{{ true }}"><span style="font-size:10px; color:#5f6b62; margin-left:auto;">paste some text to continue</span></sc-if>
+          </div>
+        </sc-if>
+
+        <!-- ── NAME / FACTION ── -->
+        <sc-if value="{{ isName }}" hint-placeholder-val="{{ false }}">
+          <div style="font-family:'Chakra Petch', sans-serif; font-size:13px; letter-spacing:0.12em; color:#eef4ee; text-transform:uppercase; margin-bottom:14px;">Confirm details</div>
+          <div style="border:1px solid #1f5a36; background:rgba(79,216,115,.05); border-radius:5px; padding:11px 14px; margin-bottom:16px; display:flex; align-items:center; gap:10px;">
+            <span style="color:#4fd873; font-size:14px;">✓</span>
+            <span style="font-size:12px; color:#a8b0a4;">Detected <span style="color:#4fd873; font-weight:600;">{{ unitsFound }} units</span> · faction looks like <span style="color:#4fd873; font-weight:600;">{{ faction }}</span></span>
+          </div>
+          <div style="display:grid; grid-template-columns:1fr 1fr; gap:14px; margin-bottom:18px;">
+            <div>
+              <div style="font-size:9px; letter-spacing:0.12em; color:#5f6b62; text-transform:uppercase; margin-bottom:6px;">Faction</div>
+              <div style="position:relative;">
+                <select value="{{ faction }}" onChange="{{ onFaction }}" style="width:100%; background:#0a0c0e; border:1px solid #232a26; color:#d8dee0; font-family:inherit; font-size:13px; padding:10px 12px; border-radius:4px; outline:none; cursor:pointer; appearance:none;">
+                  <sc-for list="{{ factionOptions }}" as="f" hint-placeholder-count="6"><option value="{{ f }}">{{ f }}</option></sc-for>
+                </select>
+                <span style="position:absolute; right:11px; top:12px; color:#5f6b62; font-size:9px; pointer-events:none;">▼</span>
+              </div>
+            </div>
+            <div>
+              <div style="font-size:9px; letter-spacing:0.12em; color:#5f6b62; text-transform:uppercase; margin-bottom:6px;">Roster name</div>
+              <input value="{{ name }}" onInput="{{ onName }}" placeholder="e.g. Retaliation Cadre" style="width:100%; background:#0a0c0e; border:1px solid #232a26; color:#d8dee0; font-family:inherit; font-size:13px; padding:10px 12px; border-radius:4px; outline:none;">
+            </div>
+          </div>
+          <div style="margin-bottom:18px;">
+            <div style="font-size:9px; letter-spacing:0.12em; color:#5f6b62; text-transform:uppercase; margin-bottom:8px;">Units — nickname, flag leaders &amp; attach</div>
+            <div style="border:1px solid #232a26; border-radius:5px; background:#0a0c0e; max-height:260px; overflow-y:auto;">
+              <sc-for list="{{ unitViews }}" as="u" hint-placeholder-count="5">
+                <div style="display:flex; align-items:center; gap:9px; padding:8px 12px; border-bottom:1px solid #1a201c; flex-wrap:wrap;">
+                  <div style="flex:1; min-width:120px;"><span style="font-size:12px; color:#cdd4cb;">{{ u.name }}</span><sc-if value="{{ u.hasSub }}" hint-placeholder-val="{{ false }}"><span style="font-size:9px; color:#5f6b62; margin-left:7px;">{{ u.sub }}</span></sc-if></div>
+                  <input value="{{ u.nickname }}" onInput="{{ u.onNick }}" placeholder="nickname" style="width:108px; background:#12150f; border:1px solid #232a26; color:#4fd873; font-family:inherit; font-size:10px; padding:5px 7px; border-radius:3px; outline:none;">
+                  <span onClick="{{ u.onLeader }}" style="{{ u.leaderStyle }}">{{ u.leaderLabel }}</span>
+                  <sc-if value="{{ u.isLeader }}" hint-placeholder-val="{{ false }}">
+                    <div style="position:relative;">
+                      <select value="{{ u.attachedTo }}" onChange="{{ u.onAttach }}" style="background:#12150f; border:1px solid #232a26; color:#a8b0a4; font-family:inherit; font-size:10px; padding:5px 20px 5px 7px; border-radius:3px; outline:none; cursor:pointer; appearance:none; max-width:150px;">
+                        <option value="">attach to…</option>
+                        <sc-for list="{{ u.attachOptions }}" as="o" hint-placeholder-count="0"><option value="{{ o }}">→ {{ o }}</option></sc-for>
+                      </select>
+                      <span style="position:absolute; right:7px; top:7px; color:#5f6b62; font-size:8px; pointer-events:none;">▼</span>
+                    </div>
+                  </sc-if>
+                </div>
+              </sc-for>
+            </div>
+          </div>
+          <div style="display:flex; gap:9px; align-items:center;">
+            <span onClick="{{ onToName }}" style="{{ saveStyle }}">Save roster ›</span>
+            <span onClick="{{ onBackPaste }}" style="font-size:10px; letter-spacing:0.08em; text-transform:uppercase; color:#5f6b62; cursor:pointer;">← back</span>
+            <sc-if value="{{ noName }}" hint-placeholder-val="{{ false }}"><span style="font-size:10px; color:#5f6b62; margin-left:auto;">name your roster to continue</span></sc-if>
+          </div>
+        </sc-if>
+
+        <!-- ── ROLE ── -->
+        <sc-if value="{{ isRole }}" hint-placeholder-val="{{ false }}">
+          <div style="font-family:'Chakra Petch', sans-serif; font-size:13px; letter-spacing:0.12em; color:#eef4ee; text-transform:uppercase; margin-bottom:6px;">Load this roster?</div>
+          <div style="font-size:12px; color:#84907f; margin-bottom:16px;"><span style="color:#cdd4cb; font-weight:600;">{{ name }}</span> · {{ faction }} · {{ unitsFound }} units — saved to your library.</div>
+          <div style="display:grid; grid-template-columns:1fr 1fr; gap:12px; margin-bottom:14px;">
+            <div onClick="{{ onPlayer }}" style="border:1px solid #1f4e57; border-radius:6px; background:rgba(79,208,224,.05); padding:16px; cursor:pointer; text-align:center;">
+              <div style="font-size:9px; letter-spacing:0.16em; color:#4fd0e0; text-transform:uppercase; margin-bottom:6px;">PLAYER</div>
+              <div style="font-size:13px; color:#cdeacd;">Load as my army</div>
+            </div>
+            <div onClick="{{ onEnemy }}" style="border:1px solid #4a3c1c; border-radius:6px; background:rgba(216,178,90,.05); padding:16px; cursor:pointer; text-align:center;">
+              <div style="font-size:9px; letter-spacing:0.16em; color:#d8b25a; text-transform:uppercase; margin-bottom:6px;">ENEMY</div>
+              <div style="font-size:13px; color:#eed9ad;">Load as the enemy</div>
+            </div>
+          </div>
+          <div style="display:flex; gap:9px; align-items:center;">
+            <span onClick="{{ onJustSave }}" style="font-size:10px; letter-spacing:0.08em; text-transform:uppercase; color:#84907f; border:1px solid #2e3630; padding:7px 13px; border-radius:4px; cursor:pointer;">just save</span>
+            <span onClick="{{ onBackName }}" style="font-size:10px; letter-spacing:0.08em; text-transform:uppercase; color:#5f6b62; cursor:pointer;">← back</span>
+          </div>
+        </sc-if>
+
+        <!-- ── DONE ── -->
+        <sc-if value="{{ isDone }}" hint-placeholder-val="{{ false }}">
+          <div style="text-align:center; padding:24px 10px;">
+            <div style="font-size:30px; color:#4fd873; margin-bottom:12px; text-shadow:0 0 14px rgba(79,216,115,.4);">✓</div>
+            <div style="font-family:'Chakra Petch', sans-serif; font-size:16px; color:#eef4ee; font-weight:700; margin-bottom:6px;">{{ name }} saved</div>
+            <div style="font-size:12px; color:#84907f; margin-bottom:20px;">{{ doneMsg }}</div>
+            <div style="display:flex; gap:9px; justify-content:center;">
+              <a href="Rosters.dc.html" style="font-size:11px; letter-spacing:0.1em; text-transform:uppercase; color:#0d0f12; background:#4fd873; font-weight:700; padding:10px 18px; border-radius:5px; text-decoration:none;">▸ go to rosters</a>
+              <span onClick="{{ onAnother }}" style="font-size:11px; letter-spacing:0.1em; text-transform:uppercase; color:#84907f; border:1px solid #2e3630; padding:10px 18px; border-radius:5px; cursor:pointer;">upload another</span>
+            </div>
+          </div>
+        </sc-if>
+      </div>
+    </div>
+  </div>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script>
+class Component extends DCLogic {
+  state = { step: "paste", text: "", fileName: "", faction: "T'au Empire", name: "", units: 0, unitList: [], side: "player", done: "" };
+
+  FACTIONS() { return ["Space Marines", "T'au Empire", "Necrons", "Orks", "Aeldari", "Death Guard", "Chaos Space Marines", "Astra Militarum", "Tyranids"]; }
+
+  componentDidMount() {
+    try { const p = new URLSearchParams(location.search).get("side"); if (p === "enemy") this.setState({ side: "enemy" }); } catch { /* */ }
+  }
+
+  detect(text) {
+    const t = text.toLowerCase();
+    const map = [["t'au", "T'au Empire"], ["tau", "T'au Empire"], ["crisis", "T'au Empire"], ["broadside", "T'au Empire"],
+      ["necron", "Necrons"], ["ork", "Orks"], ["aeldari", "Aeldari"], ["eldar", "Aeldari"],
+      ["death guard", "Death Guard"], ["plague", "Death Guard"], ["chaos", "Chaos Space Marines"],
+      ["astra", "Astra Militarum"], ["guard", "Astra Militarum"], ["tyranid", "Tyranids"],
+      ["intercessor", "Space Marines"], ["space marine", "Space Marines"], ["astartes", "Space Marines"]];
+    for (const [k, f] of map) if (t.includes(k)) return f;
+    return "Space Marines";
+  }
+
+  parseUnits(text, faction) {
+    const lines = (text || "").split("\n").map(l => l.trim()).filter(Boolean);
+    const out = [];
+    for (const l of lines) {
+      let m = l.match(/^(?:char\d+:\s*)?(\d+)\s*x\s+(.+?)\s*\((\d+)\s*pts?\)/i);
+      if (m) { out.push({ name: m[2].trim(), models: parseInt(m[1], 10), points: parseInt(m[3], 10) }); continue; }
+      m = l.match(/^(?:char\d+:\s*)?(.+?)\s*\((\d+)\s*pts?\)/i);
+      if (m && !/^\+/.test(m[1])) out.push({ name: m[1].trim(), models: 1, points: parseInt(m[2], 10) });
+    }
+    let list = out;
+    if (!list.length) {
+      const samp = {
+        "T'au Empire": ["Commander in Coldstar", "Crisis Sunforge", "Broadside Battlesuits", "Riptide Battlesuit", "Hammerhead Gunship", "Fire Warriors"],
+        "Space Marines": ["Captain in Gravis Armour", "Intercessor Squad", "Hellblaster Squad", "Eradicator Squad", "Redemptor Dreadnought"],
+        "Necrons": ["Overlord", "Necron Warriors", "Immortals", "Lokhust Heavy Destroyers", "Doomsday Ark"],
+        "Death Guard": ["Lord of Virulence", "Plague Marines", "Blightlord Terminators", "Death Guard Predator", "Poxwalkers"],
+      };
+      list = (samp[faction] || ["Warlord", "Battleline Squad", "Heavy Support", "Fast Attack", "Troops Squad"]).map(n => ({ name: n, models: 1, points: 0 }));
+    }
+    return list.map(u => ({ ...u, nickname: "", isLeader: /commander|captain|lord|farsight|fireblade|overlord|warboss|chapter master|librarian|chaplain|shadowsun/i.test(u.name), attachedTo: "" }));
+  }
+
+  renderVals() {
+    const s = this.state;
+    const ready = !!(s.text.trim() || s.fileName);
+    const order = ["paste", "name", "role", "done"];
+    const stepNames = { paste: "Paste", name: "Details", role: "Load", done: "Done" };
+    const curIdx = order.indexOf(s.step);
+    const steps = order.map((k, i) => {
+      const active = i === curIdx, past = i < curIdx;
+      const col = active ? "#4fd873" : past ? "#2a6c44" : "#2e3630";
+      return { num: past ? "✓" : String(i + 1), name: stepNames[k], arrow: i < order.length - 1,
+        dot: { width: "20px", height: "20px", borderRadius: "50%", display: "flex", alignItems: "center", justifyContent: "center", fontSize: "10px", flexShrink: 0,
+               color: active ? "#0d0f12" : past ? "#0d0f12" : "#5f6b62", background: (active || past) ? col : "transparent", border: "1px solid " + col, fontWeight: 700 },
+        label: { fontSize: "10px", letterSpacing: "0.08em", textTransform: "uppercase", color: active ? "#eef4ee" : "#5f6b62" } };
+    });
+
+    const sideEnemy = s.side === "enemy";
+    const sideStyle = (c) => ({ fontSize: "9px", letterSpacing: "0.14em", textTransform: "uppercase", color: c, border: "1px solid " + c + "66", background: c + "12", padding: "1px 7px", borderRadius: "2px" });
+
+    const setUnit = (i, patch) => this.setState(st => ({ unitList: st.unitList.map((u, j) => j === i ? { ...u, ...patch } : u) }));
+    const nonLeaderNames = s.unitList.filter(u => !u.isLeader).map(u => u.nickname || u.name);
+    const unitViews = s.unitList.map((u, i) => ({
+      name: u.name,
+      sub: (u.models > 1 ? u.models + " models" : "") + (u.models > 1 && u.points ? " · " : "") + (u.points ? u.points + " pts" : ""),
+      hasSub: u.models > 1 || !!u.points,
+      nickname: u.nickname, onNick: (e) => setUnit(i, { nickname: e.target.value }),
+      isLeader: u.isLeader,
+      onLeader: () => setUnit(i, { isLeader: !u.isLeader, attachedTo: !u.isLeader ? u.attachedTo : "" }),
+      leaderStyle: { fontSize: "9px", letterSpacing: "0.06em", textTransform: "uppercase", cursor: "pointer", padding: "3px 8px", borderRadius: "3px", flexShrink: 0,
+                     color: u.isLeader ? "#0d0f12" : "#84907f", background: u.isLeader ? "#d8b25a" : "transparent", border: "1px solid " + (u.isLeader ? "#d8b25a" : "#2e3630"), fontWeight: u.isLeader ? 700 : 400 },
+      leaderLabel: u.isLeader ? "★ leader" : "leader",
+      attachedTo: u.attachedTo, onAttach: (e) => setUnit(i, { attachedTo: e.target.value }),
+      attachOptions: nonLeaderNames,
+    }));
+
+    return {
+      steps, unitViews,
+      sideLabel: sideEnemy ? "ENEMY" : "PLAYER",
+      sideTag: sideEnemy ? sideStyle("#d8b25a") : sideStyle("#4fd0e0"),
+      isPaste: s.step === "paste", isName: s.step === "name", isRole: s.step === "role", isDone: s.step === "done",
+      text: s.text, onText: (e) => this.setState({ text: e.target.value }),
+      hasFile: !!s.fileName, fileName: s.fileName,
+      onFile: (e) => {
+        const f = e.target.files && e.target.files[0];
+        if (!f) return;
+        this.setState({ fileName: f.name });
+        if (/\.ros$/i.test(f.name)) { try { const r = new FileReader(); r.onload = () => this.setState({ text: String(r.result || "") }); r.readAsText(f); } catch { /* */ } }
+      },
+      noText: !ready,
+      nextStyle: { fontSize: "11px", letterSpacing: "0.1em", textTransform: "uppercase", padding: "9px 16px", borderRadius: "4px", cursor: ready ? "pointer" : "default",
+                   color: ready ? "#0d0f12" : "#5f6b62", background: ready ? "#4fd873" : "transparent", border: "1px solid " + (ready ? "#4fd873" : "#2e3630"), fontWeight: 700 },
+      onParse: () => { if (!ready) return; const src = s.text.trim() || s.fileName; const fac = this.detect(src); const list = this.parseUnits(s.text, fac); this.setState({ faction: fac, units: list.length, unitList: list, step: "name" }); },
+      faction: s.faction, onFaction: (e) => this.setState({ faction: e.target.value }),
+      factionOptions: this.FACTIONS(),
+      unitsFound: s.units,
+      name: s.name, onName: (e) => this.setState({ name: e.target.value }),
+      noName: !s.name.trim(),
+      saveStyle: { fontSize: "11px", letterSpacing: "0.1em", textTransform: "uppercase", padding: "9px 16px", borderRadius: "4px", cursor: s.name.trim() ? "pointer" : "default",
+                   color: s.name.trim() ? "#0d0f12" : "#5f6b62", background: s.name.trim() ? "#4fd873" : "transparent", border: "1px solid " + (s.name.trim() ? "#4fd873" : "#2e3630"), fontWeight: 700 },
+      onToName: () => { if (!s.name.trim()) return; this.setState({ step: "role" }); },
+      onBackPaste: () => this.setState({ step: "paste" }),
+      onPlayer: () => this.setState({ step: "done", done: "Loaded as your active army." }),
+      onEnemy: () => this.setState({ step: "done", done: "Loaded as the enemy army." }),
+      onJustSave: () => this.setState({ step: "done", done: "Saved to your roster library." }),
+      onBackName: () => this.setState({ step: "name" }),
+      doneMsg: s.done,
+      onAnother: () => this.setState({ step: "paste", text: "", name: "", units: 0 }),
+    };
+  }
+}
+</script>
+</body>
+</html>

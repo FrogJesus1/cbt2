@@ -1,0 +1,476 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;600;700&family=Chakra+Petch:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+  * { box-sizing: border-box; }
+  body { margin: 0; }
+  @keyframes ctPulse { 0%, 100% { opacity: 1; } 50% { opacity: 0.45; } }
+  @keyframes ctFlow { from { stroke-dashoffset: 0; } to { stroke-dashoffset: -40; } }
+  .st input::placeholder { color: #4a5249; }
+  .st input[type=range] { accent-color: #4fd873; height: 4px; }
+</style>
+</helmet>
+
+<div class="st" style="min-width:100%; min-height:100vh; box-sizing:border-box; padding:40px; background:#e7e5df; font-family:'IBM Plex Mono', monospace; display:flex; flex-direction:column; align-items:center;">
+  <div style="width:1020px; max-width:100%;">
+    <div style="margin-bottom:12px;">
+      <div style="font-size:11px; letter-spacing:0.28em; color:#5a5648; text-transform:uppercase; font-weight:600;">settings</div>
+      <div style="font-size:12px; color:#908b7c; margin-top:3px;">Engine diagnostics, command reference, math-engine config, and command aliases. The circle in the tab row switches theme.</div>
+    </div>
+
+    <div data-screen-label="Settings" style="position:relative; border-radius:3px; overflow:hidden; box-shadow:0 4px 24px rgba(0,0,0,.22); background:#0d0f12; color:#d8dee0;">
+      <!-- chrome -->
+      <div style="display:flex; align-items:center; gap:12px; padding:9px 18px; background:#0a0c0e; border-bottom:1px solid #232a26; position:relative;">
+        <span style="width:7px; height:7px; border-radius:50%; background:#4fd873; box-shadow:0 0 8px rgba(79,216,115,.85);"></span>
+        <span style="font-family:'Chakra Petch', sans-serif; font-size:13px; letter-spacing:0.16em; color:#eef4ee; font-weight:600;">COMBAT TERMINAL</span>
+        <span style="font-size:10px; letter-spacing:0.1em; color:#5f6b62;">v2.0 · 7a3f1c</span><span style="font-size:10px; letter-spacing:0.1em; color:#4fd873; margin-left:6px;">· 11TH ED</span>
+        <div style="margin-left:auto; display:flex; flex-direction:column; align-items:flex-end; gap:2px;">
+          <span style="font-family:'Chakra Petch', sans-serif; font-size:10px; letter-spacing:0.12em; color:#5f6b62; border:1px dashed #2e3630; padding:3px 8px; border-radius:3px;">NOT ASSIGNED</span>
+          <span style="font-size:8px; letter-spacing:0.1em; color:#4a5249;">enemy · not set</span>
+        </div>
+      </div>
+      <!-- nav -->
+      <div style="display:flex; font-family:'Chakra Petch', sans-serif; font-size:11px; letter-spacing:0.1em; border-bottom:1px solid #1a201c; background:#0a0c0e; padding:0 8px;">
+        <div style="padding:9px 14px; color:#5f6b62;">COMBAT SIM</div>
+        <a href="List%20Units.dc.html" style="padding:9px 14px; color:#5f6b62; text-decoration:none;">UNITS</a>
+        <a href="Spec%20Unit.dc.html" style="padding:9px 14px; color:#5f6b62; text-decoration:none;">DATASHEET</a>
+        <a href="Rosters.dc.html" style="padding:9px 14px; color:#5f6b62; text-decoration:none;">ROSTERS</a>
+        <a href="Rules.dc.html" style="padding:9px 14px; color:#5f6b62; text-decoration:none;">RULES</a>
+        <div style="padding:9px 14px; color:#eef4ee; border-bottom:2px solid #4fd873;">SETTINGS</div>
+        <div style="margin-left:auto; display:flex; align-items:center; position:relative; padding:0 10px;">
+          <button onClick="{{ onToggleTheme }}" title="Theme · {{ themeLabel }}" style="width:17px; height:17px; border-radius:50%; background:{{ themeSwatch }}; border:none; box-shadow:0 0 0 1px #2e3630, 0 0 8px {{ themeGlow }}; cursor:pointer; padding:0;"></button>
+          <sc-if value="{{ themeOpen }}" hint-placeholder-val="{{ false }}">
+            <div style="position:absolute; right:6px; top:calc(100% + 6px); width:250px; background:#0a0c0e; border:1px solid #2e3630; border-radius:5px; box-shadow:0 8px 24px rgba(0,0,0,.5); z-index:80; overflow:hidden;">
+              <div style="font-size:9px; letter-spacing:0.14em; color:#5f6b62; text-transform:uppercase; padding:9px 12px 6px;">Theme</div>
+              <sc-for list="{{ themes }}" as="t" hint-placeholder-count="6">
+                <div onClick="{{ t.onSelect }}" style="{{ t.rowStyle }}">
+                  <span style="width:12px; height:12px; border-radius:3px; background:{{ t.swatch }}; border:1px solid rgba(255,255,255,.12); flex-shrink:0;"></span>
+                  <div style="flex:1; min-width:0;">
+                    <div style="font-size:11px; color:#cdd4cb; font-weight:600; letter-spacing:0.06em;">{{ t.label }}</div>
+                    <div style="font-size:9px; color:#5f6b62; line-height:1.4;">{{ t.desc }}</div>
+                  </div>
+                  <sc-if value="{{ t.active }}" hint-placeholder-val="{{ false }}"><span style="color:#4fd873; font-size:11px; flex-shrink:0;">✓</span></sc-if>
+                </div>
+              </sc-for>
+            </div>
+          </sc-if>
+        </div>
+      </div>
+
+      <!-- sub-tabs -->
+      <div style="display:flex; gap:6px; padding:12px 20px 0; border-bottom:1px solid #1a201c;">
+        <sc-for list="{{ subtabs }}" as="t" hint-placeholder-count="4">
+          <div onClick="{{ t.onSelect }}" style="{{ t.style }}">{{ t.label }}</div>
+        </sc-for>
+      </div>
+
+      <div style="padding:20px 22px 22px; min-height:440px;">
+
+        <!-- ══ DIAGNOSTICS ══ -->
+        <sc-if value="{{ isDiag }}" hint-placeholder-val="{{ true }}">
+          <div style="display:flex; flex-direction:column; gap:22px;">
+            <!-- system health -->
+            <div>
+              <div style="font-size:10px; letter-spacing:0.18em; color:#d8b25a; text-transform:uppercase; padding-bottom:8px; border-bottom:1px solid #232a26; margin-bottom:12px;">System Health</div>
+              <div style="display:flex; gap:10px; flex-wrap:wrap; margin-bottom:14px;">
+                <div style="display:flex; align-items:center; gap:9px; padding:9px 15px; background:#051005; border:1px solid #1e6030; border-radius:4px;"><span style="width:10px; height:10px; border-radius:50%; background:#4fd873; box-shadow:0 0 8px #4fd873;"></span><span style="font-size:12px; font-weight:700; letter-spacing:0.14em; color:#4fd873; text-transform:uppercase;">Monte Carlo · Active</span></div>
+                <div style="display:flex; align-items:center; gap:9px; padding:9px 15px; background:#051005; border:1px solid #1e6030; border-radius:4px;"><span style="width:10px; height:10px; border-radius:50%; background:#4fd873; box-shadow:0 0 8px #4fd873;"></span><span style="font-size:12px; font-weight:700; letter-spacing:0.14em; color:#4fd873; text-transform:uppercase;">Deterministic · Active</span></div>
+                <div style="display:flex; align-items:center; gap:9px; padding:9px 15px; background:#051005; border:1px solid #1e6030; border-radius:4px;"><span style="width:10px; height:10px; border-radius:50%; background:#4fd873; box-shadow:0 0 8px #4fd873;"></span><span style="font-size:12px; font-weight:700; letter-spacing:0.14em; color:#4fd873; text-transform:uppercase;">Engine · Online</span></div>
+              </div>
+              <div style="display:flex; align-items:center; justify-content:space-between; flex-wrap:wrap; gap:16px; padding:13px 16px; background:#12150f; border:1px solid #232a26; border-radius:5px;">
+                <div style="display:flex; align-items:center; gap:10px;">
+                  <svg width="66" height="34" viewBox="0 0 66 34"><polyline points="0,17 15,17 20,5 25,29 30,17 38,17 43,8 48,26 53,17 66,17" fill="none" stroke="#4fd873" stroke-width="1.5" style="filter:drop-shadow(0 0 3px #4fd873);"></polyline></svg>
+                  <span style="font-size:10px; letter-spacing:0.14em; color:#4fd873; text-transform:uppercase;">Engine Active</span>
+                </div>
+                <div style="display:flex; gap:30px;">
+                  <div style="text-align:center;"><div style="font-family:'Chakra Petch', sans-serif; font-size:18px; color:#4fd873; font-weight:700;">29</div><div style="font-size:9px; color:#5f6b62; letter-spacing:0.1em; text-transform:uppercase;">Factions</div></div>
+                  <div style="text-align:center;"><div style="font-family:'Chakra Petch', sans-serif; font-size:18px; color:#4fd873; font-weight:700;">1,284</div><div style="font-size:9px; color:#5f6b62; letter-spacing:0.1em; text-transform:uppercase;">Units</div></div>
+                  <div style="text-align:center;"><div style="font-family:'Chakra Petch', sans-serif; font-size:18px; color:#4fd873; font-weight:700;">5,000</div><div style="font-size:9px; color:#5f6b62; letter-spacing:0.1em; text-transform:uppercase;">MC Trials</div></div>
+                  <div style="text-align:center;"><div style="font-family:'Chakra Petch', sans-serif; font-size:18px; color:#4fd873; font-weight:700;">17:42:08</div><div style="font-size:9px; color:#5f6b62; letter-spacing:0.1em; text-transform:uppercase;">Last Polled</div></div>
+                </div>
+              </div>
+            </div>
+
+            <!-- data flow -->
+            <div>
+              <div style="font-size:10px; letter-spacing:0.18em; color:#d8b25a; text-transform:uppercase; padding-bottom:8px; border-bottom:1px solid #232a26; margin-bottom:12px;">Data Flow Pipeline</div>
+              <div style="display:flex; align-items:center; gap:0; padding:14px 8px; background:#12150f; border:1px solid #232a26; border-radius:5px; overflow-x:auto;">
+                <sc-for list="{{ pipeline }}" as="p" hint-placeholder-count="5">
+                  <div style="display:flex; align-items:center; flex-shrink:0;">
+                    <div style="width:118px; padding:10px 8px; text-align:center; background:#051005; border:1px solid #1e6030; border-radius:4px;">
+                      <div style="font-size:7px; color:#4fd873; letter-spacing:0.1em;">OK</div>
+                      <div style="font-size:11px; color:#4fd873; font-weight:700; letter-spacing:0.08em; margin-top:2px;">{{ p.label }}</div>
+                      <div style="font-size:8px; color:#84907f; margin-top:2px;">{{ p.sub }}</div>
+                    </div>
+                    <sc-if value="{{ p.arrow }}" hint-placeholder-val="{{ true }}"><span style="color:#4fd873; padding:0 5px; font-size:13px;">→</span></sc-if>
+                  </div>
+                </sc-for>
+              </div>
+            </div>
+
+            <!-- data integrity -->
+            <div>
+              <div style="display:flex; justify-content:space-between; align-items:center; padding-bottom:8px; border-bottom:1px solid #232a26; margin-bottom:12px;">
+                <span style="font-size:10px; letter-spacing:0.18em; color:#d8b25a; text-transform:uppercase;">Data Integrity</span>
+                <div style="display:flex; gap:14px; font-size:9px; letter-spacing:0.08em;"><span style="color:#4fd873;">■ Production</span><span style="color:#d8b25a;">■ Playable</span><span style="color:#ff5d5d;">■ Critical</span></div>
+              </div>
+              <div style="background:#12150f; border:1px solid #232a26; border-radius:5px; padding:10px 14px;">
+                <sc-for list="{{ integrity }}" as="f" hint-placeholder-count="6">
+                  <div style="display:grid; grid-template-columns:150px 52px 1fr 44px; align-items:center; gap:10px; padding:5px 0; border-bottom:1px solid #1a201c;">
+                    <span style="font-size:12px; color:#a8b0a4; text-transform:capitalize;">{{ f.name }}</span>
+                    <span style="font-size:10px; color:#5f6b62; text-align:right;">{{ f.loaded }}</span>
+                    <div style="height:8px; background:#1c241e; border-radius:2px; overflow:hidden;"><div style="{{ f.barStyle }}"></div></div>
+                    <span style="font-size:10px; color:{{ f.color }}; text-align:right;">{{ f.pct }}</span>
+                  </div>
+                </sc-for>
+              </div>
+            </div>
+
+            <!-- engine docs -->
+            <div>
+              <div style="font-size:10px; letter-spacing:0.18em; color:#d8b25a; text-transform:uppercase; padding-bottom:8px; border-bottom:1px solid #232a26; margin-bottom:12px;">Engine Docs</div>
+              <div style="display:grid; grid-template-columns:1fr 1fr; gap:10px;">
+                <sc-for list="{{ docs }}" as="d" hint-placeholder-count="4">
+                  <div style="background:#12150f; border:1px solid #232a26; border-radius:5px; padding:12px 14px;">
+                    <div style="display:flex; align-items:center; gap:9px; margin-bottom:7px;"><span style="font-size:12px; color:#cdd4cb; font-weight:600;">{{ d.title }}</span><span style="{{ d.badgeStyle }}">{{ d.badge }}</span></div>
+                    <div style="font-size:11px; color:#9aa49a; line-height:1.6; margin-bottom:9px;">{{ d.body }}</div>
+                    <div style="font-size:10px; color:#4fd0e0; background:#0a0c0e; border:1px solid #232a26; border-radius:3px; padding:6px 9px; letter-spacing:0.02em;">{{ d.math }}</div>
+                  </div>
+                </sc-for>
+              </div>
+            </div>
+          </div>
+        </sc-if>
+
+        <!-- ══ COMMAND LIST ══ -->
+        <sc-if value="{{ isCommands }}" hint-placeholder-val="{{ false }}">
+          <div style="display:flex; flex-direction:column; gap:18px;">
+            <sc-for list="{{ cmdGroups }}" as="g" hint-placeholder-count="4">
+              <div>
+                <div style="display:flex; align-items:center; gap:9px; padding-bottom:8px; border-bottom:1px solid #232a26; margin-bottom:6px;">
+                  <span style="width:8px; height:8px; border-radius:2px; background:{{ g.color }};"></span>
+                  <span style="font-family:'Chakra Petch', sans-serif; font-size:11px; letter-spacing:0.14em; color:#eef4ee; text-transform:uppercase;">{{ g.title }}</span>
+                </div>
+                <sc-for list="{{ g.cmds }}" as="c" hint-placeholder-count="4">
+                  <div style="display:grid; grid-template-columns:230px 1fr; gap:14px; padding:6px 4px; border-bottom:1px solid #1a201c; align-items:baseline;">
+                    <span style="font-size:12px; color:#4fd873;">{{ c.cmd }}</span>
+                    <span style="font-size:11px; color:#9aa49a; line-height:1.5;">{{ c.desc }}</span>
+                  </div>
+                </sc-for>
+              </div>
+            </sc-for>
+          </div>
+        </sc-if>
+
+        <!-- ══ MATH MODE ══ -->
+        <sc-if value="{{ isMath }}" hint-placeholder-val="{{ false }}">
+          <div style="display:grid; grid-template-columns:1fr 320px; gap:16px; align-items:start;">
+            <div style="display:flex; flex-direction:column; gap:18px;">
+              <div>
+                <div style="font-size:10px; letter-spacing:0.14em; color:#d8b25a; text-transform:uppercase; font-weight:700; margin-bottom:9px;">Rules Edition</div>
+                <div style="display:inline-flex; border:1px solid #232a26; border-radius:5px; overflow:hidden;">
+                  <div onClick="{{ onEd11 }}" style="{{ ed11Style }}">11th Edition</div>
+                  <div onClick="{{ onEd10 }}" style="{{ ed10Style }}">10th Edition</div>
+                </div>
+                <div style="font-size:11px; color:#9aa49a; line-height:1.6; margin-top:9px;">Switches the entire rules engine — datasheets, stratagems and combat math reload for the chosen edition. The active edition shows in the footer on every page.</div>
+              </div>
+              <div>
+                <div style="font-size:10px; letter-spacing:0.14em; color:#5f6b62; text-transform:uppercase; font-weight:700; margin-bottom:9px;">Engine Mode</div>
+                <div style="display:inline-flex; border:1px solid #232a26; border-radius:5px; overflow:hidden;">
+                  <div onClick="{{ onModeMC }}" style="{{ mcStyle }}">Monte Carlo</div>
+                  <div onClick="{{ onModeDet }}" style="{{ detStyle }}">Deterministic</div>
+                </div>
+                <div style="font-size:11px; color:#9aa49a; line-height:1.6; margin-top:9px;">{{ modeDesc }}</div>
+              </div>
+
+              <div>
+                <div style="display:flex; justify-content:space-between; align-items:baseline; margin-bottom:8px;">
+                  <span style="font-size:10px; letter-spacing:0.14em; color:#5f6b62; text-transform:uppercase; font-weight:700;">Iterations</span>
+                  <span style="font-size:13px; color:#4fd873; font-weight:700;">{{ itersLabel }}</span>
+                </div>
+                <input type="range" min="1000" max="20000" step="1000" value="{{ iters }}" onInput="{{ onIters }}" style="width:100%;" disabled="{{ itersDisabled }}">
+                <div style="font-size:10px; color:#5f6b62; margin-top:5px;">More trials → tighter confidence interval, slower compute. {{ itersNote }}</div>
+              </div>
+
+              <div>
+                <div style="font-size:10px; letter-spacing:0.14em; color:#5f6b62; text-transform:uppercase; font-weight:700; margin-bottom:9px;">Confidence Target</div>
+                <div style="display:flex; gap:6px;">
+                  <sc-for list="{{ confidence }}" as="c" hint-placeholder-count="3"><span onClick="{{ c.onSelect }}" style="{{ c.style }}">{{ c.label }}</span></sc-for>
+                </div>
+              </div>
+
+              <div style="display:flex; flex-direction:column; gap:10px;">
+                <div onClick="{{ onToggleWorking }}" style="display:flex; align-items:center; gap:10px; cursor:pointer;">
+                  <span style="{{ workingBox }}">{{ workingCheck }}</span>
+                  <div><div style="font-size:12px; color:#cdd4cb;">Show working (Math Mode replay)</div><div style="font-size:10px; color:#5f6b62;">Step through every dice-math event after a result.</div></div>
+                </div>
+                <div onClick="{{ onToggleVariance }}" style="display:flex; align-items:center; gap:10px; cursor:pointer;">
+                  <span style="{{ varianceBox }}">{{ varianceCheck }}</span>
+                  <div><div style="font-size:12px; color:#cdd4cb;">Report variance &amp; swinginess</div><div style="font-size:10px; color:#5f6b62;">Show the coefficient of variation per result. {{ varianceNote }}</div></div>
+                </div>
+              </div>
+            </div>
+
+            <!-- preview -->
+            <div style="background:#12150f; border:1px solid #232a26; border-radius:5px; padding:14px 15px;">
+              <div style="display:flex; align-items:center; gap:8px; margin-bottom:11px;"><span style="color:#b388ff;">◈</span><span style="font-size:10px; letter-spacing:0.14em; color:#b388ff; text-transform:uppercase; font-weight:700;">Current Config</span></div>
+              <div style="display:flex; flex-direction:column; gap:7px; font-size:11px;">
+                <div style="display:flex; justify-content:space-between;"><span style="color:#84907f;">Mode</span><span style="color:#d8dee0;">{{ modeName }}</span></div>
+                <div style="display:flex; justify-content:space-between;"><span style="color:#84907f;">Trials</span><span style="color:#d8dee0;">{{ itersLabel }}</span></div>
+                <div style="display:flex; justify-content:space-between;"><span style="color:#84907f;">Target CI</span><span style="color:#d8dee0;">{{ confName }}</span></div>
+                <div style="display:flex; justify-content:space-between;"><span style="color:#84907f;">Replay</span><span style="color:#d8dee0;">{{ workingName }}</span></div>
+                <div style="display:flex; justify-content:space-between;"><span style="color:#84907f;">Variance</span><span style="color:#d8dee0;">{{ varianceName }}</span></div>
+              </div>
+              <div style="margin-top:13px; padding-top:11px; border-top:1px solid #232a26;">
+                <div style="font-size:9px; color:#5f6b62; letter-spacing:0.1em; text-transform:uppercase; margin-bottom:7px;">Sample ledger</div>
+                <div style="font-size:10px; line-height:1.9; color:#9aa49a;">
+                  <div><span style="color:#b388ff;">hit</span> = 10 × .833 <span style="color:#3f4a40;">→</span> <span style="color:#d8b25a;">8.33</span></div>
+                  <div><span style="color:#b388ff;">wound</span> = 8.33 × .333 <span style="color:#3f4a40;">→</span> <span style="color:#d8b25a;">2.78</span></div>
+                  <div><span style="color:#b388ff;">unsaved</span> = 2.78 × .50 <span style="color:#3f4a40;">→</span> <span style="color:#d8b25a;">1.39</span></div>
+                  <div><span style="color:#b388ff;">damage</span> = 1.39 × 1 <span style="color:#3f4a40;">→</span> <span style="color:#4fd873;">1.39</span></div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </sc-if>
+
+        <!-- ══ ALIASES ══ -->
+        <sc-if value="{{ isAliases }}" hint-placeholder-val="{{ false }}">
+          <div style="max-width:640px;">
+            <div style="font-size:11px; color:#9aa49a; line-height:1.6; margin-bottom:16px;">Aliases let you type a shorthand that expands to a full command or unit name. They apply anywhere in the terminal.</div>
+            <div style="display:flex; gap:9px; margin-bottom:16px;">
+              <input value="{{ newAlias }}" onInput="{{ onNewAlias }}" placeholder="alias  (e.g. ds)" style="width:160px; background:#12150f; border:1px solid #232a26; color:#d8dee0; font-family:inherit; font-size:12px; padding:9px 11px; border-radius:4px; outline:none;">
+              <span style="color:#5f6b62; align-self:center;">→</span>
+              <input value="{{ newCmd }}" onInput="{{ onNewCmd }}" onKeyDown="{{ onNewKey }}" placeholder="expands to…  (e.g. deep strike)" style="flex:1; background:#12150f; border:1px solid #232a26; color:#d8dee0; font-family:inherit; font-size:12px; padding:9px 11px; border-radius:4px; outline:none;">
+              <span onClick="{{ onAddAlias }}" style="font-size:11px; letter-spacing:0.08em; text-transform:uppercase; color:#0d0f12; background:#4fd873; font-weight:700; padding:9px 16px; border-radius:4px; cursor:pointer; align-self:center;">+ Add</span>
+            </div>
+            <div style="background:#12150f; border:1px solid #232a26; border-radius:5px; overflow:hidden;">
+              <div style="display:grid; grid-template-columns:160px 1fr 40px; gap:12px; padding:8px 14px; border-bottom:1px solid #232a26; font-size:9px; letter-spacing:0.1em; text-transform:uppercase; color:#5f6b62;">
+                <span>Alias</span><span>Expands to</span><span></span>
+              </div>
+              <sc-for list="{{ aliases }}" as="a" hint-placeholder-count="3">
+                <div style="display:grid; grid-template-columns:160px 1fr 40px; gap:12px; padding:9px 14px; border-bottom:1px solid #1a201c; align-items:center;">
+                  <span style="font-size:12px; color:#4fd873;">{{ a.alias }}</span>
+                  <span style="font-size:12px; color:#a8b0a4;">{{ a.cmd }}</span>
+                  <span onClick="{{ a.onRemove }}" title="Remove" style="color:#5f6b62; font-size:12px; cursor:pointer; text-align:center;">✕</span>
+                </div>
+              </sc-for>
+              <sc-if value="{{ noAliases }}" hint-placeholder-val="{{ false }}"><div style="padding:18px 14px; font-size:12px; color:#5f6b62; font-style:italic;">No aliases yet — add one above.</div></sc-if>
+            </div>
+          </div>
+        </sc-if>
+
+      </div>
+
+      <!-- footer · edition (sitewide) -->
+      <div style="display:flex; align-items:center; gap:10px; padding:7px 18px; background:#0a0c0e; border-top:1px solid #232a26; font-size:9px; color:#5f6b62; letter-spacing:0.08em;">
+        <span>COMBAT TERMINAL · v2.0</span>
+        <span style="margin-left:auto; display:flex; align-items:center; gap:6px;"><span style="width:5px; height:5px; border-radius:50%; background:#4fd873; box-shadow:0 0 5px #4fd873;"></span><span style="color:#4fd873; font-weight:600;">{{ editionLabel }}</span><span style="color:#3f4a40;">· 40K rules engine</span></span>
+      </div>
+
+      <!-- command bar -->
+      <div style="display:flex; align-items:center; gap:12px; padding:0 18px; min-height:48px; border-top:2px solid #1f5a36; background:#0a0c0e;">
+        <span style="color:#4fd873; font-size:16px; flex-shrink:0;">›</span>
+        <input value="{{ term }}" onInput="{{ onTermInput }}" onKeyDown="{{ onTermKey }}" placeholder="diag  ·  commands  ·  math  ·  alias &lt;short&gt; &lt;command&gt;  ·  theme &lt;name&gt;" style="flex:1; background:transparent; border:none; outline:none; color:#4fd873; font-family:'IBM Plex Mono', monospace; font-size:13px; caret-color:#4fd873;">
+        <span style="font-size:10px; letter-spacing:0.14em; color:#3f4a40; flex-shrink:0;">⏎ RUN</span>
+      </div>
+    </div>
+  </div>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script>
+class Component extends DCLogic {
+  state = {
+    tab: "diagnostics",
+    themeOpen: false,
+    theme: "dark",
+    edition: "11th",
+    mode: "mc",
+    iters: 5000,
+    conf: "high",
+    working: true,
+    variance: true,
+    aliases: [
+      { alias: "deepstrike", cmd: "deep strike" },
+      { alias: "fireknife", cmd: "crisis fireknife battlesuits" },
+      { alias: "ds", cmd: "deep strike" },
+      { alias: "sm", cmd: "space marines" },
+      { alias: "vs", cmd: "combat" },
+    ],
+    newAlias: "", newCmd: "",
+    term: "",
+  };
+
+  THEMES() {
+    return [
+      { id: "dark", label: "DARK", desc: "Phosphor green on near-black — standard CRT", swatch: "#4fd873" },
+      { id: "light", label: "LIGHT", desc: "Light background — high-contrast", swatch: "#7ab37a" },
+      { id: "console", label: "CONSOLE", desc: "Amber phosphor, monospace, no chrome", swatch: "#ffb000" },
+      { id: "chaos-daemons", label: "CHAOS DAEMONS", desc: "Blood-red & warp-purple", swatch: "#ff2020" },
+      { id: "dark-angels", label: "DARK ANGELS", desc: "Deep forest green & bone", swatch: "#2aaa4a" },
+      { id: "orks", label: "ORKS", desc: "Grimy yellow-green & rust", swatch: "#a0e020" },
+    ];
+  }
+
+  componentDidMount() {
+    try { const t = localStorage.getItem("ct_active_theme"); if (t) this.setState({ theme: t }); } catch { /* */ }
+    try { const e = localStorage.getItem("ct_edition"); if (e) this.setState({ edition: e }); } catch { /* */ }
+  }
+
+  renderVals() {
+    const s = this.state;
+
+    // ── theme picker ──
+    const themeList = this.THEMES();
+    const cur = themeList.find(t => t.id === s.theme) || themeList[0];
+    const themes = themeList.map(t => ({
+      label: t.label, desc: t.desc, swatch: t.swatch, active: t.id === s.theme,
+      onSelect: () => { try { localStorage.setItem("ct_active_theme", t.id); } catch { /* */ } this.setState({ theme: t.id, themeOpen: false }); },
+      rowStyle: { display: "flex", alignItems: "center", gap: "10px", padding: "8px 12px", cursor: "pointer",
+                  borderTop: "1px solid #1a201c", background: t.id === s.theme ? "rgba(79,216,115,.05)" : "transparent" },
+    }));
+
+    // ── sub-tabs ──
+    const tabDefs = [["diagnostics", "Diagnostics"], ["commands", "Command List"], ["math", "Math Mode"], ["aliases", "Aliases"]];
+    const subtabs = tabDefs.map(([k, label]) => {
+      const active = s.tab === k;
+      return { label, onSelect: () => this.setState({ tab: k }),
+        style: { fontFamily: "'Chakra Petch', sans-serif", fontSize: "11px", letterSpacing: "0.1em", textTransform: "uppercase",
+                 padding: "8px 14px", cursor: "pointer", color: active ? "#eef4ee" : "#5f6b62",
+                 borderBottom: active ? "2px solid #4fd873" : "2px solid transparent" } };
+    });
+
+    // ── diagnostics data ──
+    const pipeline = [
+      { label: "DOSSIERS", sub: "Faction JSON", arrow: true },
+      { label: "RULES", sub: "Core + Keywords", arrow: true },
+      { label: "MODIFIERS", sub: "Stat transforms", arrow: true },
+      { label: "ENGINE", sub: "Math + MC", arrow: true },
+      { label: "OUTPUT", sub: "API response", arrow: false },
+    ];
+    const tl = (pct) => pct >= 90 ? "#4fd873" : pct >= 70 ? "#d8b25a" : "#ff5d5d";
+    const integrity = [
+      { name: "space marines", loaded: "221/221", pct: 100 },
+      { name: "t'au empire", loaded: "46/48", pct: 96 },
+      { name: "necrons", loaded: "51/55", pct: 92 },
+      { name: "orks", loaded: "75/85", pct: 88 },
+      { name: "aeldari", loaded: "58/72", pct: 81 },
+      { name: "deathwatch", loaded: "2/2", pct: 100 },
+      { name: "leagues of votann", loaded: "7/12", pct: 58 },
+    ].map(f => ({ name: f.name, loaded: f.loaded, pct: f.pct + "%", color: tl(f.pct),
+      barStyle: { height: "100%", width: f.pct + "%", borderRadius: "2px", background: tl(f.pct) } }));
+    const badge = (c) => ({ fontSize: "8px", letterSpacing: "0.12em", textTransform: "uppercase", color: c, border: "1px solid " + c + "55", background: c + "12", padding: "1px 6px", borderRadius: "2px" });
+    const docs = [
+      { title: "Deterministic Mode", badge: "Always Active", badgeStyle: badge("#4fd873"), body: "Fixed expected-value math: the exact probability chain per weapon. Accurate mean, but no variance.", math: "E[dmg] = A × P(hit) × P(wound) × P(fail save) × D" },
+      { title: "Monte Carlo Mode", badge: "5,000 trials", badgeStyle: badge("#4fd0e0"), body: "Rolls every die thousands of times to capture the full distribution — swinginess, overkill, kill chance.", math: "std_err = σ/√n · 95% CI = ±1.96 × std_err" },
+      { title: "Armour Penetration", badge: "40K mechanic", badgeStyle: badge("#d8b25a"), body: "AP is negative and subtracted from the save. Invulnerable saves are compared and the better is used.", math: "save = min(Sv − cover + AP, invuln)" },
+      { title: "Swinginess", badge: "MC metric", badgeStyle: badge("#4fd0e0"), body: "Coefficient of variation of the damage distribution. A railgun is swingy; massed bolters are stable.", math: "CV = σ / μ" },
+    ];
+
+    // ── command list ──
+    const cmdGroups = [
+      { title: "Combat", color: "#4fd873", cmds: [
+        ["<unit> vs <unit>", "Run the full combat-math result between two units."],
+        ["spec <unit>", "Open a unit's datasheet — stats, weapons, ratings, abilities."],
+        ["threat <unit>", "Single-unit threat dossier with counter picks."],
+        ["threat <faction>", "Faction threat overview — composition + ranked index."],
+      ] },
+      { title: "Data", color: "#4fd0e0", cmds: [
+        ["list units <faction>", "Browse the unit database, filter by keyword and cost."],
+        ["rule <keyword>", "Look up a rule, weapon ability, or keyword."],
+        ["search <term>", "Search units and rules for a term."],
+      ] },
+      { title: "Rosters", color: "#d8b25a", cmds: [
+        ["rosters", "Open the roster manager dashboard."],
+        ["upload roster", "Paste or upload an army list to save it."],
+        ["set roster player|enemy <name>", "Load a saved roster into an active slot."],
+        ["new campaign", "Start a crusade / campaign tracker."],
+      ] },
+      { title: "System", color: "#a78bdb", cmds: [
+        ["theme <name>", "Switch the UI theme (dark, console, orks…)."],
+        ["math", "Open Math Mode — replay the dice math step by step."],
+        ["alias <short> <command>", "Create a shorthand alias."],
+        ["diag", "Engine diagnostics & data integrity."],
+        ["help", "Full command reference."],
+      ] },
+    ].map(g => ({ title: g.title, color: g.color, cmds: g.cmds.map(c => ({ cmd: c[0], desc: c[1] })) }));
+
+    // ── math mode ──
+    const segStyle = (on) => ({ fontFamily: "'Chakra Petch', sans-serif", fontSize: "11px", letterSpacing: "0.08em", padding: "8px 16px", cursor: "pointer",
+      color: on ? "#0d0f12" : "#a8b0a4", background: on ? "#4fd873" : "transparent", fontWeight: on ? 700 : 400 });
+    const confDefs = [["vhigh", "Very High ≤1%"], ["high", "High ≤3%"], ["med", "Medium ≤7%"]];
+    const confName = (confDefs.find(c => c[0] === s.conf) || confDefs[1])[1];
+    const confidence = confDefs.map(([k, label]) => {
+      const on = s.conf === k;
+      return { label, onSelect: () => this.setState({ conf: k }),
+        style: { fontSize: "10px", letterSpacing: "0.04em", padding: "5px 10px", borderRadius: "3px", cursor: "pointer",
+                 color: on ? "#0d0f12" : "#a8b0a4", background: on ? "#4fd873" : "transparent", border: "1px solid " + (on ? "#4fd873" : "#2e3630"), fontWeight: on ? 700 : 400 } };
+    });
+    const chk = (on) => ({ width: "16px", height: "16px", borderRadius: "3px", border: "1px solid " + (on ? "#4fd873" : "#2e3630"), background: on ? "#4fd873" : "transparent", display: "flex", alignItems: "center", justifyContent: "center", fontSize: "10px", color: "#0d0f12", flexShrink: 0 });
+    const isMC = s.mode === "mc";
+
+    // ── aliases ──
+    const aliases = s.aliases.map((a, i) => ({ alias: a.alias, cmd: a.cmd,
+      onRemove: () => this.setState(st => ({ aliases: st.aliases.filter((_, j) => j !== i) })) }));
+    const addAlias = () => {
+      const al = s.newAlias.trim(), cm = s.newCmd.trim();
+      if (!al || !cm) return;
+      this.setState(st => ({ aliases: [...st.aliases.filter(x => x.alias !== al), { alias: al, cmd: cm }], newAlias: "", newCmd: "" }));
+    };
+
+    return {
+      // theme
+      themeOpen: s.themeOpen, onToggleTheme: () => this.setState(st => ({ themeOpen: !st.themeOpen })),
+      themes, themeLabel: cur.label, themeSwatch: cur.swatch, themeGlow: cur.swatch + "66",
+      // subtabs
+      subtabs,
+      isDiag: s.tab === "diagnostics", isCommands: s.tab === "commands", isMath: s.tab === "math", isAliases: s.tab === "aliases",
+      edition: s.edition,
+      editionLabel: s.edition === "11th" ? "11TH EDITION" : "10TH EDITION",
+      onEd11: () => { try { localStorage.setItem("ct_edition", "11th"); } catch { /* */ } this.setState({ edition: "11th" }); },
+      onEd10: () => { try { localStorage.setItem("ct_edition", "10th"); } catch { /* */ } this.setState({ edition: "10th" }); },
+      ed11Style: { fontFamily: "'Chakra Petch',sans-serif", fontSize: "11px", letterSpacing: "0.08em", padding: "8px 18px", cursor: "pointer", color: s.edition === "11th" ? "#0d0f12" : "#a8b0a4", background: s.edition === "11th" ? "#4fd873" : "transparent", fontWeight: s.edition === "11th" ? 700 : 400 },
+      ed10Style: { fontFamily: "'Chakra Petch',sans-serif", fontSize: "11px", letterSpacing: "0.08em", padding: "8px 18px", cursor: "pointer", color: s.edition === "10th" ? "#0d0f12" : "#a8b0a4", background: s.edition === "10th" ? "#4fd873" : "transparent", fontWeight: s.edition === "10th" ? 700 : 400 },
+      // diagnostics
+      pipeline, integrity, docs,
+      // commands
+      cmdGroups,
+      // math
+      mcStyle: segStyle(isMC), detStyle: segStyle(!isMC),
+      onModeMC: () => this.setState({ mode: "mc" }), onModeDet: () => this.setState({ mode: "det" }),
+      modeName: isMC ? "Monte Carlo" : "Deterministic",
+      modeDesc: isMC ? "Simulates thousands of full combat sequences — captures variance, swinginess and tail outcomes." : "Single fixed expected-value calculation per weapon. Fast and exact mean, but no variance or spikes.",
+      iters: s.iters, itersLabel: isMC ? s.iters.toLocaleString() : "—",
+      onIters: (e) => this.setState({ iters: Number(e.target.value) }),
+      itersDisabled: !isMC, itersNote: isMC ? "" : "(Deterministic mode runs a single pass.)",
+      confidence, confName,
+      onToggleWorking: () => this.setState(st => ({ working: !st.working })),
+      workingBox: chk(s.working), workingCheck: s.working ? "✓" : "", workingName: s.working ? "On" : "Off",
+      onToggleVariance: () => this.setState(st => ({ variance: !st.variance })),
+      varianceBox: chk(s.variance && isMC), varianceCheck: (s.variance && isMC) ? "✓" : "", varianceName: (s.variance && isMC) ? "On" : "Off",
+      varianceNote: isMC ? "" : "(MC only.)",
+      // aliases
+      aliases, noAliases: aliases.length === 0,
+      newAlias: s.newAlias, onNewAlias: (e) => this.setState({ newAlias: e.target.value }),
+      newCmd: s.newCmd, onNewCmd: (e) => this.setState({ newCmd: e.target.value }),
+      onNewKey: (e) => { if (e.key === "Enter") addAlias(); },
+      onAddAlias: addAlias,
+      // term
+      term: s.term, onTermInput: (e) => this.setState({ term: e.target.value }),
+      onTermKey: (e) => { if (e.key === "Enter") this.setState({ term: "" }); },
+    };
+  }
+}
+</script>
+</body>
+</html>

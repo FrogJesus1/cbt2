@@ -1,0 +1,382 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;600;700&family=Chakra+Petch:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+  * { box-sizing: border-box; }
+  body { margin: 0; }
+  .lu input::placeholder { color: #4a5249; }
+  .lu input[type=range] { accent-color: #4fd873; height: 4px; }
+  .lu select { appearance: none; -webkit-appearance: none; }
+</style>
+</helmet>
+
+<div class="lu" style="min-width:100%; min-height:100vh; box-sizing:border-box; padding:40px; background:#e7e5df; font-family:'IBM Plex Mono', monospace; display:flex; flex-direction:column; align-items:center;">
+  <div style="width:1080px; max-width:100%;">
+    <div style="margin-bottom:12px;">
+      <div style="font-size:11px; letter-spacing:0.28em; color:#5a5648; text-transform:uppercase; font-weight:600;">list units</div>
+      <div style="font-size:12px; color:#908b7c; margin-top:3px;">Static unit database — pick a faction, filter by roster, points, and weapon keywords. Star units to build a cross-faction shortlist (saved between visits).</div>
+    </div>
+
+    <div data-screen-label="Unit Database" style="position:relative; border-radius:3px; overflow:hidden; box-shadow:0 4px 24px rgba(0,0,0,.22); background:#0d0f12; color:#d8dee0;">
+      <!-- chrome -->
+      <div style="display:flex; align-items:center; gap:12px; padding:9px 18px; background:#0a0c0e; border-bottom:1px solid #232a26;">
+        <span style="width:7px; height:7px; border-radius:50%; background:#4fd873; box-shadow:0 0 8px rgba(79,216,115,.85);"></span>
+        <span style="font-family:'Chakra Petch', sans-serif; font-size:13px; letter-spacing:0.16em; color:#eef4ee; font-weight:600;">COMBAT TERMINAL</span>
+        <span style="font-size:10px; letter-spacing:0.1em; color:#5f6b62;">v2.0 · 7a3f1c</span><span style="font-size:10px; letter-spacing:0.1em; color:#4fd873; margin-left:6px;">· 11TH ED</span>
+        <div style="margin-left:auto; display:flex; flex-direction:column; align-items:flex-end; gap:2px;">
+          <span style="font-family:'Chakra Petch', sans-serif; font-size:10px; letter-spacing:0.12em; color:#5f6b62; border:1px dashed #2e3630; padding:3px 8px; border-radius:3px;">NOT ASSIGNED</span>
+          <span style="font-size:8px; letter-spacing:0.1em; color:#4a5249;">★ {{ starredCount }} shortlisted</span>
+        </div>
+      </div>
+      <!-- nav -->
+      <div style="display:flex; font-family:'Chakra Petch', sans-serif; font-size:11px; letter-spacing:0.1em; border-bottom:1px solid #1a201c; background:#0a0c0e; padding:0 8px;">
+        <div style="padding:9px 14px; color:#5f6b62;">COMBAT SIM</div>
+        <div style="padding:9px 14px; color:#eef4ee; border-bottom:2px solid #4fd873;">UNITS</div>
+        <a href="Spec%20Unit.dc.html" style="padding:9px 14px; color:#5f6b62; text-decoration:none;">DATASHEET</a>
+        <div style="padding:9px 14px; color:#5f6b62;">ROSTERS</div>
+        <div style="padding:9px 14px; color:#5f6b62;">RULES</div>
+      </div>
+
+      <!-- title + search -->
+      <div style="display:flex; align-items:center; gap:14px; padding:16px 20px 14px; border-bottom:1px solid #1a201c;">
+        <span style="font-family:'Chakra Petch', sans-serif; font-size:18px; color:#eef4ee; font-weight:700; letter-spacing:0.04em;">UNIT DATABASE</span>
+        <div style="flex:1; display:flex; align-items:center; gap:9px; background:#12150f; border:1px solid #232a26; border-radius:4px; padding:8px 12px;">
+          <span style="color:#5f6b62; font-size:13px;">⌕</span>
+          <input value="{{ search }}" onInput="{{ onSearch }}" placeholder="search units…" style="flex:1; background:transparent; border:none; outline:none; color:#d8dee0; font-family:inherit; font-size:13px;">
+        </div>
+        <button onClick="{{ toggleShortlist }}" style="{{ shortlistBtnStyle }}">★ Shortlist ({{ starredCount }})</button>
+      </div>
+
+      <!-- body: sidebar + results -->
+      <div style="display:grid; grid-template-columns:236px 1fr; align-items:start;">
+
+        <!-- ── filter sidebar ── -->
+        <div style="border-right:1px solid #1a201c; padding:16px; display:flex; flex-direction:column; gap:18px;">
+
+          <div>
+            <div style="font-size:9px; letter-spacing:0.14em; color:#5f6b62; text-transform:uppercase; font-weight:700; margin-bottom:7px;">Faction</div>
+            <div style="position:relative;">
+              <select value="{{ factionSel }}" onChange="{{ onFaction }}" style="width:100%; background:#12150f; border:1px solid #232a26; color:#d8dee0; font-family:inherit; font-size:12px; padding:8px 10px; border-radius:4px; outline:none; cursor:pointer;">
+                <option value="All">All Factions</option>
+                <option value="Space Marines">Space Marines</option>
+                <option value="T'au Empire">T'au Empire</option>
+                <option value="Necrons">Necrons</option>
+                <option value="Orks">Orks</option>
+                <option value="Aeldari">Aeldari</option>
+                <option value="Death Guard">Death Guard</option>
+              </select>
+              <span style="position:absolute; right:10px; top:9px; color:#5f6b62; font-size:9px; pointer-events:none;">▼</span>
+            </div>
+          </div>
+
+          <div>
+            <div style="font-size:9px; letter-spacing:0.14em; color:#5f6b62; text-transform:uppercase; font-weight:700; margin-bottom:7px;">Roster Filter</div>
+            <div style="position:relative;">
+              <select value="{{ rosterSel }}" onChange="{{ onRoster }}" style="width:100%; background:#12150f; border:1px solid #232a26; color:#d8dee0; font-family:inherit; font-size:12px; padding:8px 10px; border-radius:4px; outline:none; cursor:pointer;">
+                <option value="all">All units</option>
+                <option value="retaliation">My Roster · Retaliation Cadre (5)</option>
+              </select>
+              <span style="position:absolute; right:10px; top:9px; color:#5f6b62; font-size:9px; pointer-events:none;">▼</span>
+            </div>
+            <sc-if value="{{ rosterActive }}" hint-placeholder-val="{{ false }}"><div style="font-size:9px; color:#4fd873; margin-top:5px; letter-spacing:0.04em;">✓ T'au Empire · Kauyon</div></sc-if>
+          </div>
+
+          <div>
+            <div style="display:flex; justify-content:space-between; align-items:baseline; margin-bottom:9px;">
+              <span style="font-size:9px; letter-spacing:0.14em; color:#5f6b62; text-transform:uppercase; font-weight:700;">Points</span>
+              <span style="font-size:11px; color:#4fd873;">{{ costMin }}–{{ costMax }}</span>
+            </div>
+            <div style="margin-bottom:6px;">
+              <div style="font-size:9px; color:#84907f; margin-bottom:2px;">Min</div>
+              <input type="range" min="0" max="260" step="5" value="{{ costMin }}" onInput="{{ onCostMin }}" style="width:100%;">
+            </div>
+            <div>
+              <div style="font-size:9px; color:#84907f; margin-bottom:2px;">Max</div>
+              <input type="range" min="0" max="260" step="5" value="{{ costMax }}" onInput="{{ onCostMax }}" style="width:100%;">
+            </div>
+          </div>
+
+          <div>
+            <div style="font-size:9px; letter-spacing:0.14em; color:#5f6b62; text-transform:uppercase; font-weight:700; margin-bottom:8px;">Keywords</div>
+            <div style="display:flex; flex-wrap:wrap; gap:5px;">
+              <sc-for list="{{ keywords }}" as="k" hint-placeholder-count="12">
+                <span onClick="{{ k.onToggle }}" style="{{ k.style }}">{{ k.label }}</span>
+              </sc-for>
+            </div>
+          </div>
+
+          <div>
+            <div style="font-size:9px; letter-spacing:0.14em; color:#5f6b62; text-transform:uppercase; font-weight:700; margin-bottom:8px;">Role</div>
+            <div style="display:flex; flex-wrap:wrap; gap:5px;">
+              <sc-for list="{{ roles }}" as="r" hint-placeholder-count="4">
+                <span onClick="{{ r.onToggle }}" style="{{ r.style }}">{{ r.label }}</span>
+              </sc-for>
+            </div>
+          </div>
+
+          <button onClick="{{ onReset }}" style="font-family:inherit; font-size:10px; letter-spacing:0.1em; color:#84907f; background:transparent; border:1px solid #232a26; border-radius:4px; padding:8px; cursor:pointer; text-transform:uppercase;">⟲ Reset Filters</button>
+        </div>
+
+        <!-- ── results ── -->
+        <div style="padding:14px 18px 18px; min-height:480px;">
+          <div style="display:flex; align-items:center; gap:12px; margin-bottom:12px;">
+            <span style="font-size:12px; color:#d8dee0;"><span style="color:#4fd873; font-weight:700;">{{ count }}</span> <span style="color:#84907f;">of {{ totalCount }} units</span></span>
+            <sc-if value="{{ shortlistOnly }}" hint-placeholder-val="{{ false }}"><span style="font-size:9px; color:#d8b25a; letter-spacing:0.1em; border:1px solid #4a3c1c; background:rgba(216,178,90,.08); padding:2px 7px; border-radius:3px;">★ SHORTLIST VIEW</span></sc-if>
+            <div style="margin-left:auto; display:flex; align-items:center; gap:7px;">
+              <span style="font-size:9px; color:#5f6b62; letter-spacing:0.08em;">SORT</span>
+              <div style="position:relative;">
+                <select value="{{ sortSel }}" onChange="{{ onSort }}" style="background:#12150f; border:1px solid #232a26; color:#a8b0a4; font-family:inherit; font-size:11px; padding:5px 22px 5px 9px; border-radius:4px; outline:none; cursor:pointer;">
+                  <option value="pts-desc">Points ↓</option>
+                  <option value="pts-asc">Points ↑</option>
+                  <option value="name">Name A–Z</option>
+                  <option value="w-desc">Wounds ↓</option>
+                </select>
+                <span style="position:absolute; right:8px; top:6px; color:#5f6b62; font-size:8px; pointer-events:none;">▼</span>
+              </div>
+            </div>
+          </div>
+
+          <sc-if value="{{ isEmpty }}" hint-placeholder-val="{{ false }}">
+            <div style="text-align:center; padding:60px 20px; color:#5f6b62; font-size:13px;">
+              <div style="font-size:26px; margin-bottom:10px; opacity:.5;">⊘</div>
+              No units match these filters.<br><span style="font-size:11px;">Widen the points range or clear keywords.</span>
+            </div>
+          </sc-if>
+
+          <sc-for list="{{ results }}" as="u" hint-placeholder-count="8">
+            <div onClick="{{ u.onOpen }}" style="display:flex; align-items:center; gap:12px; padding:11px 14px; border:1px solid #232a26; border-radius:5px; background:#12150f; margin-bottom:6px; cursor:pointer; transition:border-color .12s;" style-hover="border-color:#3a4a3c; background:#151a12;">
+              <button onClick="{{ u.onStar }}" style="{{ u.starStyle }}">{{ u.star }}</button>
+              <div style="flex:1; min-width:0;">
+                <div style="display:flex; align-items:center; gap:9px; flex-wrap:wrap;">
+                  <span style="font-size:13px; color:#eef4ee; font-weight:600;">{{ u.name }}</span>
+                  <span style="{{ u.factionStyle }}">{{ u.faction }}</span>
+                  <span style="font-size:9px; color:#84907f; letter-spacing:0.1em;">{{ u.role }}</span>
+                </div>
+                <div style="display:flex; flex-wrap:wrap; gap:4px; margin-top:6px;">
+                  <sc-for list="{{ u.kws }}" as="k" hint-placeholder-count="2">
+                    <span style="font-size:8px; color:#4fd0e0; border:1px solid #1f4e57; background:rgba(79,208,224,.05); padding:1px 5px; border-radius:2px; letter-spacing:0.04em;">{{ k }}</span>
+                  </sc-for>
+                  <sc-if value="{{ u.noKws }}" hint-placeholder-val="{{ false }}"><span style="font-size:9px; color:#3f4a40; font-style:italic;">no special rules</span></sc-if>
+                </div>
+              </div>
+              <div style="display:flex; align-items:center; gap:18px; flex-shrink:0;">
+                <div style="display:flex; gap:9px;">
+                  <sc-for list="{{ u.stats }}" as="s" hint-placeholder-count="5">
+                    <div style="text-align:center; min-width:22px;">
+                      <div style="font-size:8px; color:#5f6b62; letter-spacing:0.06em;">{{ s.k }}</div>
+                      <div style="font-size:12px; color:#a8b0a4; margin-top:2px;">{{ s.v }}</div>
+                    </div>
+                  </sc-for>
+                </div>
+                <div style="text-align:right; min-width:54px;">
+                  <div style="font-family:'Chakra Petch', sans-serif; font-size:18px; color:#4fd873; font-weight:700; line-height:1;">{{ u.pts }}</div>
+                  <div style="font-size:8px; color:#5f6b62; letter-spacing:0.1em; margin-top:2px;">POINTS</div>
+                </div>
+              </div>
+            </div>
+          </sc-for>
+        </div>
+      </div>
+
+      <!-- command bar -->
+      <div style="display:flex; align-items:center; gap:12px; padding:0 18px; min-height:48px; border-top:2px solid #1f5a36; background:#0a0c0e;">
+        <span style="color:#4fd873; font-size:16px; flex-shrink:0;">›</span>
+        <input value="{{ term }}" onInput="{{ onTermInput }}" onKeyDown="{{ onTermKey }}" placeholder="list units &lt;faction&gt;  ·  spec &lt;unit&gt;  ·  star &lt;unit&gt;" style="flex:1; background:transparent; border:none; outline:none; color:#4fd873; font-family:'IBM Plex Mono', monospace; font-size:13px; caret-color:#4fd873;">
+        <span style="font-size:10px; letter-spacing:0.14em; color:#3f4a40; flex-shrink:0;">⏎ RUN</span>
+      </div>
+    </div>
+  </div>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script>
+class Component extends DCLogic {
+  state = {
+    faction: "All",
+    roster: "all",
+    costMin: 0,
+    costMax: 260,
+    kw: {},
+    role: {},
+    search: "",
+    sort: "pts-desc",
+    shortlistOnly: false,
+    starred: {},
+    term: "",
+  };
+
+  STAR_KEY = "ct_units_shortlist";
+
+  componentDidMount() {
+    try {
+      const raw = JSON.parse(localStorage.getItem(this.STAR_KEY) || "[]");
+      const map = {};
+      raw.forEach(n => { map[n] = true; });
+      this.setState({ starred: map });
+    } catch { /* ignore */ }
+  }
+
+  saveStarred(map) {
+    try { localStorage.setItem(this.STAR_KEY, JSON.stringify(Object.keys(map).filter(k => map[k]))); } catch { /* ignore */ }
+  }
+
+  units() {
+    return [
+      { name: "Intercessor Squad",      faction: "Space Marines", role: "INFANTRY",  pts: 80,  kws: ["RAPID FIRE","HEAVY"],                  stats: { M:'6"', T:4, Sv:"3+", W:2, OC:2 }, roster: false },
+      { name: "Hellblaster Squad",      faction: "Space Marines", role: "INFANTRY",  pts: 115, kws: ["SUSTAINED HITS","HAZARDOUS"],           stats: { M:'6"', T:4, Sv:"3+", W:3, OC:2 }, roster: false },
+      { name: "Eradicator Squad",       faction: "Space Marines", role: "INFANTRY",  pts: 95,  kws: ["MELTA","DEVASTATING WOUNDS"],           stats: { M:'6"', T:6, Sv:"3+", W:3, OC:1 }, roster: false },
+      { name: "Inceptor Squad",         faction: "Space Marines", role: "INFANTRY",  pts: 130, kws: ["SUSTAINED HITS"],                       stats: { M:'10"', T:5, Sv:"3+", W:3, OC:2 }, roster: false },
+      { name: "Redemptor Dreadnought",  faction: "Space Marines", role: "VEHICLE",   pts: 210, kws: ["BLAST","DEVASTATING WOUNDS","TWIN-LINKED"], stats: { M:'8"', T:10, Sv:"2+", W:12, OC:4 }, roster: false },
+
+      { name: "Broadside Battlesuits",  faction: "T'au Empire", role: "INFANTRY", pts: 90,  kws: ["ANTI-VEHICLE","DEVASTATING WOUNDS","BLAST"], stats: { M:'5"', T:6, Sv:"2+", W:8, OC:2 }, roster: true },
+      { name: "Riptide Battlesuit",     faction: "T'au Empire", role: "MOUNTED",  pts: 180, kws: ["BLAST","HAZARDOUS"],                       stats: { M:'10"', T:10, Sv:"2+", W:14, OC:4 }, roster: true },
+      { name: "Hammerhead Gunship",     faction: "T'au Empire", role: "VEHICLE",  pts: 160, kws: ["DEVASTATING WOUNDS","LANCE"],              stats: { M:'12"', T:9, Sv:"3+", W:13, OC:3 }, roster: true },
+      { name: "Crisis Sunforge",        faction: "T'au Empire", role: "INFANTRY", pts: 130, kws: ["MELTA","TWIN-LINKED"],                     stats: { M:'10"', T:5, Sv:"3+", W:5, OC:2 }, roster: true },
+      { name: "Fire Warriors",          faction: "T'au Empire", role: "INFANTRY", pts: 75,  kws: ["RAPID FIRE"],                              stats: { M:'6"', T:3, Sv:"4+", W:1, OC:2 }, roster: true },
+
+      { name: "Necron Warriors",        faction: "Necrons", role: "INFANTRY", pts: 90,  kws: ["LETHAL HITS","RAPID FIRE"],                    stats: { M:'5"', T:4, Sv:"4+", W:1, OC:2 }, roster: false },
+      { name: "Immortals",              faction: "Necrons", role: "INFANTRY", pts: 85,  kws: ["LETHAL HITS","RAPID FIRE"],                    stats: { M:'5"', T:5, Sv:"3+", W:1, OC:2 }, roster: false },
+      { name: "Lokhust Heavy Destroyers", faction: "Necrons", role: "MOUNTED", pts: 55, kws: ["DEVASTATING WOUNDS","HEAVY"],                  stats: { M:'10"', T:6, Sv:"3+", W:4, OC:1 }, roster: false },
+      { name: "Doomsday Ark",           faction: "Necrons", role: "VEHICLE", pts: 200,  kws: ["BLAST","HEAVY"],                               stats: { M:'10"', T:11, Sv:"3+", W:14, OC:4 }, roster: false },
+
+      { name: "Ork Boyz",               faction: "Orks", role: "INFANTRY", pts: 80,  kws: [],                                                 stats: { M:'6"', T:5, Sv:"6+", W:1, OC:2 }, roster: false },
+      { name: "Meganobz",               faction: "Orks", role: "INFANTRY", pts: 140, kws: ["TWIN-LINKED"],                                    stats: { M:'5"', T:6, Sv:"2+", W:4, OC:2 }, roster: false },
+      { name: "Lootas",                 faction: "Orks", role: "INFANTRY", pts: 95,  kws: ["HEAVY","SUSTAINED HITS"],                         stats: { M:'5"', T:5, Sv:"5+", W:1, OC:1 }, roster: false },
+      { name: "Battlewagon",            faction: "Orks", role: "VEHICLE",  pts: 180, kws: ["BLAST"],                                          stats: { M:'12"', T:12, Sv:"3+", W:16, OC:5 }, roster: false },
+
+      { name: "Fire Dragons",           faction: "Aeldari", role: "INFANTRY", pts: 110, kws: ["MELTA"],                                       stats: { M:'7"', T:3, Sv:"4+", W:1, OC:1 }, roster: false },
+      { name: "Wraithguard",            faction: "Aeldari", role: "INFANTRY", pts: 170, kws: ["DEVASTATING WOUNDS","MELTA"],                  stats: { M:'5"', T:7, Sv:"2+", W:3, OC:1 }, roster: false },
+      { name: "Wave Serpent",           faction: "Aeldari", role: "VEHICLE",  pts: 130, kws: ["TWIN-LINKED","LANCE"],                         stats: { M:'16"', T:9, Sv:"3+", W:13, OC:3 }, roster: false },
+
+      { name: "Plague Marines",         faction: "Death Guard", role: "INFANTRY", pts: 90,  kws: [],                                          stats: { M:'5"', T:5, Sv:"3+", W:2, OC:2 }, roster: false },
+      { name: "Blightlord Terminators", faction: "Death Guard", role: "INFANTRY", pts: 180, kws: ["TORRENT","SUSTAINED HITS"],               stats: { M:'4"', T:6, Sv:"2+", W:3, OC:1 }, roster: false },
+      { name: "Death Guard Predator",   faction: "Death Guard", role: "VEHICLE",  pts: 130, kws: ["BLAST","DEVASTATING WOUNDS"],             stats: { M:'10"', T:9, Sv:"3+", W:11, OC:3 }, roster: false },
+    ];
+  }
+
+  renderVals() {
+    const s = this.state;
+    const FCOL = {
+      "Space Marines": "#5b9bff", "T'au Empire": "#e0962e", "Necrons": "#4fd873",
+      "Orks": "#a0c020", "Aeldari": "#4fd0e0", "Death Guard": "#9bbf4a",
+    };
+    const all = this.units();
+
+    // keyword universe
+    const kwSet = new Set();
+    all.forEach(u => u.kws.forEach(k => kwSet.add(k)));
+    const kwUniverse = [...kwSet].sort();
+
+    const roleUniverse = ["INFANTRY", "MOUNTED", "VEHICLE", "CHARACTER"];
+    const roleLabel = { INFANTRY: "Infantry", MOUNTED: "Mounted", VEHICLE: "Vehicle", CHARACTER: "Character" };
+
+    const selKw = Object.keys(s.kw).filter(k => s.kw[k]);
+    const selRole = Object.keys(s.role).filter(k => s.role[k]);
+    const q = s.search.trim().toLowerCase();
+
+    // filter
+    let list = all.filter(u => {
+      if (s.shortlistOnly && !s.starred[u.name]) return false;
+      if (!s.shortlistOnly) {
+        if (s.faction !== "All" && u.faction !== s.faction) return false;
+        if (s.roster === "retaliation" && !u.roster) return false;
+        if (u.pts < s.costMin || u.pts > s.costMax) return false;
+        if (selKw.length && !selKw.every(k => u.kws.includes(k))) return false;
+        if (selRole.length && !selRole.includes(u.role)) return false;
+        if (q && !u.name.toLowerCase().includes(q)) return false;
+      }
+      return true;
+    });
+
+    // sort
+    const woundsNum = (u) => Number(u.stats.W) || 0;
+    list = list.slice().sort((a, b) => {
+      if (s.sort === "name") return a.name.localeCompare(b.name);
+      if (s.sort === "pts-asc") return a.pts - b.pts;
+      if (s.sort === "w-desc") return woundsNum(b) - woundsNum(a);
+      return b.pts - a.pts; // pts-desc
+    });
+
+    const chipStyle = (active, color) => ({
+      fontSize: "9px", letterSpacing: "0.03em", cursor: "pointer", userSelect: "none",
+      padding: "3px 7px", borderRadius: "3px",
+      color: active ? "#0d0f12" : (color || "#a8b0a4"),
+      background: active ? (color || "#4fd873") : "transparent",
+      border: "1px solid " + (active ? (color || "#4fd873") : "#2e3630"),
+      fontWeight: active ? 700 : 400,
+    });
+
+    const keywords = kwUniverse.map(k => ({
+      label: k, style: chipStyle(!!s.kw[k], "#4fd0e0"),
+      onToggle: () => this.setState(st => ({ kw: { ...st.kw, [k]: !st.kw[k] } })),
+    }));
+    const roles = roleUniverse.map(r => ({
+      label: roleLabel[r], style: chipStyle(!!s.role[r], "#4fd873"),
+      onToggle: () => this.setState(st => ({ role: { ...st.role, [r]: !st.role[r] } })),
+    }));
+
+    const results = list.map(u => {
+      const starred = !!s.starred[u.name];
+      return {
+        name: u.name, faction: u.faction, role: u.role, pts: u.pts,
+        kws: u.kws, noKws: u.kws.length === 0,
+        stats: Object.entries(u.stats).map(([k, v]) => ({ k, v: String(v) })),
+        star: starred ? "★" : "☆",
+        starStyle: { background: "transparent", border: "none", cursor: "pointer", fontSize: "16px",
+                     color: starred ? "#d8b25a" : "#3f4a40", flexShrink: 0, padding: "0 2px",
+                     textShadow: starred ? "0 0 8px rgba(216,178,90,.5)" : "none" },
+        onStar: (e) => { if (e) e.stopPropagation(); this.setState(st => {
+          const next = { ...st.starred, [u.name]: !st.starred[u.name] };
+          this.saveStarred(next);
+          return { starred: next };
+        }); },
+        onOpen: () => { window.location.href = "Spec%20Unit.dc.html?unit=" + encodeURIComponent(u.name); },
+        factionStyle: { fontSize: "8px", letterSpacing: "0.06em", color: FCOL[u.faction] || "#a8b0a4",
+                        border: "1px solid " + (FCOL[u.faction] || "#2e3630") + "55",
+                        background: (FCOL[u.faction] || "#2e3630") + "12", padding: "1px 6px", borderRadius: "2px" },
+      };
+    });
+
+    const starredCount = Object.values(s.starred).filter(Boolean).length;
+
+    return {
+      starredCount,
+      factionSel: s.faction, onFaction: (e) => this.setState({ faction: e.target.value }),
+      rosterSel: s.roster, onRoster: (e) => this.setState({ roster: e.target.value }),
+      rosterActive: s.roster === "retaliation",
+      costMin: s.costMin, costMax: s.costMax,
+      onCostMin: (e) => this.setState({ costMin: Math.min(Number(e.target.value), s.costMax) }),
+      onCostMax: (e) => this.setState({ costMax: Math.max(Number(e.target.value), s.costMin) }),
+      keywords, roles,
+      search: s.search, onSearch: (e) => this.setState({ search: e.target.value }),
+      sortSel: s.sort, onSort: (e) => this.setState({ sort: e.target.value }),
+      shortlistOnly: s.shortlistOnly,
+      toggleShortlist: () => this.setState(st => ({ shortlistOnly: !st.shortlistOnly })),
+      shortlistBtnStyle: {
+        fontFamily: "'IBM Plex Mono', monospace", fontSize: "11px", letterSpacing: "0.06em",
+        cursor: "pointer", padding: "8px 13px", borderRadius: "4px", flexShrink: 0,
+        color: s.shortlistOnly ? "#0d0f12" : "#d8b25a",
+        background: s.shortlistOnly ? "#d8b25a" : "transparent",
+        border: "1px solid " + (s.shortlistOnly ? "#d8b25a" : "#4a3c1c"),
+        fontWeight: s.shortlistOnly ? 700 : 400,
+      },
+      results, count: results.length, totalCount: all.length, isEmpty: results.length === 0,
+      onReset: () => this.setState({ faction: "All", roster: "all", costMin: 0, costMax: 260, kw: {}, role: {}, search: "", shortlistOnly: false }),
+      term: s.term,
+      onTermInput: (e) => this.setState({ term: e.target.value }),
+      onTermKey: (e) => { if (e.key === "Enter") this.setState({ term: "" }); },
+    };
+  }
+}
+</script>
+</body>
+</html>
