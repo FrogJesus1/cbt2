@@ -49,7 +49,7 @@ export function TotalUnitOutputPanel({ data, maxDmg = 10, phase = "ranged" }) {
 
       {/* hero damage number */}
       <div style={{ display: "flex", alignItems: "baseline", gap: "6px", margin: "2px 0 9px" }}>
-        <span className="ct-display" style={{ color: cfg.dot, fontSize: "26px", fontWeight: 700, lineHeight: 1, textShadow: `0 0 10px ${cfg.dot}45` }}>
+        <span className="ct-display" style={{ color: cfg.dot, fontSize: "26px", fontWeight: 700, lineHeight: 1, textShadow: `0 0 10px color-mix(in srgb, ${cfg.dot} 27%, transparent)` }}>
           {fmt(expected_dmg)}
         </span>
         <span style={{ color: C.dim, fontSize: "10px" }}>dmg</span>

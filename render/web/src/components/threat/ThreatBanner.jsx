@@ -20,8 +20,8 @@ export function ThreatBanner({ name = "", threatLevel = "medium", onInject }) {
   return (
     <Card style={{
       ...CARD_STYLE,
-      border:    `1px solid ${lvlColor}48`,
-      boxShadow: `inset 0 0 0 1px ${C.border}, 0 0 14px ${lvlColor}10`,
+      border:    `1px solid color-mix(in srgb, ${lvlColor} 28%, transparent)`,
+      boxShadow: `inset 0 0 0 1px ${C.border}, 0 0 14px color-mix(in srgb, ${lvlColor} 6%, transparent)`,
     }}>
       <CardContent style={{
         ...CARD_PAD,
@@ -43,7 +43,7 @@ export function ThreatBanner({ name = "", threatLevel = "medium", onInject }) {
             fontSize:      "22px",
             fontWeight:    700,
             letterSpacing: "0.03em",
-            textShadow:    `0 0 12px ${lvlColor}40`,
+            textShadow:    `0 0 12px color-mix(in srgb, ${lvlColor} 25%, transparent)`,
             flex:          1,
             minWidth:      0,
             cursor:        onInject ? "pointer" : "default",
@@ -60,9 +60,9 @@ export function ThreatBanner({ name = "", threatLevel = "medium", onInject }) {
           fontSize:      "11px",
           fontWeight:    700,
           letterSpacing: "0.18em",
-          border:        `1px solid ${lvlColor}60`,
+          border:        `1px solid color-mix(in srgb, ${lvlColor} 38%, transparent)`,
           padding:       "3px 9px",
-          background:    `${lvlColor}12`,
+          background:    `color-mix(in srgb, ${lvlColor} 7%, transparent)`,
           borderRadius:  "3px",
           flexShrink:    0,
         }}>

@@ -26,7 +26,7 @@ const CONFIDENCE_LEVELS = { "Very High": 100, "High": 75, "Medium": 50, "Low": 2
 
 function OfflineBanner() {
   return (
-    <Card style={{ ...CARD_STYLE, border: `1px solid ${C.amber}40` }}>
+    <Card style={{ ...CARD_STYLE, border: `1px solid color-mix(in srgb, ${C.amber} 25%, transparent)` }}>
       <CardContent style={{ ...CARD_PAD, fontSize: "12px" }}>
         <SectionHeader>Simulation Confidence</SectionHeader>
 
@@ -37,7 +37,7 @@ function OfflineBanner() {
           gap:            "10px",
           padding:        "10px 12px",
           background:     "#1a0d00",
-          border:         `1px solid ${C.amber}50`,
+          border:         `1px solid color-mix(in srgb, ${C.amber} 31%, transparent)`,
           borderRadius:   "0",
           marginBottom:   "10px",
         }}>
@@ -152,7 +152,7 @@ function ActivePanel({ sim }) {
             </div>
             <span style={{
               color:       C.green,
-              textShadow:  `0 0 4px ${C.green}60`,
+              textShadow:  `0 0 4px color-mix(in srgb, ${C.green} 38%, transparent)`,
               whiteSpace:  "nowrap",
             }}>
               {sim.confidence ?? "—"}

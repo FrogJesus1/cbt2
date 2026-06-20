@@ -44,7 +44,7 @@ function TrackerRow({ entry, rank, onKills, onDestroyed }) {
   return (
     <div style={{
       display: "flex", alignItems: "center", gap: "12px", padding: "8px 12px",
-      border: `1px solid ${entry.destroyed ? `${C.red}66` : C.border}`,
+      border: `1px solid ${entry.destroyed ? `color-mix(in srgb, ${C.red} 40%, transparent)` : C.border}`,
       background: entry.destroyed ? "#160606" : C.panel, fontFamily: "monospace",
       opacity: entry.destroyed ? 0.85 : 1,
     }}>
@@ -153,7 +153,7 @@ export function BattleTracker({ campaign, units, engineId, onInject, onReload, o
   };
 
   return (
-    <div style={{ border: `1px solid ${C.amber}55`, background: C.panel, padding: "16px 18px" }}>
+    <div style={{ border: `1px solid color-mix(in srgb, ${C.amber} 33%, transparent)`, background: C.panel, padding: "16px 18px" }}>
       <SectionHeader
         title="⚔ Battle in Progress"
         subtitle={[active?.mission, active?.point_limit ? `${active.point_limit} pts` : null]

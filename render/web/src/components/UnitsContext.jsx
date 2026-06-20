@@ -5,7 +5,7 @@
  * All search and filtering is done via terminal commands (list units, spec, etc.).
  */
 
-import { useState, useRef, useCallback } from "react";
+import { useState, useRef, useCallback, useEffect } from "react";
 import { Terminal } from "./Terminal";
 import { SpecShortlistRail } from "./SpecShortlistRail";
 
@@ -33,13 +33,24 @@ import { C } from "./shared/colors";
 
 const UNITS_BOOT_LINES = [
   "╔══════════════════════════════════════════════════════════════╗",
-  "║  UNITS CONTEXT  ·  Unit Database Browser                     ║",
+  "║  UNIT DATABASE  ·  browse + filter every faction             ║",
   "╚══════════════════════════════════════════════════════════════╝",
   "",
   "  list units              — all units across all factions",
   "  list units tau          — all tau units",
   "  list units --deepstrike — units with Deep Strike",
-  "  spec <unit name>        — full stat sheet",
+  "  (or click  UNITS  in the nav to load the full filterable database)",
+  "",
+];
+
+const DATASHEET_BOOT_LINES = [
+  "╔══════════════════════════════════════════════════════════════╗",
+  "║  DATASHEET  ·  full stat sheet for a single unit             ║",
+  "╚══════════════════════════════════════════════════════════════╝",
+  "",
+  "  spec <unit name>     — e.g.  spec broadside battlesuits",
+  "  threat <unit name>   — threat assessment",
+  "  pick a unit from the UNITS database, or ★ one to pin it here →",
   "",
 ];
 
@@ -59,11 +70,33 @@ export function UnitsContext({
   onEdit,
   onTheme,
   theme,
+  variant = "database",   // "database" → unit list/filters · "datasheet" → spec sheets + ★ rail
 }) {
+  // Two faces of the same engine context, split to match the mockup's separate
+  // UNITS (filterable database) and DATASHEET (single spec sheet + ★ rail) tabs.
+  const isDatasheet = variant === "datasheet";
+  const contextId   = isDatasheet ? "datasheet" : "units";
+  const bootLines   = isDatasheet ? DATASHEET_BOOT_LINES : UNITS_BOOT_LINES;
+
   // ── Starred units ───────────────────────────────────────────────────────
   const [starredUnits, setStarredUnits] = useState(loadStarredUnits);
   const streamRef = useRef([]);
   const [localScrollToId, setLocalScrollToId] = useState(null);
+
+  // Stars are shared across both faces (DB ★ toggle ↔ datasheet rail) via the
+  // ct_starred_units key — re-load when another context mutates it.
+  useEffect(() => {
+    const sync = (e) => {
+      if (e?.detail?.key && e.detail.key !== CT_STARRED_KEY) return;
+      setStarredUnits(loadStarredUnits());
+    };
+    window.addEventListener("ct-state-changed", sync);
+    window.addEventListener("storage", sync);
+    return () => {
+      window.removeEventListener("ct-state-changed", sync);
+      window.removeEventListener("storage", sync);
+    };
+  }, []);
 
   const toggleStar = useCallback((unitName) => {
     setStarredUnits(prev => {
@@ -97,7 +130,7 @@ export function UnitsContext({
         <div style={{ flex: 1, overflow: "hidden", display: "flex", flexDirection: "column" }}>
           <Terminal
             engineId={engineId}
-            contextId="units"
+            contextId={contextId}
             onExec={onExec}
             onEdit={onEdit}
             onStreamChange={(stream) => {
@@ -116,18 +149,20 @@ export function UnitsContext({
             }}
             onTheme={onTheme}
             theme={theme}
-            contextBootLines={UNITS_BOOT_LINES}
+            contextBootLines={bootLines}
             starredUnits={starredUnits}
             onToggleStar={toggleStar}
           />
         </div>
 
-        {/* ── MY UNITS quick-jump rail ── */}
-        <SpecShortlistRail
-          starredUnits={starredUnits}
-          onJump={handleStarClick}
-          onRemove={toggleStar}
-        />
+        {/* ── MY UNITS quick-jump rail — datasheet face only (matches mockup) ── */}
+        {isDatasheet && (
+          <SpecShortlistRail
+            starredUnits={starredUnits}
+            onJump={handleStarClick}
+            onRemove={toggleStar}
+          />
+        )}
       </div>
     </div>
   );

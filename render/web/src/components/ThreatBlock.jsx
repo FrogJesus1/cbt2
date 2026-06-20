@@ -53,9 +53,9 @@ function FactionHeader({ factionLabel, unitCount, stub }) {
           fontSize:      "9px",
           fontWeight:    700,
           letterSpacing: "0.12em",
-          border:        `1px solid ${C.amber}50`,
+          border:        `1px solid color-mix(in srgb, ${C.amber} 31%, transparent)`,
           padding:       "1px 6px",
-          background:    `${C.amber}0c`,
+          background:    `color-mix(in srgb, ${C.amber} 5%, transparent)`,
         }}>
           ⚠ STUB
         </span>

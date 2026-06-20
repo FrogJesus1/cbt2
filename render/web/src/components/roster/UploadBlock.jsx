@@ -26,9 +26,9 @@ const MODE_LABELS = {
 };
 
 const MODE_HINT = {
-  roster:   "Accepted: .roz  .rozs  .json",
-  enemy:    "Accepted: .roz  .rozs  .json  ·  Will be auto-assigned as enemy",
-  campaign: "Accepted: .roz  .rozs  .json",
+  roster:   "Accepted: .ros  .rosz  .json",
+  enemy:    "Accepted: .ros  .rosz  .json  ·  Will be auto-assigned as enemy",
+  campaign: "Accepted: .ros  .rosz  .json",
 };
 
 // ─── Component ────────────────────────────────────────────────────────────────
@@ -85,7 +85,7 @@ export function UploadBlock({ data, onUpload }) {
       {!done ? (
         <div style={{ paddingLeft: "16px" }}>
           <Pattern
-            accept=".roz,.rozs,.json"
+            accept=".ros,.rosz,.json"
             multiple={false}
             maxFiles={1}
             onFilesChange={handleFiles}

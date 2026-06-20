@@ -43,7 +43,7 @@ function StatBox({ statKey, value, isLast }) {
         fontFamily: "'Chakra Petch', 'IBM Plex Mono', monospace",
         lineHeight: 1,
         marginTop:  "6px",
-        textShadow: `0 0 8px ${C.green}50`,
+        textShadow: `0 0 8px color-mix(in srgb, ${C.green} 31%, transparent)`,
       }}>
         {value !== undefined && value !== null ? String(value) : "—"}
       </div>

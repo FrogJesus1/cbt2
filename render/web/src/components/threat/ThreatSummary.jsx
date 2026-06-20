@@ -31,7 +31,7 @@ function ThreatCounts({ unitCount = 0, threatDist = {} }) {
       <CardContent style={CARD_PAD}>
         <SectionTitle>Units Loaded</SectionTitle>
 
-        <div style={{ color: C.green, fontSize: "28px", fontWeight: 700, fontFamily: "monospace", lineHeight: 1, marginBottom: "10px", textShadow: `0 0 10px ${C.green}40` }}>
+        <div style={{ color: C.green, fontSize: "28px", fontWeight: 700, fontFamily: "monospace", lineHeight: 1, marginBottom: "10px", textShadow: `0 0 10px color-mix(in srgb, ${C.green} 25%, transparent)` }}>
           {unitCount}
         </div>
 
@@ -201,7 +201,7 @@ function ThreatDistChart({ threatDist = {}, unitCount = 0 }) {
 
         <div style={{ display: "flex", flexDirection: "column", gap: "7px" }}>
           {bars.map(({ label, count, color, pct }) => (
-            <div key={label} style={{ display: "grid", gridTemplateColumns: "60px 1fr 48px", alignItems: "center", gap: "10px" }}>
+            <div key={label} style={{ display: "grid", gridTemplateColumns: "64px 1fr 70px", alignItems: "center", gap: "10px" }}>
               <span style={{ color, fontSize: "10px", fontWeight: 700, letterSpacing: "0.12em" }}>{label}</span>
               <div style={{ position: "relative", height: "8px", background: C.track, borderRadius: "3px", overflow: "hidden" }}>
                 <div style={{ position: "absolute", left: 0, top: 0, height: "100%", width: `${pct}%`, background: color, borderRadius: "3px", transition: "width 0.4s" }} />

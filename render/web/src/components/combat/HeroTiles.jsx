@@ -36,7 +36,7 @@ function Tile({ label, value, color, glow }) {
           lineHeight:   1.1,
           marginTop:    "3px",
           letterSpacing: "0.02em",
-          textShadow:   glow ? `0 0 10px ${color}55` : "none",
+          textShadow:   glow ? `0 0 10px color-mix(in srgb, ${color} 33%, transparent)` : "none",
         }}
       >
         {value}

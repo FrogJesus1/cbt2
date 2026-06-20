@@ -66,7 +66,7 @@ function ProfileBox({ statKey, value, isLast }) {
         fontWeight: 700,
         fontFamily: "monospace",
         lineHeight: 1,
-        textShadow: `0 0 6px ${C.green}50`,
+        textShadow: `0 0 6px color-mix(in srgb, ${C.green} 31%, transparent)`,
       }}>
         {value !== undefined && value !== null ? String(value) : "—"}
       </div>
@@ -117,7 +117,7 @@ function KeywordChips({ keywords = [], onSubmit }) {
               style={{
                 color:         C.cyan,
                 fontSize:      "11px",
-                border:        `1px solid ${C.cyan}40`,
+                border:        `1px solid color-mix(in srgb, ${C.cyan} 25%, transparent)`,
                 borderRadius:  "3px",
                 padding:       "2px 8px",
                 cursor:        onSubmit ? "pointer" : "default",
@@ -224,8 +224,8 @@ function EnhancementBadge({ enhancement }) {
       alignItems:   "center",
       gap:          "10px",
       padding:      "11px 16px",
-      border:       `1px solid ${C.accent}40`,
-      background:   `${C.accent}0c`,
+      border:       `1px solid color-mix(in srgb, ${C.accent} 25%, transparent)`,
+      background:   `color-mix(in srgb, ${C.accent} 5%, transparent)`,
       borderRadius: "5px",
       fontSize:     "12px",
     }}>
@@ -281,7 +281,7 @@ export function ThreatCard({ data, meta, onSubmit, onInject }) {
         <div style={{
           color:      C.amber,
           fontSize:   "12px",
-          border:     `1px solid ${C.amber}40`,
+          border:     `1px solid color-mix(in srgb, ${C.amber} 25%, transparent)`,
           padding:    "6px 12px",
           background: "#140a00",
         }}>

@@ -34,8 +34,8 @@ function NoteRow({ note }) {
       gap:          "11px",
       alignItems:   "flex-start",
       padding:      "9px 13px",
-      background:   `${cfg.color}0f`,
-      border:       `1px solid ${cfg.color}33`,
+      background:   `color-mix(in srgb, ${cfg.color} 6%, transparent)`,
+      border:       `1px solid color-mix(in srgb, ${cfg.color} 20%, transparent)`,
       borderLeft:   `2px solid ${cfg.color}`,
       borderRadius: "3px",
     }}>

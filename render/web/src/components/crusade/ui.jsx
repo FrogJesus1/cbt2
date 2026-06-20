@@ -97,7 +97,7 @@ export function RankBadge({ rank }) {
   return (
     <span style={{
       color: tier, fontSize: "10px", fontFamily: "monospace",
-      border: `1px solid ${tier}55`, padding: "1px 6px",
+      border: `1px solid color-mix(in srgb, ${tier} 33%, transparent)`, padding: "1px 6px",
       letterSpacing: "0.06em", whiteSpace: "nowrap",
     }}>
       ◈ {rankLabel(rank)}

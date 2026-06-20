@@ -89,7 +89,7 @@ export function ForcesEngaged({
           </div>
           {leader && (
             <div style={{ display: "flex", alignItems: "center", gap: "6px", marginTop: "4px" }}>
-              <span className="ct-display" style={{ color: C.cyan, fontSize: "8px", letterSpacing: "0.1em", border: `1px solid ${C.cyan}55`, borderRadius: "3px", padding: "1px 5px" }}>
+              <span className="ct-display" style={{ color: C.cyan, fontSize: "8px", letterSpacing: "0.1em", border: `1px solid color-mix(in srgb, ${C.cyan} 33%, transparent)`, borderRadius: "3px", padding: "1px 5px" }}>
                 LEADER
               </span>
               <span style={{ color: C.cyan, fontSize: "12px" }}>{leader}</span>

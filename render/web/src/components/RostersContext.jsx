@@ -201,7 +201,7 @@ function ArmyPanel({ roster, side, onUpload, onInject }) {
   return (
     <div style={{
       padding: "12px 14px", background: C.panel, borderRadius: "5px",
-      border: `1px solid ${hasUnits ? sideColor + "55" : C.border}`,
+      border: `1px solid ${hasUnits ? `color-mix(in srgb, ${sideColor} 33%, transparent)` : C.border}`,
       minWidth: "200px",
       boxShadow: hasUnits ? `inset 2px 0 0 ${sideColor}` : "none",
     }}>
@@ -212,7 +212,7 @@ function ArmyPanel({ roster, side, onUpload, onInject }) {
         <div style={{ display: "flex", alignItems: "center", gap: "8px" }}>
           <span className="ct-display" style={{
             color: sideColor, fontSize: "9px", letterSpacing: "0.16em",
-            border: `1px solid ${sideColor}50`, padding: "2px 5px",
+            border: `1px solid color-mix(in srgb, ${sideColor} 31%, transparent)`, padding: "2px 5px",
           }}>
             {side}
           </span>
@@ -313,12 +313,12 @@ function ArmyPanel({ roster, side, onUpload, onInject }) {
                         style={{
                           color: attachedTo ? C.green : C.dim,
                           fontSize: "9px", cursor: "pointer", fontFamily: "monospace",
-                          border: `1px solid ${attachedTo ? C.green + "50" : C.border}`,
+                          border: `1px solid ${attachedTo ? `color-mix(in srgb, ${C.green} 31%, transparent)` : C.border}`,
                           padding: "0px 4px", letterSpacing: "0.06em",
                           textTransform: "uppercase", userSelect: "none", flexShrink: 0,
                         }}
-                        onMouseEnter={e => { e.currentTarget.style.color = C.cyan; e.currentTarget.style.borderColor = C.cyan + "50"; }}
-                        onMouseLeave={e => { e.currentTarget.style.color = attachedTo ? C.green : C.dim; e.currentTarget.style.borderColor = attachedTo ? C.green + "50" : C.border; }}
+                        onMouseEnter={e => { e.currentTarget.style.color = C.cyan; e.currentTarget.style.borderColor = `color-mix(in srgb, ${C.cyan} 31%, transparent)`; }}
+                        onMouseLeave={e => { e.currentTarget.style.color = attachedTo ? C.green : C.dim; e.currentTarget.style.borderColor = attachedTo ? `color-mix(in srgb, ${C.green} 31%, transparent)` : C.border; }}
                       >
                         {attachedTo ? `→ ${attachedTo}` : "attach"}
                       </span>
@@ -426,7 +426,7 @@ function StepRail({ active }) {
           <div key={label} style={{ display: "flex", alignItems: "center", gap: "6px" }}>
             <span className="ct-display" style={{
               fontSize: "9px", letterSpacing: "0.12em", color,
-              border: `1px solid ${cur ? C.green + "70" : done ? C.cyan + "40" : C.border}`,
+              border: `1px solid ${cur ? `color-mix(in srgb, ${C.green} 44%, transparent)` : done ? `color-mix(in srgb, ${C.cyan} 25%, transparent)` : C.border}`,
               padding: "2px 8px", borderRadius: "3px",
               background: cur ? "var(--ct-bg-dark)" : "transparent",
             }}>
@@ -703,7 +703,7 @@ function UploadFlow({ mode, engineId, profileName, onLoad, onComplete, onCancel 
         </div>
 
         <div style={{ marginBottom: "12px" }}>
-          <Pattern accept=".roz,.rozs,.json" multiple={false} maxFiles={1} onFilesChange={handleFiles} />
+          <Pattern accept=".ros,.rosz,.json" multiple={false} maxFiles={1} onFilesChange={handleFiles} />
         </div>
 
         <div style={{ color: C.dim, fontSize: "11px", margin: "10px 0 8px", letterSpacing: "0.08em" }}>

@@ -53,11 +53,11 @@ function CollapsedHeader({ unitData, index, open, onToggle, onInject }) {
         padding:      "9px 14px",
         cursor:       "pointer",
         userSelect:   "none",
-        background:   open ? `${lvlColor}08` : "transparent",
-        borderBottom: open ? `1px solid ${lvlColor}30` : "none",
+        background:   open ? `color-mix(in srgb, ${lvlColor} 3%, transparent)` : "transparent",
+        borderBottom: open ? `1px solid color-mix(in srgb, ${lvlColor} 19%, transparent)` : "none",
         transition:   "background 0.15s",
       }}
-      onMouseEnter={e => { if (!open) e.currentTarget.style.background = `${lvlColor}06`; }}
+      onMouseEnter={e => { if (!open) e.currentTarget.style.background = `color-mix(in srgb, ${lvlColor} 2%, transparent)`; }}
       onMouseLeave={e => { if (!open) e.currentTarget.style.background = "transparent"; }}
     >
 
@@ -107,9 +107,9 @@ function CollapsedHeader({ unitData, index, open, onToggle, onInject }) {
         fontSize:      "9px",
         fontWeight:    700,
         letterSpacing: "0.14em",
-        border:        `1px solid ${lvlColor}50`,
+        border:        `1px solid color-mix(in srgb, ${lvlColor} 31%, transparent)`,
         padding:       "1px 6px",
-        background:    `${lvlColor}0e`,
+        background:    `color-mix(in srgb, ${lvlColor} 5%, transparent)`,
         flexShrink:    0,
       }}>
         {lvlLabel}
@@ -206,7 +206,7 @@ export function ThreatCardRow({ unitData, index, onSubmit, onInject }) {
 
   return (
     <div style={{
-      border:       `1px solid ${open ? lvlColor + "40" : C.border}`,
+      border:       `1px solid ${open ? `color-mix(in srgb, ${lvlColor} 25%, transparent)` : C.border}`,
       background:   C.panel,
       marginBottom: "4px",
       transition:   "border-color 0.15s",
@@ -223,7 +223,7 @@ export function ThreatCardRow({ unitData, index, onSubmit, onInject }) {
 
       {/* Expanded body — slim teaser (full dossier via "run threat <unit>") */}
       {open && (
-        <div style={{ padding: "12px 14px", borderTop: `1px solid ${lvlColor}20` }}>
+        <div style={{ padding: "12px 14px", borderTop: `1px solid color-mix(in srgb, ${lvlColor} 13%, transparent)` }}>
           <SlimExpanded unitData={unitData} onInject={onInject} />
         </div>
       )}

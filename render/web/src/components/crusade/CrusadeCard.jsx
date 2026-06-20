@@ -235,7 +235,7 @@ function ReadChips({ entries, accent, plain = false }) {
         return (
           <span key={i} style={{
             fontFamily: "monospace", fontSize: "11px", color: accent,
-            border: `1px solid ${accent}40`, borderRadius: "3px", padding: "1px 6px",
+            border: `1px solid color-mix(in srgb, ${accent} 25%, transparent)`, borderRadius: "3px", padding: "1px 6px",
           }}>
             {name}{effect ? <span style={{ color: C.dim }}> · {effect}</span> : null}
           </span>
@@ -323,7 +323,7 @@ export function CrusadeCard({ unit, otherUnits = [], onSave, onDelete, onClose, 
           <span style={{ color: C.dim, fontSize: "11px", fontFamily: "monospace" }}>{draft.unit_name}</span>
         )}
         {died ? (
-          <span className="ct-display" style={{ color: C.red, fontSize: "9px", letterSpacing: "0.12em", border: `1px solid ${C.red}55`, padding: "1px 6px" }}>✝ SLAIN</span>
+          <span className="ct-display" style={{ color: C.red, fontSize: "9px", letterSpacing: "0.12em", border: `1px solid color-mix(in srgb, ${C.red} 33%, transparent)`, padding: "1px 6px" }}>✝ SLAIN</span>
         ) : (
           <RankBadge rank={effectiveRank} />
         )}
@@ -338,7 +338,7 @@ export function CrusadeCard({ unit, otherUnits = [], onSave, onDelete, onClose, 
   // ── READ VIEW ───────────────────────────────────────────────────────────
   if (!editing) {
     return (
-      <div style={{ border: `1px solid ${borderTint}55`, borderLeft: `3px solid ${borderTint}`, borderRadius: "5px", background: C.panel, padding: "16px 18px", opacity: died ? 0.7 : 1 }}>
+      <div style={{ border: `1px solid color-mix(in srgb, ${borderTint} 33%, transparent)`, borderLeft: `3px solid ${borderTint}`, borderRadius: "5px", background: C.panel, padding: "16px 18px", opacity: died ? 0.7 : 1 }}>
         {header}
 
         <div style={{ display: "flex", gap: "18px", flexWrap: "wrap", marginBottom: "16px", paddingBottom: "14px", borderBottom: `1px solid ${C.border}` }}>

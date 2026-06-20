@@ -38,7 +38,7 @@ export function SectionTitle({ children, style }) {
     <div
       style={{
         color:         C.amber,
-        textShadow:    `0 0 8px ${C.amber}90`,
+        textShadow:    `0 0 8px color-mix(in srgb, ${C.amber} 56%, transparent)`,
         fontSize:      "15px",
         letterSpacing: "0.15em",
         textTransform: "uppercase",

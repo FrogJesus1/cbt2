@@ -95,7 +95,7 @@ function KeywordBadge({ kw, activeFlags, onToggleFlag }) {
           fontSize:      "9px",
           color:         C.amber,
           border:        `1px solid ${C.bordermid}`,
-          background:    `${C.amber}14`,
+          background:    `color-mix(in srgb, ${C.amber} 8%, transparent)`,
           padding:       "0 3px",
           letterSpacing: "0.04em",
           flexShrink:    0,
@@ -119,7 +119,7 @@ function KeywordBadge({ kw, activeFlags, onToggleFlag }) {
         fontSize:       "9px",
         color:          active ? C.cyan : C.dim,
         border:         `1px ${active ? "solid" : "dashed"} ${active ? C.cyan : C.border}`,
-        background:     active ? `${C.cyan}1f` : "transparent",
+        background:     active ? `color-mix(in srgb, ${C.cyan} 12%, transparent)` : "transparent",
         padding:        "0 3px",
         letterSpacing:  "0.04em",
         flexShrink:     0,
@@ -163,7 +163,7 @@ function ReasonPopover({ reason }) {
       style={{
         background:    C.bgDark,
         border:        `1px solid ${dirColor}`,
-        boxShadow:     `0 0 10px ${dirColor}55`,
+        boxShadow:     `0 0 10px color-mix(in srgb, ${dirColor} 33%, transparent)`,
         color:         C.mid,
         fontFamily:    "inherit",
         maxWidth:      "240px",
@@ -177,7 +177,7 @@ function ReasonPopover({ reason }) {
           fontWeight:    700,
           fontSize:      "13px",
           letterSpacing: "0.02em",
-          textShadow:    `0 0 6px ${dirColor}70`,
+          textShadow:    `0 0 6px color-mix(in srgb, ${dirColor} 44%, transparent)`,
           whiteSpace:    "nowrap",
         }}>
           {reason.stat} {reason.from} → {reason.to}
@@ -216,8 +216,8 @@ function StatCell({ value, delta, reason, dim = false }) {
     padding:    "4px 8px",
     color,
     fontWeight: delta ? 700 : 400,
-    textShadow: delta === "better" ? `0 0 6px ${C.green}80`
-              : delta === "worse"  ? `0 0 6px ${C.red}80`
+    textShadow: delta === "better" ? `0 0 6px color-mix(in srgb, ${C.green} 50%, transparent)`
+              : delta === "worse"  ? `0 0 6px color-mix(in srgb, ${C.red} 50%, transparent)`
               : "none",
     whiteSpace: "nowrap",
   };

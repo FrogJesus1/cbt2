@@ -5,7 +5,7 @@
  *
  * Usage:
  *   <Pattern
- *     accept=".roz,.rozs,.json"
+ *     accept=".ros,.rosz,.json"
  *     multiple={false}
  *     maxFiles={1}
  *     onFilesChange={handleFiles}

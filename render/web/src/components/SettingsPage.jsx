@@ -15,12 +15,14 @@
  * row") rather than being duplicated here.
  */
 
-import { useState, useEffect, useMemo } from "react";
+import { useState, useEffect, useMemo, useCallback } from "react";
 import { C } from "./shared/colors";
 import { SectionHeader } from "./shared/constants";
 import { DiagnosticsPage } from "./DiagnosticsPage";
 import { useEdition } from "@/hooks/useEdition";
 import { readAliases, writeAliases } from "@/lib/aliases";
+import { getSessionId } from "@/lib/session";
+import { THEME_REGISTRY, ALL_THEME_IDS } from "@/data/themeRegistry";
 
 // ─── Shared bits ──────────────────────────────────────────────────────────────
 
@@ -79,6 +81,7 @@ function CheckBox({ on }) {
 
 function CommandListTab({ engineId }) {
   const [schema, setSchema] = useState(null);
+  const [legend, setLegend] = useState(null);
   const [error,  setError]  = useState(false);
 
   useEffect(() => {
@@ -88,8 +91,31 @@ function CommandListTab({ engineId }) {
       .then((r) => (r.ok ? r.json() : Promise.reject()))
       .then((d) => { if (alive) setSchema(d); })
       .catch(() => { if (alive) setError(true); });
+    // Combat MODIFIERS aren't query commands — they live in the engine's flag
+    // registry (flags.FLAG_SPECS), surfaced by the `legend` command. Fetch them
+    // so the most-used modifiers are documented here too. (Fix 2026-06-19.)
+    fetch(`/api/engines/${engineId}/exec`, {
+      method: "POST", headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ input: "legend", session_id: getSessionId() }),
+    })
+      .then((r) => (r.ok ? r.json() : Promise.reject()))
+      .then((d) => { if (alive && d?.data) setLegend(d.data); })
+      .catch(() => { /* modifiers optional — schema still renders */ });
     return () => { alive = false; };
   }, [engineId]);
+
+  const modifierGroups = useMemo(() => {
+    if (!legend) return [];
+    const mk = (title, color, rows) =>
+      (Array.isArray(rows) && rows.length)
+        ? { title, color, rows: rows.map((r) => ({ flag: r.flag || r.display, effect: r.effect || r.desc || "" })) }
+        : null;
+    return [
+      mk("Offensive Modifiers", C.green,  legend.offensive_modifier_flags),
+      mk("Defensive Modifiers", C.cyan,   legend.defensive_modifier_flags),
+      mk("Faction Modifiers",   C.accent, legend.faction_modifier_flags),
+    ].filter(Boolean);
+  }, [legend]);
 
   const groups = useMemo(() => {
     const queries = schema?.queries || {};
@@ -120,6 +146,32 @@ function CommandListTab({ engineId }) {
 
   return (
     <div style={{ display: "flex", flexDirection: "column", gap: "18px" }}>
+      {/* MODIFIERS — the most-used combat surface; not query commands, so they
+          come from the flag registry. Listed first. */}
+      {modifierGroups.length > 0 && (
+        <div>
+          <div style={{ display: "flex", alignItems: "baseline", gap: "10px", marginBottom: "10px" }}>
+            <span className="ct-display" style={{ fontSize: "12px", letterSpacing: "0.14em", color: C.accent, textTransform: "uppercase", fontWeight: 700 }}>Combat Modifiers</span>
+            <span style={{ fontSize: "10px", color: C.dim, fontFamily: "monospace" }}>append to a combat — e.g. <span style={{ color: C.green }}>intercessors --oath vs plague marines</span></span>
+          </div>
+          {modifierGroups.map((g) => (
+            <div key={g.title} style={{ marginBottom: "12px" }}>
+              <div style={{ display: "flex", alignItems: "center", gap: "9px", paddingBottom: "8px", borderBottom: `1px solid ${C.border}`, marginBottom: "6px" }}>
+                <span style={{ width: "8px", height: "8px", borderRadius: "2px", background: g.color }} />
+                <span className="ct-display" style={{ fontSize: "11px", letterSpacing: "0.14em", color: C.text, textTransform: "uppercase" }}>{g.title}</span>
+                <span style={{ fontSize: "9px", color: C.dim }}>{g.rows.length}</span>
+              </div>
+              {g.rows.map((r, i) => (
+                <div key={i} style={{ display: "grid", gridTemplateColumns: "150px 1fr", gap: "14px", padding: "6px 4px", borderBottom: `1px solid ${C.hairline}`, alignItems: "baseline" }}>
+                  <span style={{ fontSize: "12px", color: g.color, fontFamily: "monospace" }}>{r.flag}</span>
+                  <span style={{ fontSize: "11px", color: C.bodyDim, lineHeight: 1.5 }}>{r.effect}</span>
+                </div>
+              ))}
+            </div>
+          ))}
+        </div>
+      )}
+
       {groups.map((g) => (
         <div key={g.key}>
           <div style={{ display: "flex", alignItems: "center", gap: "9px", paddingBottom: "8px", borderBottom: `1px solid ${C.border}`, marginBottom: "6px" }}>
@@ -151,7 +203,7 @@ function readMathPrefs() {
   return {};
 }
 
-function MathModeTab({ engineId }) {
+function MathModeTab({ engineId, theme, onTheme }) {
   const { edition, setEdition } = useEdition();
   const [live, setLive] = useState(null); // engine's real current sim config
 
@@ -205,6 +257,38 @@ function MathModeTab({ engineId }) {
             Sets the edition label shown sitewide (chrome chip + footer). The loaded datasheets are 10th-edition data; the switch is a cosmetic label for now.
           </div>
         </div>
+
+        {/* Theme — real, persists ct_active_theme sitewide */}
+        {onTheme && (
+          <div>
+            <div className="ct-display" style={{ fontSize: "10px", letterSpacing: "0.14em", color: C.accent, textTransform: "uppercase", fontWeight: 700, marginBottom: "9px" }}>Theme</div>
+            <div style={{ display: "flex", flexWrap: "wrap", gap: "7px" }}>
+              {ALL_THEME_IDS.map((id) => {
+                const t = THEME_REGISTRY[id];
+                const on = theme === id;
+                return (
+                  <div
+                    key={id}
+                    onClick={() => onTheme(id)}
+                    title={t?.description || id}
+                    style={{
+                      display: "flex", alignItems: "center", gap: "7px",
+                      padding: "6px 11px", borderRadius: "4px", cursor: "pointer", userSelect: "none",
+                      border: `1px solid ${on ? C.green : C.bordermid}`,
+                      background: on ? `color-mix(in srgb, ${C.green} 12%, transparent)` : "transparent",
+                    }}
+                  >
+                    <span data-theme={id} style={{ width: "12px", height: "12px", borderRadius: "50%", flexShrink: 0, background: "var(--ct-primary)", border: "1px solid var(--ct-border-bright)" }} />
+                    <span className="ct-display" style={{ fontSize: "10px", letterSpacing: "0.08em", color: on ? C.text : C.bodyDim }}>{t?.label || id}</span>
+                  </div>
+                );
+              })}
+            </div>
+            <div style={{ fontSize: "11px", color: C.bodyDim, lineHeight: 1.6, marginTop: "9px" }}>
+              Re-hues the whole terminal. Also available from the swatch in the top nav bar.
+            </div>
+          </div>
+        )}
 
         {/* Engine Mode — seeded from live status (display preference) */}
         <div>
@@ -312,20 +396,65 @@ function MathModeTab({ engineId }) {
 
 // ─── Aliases tab (F1) ───────────────────────────────────────────────────────────
 
-function AliasesTab() {
+function AliasesTab({ engineId }) {
   const [aliases,  setAliases]  = useState(readAliases);
   const [newAlias, setNewAlias] = useState("");
   const [newCmd,   setNewCmd]   = useState("");
+  const [note,     setNote]     = useState(null);
+
+  // Run a command against the engine's own alias store (term_aliases) so the
+  // tab reflects aliases set anywhere — the bar, the CLI, or a prior session —
+  // not just this device's localStorage. Best-effort: degrades to local-only.
+  const exec = useCallback(async (input) => {
+    if (!engineId) return null;
+    const res = await fetch(`/api/engines/${engineId}/exec`, {
+      method:  "POST",
+      headers: { "Content-Type": "application/json" },
+      body:    JSON.stringify({ input, session_id: getSessionId() }),
+    });
+    if (!res.ok) throw new Error(`API ${res.status}`);
+    return res.json();
+  }, [engineId]);
+
+  // On mount: pull the engine's aliases and merge them with the local store so
+  // pre-existing server-side aliases (the ones that "disappeared") show up.
+  useEffect(() => {
+    let alive = true;
+    (async () => {
+      try {
+        const r = await exec("aliases");
+        const server = (r && r.result_type === "aliases_list" && Array.isArray(r.data?.aliases))
+          ? r.data.aliases.map((a) => ({ alias: String(a.shorthand), cmd: String(a.full_term) }))
+          : [];
+        if (!alive) return;
+        // Union: local store + server, server wins on conflict (it's authoritative).
+        const map = new Map(readAliases().map((a) => [a.alias.toLowerCase(), a]));
+        server.forEach((a) => map.set(a.alias.toLowerCase(), a));
+        const merged = [...map.values()];
+        setAliases(writeAliases(merged)); // persist the merge to the local mirror
+        if (!server.length && map.size === 0) setNote(null);
+      } catch {
+        if (alive) { setAliases(readAliases()); setNote("offline"); }
+      }
+    })();
+    return () => { alive = false; };
+  }, [exec]);
 
   function commit(next) { setAliases(writeAliases(next)); }
 
-  function add() {
+  async function add() {
     const al = newAlias.trim().toLowerCase(), cm = newCmd.trim();
     if (!al || !cm) return;
     commit([...aliases.filter((a) => a.alias.toLowerCase() !== al), { alias: al, cmd: cm }]);
     setNewAlias(""); setNewCmd("");
+    try { await exec(`learn ${al} = ${cm}`); }     // mirror to the engine (CLI parity)
+    catch { setNote("saved locally — engine offline, not synced"); }
   }
-  function remove(i) { commit(aliases.filter((_, j) => j !== i)); }
+  async function remove(i) {
+    const gone = aliases[i];
+    commit(aliases.filter((_, j) => j !== i));
+    if (gone) { try { await exec(`unlearn ${gone.alias}`); } catch { /* local-only */ } }
+  }
 
   const inputStyle = {
     background: C.panel, border: `1px solid ${C.border}`, color: C.text,
@@ -335,7 +464,7 @@ function AliasesTab() {
   return (
     <div style={{ maxWidth: "640px" }}>
       <div style={{ fontSize: "11px", color: C.bodyDim, lineHeight: 1.6, marginBottom: "16px" }}>
-        Aliases let you type a shorthand that expands to a full command or unit name. They apply anywhere in the terminal — saved on this device.
+        Aliases let you type a shorthand that expands to a full command or unit name. They apply anywhere in the terminal — synced with the engine and saved on this device.{note && <span style={{ color: C.warn }}> · {note}</span>}
       </div>
       <div style={{ display: "flex", gap: "9px", marginBottom: "16px" }}>
         <input value={newAlias} onChange={(e) => setNewAlias(e.target.value)} placeholder="alias  (e.g. ds)" style={{ ...inputStyle, width: "160px" }} />
@@ -373,10 +502,12 @@ function AliasesTab() {
 
 // ─── Shell ──────────────────────────────────────────────────────────────────────
 
-const TABS = [["diagnostics", "Diagnostics"], ["commands", "Command List"], ["math", "Math Mode"], ["aliases", "Aliases"]];
+const TABS = [["general", "General"], ["commands", "Command List"], ["aliases", "Aliases"], ["diagnostics", "Diagnostics"]];
 
-export function SettingsPage({ engineId, activeTab = "diagnostics", onTab }) {
-  const tab = TABS.some(([k]) => k === activeTab) ? activeTab : "diagnostics";
+export function SettingsPage({ engineId, activeTab = "general", onTab, theme, onTheme }) {
+  // Back-compat: the old "math" tab id now lives under "general".
+  const wanted = activeTab === "math" ? "general" : activeTab;
+  const tab = TABS.some(([k]) => k === wanted) ? wanted : "general";
 
   return (
     <div style={{ display: "flex", flexDirection: "column", height: "100%", backgroundColor: "var(--ct-bg)" }}>
@@ -402,15 +533,16 @@ export function SettingsPage({ engineId, activeTab = "diagnostics", onTab }) {
 
       {/* content */}
       {tab === "diagnostics" ? (
-        // DiagnosticsPage owns its own scroll + padding.
-        <div style={{ flex: 1, overflow: "hidden" }}>
+        // DiagnosticsPage owns its own scroll + padding. minHeight:0 lets this
+        // flex item shrink so the child's height:100% + overflowY:auto resolves.
+        <div style={{ flex: 1, minHeight: 0, overflow: "hidden" }}>
           <DiagnosticsPage engineId={engineId} />
         </div>
       ) : (
         <div style={{ flex: 1, overflowY: "auto", padding: "20px 22px 28px" }}>
+          {tab === "general"  && <MathModeTab engineId={engineId} theme={theme} onTheme={onTheme} />}
           {tab === "commands" && <CommandListTab engineId={engineId} />}
-          {tab === "math"     && <MathModeTab engineId={engineId} />}
-          {tab === "aliases"  && <AliasesTab />}
+          {tab === "aliases"  && <AliasesTab engineId={engineId} />}
         </div>
       )}
     </div>

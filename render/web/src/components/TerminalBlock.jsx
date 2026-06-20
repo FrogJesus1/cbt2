@@ -121,7 +121,7 @@ function StubWarning({ data }) {
   return (
     <div className="font-mono" style={{ paddingLeft: "18px", fontSize: "14px" }}>
       <div style={{
-        border:        `1px solid ${C.amber}35`,
+        border:        `1px solid color-mix(in srgb, ${C.amber} 21%, transparent)`,
         background:    "#0d0700",
         padding:       "10px 15px",
         display:       "flex",
@@ -785,7 +785,7 @@ function TerminalRuleBlock({ data, onInject }) {
               style={{
                 color:     onInject ? C.cyan : C.label,
                 fontSize:  "12px",
-                border:    `1px solid ${onInject ? C.cyan + "40" : C.border}`,
+                border:    `1px solid ${onInject ? `color-mix(in srgb, ${C.cyan} 25%, transparent)` : C.border}`,
                 padding:   "1px 7px",
                 cursor:    onInject ? "pointer" : "default",
                 userSelect:"none",
@@ -826,7 +826,7 @@ function TerminalStratagemBlock({ data, onInject }) {
         </span>
         <span style={{
           color: C.green, fontWeight: 700, fontSize: "13px",
-          border: `1px solid ${C.green}60`, padding: "1px 8px",
+          border: `1px solid color-mix(in srgb, ${C.green} 38%, transparent)`, padding: "1px 8px",
         }}>
           {cost || "?CP"}
         </span>
@@ -896,7 +896,7 @@ function TerminalEnhancementBlock({ data, onInject }) {
         </span>
         <span style={{
           color: C.cyan, fontWeight: 700, fontSize: "13px",
-          border: `1px solid ${C.cyan}60`, padding: "1px 8px",
+          border: `1px solid color-mix(in srgb, ${C.cyan} 38%, transparent)`, padding: "1px 8px",
         }}>
           {points || "?"}pts
         </span>
@@ -969,7 +969,7 @@ function TerminalDetachmentBlock({ data, onInject }) {
               {det.rule_name && (
                 <span style={{
                   color: C.cyan, fontSize: "12px", fontWeight: 600,
-                  border: `1px solid ${C.cyan}55`, padding: "1px 7px",
+                  border: `1px solid color-mix(in srgb, ${C.cyan} 33%, transparent)`, padding: "1px 7px",
                 }}>
                   {det.rule_name}
                 </span>
@@ -987,7 +987,7 @@ function TerminalDetachmentBlock({ data, onInject }) {
             <div style={{ display: "flex", gap: "10px", flexWrap: "wrap" }}>
               {stratCount > 0 && (
                 <span
-                  style={{ color: C.green, fontSize: "11px", border: `1px solid ${C.green}55`, padding: "1px 7px", cursor: "pointer" }}
+                  style={{ color: C.green, fontSize: "11px", border: `1px solid color-mix(in srgb, ${C.green} 33%, transparent)`, padding: "1px 7px", cursor: "pointer" }}
                   title={`Show all stratagems for ${det.name}`}
                   onClick={() => onInject && onInject(`stratagem --detachment ${det.name}`)}
                 >
@@ -1125,7 +1125,7 @@ function TerminalMissionBlock({ data, onInject }) {
 
       {/* Tip */}
       {tip && (
-        <div style={{ marginTop: "6px", paddingLeft: "12px", borderLeft: `2px solid ${C.amber}60` }}>
+        <div style={{ marginTop: "6px", paddingLeft: "12px", borderLeft: `2px solid color-mix(in srgb, ${C.amber} 38%, transparent)` }}>
           <span style={{ color: C.amber, fontSize: "11px", textTransform: "uppercase", letterSpacing: "0.1em", marginRight: "8px" }}>Tip</span>
           <span style={{ color: C.dim, fontSize: "12px", lineHeight: "1.5" }}>{tip}</span>
         </div>
@@ -1148,7 +1148,7 @@ function TerminalAbilityBlock({ data, onInject }) {
         {type_tag && (
           <span style={{
             color: C.amber, fontSize: "11px", fontWeight: 700, textTransform: "uppercase",
-            letterSpacing: "0.14em", border: `1px solid ${C.amber}60`, padding: "1px 7px",
+            letterSpacing: "0.14em", border: `1px solid color-mix(in srgb, ${C.amber} 38%, transparent)`, padding: "1px 7px",
           }}>
             {type_tag}
           </span>
@@ -1190,7 +1190,7 @@ function TerminalAbilityBlock({ data, onInject }) {
                 style={{
                   color:      onInject ? C.green : C.label,
                   fontSize:   "12px",
-                  border:     `1px solid ${onInject ? C.green + "50" : C.border}`,
+                  border:     `1px solid ${onInject ? `color-mix(in srgb, ${C.green} 31%, transparent)` : C.border}`,
                   padding:    "1px 7px",
                   cursor:     onInject ? "pointer" : "default",
                   userSelect: "none",
@@ -1322,7 +1322,7 @@ function CardKeywords({ keywords, faction, onInject }) {
             style={{
               color:           hovered ? C.amber : (onInject ? C.cyan : C.label),
               fontSize:        "12px",
-              border:          `1px solid ${hovered ? C.amber + "70" : (onInject ? C.cyan + "50" : C.border)}`,
+              border:          `1px solid ${hovered ? `color-mix(in srgb, ${C.amber} 44%, transparent)` : (onInject ? `color-mix(in srgb, ${C.cyan} 31%, transparent)` : C.border)}`,
               padding:         "2px 8px",
               cursor:          onInject ? "pointer" : "default",
               letterSpacing:   "0.03em",
@@ -1384,7 +1384,7 @@ function TerminalCard({ data, meta, onInject }) {
 
       {/* Title */}
       <div style={{ marginBottom: "4px" }}>
-        <span style={{ color: C.amber, fontWeight: 700, letterSpacing: "0.08em", textShadow: `0 0 6px ${C.amber}80` }}>
+        <span style={{ color: C.amber, fontWeight: 700, letterSpacing: "0.08em", textShadow: `0 0 6px color-mix(in srgb, ${C.amber} 50%, transparent)` }}>
           {title.toUpperCase()}
         </span>
         {meta?.faction && meta.faction !== "stub" && (
@@ -1949,7 +1949,7 @@ function TerminalNextTurnBlock({ data, onInject }) {
           fontSize:      "18px",
           fontWeight:    700,
           letterSpacing: "0.12em",
-          textShadow:    `0 0 10px ${C.amber}50`,
+          textShadow:    `0 0 10px color-mix(in srgb, ${C.amber} 31%, transparent)`,
         }}>
           {turnLabel}
         </span>
@@ -1961,9 +1961,9 @@ function TerminalNextTurnBlock({ data, onInject }) {
             fontSize:      "11px",
             fontWeight:    700,
             letterSpacing: "0.1em",
-            border:        `1px solid ${C.green}60`,
+            border:        `1px solid color-mix(in srgb, ${C.green} 38%, transparent)`,
             padding:       "2px 10px",
-            background:    `${C.green}10`,
+            background:    `color-mix(in srgb, ${C.green} 6%, transparent)`,
           }}>
             +{cp_gained} CP
           </span>
@@ -2026,9 +2026,9 @@ function TerminalNextTurnBlock({ data, onInject }) {
               <span key={i} style={{
                 color:         C.amber,
                 fontSize:      "11px",
-                border:        `1px solid ${C.amber}40`,
+                border:        `1px solid color-mix(in srgb, ${C.amber} 25%, transparent)`,
                 padding:       "1px 7px",
-                background:    `${C.amber}08`,
+                background:    `color-mix(in srgb, ${C.amber} 3%, transparent)`,
                 letterSpacing: "0.04em",
                 fontFamily:    "monospace",
               }}>
@@ -2169,7 +2169,7 @@ function TerminalSessionBlock({ data, onInject }) {
               fontSize:      "9px",
               letterSpacing: "0.16em",
               textTransform: "uppercase",
-              border:        `1px solid ${sideColor}50`,
+              border:        `1px solid color-mix(in srgb, ${sideColor} 31%, transparent)`,
               padding:       "1px 5px",
             }}>
               {side}

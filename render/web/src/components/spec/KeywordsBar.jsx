@@ -94,7 +94,7 @@ function KeywordChip({ keyword, faction, onSubmit }) {
           display:       "inline-block",
           color:         hovered ? C.amber : (onSubmit ? C.cyan : C.label),
           fontSize:      "11px",
-          border:        `1px solid ${hovered ? C.amber + "70" : (onSubmit ? C.cyan + "50" : C.border)}`,
+          border:        `1px solid ${hovered ? `color-mix(in srgb, ${C.amber} 44%, transparent)` : (onSubmit ? `color-mix(in srgb, ${C.cyan} 31%, transparent)` : C.border)}`,
           borderRadius:  "3px",
           padding:       "3px 9px",
           cursor:        onSubmit ? "pointer" : "default",

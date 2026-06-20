@@ -70,7 +70,7 @@ export function SpecBlock({ data, meta, onSubmit, onInject, starredUnits, onTogg
         <div style={{
           color:      C.amber,
           fontSize:   "12px",
-          border:     `1px solid ${C.amber}40`,
+          border:     `1px solid color-mix(in srgb, ${C.amber} 25%, transparent)`,
           padding:    "6px 12px",
           background: "#140a00",
         }}>
@@ -104,8 +104,8 @@ export function SpecBlock({ data, meta, onSubmit, onInject, starredUnits, onTogg
               color:      C.cyan,
               fontSize:   "12px",
               lineHeight: "1.5",
-              border:     `1px solid ${C.cyan}30`,
-              background: `${C.cyan}08`,
+              border:     `1px solid color-mix(in srgb, ${C.cyan} 19%, transparent)`,
+              background: `color-mix(in srgb, ${C.cyan} 3%, transparent)`,
               padding:    "5px 10px",
               display:    "flex",
               alignItems: "center",

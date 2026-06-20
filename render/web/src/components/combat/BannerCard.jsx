@@ -54,16 +54,16 @@ export function BannerCard({
           const leader = rest.join(" + ");
           return (
             <div style={{ display: "flex", alignItems: "center", flexWrap: "wrap", fontSize: "19px", lineHeight: 1.25, marginBottom: "10px" }}>
-              <span style={{ color: C.green, textShadow: `0 0 10px ${C.green}55`, fontWeight: 600 }}>
+              <span style={{ color: C.green, textShadow: `0 0 10px color-mix(in srgb, ${C.green} 33%, transparent)`, fontWeight: 600 }}>
                 {attUnit}
               </span>
               {leader && (
-                <span style={{ color: C.cyan, fontWeight: 600, marginLeft: "7px", textShadow: `0 0 10px ${C.cyan}45` }}>
+                <span style={{ color: C.cyan, fontWeight: 600, marginLeft: "7px", textShadow: `0 0 10px color-mix(in srgb, ${C.cyan} 27%, transparent)` }}>
                   + {leader}
                 </span>
               )}
               <span style={{ color: C.dim, fontSize: "14px", margin: "0 10px" }}>vs</span>
-              <span style={{ color: C.accent, textShadow: `0 0 10px ${C.accent}45`, fontWeight: 600 }}>
+              <span style={{ color: C.accent, textShadow: `0 0 10px color-mix(in srgb, ${C.accent} 27%, transparent)`, fontWeight: 600 }}>
                 {defender_name || "—"}
               </span>
             </div>

@@ -20,7 +20,7 @@ export function RosterSavedBlock({ data, onInject }) {
   return (
     <div className="font-mono" style={{ paddingLeft: "18px", fontSize: "14px" }}>
       <div style={{
-        border:    `1px solid ${C.green}35`,
+        border:    `1px solid color-mix(in srgb, ${C.green} 21%, transparent)`,
         background: "#020d02",
         padding:   "10px 15px",
         display:   "flex",

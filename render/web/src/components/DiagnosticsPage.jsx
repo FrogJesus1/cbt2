@@ -117,7 +117,7 @@ function HeartbeatMonitor({ active }) {
         fontSize:      "10px",
         letterSpacing: "0.14em",
         textTransform: "uppercase",
-        textShadow:    active ? `0 0 6px ${C.green}60` : "none",
+        textShadow:    active ? `0 0 6px color-mix(in srgb, ${C.green} 38%, transparent)` : "none",
       }}>
         {active ? "ENGINE ACTIVE" : "ENGINE OFFLINE"}
       </span>
@@ -161,7 +161,7 @@ function StatusBadge({ label, active, pulse = false }) {
       }} />
       <span style={{
         color:         color,
-        textShadow:    `0 0 8px ${color}70`,
+        textShadow:    `0 0 8px color-mix(in srgb, ${color} 44%, transparent)`,
         fontWeight:    700,
         fontSize:      "13px",
         letterSpacing: "0.18em",
@@ -301,7 +301,7 @@ function DataIntegrityGrid({ perFaction }) {
               flex:       1,
               height:     "8px",
               background: i < filled ? color : C.ghost,
-              boxShadow:  i < filled ? `0 0 3px ${color}50` : "none",
+              boxShadow:  i < filled ? `0 0 3px color-mix(in srgb, ${color} 31%, transparent)` : "none",
             }} />
           ))}
         </div>
@@ -533,7 +533,7 @@ function DataFlowDiagram({ pipeline }) {
                   stroke={bord}
                   strokeWidth="1"
                   rx="0"
-                  style={{ filter: stage.ok ? `drop-shadow(0 0 4px ${C.green}30)` : "none" }}
+                  style={{ filter: stage.ok ? `drop-shadow(0 0 4px color-mix(in srgb, ${C.green} 19%, transparent))` : "none" }}
                 />
                 {/* Status dot */}
                 <circle
@@ -551,7 +551,7 @@ function DataFlowDiagram({ pipeline }) {
                   fontFamily="monospace"
                   fontWeight="700"
                   letterSpacing="1"
-                  style={{ textShadow: stage.ok ? `0 0 6px ${C.green}50` : "none" }}
+                  style={{ textShadow: stage.ok ? `0 0 6px color-mix(in srgb, ${C.green} 31%, transparent)` : "none" }}
                 >
                   {stage.label}
                 </text>
@@ -731,8 +731,8 @@ function EngineDocs() {
                     letterSpacing: "0.14em",
                     textTransform: "uppercase",
                     padding:       "2px 6px",
-                    border:        `1px solid ${topic.badge.color}40`,
-                    background:    `${topic.badge.color}08`,
+                    border:        `1px solid color-mix(in srgb, ${topic.badge.color} 25%, transparent)`,
+                    background:    `color-mix(in srgb, ${topic.badge.color} 3%, transparent)`,
                   }}>
                     {topic.badge.label}
                   </span>
@@ -847,7 +847,8 @@ export function DiagnosticsPage({ engineId }) {
     fontFamily:   "monospace",
     background:   C.bg,
     color:        C.mid,
-    minHeight:    "100%",
+    height:       "100%",   // bounded (was minHeight:100%) so the inner overflowY
+    minHeight:    0,         // actually scrolls instead of the parent clipping it
     overflowY:    "auto",
     padding:      "24px 28px",
   };
@@ -875,7 +876,7 @@ export function DiagnosticsPage({ engineId }) {
       }}>
         <h1 style={{
           color:         C.green,
-          textShadow:    `0 0 10px ${C.green}60`,
+          textShadow:    `0 0 10px color-mix(in srgb, ${C.green} 38%, transparent)`,
           fontSize:      "18px",
           fontWeight:    700,
           letterSpacing: "0.22em",

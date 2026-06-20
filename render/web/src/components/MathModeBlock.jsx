@@ -141,7 +141,7 @@ function EventLine({ item, revealed, isLatest }) {
         flexShrink: 0,
         minWidth:   "6ch",
         textAlign:  "right",
-        textShadow: isHigh && isLatest ? `0 0 8px ${C.amber}80` : "none",
+        textShadow: isHigh && isLatest ? `0 0 8px color-mix(in srgb, ${C.amber} 50%, transparent)` : "none",
         transition: "text-shadow 0.3s ease",
       }}>
         {formatResult(item.result)}
@@ -217,7 +217,7 @@ function CtrlButton({ label, title, onClick, disabled }) {
       title={title}
       style={{
         background:    "transparent",
-        border:        `1px solid ${disabled ? C.border + "50" : C.mathBorder}`,
+        border:        `1px solid ${disabled ? `color-mix(in srgb, ${C.border} 31%, transparent)` : C.mathBorder}`,
         color:         disabled ? C.border       : C.math,
         padding:       "2px 9px",
         fontSize:      "13px",
@@ -348,7 +348,7 @@ export function MathModeBlock({ data }) {
       {/* ── Progress bar ─────────────────────────────────────────────────── */}
       <div style={{
         height:       "2px",
-        background:   C.border + "40",
+        background:   `color-mix(in srgb, ${C.border} 25%, transparent)`,
         marginBottom: "10px",
         position:     "relative",
         overflow:     "hidden",
@@ -361,7 +361,7 @@ export function MathModeBlock({ data }) {
           width:      `${progress}%`,
           background: C.math,
           transition: `width ${SPEEDS[speedIdx].ms * 0.8}ms linear`,
-          boxShadow:  `0 0 6px ${C.math}80`,
+          boxShadow:  `0 0 6px color-mix(in srgb, ${C.math} 50%, transparent)`,
         }} />
       </div>
 

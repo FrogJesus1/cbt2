@@ -84,21 +84,29 @@ function buildEntries(rules, keywords) {
   const entries  = [];
 
   keywords.forEach((kw) => {
-    const r = ruleByName[norm(kw.key)] || (kw.defined_by_rule ? ruleById[kw.defined_by_rule] : null);
-    if (r) consumed.add(r.id);
+    // IDENTITY match — the keyword IS this rule (same name) → adopt its name,
+    // effect, cp, and consume the rule so it isn't listed twice.
+    const rByName = ruleByName[norm(kw.key)];
+    // CROSS-REFERENCE — `defined_by_rule` points at a *governing* rule (e.g.
+    // every CP/stratagem keyword references "command_points"). We borrow that
+    // rule's effect text for context, but must NOT adopt its name or consume
+    // it — doing so renamed every such keyword to "Command Points" and scattered
+    // duplicate entries across category filters. (Fix 2026-06-19.)
+    const rByRef = (!rByName && kw.defined_by_rule) ? ruleById[kw.defined_by_rule] : null;
+    if (rByName) consumed.add(rByName.id);
     entries.push({
-      id:          r ? `r:${r.id}` : `k:${kw.key}`,
-      name:        r ? r.name : titleCase(kw.key),
+      id:          rByName ? `r:${rByName.id}` : `k:${kw.key}`,
+      name:        rByName ? rByName.name : (kw.rule_name || titleCase(kw.key)),
       cat:         classToCat(kw.class),
-      desc:        (r && r.effect) || kw.description || "",
+      desc:        (rByName && rByName.effect) || kw.description || (rByRef && rByRef.effect) || "",
       math:        normMath(kw.math_relevant),
       interactions: Array.isArray(kw.interactions) ? kw.interactions.map(clean) : [],
       param:       kw.parametric ? (kw.parameter_description || null) : null,
-      timing:      (r && r.timing) || (Array.isArray(kw.applies_in) ? kw.applies_in.join(", ") : null),
-      conditions:  (r && Array.isArray(r.conditions)) ? r.conditions.map(clean) : [],
-      appliesTo:   clean(kw.applies_to || (r && Array.isArray(r.applies_to) ? r.applies_to.join(", ") : "")) || null,
-      source:      (r && r.source) || null,
-      cp:          r && (r.cp_cost ?? null),
+      timing:      (rByName && rByName.timing) || (Array.isArray(kw.applies_in) ? kw.applies_in.join(", ") : null),
+      conditions:  (rByName && Array.isArray(rByName.conditions)) ? rByName.conditions.map(clean) : [],
+      appliesTo:   clean(kw.applies_to || (rByName && Array.isArray(rByName.applies_to) ? rByName.applies_to.join(", ") : "")) || null,
+      source:      (rByName && rByName.source) || null,
+      cp:          (rByName && rByName.cp_cost > 0) ? rByName.cp_cost : null,
       kw:          Array.isArray(kw.keywords) ? kw.keywords : [],
     });
   });
@@ -117,7 +125,7 @@ function buildEntries(rules, keywords) {
       conditions:  Array.isArray(r.conditions) ? r.conditions.map(clean) : [],
       appliesTo:   Array.isArray(r.applies_to) ? clean(r.applies_to.join(", ")) : null,
       source:      r.source || null,
-      cp:          r.cp_cost ?? null,
+      cp:          r.cp_cost > 0 ? r.cp_cost : null,
       kw:          Array.isArray(r.keywords) ? r.keywords : [],
     });
   });
@@ -132,13 +140,13 @@ function SimBadge({ math }) {
     return <span title="Applied automatically by the combat simulator" style={{ fontSize: "8px", color: C.bgDark, background: C.green, fontWeight: 700, padding: "1px 5px", borderRadius: "2px", letterSpacing: "0.06em" }}>✓ SIM</span>;
   }
   if (math === "cond") {
-    return <span title="Situational — you toggle it" style={{ fontSize: "8px", color: C.accent, border: `1px solid ${C.accent}55`, background: `${C.accent}1a`, padding: "0 5px", borderRadius: "2px", letterSpacing: "0.06em" }}>~ SIM</span>;
+    return <span title="Situational — you toggle it" style={{ fontSize: "8px", color: C.accent, border: `1px solid color-mix(in srgb, ${C.accent} 33%, transparent)`, background: `color-mix(in srgb, ${C.accent} 10%, transparent)`, padding: "0 5px", borderRadius: "2px", letterSpacing: "0.06em" }}>~ SIM</span>;
   }
   return null;
 }
 
 function Tag({ children, color }) {
-  return <span style={{ fontSize: "8px", letterSpacing: "0.08em", color, border: `1px solid ${color}55`, background: `${color}1a`, padding: "1px 6px", borderRadius: "2px", textTransform: "uppercase" }}>{children}</span>;
+  return <span style={{ fontSize: "8px", letterSpacing: "0.08em", color, border: `1px solid color-mix(in srgb, ${color} 33%, transparent)`, background: `color-mix(in srgb, ${color} 10%, transparent)`, padding: "1px 6px", borderRadius: "2px", textTransform: "uppercase" }}>{children}</span>;
 }
 
 // ─── Card ───────────────────────────────────────────────────────────────────────
@@ -159,7 +167,7 @@ function RuleCard({ e, open, onToggle }) {
             <span style={{ fontSize: "13px", color: C.text, fontWeight: 600, letterSpacing: "0.03em" }}>{e.name}</span>
             <Tag color={meta.color}>{meta.label}</Tag>
             <SimBadge math={e.math} />
-            {e.cp != null && <span style={{ fontSize: "8px", color: C.accent, border: `1px solid ${C.accent}66`, background: `${C.accent}1a`, padding: "1px 6px", borderRadius: "2px", fontWeight: 700, letterSpacing: "0.04em" }}>{e.cp} CP</span>}
+            {e.cp != null && <span style={{ fontSize: "8px", color: C.accent, border: `1px solid color-mix(in srgb, ${C.accent} 40%, transparent)`, background: `color-mix(in srgb, ${C.accent} 10%, transparent)`, padding: "1px 6px", borderRadius: "2px", fontWeight: 700, letterSpacing: "0.04em" }}>{e.cp} CP</span>}
             {e.source && SOURCE_LABELS[e.source] && e.source !== "core_rules" && <Tag color={C.dim}>{SOURCE_LABELS[e.source]}</Tag>}
           </div>
           {e.desc && <div style={{ fontSize: "11px", color: C.label, marginTop: "3px", lineHeight: 1.5 }}>{e.desc}</div>}
@@ -193,7 +201,7 @@ function RuleCard({ e, open, onToggle }) {
             <div style={{ display: "flex", alignItems: "center", gap: "6px", flexWrap: "wrap" }}>
               <span style={{ fontSize: "9px", color: C.dim, letterSpacing: "0.1em", textTransform: "uppercase" }}>Interacts</span>
               {e.interactions.map((i, n) => (
-                <span key={n} style={{ fontSize: "9px", color: C.cyan, border: `1px solid ${C.cyan}40`, background: `${C.cyan}0d`, padding: "1px 6px", borderRadius: "2px" }}>{i}</span>
+                <span key={n} style={{ fontSize: "9px", color: C.cyan, border: `1px solid color-mix(in srgb, ${C.cyan} 25%, transparent)`, background: `color-mix(in srgb, ${C.cyan} 5%, transparent)`, padding: "1px 6px", borderRadius: "2px" }}>{i}</span>
               ))}
             </div>
           )}
@@ -306,7 +314,7 @@ export function RulesContext({ pendingCommand, onPendingCommandConsumed }) {
               <div
                 key={k}
                 onClick={() => { setCls(k); setSource("all"); }}
-                style={{ display: "flex", alignItems: "center", gap: "9px", padding: "7px 9px", borderRadius: "4px", cursor: "pointer", background: active ? `${C.green}14` : "transparent", border: `1px solid ${active ? C.bordermid : "transparent"}` }}
+                style={{ display: "flex", alignItems: "center", gap: "9px", padding: "7px 9px", borderRadius: "4px", cursor: "pointer", background: active ? `color-mix(in srgb, ${C.green} 8%, transparent)` : "transparent", border: `1px solid ${active ? C.bordermid : "transparent"}` }}
               >
                 <span style={{ width: "8px", height: "8px", borderRadius: "2px", background: color, flexShrink: 0 }} />
                 <span style={{ fontSize: "12px", color: active ? C.text : C.bodyDim, fontWeight: active ? 600 : 400 }}>{label}</span>

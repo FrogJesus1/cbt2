@@ -59,7 +59,7 @@ function DetachmentRow({ detachment, isActive, startOpen }) {
   return (
     <div style={{
       border:       `1px solid ${isActive ? C.bordermid : C.border}`,
-      background:   isActive ? `${C.amber}08` : C.panel,
+      background:   isActive ? `color-mix(in srgb, ${C.amber} 3%, transparent)` : C.panel,
       marginBottom: "4px",
     }}>
 
@@ -74,8 +74,8 @@ function DetachmentRow({ detachment, isActive, startOpen }) {
           cursor:     "pointer",
           userSelect: "none",
         }}
-        onMouseEnter={e => e.currentTarget.style.background = isActive ? `${C.amber}12` : `${C.green}06`}
-        onMouseLeave={e => e.currentTarget.style.background = isActive ? `${C.amber}08` : "transparent"}
+        onMouseEnter={e => e.currentTarget.style.background = isActive ? `color-mix(in srgb, ${C.amber} 7%, transparent)` : `color-mix(in srgb, ${C.green} 2%, transparent)`}
+        onMouseLeave={e => e.currentTarget.style.background = isActive ? `color-mix(in srgb, ${C.amber} 3%, transparent)` : "transparent"}
       >
         {isActive && (
           <span style={{
@@ -83,9 +83,9 @@ function DetachmentRow({ detachment, isActive, startOpen }) {
             fontSize:      "9px",
             fontWeight:    700,
             letterSpacing: "0.14em",
-            border:        `1px solid ${C.amber}50`,
+            border:        `1px solid color-mix(in srgb, ${C.amber} 31%, transparent)`,
             padding:       "1px 5px",
-            background:    `${C.amber}12`,
+            background:    `color-mix(in srgb, ${C.amber} 7%, transparent)`,
             flexShrink:    0,
           }}>
             ACTIVE

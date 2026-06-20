@@ -58,7 +58,7 @@ function StratagemRow({ strat, isActive, isLast }) {
           cursor:     "pointer",
           userSelect: "none",
         }}
-        onMouseEnter={e => e.currentTarget.style.background = `${C.green}04`}
+        onMouseEnter={e => e.currentTarget.style.background = `color-mix(in srgb, ${C.green} 2%, transparent)`}
         onMouseLeave={e => e.currentTarget.style.background = "transparent"}
       >
 
@@ -67,9 +67,9 @@ function StratagemRow({ strat, isActive, isLast }) {
           color:         C.amber,
           fontSize:      "10px",
           fontWeight:    700,
-          border:        `1px solid ${C.amber}50`,
+          border:        `1px solid color-mix(in srgb, ${C.amber} 31%, transparent)`,
           padding:       "1px 5px",
-          background:    `${C.amber}10`,
+          background:    `color-mix(in srgb, ${C.amber} 6%, transparent)`,
           flexShrink:    0,
           fontFamily:    "monospace",
           letterSpacing: "0.06em",

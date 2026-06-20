@@ -194,15 +194,15 @@ function UnitRow({ unit, onClick }) {
       onClick={onClick}
       style={{
         borderRadius: "5px",
-        border: `1px solid ${died ? C.border : tier + "44"}`,
+        border: `1px solid ${died ? C.border : `color-mix(in srgb, ${tier} 27%, transparent)`}`,
         borderLeft: `3px solid ${died ? C.red : tier}`,
         background: C.panel, padding: "8px 12px",
         display: "flex", justifyContent: "space-between", alignItems: "center",
         gap: "10px", cursor: "pointer", transition: "border-color 0.1s",
         opacity: died ? 0.55 : 1,
       }}
-      onMouseEnter={(e) => { e.currentTarget.style.borderColor = died ? C.bordermid : tier + "88"; }}
-      onMouseLeave={(e) => { e.currentTarget.style.borderColor = died ? C.border : tier + "44"; }}
+      onMouseEnter={(e) => { e.currentTarget.style.borderColor = died ? C.bordermid : `color-mix(in srgb, ${tier} 53%, transparent)`; }}
+      onMouseLeave={(e) => { e.currentTarget.style.borderColor = died ? C.border : `color-mix(in srgb, ${tier} 27%, transparent)`; }}
     >
       <div style={{ display: "flex", alignItems: "center", gap: "10px", flex: 1, minWidth: 0 }}>
         <span style={{
@@ -216,7 +216,7 @@ function UnitRow({ unit, onClick }) {
           <span style={{ color: C.dim, fontSize: "11px", fontFamily: "monospace", whiteSpace: "nowrap" }}>{unit.unit_name}</span>
         )}
         {died ? (
-          <span className="ct-display" style={{ color: C.red, fontSize: "9px", letterSpacing: "0.12em", border: `1px solid ${C.red}55`, padding: "1px 5px" }}>
+          <span className="ct-display" style={{ color: C.red, fontSize: "9px", letterSpacing: "0.12em", border: `1px solid color-mix(in srgb, ${C.red} 33%, transparent)`, padding: "1px 5px" }}>
             ✝ SLAIN
           </span>
         ) : (

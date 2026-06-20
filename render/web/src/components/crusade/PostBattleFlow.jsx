@@ -36,7 +36,7 @@ function ResultPicker({ value, onChange }) {
             textTransform: "uppercase", letterSpacing: "0.08em", userSelect: "none",
             border: `1px solid ${value === r.key ? r.color : C.border}`,
             color: value === r.key ? r.color : C.dim,
-            background: value === r.key ? `${r.color}14` : "transparent",
+            background: value === r.key ? `color-mix(in srgb, ${r.color} 8%, transparent)` : "transparent",
           }}>
           {r.label}
         </span>
@@ -51,7 +51,7 @@ function ScarPicker({ value, onChange }) {
     <div style={{ marginTop: "8px" }}>
       <label style={labelStyle}>Battle scar (destroyed)</label>
       <select
-        style={{ ...inputStyle, cursor: "pointer", borderColor: idx >= 0 ? `${C.red}88` : C.border }}
+        style={{ ...inputStyle, cursor: "pointer", borderColor: idx >= 0 ? `color-mix(in srgb, ${C.red} 53%, transparent)` : C.border }}
         value={idx < 0 ? "" : String(idx)}
         onChange={(e) => {
           const v = e.target.value;

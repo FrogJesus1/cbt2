@@ -64,8 +64,9 @@ function readStoredTheme() {
 // Simple top-level tabs (each injects its nav command). Rosters and Settings
 // are dropdowns and are rendered separately below.
 const SIMPLE_TABS = [
-  { id: "main",  label: "COMBAT SIM", cmd: "home"  },
-  { id: "units", label: "UNITS",      cmd: "units" },
+  { id: "main",      label: "COMBAT SIM", cmd: "home"       },
+  { id: "units",     label: "UNITS",      cmd: "list units" }, // loads the filterable DB
+  { id: "datasheet", label: "DATASHEET",  cmd: "datasheet"  }, // spec sheets + ★ rail
 ];
 const RULES_TAB = { id: "rules", label: "RULES", cmd: "rules" };
 
@@ -412,7 +413,7 @@ function AppInner({ profile, onLogout }) {
   const [activeContext,  setActiveContext]  = useState("main");
   // Settings sub-tab (Diagnostics / Command List / Math Mode / Aliases) — the
   // SETTINGS nav dropdown sets this directly instead of injecting commands.
-  const [settingsTab,    setSettingsTab]    = useState("diagnostics");
+  const [settingsTab,    setSettingsTab]    = useState("general");
   const [historyOpen,    setHistoryOpen]    = useState(false);
   const [scrollToId,     setScrollToId]     = useState(null);
   const [cmdBarLoading,  setCmdBarLoading]  = useState(false);
@@ -736,7 +737,11 @@ function AppInner({ profile, onLogout }) {
 
     // Settings sub-tab routing — single-word commands land on the Settings page's
     // tab (replaces the old hidden settings terminal + standalone diag context).
-    const SETTINGS_TABS = { settings: null, diag: "diagnostics", diagnostics: "diagnostics",
+    // NB: `math`/`mathmode` are intentionally NOT here — those stay the ledger-
+    // replay command (MathModeBlock). The general settings tab is reached via
+    // `settings` / `general` / the nav dropdown.
+    const SETTINGS_TABS = { settings: "general", general: "general",
+                            diag: "diagnostics", diagnostics: "diagnostics",
                             commands: "commands", aliases: "aliases", alias: "aliases" };
     if (tokens.length === 1 && Object.prototype.hasOwnProperty.call(SETTINGS_TABS, tokens[0])) {
       setActiveContext("settings");
@@ -753,11 +758,21 @@ function AppInner({ profile, onLogout }) {
       return;
     }
 
+    // Datasheet commands — `spec X` / `unit X` / `datasheet X` (a unit is named)
+    // open the DATASHEET context. Bare `datasheet` falls through to nav below.
+    if (["spec", "unit", "datasheet"].includes(tokens[0]) && tokens.length >= 2) {
+      setActiveContext("datasheet");
+      setPendingCommands(prev => ({ ...prev, datasheet: cmd }));
+      setCmdBarLoading(true);
+      return;
+    }
+
     // Nav commands — resolve at App level so they work from any context,
     // including non-terminal contexts that can't consume pending commands.
     const NAV_CMD_MAP = {
       home: "main", h: "main",
       units: "units", u: "units",
+      datasheet: "datasheet",
       rosters: "rosters", c: "rosters",
       crusade: "crusade", cr: "crusade", campaign: "crusade",
       rules: "rules", r: "rules", rule: "rules",
@@ -786,11 +801,7 @@ function AppInner({ profile, onLogout }) {
     }
 
     if (tokens[0] === "list" && tokens[1] === "units") {
-      // Always send list-units commands to the units context
-      setActiveContext("units");
-      setPendingCommands(prev => ({ ...prev, units: cmd }));
-    } else if (tokens[0] === "spec" || tokens[0] === "unit" || tokens[0] === "datasheet") {
-      // Always send spec commands to the units context so the user can star them
+      // Always send list-units commands to the units (database) context
       setActiveContext("units");
       setPendingCommands(prev => ({ ...prev, units: cmd }));
     } else if (isNonTerminal) {
@@ -828,7 +839,7 @@ function AppInner({ profile, onLogout }) {
       setSettingsTab("diagnostics");
       return;
     }
-    const knownContexts = ["main", "units", "rosters", "crusade", "rules", "settings"];
+    const knownContexts = ["main", "units", "datasheet", "rosters", "crusade", "rules", "settings"];
     if (knownContexts.includes(view)) {
       setActiveContext(view);
     }
@@ -1130,10 +1141,10 @@ function AppInner({ profile, onLogout }) {
               }}
             >
               <MenuItem
-                label="Diagnostics"
-                hint="engine health dashboard"
-                active={activeContext === "settings" && settingsTab === "diagnostics"}
-                onClick={() => { setSettingsOpen(false); setActiveContext("settings"); setSettingsTab("diagnostics"); }}
+                label="General"
+                hint="edition · theme · Monte Carlo"
+                active={activeContext === "settings" && (settingsTab === "general" || settingsTab === "math")}
+                onClick={() => { setSettingsOpen(false); setActiveContext("settings"); setSettingsTab("general"); }}
               />
               <MenuItem
                 label="Command List"
@@ -1142,16 +1153,16 @@ function AppInner({ profile, onLogout }) {
                 onClick={() => { setSettingsOpen(false); setActiveContext("settings"); setSettingsTab("commands"); }}
               />
               <MenuItem
-                label="Math Mode"
-                hint="edition · Monte Carlo / EV"
-                active={activeContext === "settings" && settingsTab === "math"}
-                onClick={() => { setSettingsOpen(false); setActiveContext("settings"); setSettingsTab("math"); }}
-              />
-              <MenuItem
                 label="Aliases"
                 hint="command shortcuts"
                 active={activeContext === "settings" && settingsTab === "aliases"}
                 onClick={() => { setSettingsOpen(false); setActiveContext("settings"); setSettingsTab("aliases"); }}
+              />
+              <MenuItem
+                label="Diagnostics"
+                hint="engine health dashboard"
+                active={activeContext === "settings" && settingsTab === "diagnostics"}
+                onClick={() => { setSettingsOpen(false); setActiveContext("settings"); setSettingsTab("diagnostics"); }}
               />
             </div>
           )}
@@ -1462,8 +1473,19 @@ function AppInner({ profile, onLogout }) {
         <div style={panelStyle("units")}>
           <UnitsContext
             {...sharedTerminalProps}
+            variant="database"
             pendingCommand={pendingCommands.units}
             onPendingCommandConsumed={makeConsumed("units")}
+          />
+        </div>
+
+        {/* DATASHEET context — single-unit spec sheets + ★ MY UNITS rail */}
+        <div style={panelStyle("datasheet")}>
+          <UnitsContext
+            {...sharedTerminalProps}
+            variant="datasheet"
+            pendingCommand={pendingCommands.datasheet}
+            onPendingCommandConsumed={makeConsumed("datasheet")}
           />
         </div>
 
@@ -1501,6 +1523,8 @@ function AppInner({ profile, onLogout }) {
             activeTab={settingsTab}
             onTab={setSettingsTab}
             onInject={handleAnimatedInject}
+            theme={theme}
+            onTheme={setTheme}
           />
         </div>
 

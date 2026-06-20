@@ -55,7 +55,7 @@ export function HonourPicker({ slots = 1, value = [], onChange }) {
   };
 
   return (
-    <div style={{ border: `1px solid ${C.amber}55`, padding: "10px 12px", background: C.bgDark, marginTop: "8px" }}>
+    <div style={{ border: `1px solid color-mix(in srgb, ${C.amber} 33%, transparent)`, padding: "10px 12px", background: C.bgDark, marginTop: "8px" }}>
       <div style={{ color: C.amber, fontSize: "10px", fontFamily: "monospace", letterSpacing: "0.08em", textTransform: "uppercase", marginBottom: "8px" }}>
         Promoted — pick battle honour <span style={{ color: C.dim }}>({value.length}/{slots})</span>
       </div>

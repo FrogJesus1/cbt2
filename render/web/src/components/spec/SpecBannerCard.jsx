@@ -44,7 +44,7 @@ export function SpecBannerCard({ title = "", subtitle = "", faction, onInject, i
             onClick={() => onInject?.(`spec ${title}`)}
             style={{
               color:         nameColor,
-              textShadow:    `0 0 12px ${nameColor}55`,
+              textShadow:    `0 0 12px color-mix(in srgb, ${nameColor} 33%, transparent)`,
               fontSize:      "22px",
               fontWeight:    700,
               letterSpacing: "0.03em",
@@ -63,7 +63,7 @@ export function SpecBannerCard({ title = "", subtitle = "", faction, onInject, i
             onClick={() => onToggleStar(title)}
             style={{
               background:   "transparent",
-              border:       `1px solid ${isStarred ? C.accent + "70" : C.bordermid}`,
+              border:       `1px solid ${isStarred ? `color-mix(in srgb, ${C.accent} 44%, transparent)` : C.bordermid}`,
               borderRadius: "4px",
               color:        isStarred ? C.accent : C.label,
               fontSize:     "18px",
@@ -73,12 +73,12 @@ export function SpecBannerCard({ title = "", subtitle = "", faction, onInject, i
               flexShrink:   0,
               fontFamily:   "inherit",
               transition:   "color 0.15s, border-color 0.15s, text-shadow 0.15s",
-              textShadow:   isStarred ? `0 0 8px ${C.accent}80` : "none",
+              textShadow:   isStarred ? `0 0 8px color-mix(in srgb, ${C.accent} 50%, transparent)` : "none",
             }}
             onMouseEnter={e => {
               if (!isStarred) {
                 e.currentTarget.style.color = C.accent;
-                e.currentTarget.style.borderColor = C.accent + "70";
+                e.currentTarget.style.borderColor = `color-mix(in srgb, ${C.accent} 44%, transparent)`;
               }
             }}
             onMouseLeave={e => {

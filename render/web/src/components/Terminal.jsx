@@ -348,8 +348,8 @@ export function Terminal({
     // ── Guard: file type (skip check for pasted text) ───────────────────────
     if (filename !== "pasted-input") {
       const ext = (filename.split(".").pop() || "").toLowerCase();
-      if (!["roz", "rozs", "json"].includes(ext)) {
-        emitError(label, "Unsupported file type. Accepted: .roz, .rozs, .json");
+      if (!["ros", "rosz", "json"].includes(ext)) {
+        emitError(label, "Unsupported file type. Accepted: .ros, .rosz, .json");
         return;
       }
     }
@@ -1078,9 +1078,9 @@ export function Terminal({
       onContextRoute?.("units", trimmed);
       return;
     }
-    if ((tokens[0] === "spec" || tokens[0] === "unit" || tokens[0] === "datasheet") && contextId !== "units") {
-      emitSystem(trimmed, `→ UNITS  routing spec to units context…`);
-      onContextRoute?.("units", trimmed);
+    if ((tokens[0] === "spec" || tokens[0] === "unit" || tokens[0] === "datasheet") && tokens.length >= 2 && contextId !== "datasheet") {
+      emitSystem(trimmed, `→ DATASHEET  routing spec to datasheet context…`);
+      onContextRoute?.("datasheet", trimmed);
       return;
     }
 

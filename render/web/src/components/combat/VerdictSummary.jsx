@@ -41,14 +41,14 @@ export function VerdictSummary({ ranged, melee, def_models }) {
       alignItems:    "center",
       gap:           "14px",
       padding:       "12px 14px",
-      border:        `1px solid ${C.green}44`,
+      border:        `1px solid color-mix(in srgb, ${C.green} 27%, transparent)`,
       borderRadius:  "5px",
       background:    `rgba(var(--ct-glow-rgb), 0.05)`,
     }}>
       <div style={{ flexShrink: 0, textAlign: "center", minWidth: "70px" }}>
         <div
           className="ct-display"
-          style={{ color: C.green, fontSize: "30px", fontWeight: 700, lineHeight: 1, textShadow: `0 0 12px ${C.green}55` }}
+          style={{ color: C.green, fontSize: "30px", fontWeight: 700, lineHeight: 1, textShadow: `0 0 12px color-mix(in srgb, ${C.green} 33%, transparent)` }}
         >
           {slain.toFixed(1)}
         </div>

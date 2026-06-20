@@ -288,7 +288,7 @@ function CampaignDetail({ campaign, onBack, onReload, onError, engineId, onInjec
                 {campaign.name}
               </span>
               {activeBattle && (
-                <span className="ct-display" style={{ color: C.red, fontSize: "9px", letterSpacing: "0.12em", border: `1px solid ${C.red}55`, padding: "2px 6px" }}>
+                <span className="ct-display" style={{ color: C.red, fontSize: "9px", letterSpacing: "0.12em", border: `1px solid color-mix(in srgb, ${C.red} 33%, transparent)`, padding: "2px 6px" }}>
                   ◉ IN BATTLE
                 </span>
               )}
