@@ -58,6 +58,7 @@ export function ProfileGate({ onLogin }) {
   const [selected, setSelected]   = useState(null);   // profile being logged into
   const [error, setError]         = useState(null);
   const [loading, setLoading]     = useState(false);
+  const [storeError, setStoreError] = useState(null); // profile-store outage detail
 
   // Create form
   const [newName, setNewName]     = useState("");
@@ -93,22 +94,35 @@ export function ProfileGate({ onLogin }) {
     return () => timers.forEach(clearTimeout);
   }, [booting]);
 
-  // ── Load profiles on mount ───────────────────────────────────────────────
+  // ── Load profiles (mount + retry) ────────────────────────────────────────
+  // A hung Airtable read must NOT leave the login stuck on "Scanning…" — race
+  // the fetch against a timeout and surface the real reason so an outage is
+  // distinguishable from a genuinely empty profile list.
 
-  useEffect(() => {
-    fetchProfiles()
+  const loadProfiles = useCallback(() => {
+    setProfiles(null);
+    setStoreError(null);
+    Promise.race([
+      fetchProfiles(),
+      new Promise((_, reject) =>
+        setTimeout(() => reject(new Error("Timed out reaching the profile store (Airtable).")), 9000)
+      ),
+    ])
       .then(list => {
-        setProfiles(list);
+        const arr = Array.isArray(list) ? list : [];
+        setProfiles(arr);
         // Auto-login: if last profile exists and has no PIN, go straight in
         const last = getLastProfile();
         if (last) {
-          const match = list.find(p => p.name === last);
+          const match = arr.find(p => p.name === last);
           if (match && !match.has_pin) { doLogin(match.name, null); return; }
           if (match && match.has_pin)  { setSelected(match); setView("pin"); return; }
         }
       })
-      .catch(() => setProfiles([]));
+      .catch(e => { setProfiles([]); setStoreError(e?.message || "Profile store unavailable."); });
   }, []);
+
+  useEffect(() => { loadProfiles(); }, [loadProfiles]);
 
   // ── Auto-focus ────────────────────────────────────────────────────────────
 
@@ -170,12 +184,14 @@ export function ProfileGate({ onLogin }) {
   const showReady   = booting && bootStep >= 4;
   const showBody    = !booting;
 
+  const storeDown = !!storeError && view === "pick";
   const heading = loading
     ? "Authenticating…"
-    : view === "create" ? "New Profile"
-    : view === "pin"    ? "Secure Login"
+    : storeDown          ? "Profile Store Offline"
+    : view === "create"  ? "New Profile"
+    : view === "pin"     ? "Secure Login"
     : "Authentication Required";
-  const headingDot = view === "pin" ? "var(--ct-accent)" : "var(--ct-primary)";
+  const headingDot = storeDown ? "var(--ct-danger)" : view === "pin" ? "var(--ct-accent)" : "var(--ct-primary)";
 
   // ── Render ────────────────────────────────────────────────────────────────
 
@@ -233,6 +249,13 @@ export function ProfileGate({ onLogin }) {
                 <div style={{ fontSize: "12px", color: "#84a890", padding: "6px 0 18px" }}>
                   Verifying credentials with the cogitator…
                 </div>
+              ) : storeDown ? (
+                <StoreErrorView
+                  error={storeError}
+                  onRetry={loadProfiles}
+                  onCreate={() => { setView("create"); setError(null); }}
+                  onSkip={() => onLogin({ name: null, slug: null, has_pin: false, state: {} })}
+                />
               ) : profiles === null ? (
                 <div style={{ fontSize: "12px", color: "#84a890", padding: "6px 0 18px" }}>
                   Scanning for profiles…
@@ -293,6 +316,34 @@ export function ProfileGate({ onLogin }) {
 }
 
 // ─── Views ───────────────────────────────────────────────────────────────────
+
+function StoreErrorView({ error, onRetry, onCreate, onSkip }) {
+  return (
+    <>
+      <div style={{
+        border: "1px solid rgba(255,93,93,.35)", borderRadius: "5px",
+        background: "rgba(255,93,93,.06)", padding: "13px 15px", marginBottom: "16px",
+      }}>
+        <div style={{ display: "flex", alignItems: "center", gap: "8px", marginBottom: "7px" }}>
+          <span style={{ color: "var(--ct-danger)" }}>⚠</span>
+          <span className="ct-display" style={{ fontSize: "11px", letterSpacing: "0.12em", color: "var(--ct-danger)" }}>
+            Can’t reach the profile store
+          </span>
+        </div>
+        <div style={{ fontSize: "11px", color: "var(--ct-primary-label)", lineHeight: 1.6 }}>{error}</div>
+        <div style={{ fontSize: "11px", color: K.dimGreen, lineHeight: 1.6, marginTop: "6px" }}>
+          Your profiles are safe in Airtable — the cogitator just can’t read them right now.
+        </div>
+      </div>
+      <button onClick={onRetry} style={S.ghostBtn}>↻ RETRY</button>
+      <div style={{ display: "flex", gap: "9px", justifyContent: "center", marginTop: "14px" }}>
+        <span onClick={onCreate} style={{ fontSize: "11px", letterSpacing: "0.06em", color: K.dimGreen, cursor: "pointer" }}>+ new profile</span>
+        <span style={{ color: K.rowLine }}>·</span>
+        <span onClick={onSkip} style={{ fontSize: "11px", letterSpacing: "0.06em", color: K.dimGreen, cursor: "pointer" }}>skip →</span>
+      </div>
+    </>
+  );
+}
 
 function PickView({ profiles, onPick, onCreate, onSkip, error }) {
   return (

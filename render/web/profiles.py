@@ -28,6 +28,12 @@ from pyairtable import Api
 
 PROFILES_TABLE = "Profiles"
 
+# (connect, read) seconds. Bounds every Airtable call so an unreachable store
+# fails fast with a real error (→ 502) instead of hanging the request — and the
+# login — indefinitely. The defensive fallback keeps working if an installed
+# pyairtable build doesn't accept the `timeout` kwarg.
+_AIRTABLE_TIMEOUT = (5, 20)
+
 
 def _get_table():
     token = os.environ.get("AIRTABLE_TOKEN", "")
@@ -37,7 +43,10 @@ def _get_table():
             "AIRTABLE_TOKEN and AIRTABLE_BASE_ID must be set. "
             "Profiles cannot be stored without an Airtable connection."
         )
-    api = Api(token)
+    try:
+        api = Api(token, timeout=_AIRTABLE_TIMEOUT)
+    except TypeError:
+        api = Api(token)
     return api.table(base_id, PROFILES_TABLE)
 
 
