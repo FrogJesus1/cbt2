@@ -444,7 +444,12 @@ def compute_attack_result(
     base_mods: Optional[AttackModifiers] = None,
     extra_effects: Optional[List[Dict[str, Any]]] = None,
 ) -> AttackResult:
-    mods = apply_tau_markerlights(apply_effects(base_mods, extra_effects))
+    mods = apply_effects(base_mods, extra_effects)
+    # Markerlights / Guided (`--ml`) is a RANGED-only buff — it grants +1 to Hit
+    # and Ignores Cover to *shooting* attacks. It must never improve a melee
+    # weapon's hit roll, so skip it for melee profiles. (Fix 2026-06-19.)
+    if str(getattr(weapon, "range", "") or "").lower() != "melee":
+        mods = apply_tau_markerlights(mods)
 
     raw_hit = parse_roll_value(weapon.skill)
     if raw_hit is None:
@@ -649,7 +654,12 @@ def monte_carlo_attack(
     # (seed=None → seeded from OS entropy).
     rng = random.Random(seed)
 
-    mods = apply_tau_markerlights(apply_effects(base_mods, extra_effects))
+    mods = apply_effects(base_mods, extra_effects)
+    # Markerlights / Guided (`--ml`) is a RANGED-only buff — it grants +1 to Hit
+    # and Ignores Cover to *shooting* attacks. It must never improve a melee
+    # weapon's hit roll, so skip it for melee profiles. (Fix 2026-06-19.)
+    if str(getattr(weapon, "range", "") or "").lower() != "melee":
+        mods = apply_tau_markerlights(mods)
 
     raw_hit = parse_roll_value(weapon.skill)
     if raw_hit is None:

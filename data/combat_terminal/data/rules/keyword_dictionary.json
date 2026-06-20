@@ -180,7 +180,7 @@
       ],
       "parametric": true,
       "math_relevant": false,
-      "math_effect_note": "Weapon damage stat \u2014 part of weapon profile, not a keyword."
+      "math_effect_note": "Weapon damage stat — part of weapon profile, not a keyword."
     },
     "DAMAGED": {
       "class": "ability_keyword",
@@ -416,7 +416,7 @@
         "fight_phase"
       ],
       "applies_to": "weapons",
-      "description": "Critical Hits automatically wound \u2014 no wound roll required.",
+      "description": "Critical Hits automatically wound — no wound roll required.",
       "interactions": [
         "hit_roll",
         "wound_roll",
@@ -463,7 +463,7 @@
         "movement_phase"
       ],
       "applies_to": "units",
-      "description": "Move characteristic (M) \u2014 the distance in inches a unit can move in its Movement phase.",
+      "description": "Move characteristic (M) — the distance in inches a unit can move in its Movement phase.",
       "interactions": [
         "normal_move",
         "advance",
@@ -539,7 +539,7 @@
         "epic_challenge"
       ],
       "math_relevant": false,
-      "math_effect_note": "Targeting rule only \u2014 allows allocating critical hits to Characters. No dice math effect."
+      "math_effect_note": "Targeting rule only — allows allocating critical hits to Characters. No dice math effect."
     },
     "RAPID FIRE": {
       "class": "weapon_ability",
@@ -653,7 +653,7 @@
         "shooting_phase"
       ],
       "applies_to": "weapons",
-      "description": "Attacks automatically hit \u2014 no hit roll required.",
+      "description": "Attacks automatically hit — no hit roll required.",
       "interactions": [
         "hit_roll",
         "sustained_hits"
@@ -870,7 +870,7 @@
         "command_phase"
       ],
       "applies_to": "all",
-      "description": "Phase keyword \u2014 indicates an ability triggers 'at the start of your Command phase' or 'during the Command phase'.",
+      "description": "Phase keyword — indicates an ability triggers 'at the start of your Command phase' or 'during the Command phase'.",
       "interactions": [
         "command_points",
         "battle_shock_test"
@@ -884,12 +884,72 @@
         "movement_phase"
       ],
       "applies_to": "units",
-      "description": "Units placed in Strategic Reserves during deployment for 1\u20132 CP. Arrive from any battlefield edge from turn 2.",
+      "description": "Units placed in Strategic Reserves during deployment for 1–2 CP. Arrive from any battlefield edge from turn 2.",
       "interactions": [
         "command_points",
         "reinforcement_arrival",
         "mission_reserve_limit"
       ]
+    },
+    "BATTLELINE": {
+      "class": "unit_type",
+      "defined_by_rule": null,
+      "applies_in": [
+        "all"
+      ],
+      "applies_to": "units",
+      "description": "Core unit type. Battleline units form the backbone of an army; many Detachments grant them bonuses, and some armies may take extra Battleline units beyond the normal limit.",
+      "interactions": []
+    },
+    "TITANIC": {
+      "class": "unit_type",
+      "defined_by_rule": null,
+      "applies_in": [
+        "all"
+      ],
+      "applies_to": "units",
+      "description": "Unit type for the largest models. Titanic units can Fall Back and still shoot and charge, and are eligible targets for certain anti-Titanic abilities.",
+      "interactions": []
+    },
+    "BEAST": {
+      "class": "unit_type",
+      "defined_by_rule": null,
+      "applies_in": [
+        "all"
+      ],
+      "applies_to": "units",
+      "description": "Unit type. Beasts move and act like Infantry (move through terrain freely) but are not affected by Infantry-only rules.",
+      "interactions": []
+    },
+    "FORTIFICATION": {
+      "class": "unit_type",
+      "defined_by_rule": null,
+      "applies_in": [
+        "all"
+      ],
+      "applies_to": "units",
+      "description": "Unit type for emplaced buildings and defences. Fortifications cannot move and have special deployment and objective-control rules.",
+      "interactions": []
+    },
+    "DEDICATED TRANSPORT": {
+      "class": "unit_type",
+      "defined_by_rule": null,
+      "applies_in": [
+        "all"
+      ],
+      "applies_to": "units",
+      "description": "Unit type. A Dedicated Transport is taken alongside another unit, can carry models, and does not consume a normal slot in the same way.",
+      "interactions": []
+    },
+    "EPIC HERO": {
+      "class": "unit_type",
+      "defined_by_rule": null,
+      "applies_in": [
+        "all"
+      ],
+      "applies_to": "units",
+      "description": "Unit type for unique named characters. Only one of each Epic Hero may be included in an army, and they usually cannot be given Enhancements.",
+      "interactions": []
     }
   },
   "phrase_mappings": {

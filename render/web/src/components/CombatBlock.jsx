@@ -196,7 +196,7 @@ export function CombatBlock({ data, onSubmit }) {
       {/* Modifier Impact + Simulation Confidence */}
       <div style={{ display: "flex", gap: "8px", flexWrap: "wrap", alignItems: "flex-start" }}>
         <div style={{ flex: "1 1 280px", minWidth: 0 }}>
-          <ModifierImpact modifiers={modifier_impact} />
+          <ModifierImpact modifiers={modifier_impact} stale={disabledWeapons.size > 0} />
         </div>
         {simulation && (
           <div style={{ flex: "1 1 280px", minWidth: 0 }}>

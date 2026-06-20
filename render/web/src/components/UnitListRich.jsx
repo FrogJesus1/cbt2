@@ -72,7 +72,7 @@ const ROW_KW_CAP = 6;
 
 // ── component ────────────────────────────────────────────────────────────────
 
-export function UnitListRich({ data = [], meta, onInject, starredUnits, onToggleStar }) {
+export function UnitListRich({ data = [], meta, onInject, starredUnits, onToggleStar, initialFaction }) {
   // ── star state (prop-driven in Units ctx, else localStorage) ──
   const [localStarred, setLocalStarred] = useState(loadStarred);
   useEffect(() => {
@@ -133,6 +133,21 @@ export function UnitListRich({ data = [], meta, onInject, starredUnits, onToggle
   const [shortlistOnly, setShortlistOnly] = useState(false);
   const [costMin, setCostMin] = useState(ptsLo);
   const [costMax, setCostMax] = useState(ptsHi);
+
+  // Seed the faction filter from a `list units <arg>` command (the static UNITS
+  // page consumes such commands as a filter, not a new feed). Matches a faction
+  // when it can, else drops the term into search. Bare/"All" resets to all.
+  useEffect(() => {
+    if (initialFaction == null) return;
+    const arg = String(initialFaction).trim();
+    if (!arg || /^all$/i.test(arg)) { setFaction("All"); return; }
+    const key = nameKey(arg);
+    const match = factionOptions.find((o) =>
+      o.value !== "All" && (nameKey(o.value) === key || nameKey(o.label) === key
+        || nameKey(o.label).includes(key) || nameKey(o.value).includes(key)));
+    if (match) { setFaction(match.value); setSearch(""); }
+    else { setFaction("All"); setSearch(arg.replace(/^--/, "")); }
+  }, [initialFaction, factionOptions]);
 
   // ── roster filter (real saved rosters; defensive, fails to no-op) ──
   const [rosterList, setRosterList] = useState([]);     // [{id,name,faction}]

@@ -63,6 +63,9 @@ function classToCat(cls) {
 }
 function ruleCategory(r) {
   if (r.mechanic === "stratagems")                                       return "stratagem";
+  // CP-costed rules whose name says "Stratagem" (e.g. "Fire Overwatch
+  // (Stratagem)", tagged mechanic:"overwatch") still belong in Stratagems.
+  if (r.cp_cost > 0 && /stratagem/i.test(r.name || ""))                  return "stratagem";
   if (r.category === "detachment" || r.mechanic === "detachment_rules")  return "detachment";
   if (r.category === "missions")                                         return "mission";
   return "core";
@@ -254,8 +257,14 @@ export function RulesContext({ pendingCommand, onPendingCommandConsumed }) {
   }, [pendingCommand, onPendingCommandConsumed]);
 
   // ── Auto-open the single best match when a search narrows to a strong hit ──
-  const q = search.trim().toLowerCase();
-  const matchSearch = (e) => !q || e.name.toLowerCase().includes(q) || e.desc.toLowerCase().includes(q) || e.kw.some((k) => String(k).toLowerCase().includes(q));
+  const q  = search.trim().toLowerCase();
+  const qn = norm(q);   // space/punctuation-insensitive: "deepstrike" ⇄ "deep strike"
+  const matchSearch = (e) =>
+    !q
+    || e.name.toLowerCase().includes(q)
+    || e.desc.toLowerCase().includes(q)
+    || e.kw.some((k) => String(k).toLowerCase().includes(q))
+    || (qn && (norm(e.name).includes(qn) || norm(e.desc).includes(qn) || e.kw.some((k) => norm(k).includes(qn))));
   const matchMath   = (e) => !mathOnly || e.math === "yes" || e.math === "cond";
 
   // counts per category (respect search + sim, ignore category selection)

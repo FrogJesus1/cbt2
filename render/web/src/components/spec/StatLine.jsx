@@ -91,10 +91,12 @@ export function StatLine({ stats = {}, ratings = {}, weapons = [] }) {
   const hasWeapons = weapons.length > 0;
 
   return (
-    <div style={{ display: "flex", gap: "6px", alignItems: "flex-start" }}>
+    // Wraps when the column is narrow (e.g. the datasheet tab, where the 190px ★
+    // rail eats width) — ratings/radar drop below instead of squeezing the table.
+    <div style={{ display: "flex", flexWrap: "wrap", gap: "6px", alignItems: "flex-start" }}>
 
       {/* Left card: stat boxes + weapons table */}
-      <Card style={{ ...CARD_STYLE, flex: "1 1 auto", minWidth: 0 }}>
+      <Card style={{ ...CARD_STYLE, flex: "1 1 340px", minWidth: 0 }}>
         <CardContent style={{ ...CARD_PAD }}>
 
           {/* Stat boxes */}
@@ -128,7 +130,7 @@ export function StatLine({ stats = {}, ratings = {}, weapons = [] }) {
 
       {/* Right column: combat ratings + spider chart stacked */}
       {hasRatings && (
-        <div style={{ flex: "0 0 290px", display: "flex", flexDirection: "column", gap: "6px" }}>
+        <div style={{ flex: "1 1 270px", minWidth: 0, display: "flex", flexDirection: "column", gap: "6px" }}>
 
           {/* Ratings bar card */}
           <Card style={{ ...CARD_STYLE }}>

@@ -232,6 +232,11 @@ def _weapon_to_profile(w: dict) -> tuple[WeaponProfile, AttackModifiers]:
                 # keywords at compute time via resolve_anti_threshold().
                 mods.anti_entries.append((m.group(1).upper(), int(m.group(2))))
 
+    # Normalise melee profiles to range="Melee" so the math layer can detect a
+    # weapon's phase from the profile alone (a melee weapon may be flagged only
+    # by type=="melee" with no range string). This lets compute_attack_result
+    # skip ranged-only buffs like Markerlights/Guided for melee. (Fix 2026-06-19.)
+    _is_melee = (w.get("type") == "melee" or str(w.get("range", "")).lower() == "melee")
     wp = WeaponProfile(
         name              = w.get("name", "Unknown"),
         attacks           = attacks_val,
@@ -239,7 +244,7 @@ def _weapon_to_profile(w: dict) -> tuple[WeaponProfile, AttackModifiers]:
         strength          = strength,
         ap                = ap,
         damage            = damage_val,
-        range             = w.get("range"),
+        range             = "Melee" if _is_melee else w.get("range"),
         keywords          = keywords,
         damage_is_variable   = damage_var,
         damage_expression    = damage_expr,

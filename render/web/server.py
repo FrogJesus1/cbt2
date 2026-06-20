@@ -100,6 +100,31 @@ def _load_rules_reference() -> dict:
     except Exception:
         pass
 
+    # Named missions + deployment maps live in missions.json, which used to be
+    # orphaned (loaded by nothing on the web path) so the browser's Missions
+    # category only showed generic mission *mechanics*. Surface them as rule
+    # entries tagged category:"missions" — the client's ruleCategory buckets
+    # them into "mission" alongside the mechanics. (Fix 2026-06-19.)
+    try:
+        raw = json.loads((_RULES_DATA_DIR / "missions.json").read_text())
+        for m in (raw.get("missions", []) or []):
+            if not isinstance(m, dict) or not m.get("name"):
+                continue
+            ctx = " · ".join(str(b) for b in (m.get("type"), m.get("deployment"), m.get("size")) if b)
+            effect = m.get("description") or m.get("rules") or m.get("effect") or ctx
+            rules_list.append({
+                "id":       "mission_" + str(m["name"]).lower().replace(" ", "_"),
+                "name":     m["name"],
+                "effect":   effect,
+                "category": "missions",
+                "mechanic": "mission",
+                "source":   m.get("source"),
+                "timing":   m.get("type"),
+                "conditions": [c for c in [m.get("deployment") and f"Deployment: {m['deployment']}", m.get("size") and f"Size: {m['size']}"] if c],
+            })
+    except Exception:
+        pass
+
     _rules_reference_cache = {
         "rules": rules_list,
         "rules_meta": rules_meta,

@@ -59,6 +59,23 @@ The round-1 sweep was a static mockup↔component audit; it missed **integration
 
 **Verified:** 39 changed files esbuild-parse clean + App.jsx import-graph bundles clean; engine smoke-test confirms `aliases` + `legend` shapes; **159 Python tests pass** (no `.py` changed). Round-2 needs a visual QA pass on the dev machine (nav split + settings can't be browser-tested in-sandbox).
 
+---
+
+### ⟫ Fix-pass 2026-06-19 ROUND 3 — engine math + units rework + rules data (9 reported)
+
+1. **🔴→✅ `--ml` buffed melee.** Markerlights/Guided set a flat hit bonus with no phase gate, so melee weapons got +1 to Hit. Fixed: `compute_attack_result`/`monte_carlo_attack` skip markerlights for melee profiles, and `_weapon_to_profile` normalises melee weapons to `range="Melee"` so the phase is detectable. 2 new regression tests; **161 py tests pass.** Logged the analogous `--stealth`/`--indirect` melee leaks for a follow-up (need a `ranged_only` flag tag). (`combat_math_engine.py`, `math_adapter.py`, `tests/`)
+2. **⚠️→✅ Modifier Impact stale on weapon toggle.** It's aggregate `compute_sensitivity` (no per-weapon breakdown), so an accurate client recompute isn't possible without a server re-run. Made it **honestly stale-aware** (dim + STALE chip + note) when weapons are toggled, rather than showing wrong numbers. A true recompute needs a server "exclude-weapons" re-run (noted). (`combat/ModifierImpact.jsx`, `CombatBlock.jsx`)
+3. **⚠️→✅ Datasheet table overflow.** Weapons grid used ~358px of fixed columns (mockup ~234px) and StatLine pinned ratings at a fixed 290px → overflow in the narrower datasheet (190px rail). Narrowed the grid (~262px) + made StatLine wrap (ratings drop below when cramped). (`spec/WeaponsPanel.jsx`, `spec/StatLine.jsx`)
+4. **⚠️→✅ Datasheet scrollbar.** Added `.ct-noscroll` utility; applied to the datasheet terminal + the static units page. (`index.css`, `Terminal.jsx`)
+5. **🔴→✅ UNITS was still a terminal feed.** Round-2 left it running `list units` in a Terminal (so `list units tau` stacked a 2nd list). Reworked `UnitsContext` (`variant="database"`) into a **true static page**: fetches the full list once, renders `UnitListRich`+rail, and a `list units <faction>` command now **seeds the filter** instead of stacking. Datasheet stays the spec terminal. (`UnitsContext.jsx`, `UnitListRich.jsx`)
+6. **🔵 Detachments — CONTENT GAP (not a code bug).** The data has only 3 generic detachment *definitions*; no per-army detachments exist anywhere in `data/combat_terminal/`. The browser correctly shows what's authored. Surfacing real per-army detachments is a data-authoring task (only T'au has a partial library). **Not faked.**
+7. **🔵/✅ Stratagems — mostly CONTENT GAP.** Only the 9 universal core stratagems are authored (faction stratagems aren't in the rules dataset). Fixed the one code bug: "Fire Overwatch (Stratagem)" (tagged `mechanic:"overwatch"`) now buckets under Stratagems → 10. More stratagems = data authoring. **Not faked.**
+8. **❌→✅ Unit types (Battleline).** Added BATTLELINE + TITANIC, BEAST, FORTIFICATION, DEDICATED TRANSPORT, EPIC HERO to the keyword dictionary (7→13 unit types). (`data/.../keyword_dictionary.json`)
+9. **⚠️→✅ "deepstrike" search returned nothing.** Deep Strike *was* in the data and showed, but search compared un-normalised strings so "deepstrike" missed "Deep Strike". Added a space/punctuation-insensitive fallback. (`RulesContext.jsx`)
+- **BONUS ✅ missions.json was orphaned** — the `/api/rules` loader never read it, so 12 real missions/maps never reached the browser. Now loaded + surfaced (120 rules served, e.g. Annihilation). (`server.py`)
+
+**Verified:** **161 py tests** (combat-math incl. 2 new `--ml` melee guards + loader) + **13 api-integration** pass; 8 changed JS parse clean + App.jsx bundles clean; index.css balanced; rules endpoint end-to-end confirmed (missions + Fire Overwatch + BATTLELINE). Needs dev-machine visual QA for the units-page rework + datasheet layout.
+
 -
 -
 

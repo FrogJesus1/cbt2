@@ -641,6 +641,27 @@ class TestEdgeCases:
         assert r["ranged"] is not None
         assert r["melee"]  is not None
 
+    def test_ml_flag_does_not_buff_melee(self):
+        """Markerlights / Guided (--ml) is RANGED-only — it must never improve a
+        melee weapon's hit roll (regression for the melee-leak bug, 2026-06-19)."""
+        m_w  = _make_weapon(name="Crushing Bulk", attacks="3", bs="4+", s=6, ap=0, d=1, w_type="melee")
+        att  = _make_unit("Battlesuit", weapons=[m_w])
+        tgt  = _make_unit("Target", weapons=[], t=4, sv=4, w=2)
+        base = compute_combat(att, tgt, [],     att_models=1)["melee"]["expected_dmg"]
+        ml   = compute_combat(att, tgt, ["ml"], att_models=1)["melee"]["expected_dmg"]
+        assert abs(base - ml) < 1e-9, f"--ml must not change melee damage ({base} -> {ml})"
+
+    def test_ml_flag_buffs_only_ranged_in_mixed_unit(self):
+        """In a mixed unit, --ml raises RANGED damage but leaves MELEE identical."""
+        r_w  = _make_weapon(name="Burst Cannon",  attacks="4", bs="4+", s=5, ap=0, d=1, w_type="ranged")
+        m_w  = _make_weapon(name="Crushing Bulk", attacks="3", bs="4+", s=6, ap=0, d=1, w_type="melee")
+        att  = _make_unit("Battlesuit", weapons=[r_w, m_w])
+        tgt  = _make_unit("Target", weapons=[], t=4, sv=4, w=2)
+        base = compute_combat(att, tgt, [],     att_models=1)
+        ml   = compute_combat(att, tgt, ["ml"], att_models=1)
+        assert ml["ranged"]["expected_dmg"] > base["ranged"]["expected_dmg"] + 1e-9, "--ml should buff ranged"
+        assert abs(ml["melee"]["expected_dmg"] - base["melee"]["expected_dmg"]) < 1e-9, "--ml must not touch melee"
+
     def test_zero_models_fallback(self):
         """att_models=0 should not crash and should default to baseline."""
         w   = _make_weapon(name="Rifle", attacks="2")

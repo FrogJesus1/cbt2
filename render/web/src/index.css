@@ -238,6 +238,10 @@
   ::-webkit-scrollbar-track { background: transparent; }
   ::-webkit-scrollbar-thumb { background: var(--ct-border); border-radius: 0; }
   ::-webkit-scrollbar-thumb:hover { background: var(--ct-border-bright); }
+
+  /* Hidden-scrollbar utility — datasheet + static database pages (still scrolls) */
+  .ct-noscroll { scrollbar-width: none; -ms-overflow-style: none; }
+  .ct-noscroll::-webkit-scrollbar { width: 0; height: 0; display: none; }
 }
 
 /* ── Light theme — strip glow (muddies light backgrounds) ──────────────── */

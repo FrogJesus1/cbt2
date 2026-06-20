@@ -56,7 +56,9 @@ export function normalizeWeapon(w) {
 // ─── Column grid ───────────────────────────────────────────────────────────
 // Stat columns widened for breathing room; name column stays 1fr (flexible).
 
-const GRID = "1fr 72px 52px 72px 52px 52px 58px";
+// Compact fixed stat columns (~262px) so the table fits the narrower datasheet
+// column (the 190px ★ rail eats horizontal space). Name stays 1fr + can wrap.
+const GRID = "minmax(0,1fr) 46px 46px 48px 34px 40px 48px";
 const COLS = ["Weapon", "Range", "A", "BS/WS", "S", "AP", "D"];
 
 // AP color — in 40K any armour penetration is good (more-negative is better).
@@ -194,9 +196,12 @@ function WeaponRow({ w }) {
       {/* Stat cells */}
       {statCells.map((cell, i) => (
         <div key={i} style={{
-          color:     cellColor(i + 1, cell),
-          fontSize:  "14px",
-          textAlign: "center",
+          color:      cellColor(i + 1, cell),
+          fontSize:   "13px",
+          textAlign:  "center",
+          whiteSpace: "nowrap",
+          overflow:   "hidden",
+          textOverflow: "ellipsis",
         }}>
           {cell === null || cell === undefined ? "—" : String(cell)}
         </div>

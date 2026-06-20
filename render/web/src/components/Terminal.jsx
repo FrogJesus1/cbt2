@@ -1580,8 +1580,8 @@ export function Terminal({
       {/* Scrollable output — drag-and-drop a .txt file to upload a roster */}
       <div
         ref={outputRef}
-        className="flex-1 overflow-y-auto px-5 pt-5 pb-3"
-        style={{ scrollbarWidth: "thin" }}
+        className={`flex-1 overflow-y-auto px-5 pt-5 pb-3${contextId === "datasheet" ? " ct-noscroll" : ""}`}
+        style={{ scrollbarWidth: contextId === "datasheet" ? "none" : "thin" }}
         onDragOver={e => { e.preventDefault(); e.dataTransfer.dropEffect = "copy"; }}
         onDrop={e => {
           e.preventDefault();
